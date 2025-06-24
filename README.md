@@ -63,6 +63,13 @@ npm run dev
 Before starting, copy `.env.example` to `.env` and set `NEXT_PUBLIC_API_BASE` to
 your backend URL (defaults to `http://localhost:5000`).
 
+To enable profile image uploads, also set the following Supabase credentials:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=<your supabase url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your supabase anon key>
+```
+
 Like the React app, it communicates with the backend at `http://localhost:5000/api/talents` (see `app/page.js`).
 
 The Next.js app also provides a performer search interface at `/performers` where you can filter and browse registered talents.
