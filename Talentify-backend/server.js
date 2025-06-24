@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors'); // CORSエラー回避のため
 const Talent = require('./models/Talent'); // Talentモデルをインポート
+const Message = require('./models/Message');
+const multer = require('multer');
+const path = require('path');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
@@ -13,6 +16,8 @@ const port = process.env.PORT || 5000;
 // ミドルウェア
 app.use(cors()); // CORSを許可
 app.use(express.json()); // JSON形式のリクエストボディをパース
+const upload = multer({ dest: 'uploads/' });
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB接続
 const uri = process.env.MONGODB_URI; 
@@ -83,6 +88,45 @@ app.post('/api/talents', async (req, res) => {
     } catch (err) {
         // バリデーションエラーなど、クライアント側の問題の場合は400 Bad Request
         res.status(400).json({ message: err.message }); 
+    }
+});
+
+// メッセージ一覧取得
+app.get('/api/messages', async (req, res) => {
+    try {
+        const query = {};
+        if (req.query.threadId) query.threadId = req.query.threadId;
+        const messages = await Message.find(query).sort('createdAt');
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// メッセージ投稿（添付ファイル対応）
+app.post('/api/messages', upload.array('attachments'), async (req, res) => {
+    try {
+        const attachments = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+        const message = new Message({
+            threadId: req.body.threadId,
+            from: req.body.from,
+            text: req.body.text,
+            attachments
+        });
+        const saved = await message.save();
+        res.status(201).json(saved);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 既読更新
+app.patch('/api/messages/:id/read', async (req, res) => {
+    try {
+        const updated = await Message.findByIdAndUpdate(req.params.id, { read: true }, { new: true });
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 
