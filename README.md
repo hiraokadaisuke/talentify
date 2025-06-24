@@ -34,6 +34,7 @@ Each project has its own `package.json` and dependencies. They can be developed 
 - `GET /api/talents` - Retrieve all registered talents.
 - `POST /api/talents` - Add a new talent.
 - `GET /api/talents/:id` - Retrieve a talent by its MongoDB `_id` (returns `404` if not found).
+- `PUT /api/talents/:id` - Update an existing talent and return the modified document.
 
 ## React Frontend
 

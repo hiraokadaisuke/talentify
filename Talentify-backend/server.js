@@ -12,7 +12,8 @@ const port = process.env.PORT || 5000;
 
 // ミドルウェア
 app.use(cors()); // CORSを許可
-app.use(express.json()); // JSON形式のリクエストボディをパース
+app.use(express.json({ limit: '10mb' })); // JSON形式のリクエストボディをパース
+app.use(express.urlencoded({ extended: true })); // フォームデータのパース
 
 // MongoDB接続
 const uri = process.env.MONGODB_URI; 
@@ -83,6 +84,36 @@ app.post('/api/talents', async (req, res) => {
     } catch (err) {
         // バリデーションエラーなど、クライアント側の問題の場合は400 Bad Request
         res.status(400).json({ message: err.message }); 
+    }
+});
+
+// 既存の人材情報を更新するAPI
+app.put('/api/talents/:id', async (req, res) => {
+    const updates = {
+        name: req.body.name,
+        email: req.body.email,
+        skills: req.body.skills,
+        experienceYears: req.body.experienceYears,
+        avatarUrl: req.body.avatarUrl,
+        socialLinks: req.body.socialLinks,
+        bio: req.body.bio,
+        location: req.body.location,
+        rate: req.body.rate,
+        availability: req.body.availability
+    };
+
+    try {
+        const options = { new: true, runValidators: true };
+        const updatedTalent = await Talent.findByIdAndUpdate(req.params.id, updates, options);
+        if (!updatedTalent) {
+            return res.status(404).json({ message: 'Talent not found' });
+        }
+        res.json(updatedTalent);
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({ message: err.message });
+        }
+        res.status(500).json({ message: err.message });
     }
 });
 
