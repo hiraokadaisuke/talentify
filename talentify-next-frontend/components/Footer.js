@@ -7,7 +7,7 @@ export default function Footer() {
       <nav className="space-x-4">
         <Link href="/terms" className="hover:underline">利用規約</Link>
         <Link href="/privacy" className="hover:underline">プライバシーポリシー</Link>
-        <Link href="/" className="hover:underline">サイトマップ</Link>
+        <Link href="/sitemap" className="hover:underline">サイトマップ</Link>
       </nav>
     </footer>
   );
