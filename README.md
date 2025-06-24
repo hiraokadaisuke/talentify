@@ -53,6 +53,8 @@ npm run dev
 
 Like the React app, it communicates with the backend at `http://localhost:5000/api/talents` (see `app/page.js`).
 
+The Next.js app also provides a performer search interface at `/performers` where you can filter and browse registered talents.
+
 ## License
 
 This repository is provided under the MIT License. See the [LICENSE](LICENSE) file for details.
