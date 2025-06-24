@@ -29,6 +29,12 @@ Each project has its own `package.json` and dependencies. They can be developed 
    node server.js
    ```
 
+### API Endpoints
+
+- `GET /api/talents` - Retrieve all registered talents.
+- `POST /api/talents` - Add a new talent.
+- `GET /api/talents/:id` - Retrieve a talent by its MongoDB `_id` (returns `404` if not found).
+
 ## React Frontend
 
 The `talentify-frontend` directory contains a Create React App project.
