@@ -49,6 +49,19 @@ app.get('/api/talents', async (req, res) => {
     }
 });
 
+// IDで特定の人材情報を取得するAPI
+app.get('/api/talents/:id', async (req, res) => {
+    try {
+        const talent = await Talent.findById(req.params.id);
+        if (!talent) {
+            return res.status(404).json({ message: 'Talent not found' });
+        }
+        res.json(talent);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // 新しい人材情報を追加するAPI
 app.post('/api/talents', async (req, res) => {
     const talent = new Talent({
