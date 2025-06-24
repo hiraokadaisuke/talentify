@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function PerformerCard({ talent }) {
   return (
@@ -19,7 +20,12 @@ export default function PerformerCard({ talent }) {
         {talent.experienceYears}年
       </p>
       <div className="mt-auto flex space-x-2">
-        <button className="flex-1 py-1 border rounded hover:bg-gray-50">詳細を見る</button>
+        <Link
+          href={`/performers/${talent._id}`}
+          className="flex-1 py-1 border rounded text-center hover:bg-gray-50"
+        >
+          詳細を見る
+        </Link>
         <button className="flex-1 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">オファーを送る</button>
       </div>
     </div>
