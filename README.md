@@ -39,6 +39,9 @@ npm install
 npm start
 ```
 
+Copy `.env.example` to `.env` first and ensure `REACT_APP_API_BASE` points to your
+backend URL (defaults to `http://localhost:5000`).
+
 This frontend expects the backend API at `http://localhost:5000/api/talents` as referenced in `src/App.js`.
 
 ## Next.js Frontend
@@ -50,6 +53,9 @@ cd talentify-next-frontend
 npm install
 npm run dev
 ```
+
+Before starting, copy `.env.example` to `.env` and set `NEXT_PUBLIC_API_BASE` to
+your backend URL (defaults to `http://localhost:5000`).
 
 Like the React app, it communicates with the backend at `http://localhost:5000/api/talents` (see `app/page.js`).
 
