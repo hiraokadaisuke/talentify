@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors'); // CORSエラー回避のため
 const Talent = require('./models/Talent'); // Talentモデルをインポート
+const Event = require('./models/Event');
+const Availability = require('./models/Availability');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
@@ -83,6 +85,71 @@ app.post('/api/talents', async (req, res) => {
     } catch (err) {
         // バリデーションエラーなど、クライアント側の問題の場合は400 Bad Request
         res.status(400).json({ message: err.message }); 
+    }
+});
+
+// イベント一覧取得
+app.get('/api/events', async (req, res) => {
+    try {
+        const events = await Event.find();
+        res.json(events);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// イベント作成
+app.post('/api/events', async (req, res) => {
+    try {
+        const event = new Event(req.body);
+        const saved = await event.save();
+        res.status(201).json(saved);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// イベント更新
+app.put('/api/events/:id', async (req, res) => {
+    try {
+        const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updated) return res.status(404).json({ message: 'Event not found' });
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 空き日程取得
+app.get('/api/availability', async (req, res) => {
+    try {
+        const items = await Availability.find();
+        res.json(items);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 空き日程登録
+app.post('/api/availability', async (req, res) => {
+    try {
+        const item = new Availability(req.body);
+        const saved = await item.save();
+        await Talent.findByIdAndUpdate(saved.performerId, { $push: { availabilities: saved._id } });
+        res.status(201).json(saved);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 空き日程更新
+app.put('/api/availability/:id', async (req, res) => {
+    try {
+        const updated = await Availability.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updated) return res.status(404).json({ message: 'Availability not found' });
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 

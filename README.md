@@ -65,6 +65,18 @@ your backend URL (defaults to `http://localhost:5000`).
 
 Like the React app, it communicates with the backend at `http://localhost:5000/api/talents` (see `app/page.js`).
 
+### Calendar Features
+
+The schedule page in the Next.js app uses **FullCalendar** to display confirmed events and register availability.
+
+1. Install dependencies if not already:
+   ```bash
+   cd talentify-next-frontend
+   npm install
+   ```
+2. Ensure `NEXT_PUBLIC_API_BASE` in `.env` points to your backend URL.
+3. Start the dev server and navigate to `/schedule` to view the calendar. Clicking on a date will open a dialog to register availability. Clicking an event shows details with a link to its dedicated page.
+
 The Next.js app also provides a performer search interface at `/performers` where you can filter and browse registered talents.
 
 ## License

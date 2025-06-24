@@ -51,6 +51,7 @@ const TalentSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  availabilities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Availability' }],
   // その他の追加したい項目があればここに追加
   createdAt: { // 作成日時
     type: Date,
