@@ -11,6 +11,7 @@ export default function Header() {
         <Link href="/performers" className="hover:underline">演者検索</Link>
         <Link href="/faq" className="hover:underline">FAQ</Link>
         <Link href="/contact" className="hover:underline">お問い合わせ</Link>
+        <Link href="/manage" className="hover:underline">管理ページ</Link>
         <Link href="/login" className="font-semibold hover:underline">ログイン</Link>
         <Link
           href="/register"
