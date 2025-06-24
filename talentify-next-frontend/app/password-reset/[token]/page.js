@@ -2,16 +2,29 @@
 
 import { useState } from "react";
 
+function isPasswordValid(pwd) {
+  return (
+    pwd.length >= 8 &&
+    /[A-Z]/.test(pwd) &&
+    /[a-z]/.test(pwd) &&
+    /[0-9]/.test(pwd)
+  );
+}
+
 export default function PasswordResetNewPage({ params }) {
   const { token } = params;
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [status, setStatus] = useState(null); // "success" | "error" | "mismatch"
+  const [status, setStatus] = useState(null); // "success" | "error" | "mismatch" | "policy-error"
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirm) {
       setStatus("mismatch");
+      return;
+    }
+    if (!isPasswordValid(password)) {
+      setStatus("policy-error");
       return;
     }
     try {
@@ -51,6 +64,9 @@ export default function PasswordResetNewPage({ params }) {
         </div>
         {status === "mismatch" && (
           <p className="text-red-600">パスワードが一致しません。</p>
+        )}
+        {status === "policy-error" && (
+          <p className="text-red-600">パスワードは8文字以上で大文字・小文字・数字を含めてください。</p>
         )}
         {status === "error" && (
           <p className="text-red-600">パスワードの更新に失敗しました。</p>
