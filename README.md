@@ -18,8 +18,10 @@ Each project has its own `package.json` and dependencies. They can be developed 
    npm install
    ```
 
-2. Create a `.env` file inside `Talentify-backend` with the following variables:
+2. Copy `.env.example` to `.env` inside `Talentify-backend` and edit the values:
    ```bash
+   cp .env.example .env
+   # then update the following variables
    MONGODB_URI=<your Mongo connection string>
    PORT=5000 # optional, defaults to 5000
    ```
