@@ -55,7 +55,13 @@ app.post('/api/talents', async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         skills: req.body.skills,
-        experienceYears: req.body.experienceYears
+        experienceYears: req.body.experienceYears,
+        avatarUrl: req.body.avatarUrl,
+        socialLinks: req.body.socialLinks,
+        bio: req.body.bio,
+        location: req.body.location,
+        rate: req.body.rate,
+        availability: req.body.availability
     });
 
     try {

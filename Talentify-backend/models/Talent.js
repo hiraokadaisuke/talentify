@@ -25,6 +25,32 @@ const TalentSchema = new mongoose.Schema({
     min: 0, // 0以上の数値
     default: 0
   },
+  avatarUrl: { // プロフィール画像のURL
+    type: String,
+    trim: true,
+    default: '' // 既存ドキュメントへの影響を避けるため空文字をデフォルトに
+  },
+  socialLinks: { // SNSなどのリンク
+    type: [String],
+    default: []
+  },
+  bio: { // 自己紹介文
+    type: String,
+    default: ''
+  },
+  location: { // 居住地など
+    type: String,
+    default: ''
+  },
+  rate: { // 単価
+    type: Number,
+    min: 0,
+    default: 0
+  },
+  availability: { // 稼働状況など
+    type: String,
+    default: ''
+  },
   // その他の追加したい項目があればここに追加
   createdAt: { // 作成日時
     type: Date,
