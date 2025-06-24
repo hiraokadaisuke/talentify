@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-function isPasswordValid(pwd: string) {
+function isPasswordValid(pwd) {
   return (
     pwd.length >= 8 &&
     /[A-Z]/.test(pwd) &&
@@ -14,7 +14,7 @@ function isPasswordValid(pwd: string) {
   );
 }
 
-export default function PasswordResetNewPage({ params }: { params: { token: string } }) {
+export default function PasswordResetNewPage({ params }) {
   const { token } = params;
   const router = useRouter();
 
@@ -22,7 +22,7 @@ export default function PasswordResetNewPage({ params }: { params: { token: stri
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [status, setStatus] = useState<null | "success" | "error" | "mismatch" | "policy-error">(null);
+  const [status, setStatus] = useState(null);
 
   useEffect(() => {
     if (status === "success") {
@@ -31,7 +31,7 @@ export default function PasswordResetNewPage({ params }: { params: { token: stri
     }
   }, [status, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirm) {
       setStatus("mismatch");
