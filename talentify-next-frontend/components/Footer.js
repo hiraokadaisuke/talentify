@@ -1,9 +1,10 @@
 import Link from 'next/link';
 
 export default function Footer() {
+  const year = new Date().getFullYear();
   return (
     <footer className="border-t text-center text-sm py-6 mt-12">
-      <p className="mb-2">© 2025 Talentify</p>
+      <p className="mb-2">© {year} Talentify</p>
       <nav className="space-x-4">
         <Link href="/terms" className="hover:underline">利用規約</Link>
         <Link href="/privacy" className="hover:underline">プライバシーポリシー</Link>
