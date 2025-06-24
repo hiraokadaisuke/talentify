@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function PasswordResetNewPage({ params }) {
   const { token } = params;
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState(null); // "success" | "error" | "mismatch"
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => router.push("/login"), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +66,10 @@ export default function PasswordResetNewPage({ params }) {
           <p className="text-red-600">パスワードの更新に失敗しました。</p>
         )}
         {status === "success" && (
-          <p className="text-green-600">パスワードを更新しました。</p>
+          <p className="text-green-600">
+            パスワードを更新しました。
+            <Link href="/login" className="underline">ログインページへ移動します</Link>。
+          </p>
         )}
         <button
           type="submit"
