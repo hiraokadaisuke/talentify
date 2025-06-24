@@ -25,6 +25,34 @@ const TalentSchema = new mongoose.Schema({
     min: 0, // 0以上の数値
     default: 0
   },
+  role: { // performer もしくは store
+    type: String,
+    default: ''
+  },
+  stageName: { // 芸名・活動名
+    type: String,
+    default: ''
+  },
+  birthDate: { // 生年月日
+    type: Date,
+    default: null
+  },
+  phone: { // 電話番号
+    type: String,
+    default: ''
+  },
+  storeName: { // 店舗名
+    type: String,
+    default: ''
+  },
+  contactName: { // 担当者名
+    type: String,
+    default: ''
+  },
+  genres: { // 得意なジャンル
+    type: [String],
+    default: []
+  },
   avatarUrl: { // プロフィール画像のURL
     type: String,
     trim: true,
@@ -34,9 +62,22 @@ const TalentSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  gallery: { // 複数の写真URL
+    type: [String],
+    default: []
+  },
+  videoIds: { // YouTubeやTikTok等の動画ID
+    type: [String],
+    default: []
+  },
   bio: { // 自己紹介文
     type: String,
     default: ''
+  },
+  notifyBy: {
+    type: String,
+    enum: ['LINE', 'EMAIL', 'BOTH'],
+    default: 'EMAIL'
   },
   location: { // 居住地など
     type: String,
@@ -59,6 +100,6 @@ const TalentSchema = new mongoose.Schema({
 });
 
 // スキーマからモデルを作成
-const Talent = mongoose.model('Talent', TalentSchema);
+const Talent = mongoose.models.Talent || mongoose.model('Talent', TalentSchema);
 
 module.exports = Talent;
