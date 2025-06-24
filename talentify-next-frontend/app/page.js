@@ -12,7 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true); // ローディング状態
   const [error, setError] = useState(null); // エラーメッセージ
 
-  const API_BASE_URL = 'http://localhost:5000/api/talents'; // バックエンドAPIのURL
+  const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'}/api/talents`; // バックエンドAPIのURL
 
   // ページ読み込み時に人材情報を取得
   useEffect(() => {
