@@ -10,6 +10,7 @@ export default function Header() {
         <a href="#about" className="hover:underline">このサイトについて</a>
         <Link href="/performers" className="hover:underline">演者検索</Link>
         <Link href="/dashboard" className="hover:underline">ダッシュボード</Link>
+        <Link href="/offers" className="hover:underline">オファー管理</Link>
         <Link href="/faq" className="hover:underline">FAQ</Link>
         <Link href="/contact" className="hover:underline">お問い合わせ</Link>
         <Link href="/manage" className="hover:underline">管理ページ</Link>
