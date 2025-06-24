@@ -1,9 +1,10 @@
 'use client'
-import { useState } from 'react'
+
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function RegisterPage() {
+function RegisterForm() {
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role')
   const initialRole = roleParam === 'performer' || roleParam === 'store' ? roleParam : null
@@ -86,17 +87,11 @@ export default function RegisterPage() {
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">アカウント種別をお選びください</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button
-              onClick={() => setRole('store')}
-              className="p-6 border rounded hover:bg-gray-50 text-left"
-            >
+            <button onClick={() => setRole('store')} className="p-6 border rounded hover:bg-gray-50 text-left">
               <span className="block text-xl font-semibold mb-2">パチンコ店の方はこちら</span>
               <span className="text-sm text-gray-600">演者を検索し、オファーを送る</span>
             </button>
-            <button
-              onClick={() => setRole('performer')}
-              className="p-6 border rounded hover:bg-gray-50 text-left"
-            >
+            <button onClick={() => setRole('performer')} className="p-6 border rounded hover:bg-gray-50 text-left">
               <span className="block text-xl font-semibold mb-2">演者の方はこちら</span>
               <span className="text-sm text-gray-600">店舗からのオファーを受け取る</span>
             </button>
@@ -128,6 +123,14 @@ export default function RegisterPage() {
         <Link href="/login" className="text-blue-600 underline">ログインはこちら</Link>
       </div>
     </main>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
   )
 }
 
