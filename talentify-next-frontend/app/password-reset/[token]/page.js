@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
-function isPasswordValid(pwd) {
+function isPasswordValid(pwd: string) {
   return (
     pwd.length >= 8 &&
     /[A-Z]/.test(pwd) &&
@@ -12,16 +14,24 @@ function isPasswordValid(pwd) {
   );
 }
 
-export default function PasswordResetNewPage({ params }) {
+export default function PasswordResetNewPage({ params }: { params: { token: string } }) {
   const { token } = params;
+  const router = useRouter();
+
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-const [showPassword, setShowPassword] = useState(false);
-const [showConfirm, setShowConfirm] = useState(false);
-const [status, setStatus] = useState(null); // "success" | "error" | "mismatch" | "policy-error"
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [status, setStatus] = useState<null | "success" | "error" | "mismatch" | "policy-error">(null);
 
+  useEffect(() => {
+    if (status === "success") {
+      const timer = setTimeout(() => router.push("/login"), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status, router]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
       setStatus("mismatch");
@@ -32,7 +42,7 @@ const [status, setStatus] = useState(null); // "success" | "error" | "mismatch" 
       return;
     }
     try {
-      // ここでトークンを用いたパスワード更新APIを呼び出す想定
+      // 実際のAPI呼び出し部分
       // await fetch(`/api/password-reset/${token}`, { method: "POST", body: JSON.stringify({ password }) });
       setStatus("success");
     } catch (err) {
@@ -68,8 +78,11 @@ const [status, setStatus] = useState(null); // "success" | "error" | "mismatch" 
               )}
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-1">8文字以上、大文字小文字、数字を含めてください</p>
+          <p className="text-xs text-gray-500 mt-1">
+            8文字以上、大文字小文字、数字を含めてください
+          </p>
         </div>
+
         <div>
           <label className="block mb-1">新しいパスワード（確認用）</label>
           <div className="relative">
@@ -94,18 +107,29 @@ const [status, setStatus] = useState(null); // "success" | "error" | "mismatch" 
             </button>
           </div>
         </div>
+
         {status === "mismatch" && (
           <p className="text-red-600">パスワードが一致しません。</p>
         )}
         {status === "policy-error" && (
-          <p className="text-red-600">パスワードは8文字以上で大文字・小文字・数字を含めてください。</p>
+          <p className="text-red-600">
+            パスワードは8文字以上で大文字・小文字・数字を含めてください。
+          </p>
         )}
         {status === "error" && (
           <p className="text-red-600">パスワードの更新に失敗しました。</p>
         )}
         {status === "success" && (
-          <p className="text-green-600">パスワードを更新しました。</p>
+          <p className="text-green-600">
+            パスワードを更新しました。
+            <br />
+            <Link href="/login" className="underline">
+              ログインページへ移動します
+            </Link>
+            。
+          </p>
         )}
+
         <button
           type="submit"
           className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
