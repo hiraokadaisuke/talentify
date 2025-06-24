@@ -17,16 +17,17 @@ Each project has its own `package.json` and dependencies. They can be developed 
    cd Talentify-backend
    npm install
    ```
+
 2. Create a `.env` file inside `Talentify-backend` with the following variables:
    ```bash
    MONGODB_URI=<your Mongo connection string>
    PORT=5000 # optional, defaults to 5000
    ```
+
 3. Start the API server:
    ```bash
    node server.js
    ```
-   The server reads these values via `dotenv` as shown in `server.js`.
 
 ## React Frontend
 

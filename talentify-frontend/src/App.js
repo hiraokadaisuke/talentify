@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import './App.css'; // スタイルシートをインポート（必要に応じて）
 
 function App() {
+  const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5000';
+
   const [talents, setTalents] = useState([]); // 人材情報を保持するstate
   const [name, setName] = useState(''); // フォーム入力用state: 名前
   const [email, setEmail] = useState(''); // フォーム入力用state: メールアドレス
@@ -17,7 +19,7 @@ function App() {
   // バックエンドから人材情報を取得する関数
   const fetchTalents = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/talents'); // GETリクエスト
+      const response = await fetch(`${API_BASE}/api/talents`); // GETリクエスト
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -36,7 +38,7 @@ function App() {
     const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill !== '');
 
     try {
-      const response = await fetch('http://localhost:5000/api/talents', {
+      const response = await fetch(`${API_BASE}/api/talents`, {
         method: 'POST', // POSTリクエスト
         headers: {
           'Content-Type': 'application/json', // JSON形式で送信
