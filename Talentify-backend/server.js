@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors'); // CORSエラー回避のため
 const Talent = require('./models/Talent'); // Talentモデルをインポート
+const Payment = require('./models/Payment');
+const BankAccount = require('./models/BankAccount');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
@@ -83,6 +85,42 @@ app.post('/api/talents', async (req, res) => {
     } catch (err) {
         // バリデーションエラーなど、クライアント側の問題の場合は400 Bad Request
         res.status(400).json({ message: err.message }); 
+    }
+});
+
+// ギャラ受取履歴取得
+app.get('/api/payments', async (req, res) => {
+    try {
+        const payments = await Payment.find().sort({ eventDate: -1 });
+        res.json(payments);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 銀行口座情報取得
+app.get('/api/bank-account', async (req, res) => {
+    try {
+        const account = await BankAccount.findOne();
+        res.json(account || {});
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 銀行口座情報登録・更新
+app.post('/api/bank-account', async (req, res) => {
+    try {
+        let account = await BankAccount.findOne();
+        if (account) {
+            account.set(req.body);
+        } else {
+            account = new BankAccount(req.body);
+        }
+        const saved = await account.save();
+        res.json(saved);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 

@@ -13,6 +13,7 @@ export default function Header() {
         <Link href="/faq" className="hover:underline">FAQ</Link>
         <Link href="/contact" className="hover:underline">お問い合わせ</Link>
         <Link href="/manage" className="hover:underline">管理ページ</Link>
+        <Link href="/payments" className="hover:underline">決済管理</Link>
         <Link href="/login" className="font-semibold hover:underline">ログイン</Link>
         <Link
           href="/register"
