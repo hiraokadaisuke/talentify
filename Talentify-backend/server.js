@@ -3,7 +3,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors'); // CORSエラー回避のため
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Talent = require('./models/Talent'); // Talentモデルをインポート
+const User = require('./models/User');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
@@ -38,6 +41,44 @@ connectDB(); // 関数を実行
 // ルートエンドポイント
 app.get('/', (req, res) => {
     res.send('Talentify API稼働中！'); // パチンコプラットフォームAPI稼働中！から変更しました
+});
+
+// ユーザー登録
+app.post('/api/register', async (req, res) => {
+    const { email, password, role } = req.body;
+    if (!email || !password || !role) {
+        return res.status(400).json({ message: '必要な項目が不足しています' });
+    }
+    try {
+        const existing = await User.findOne({ email });
+        if (existing) {
+            return res.status(409).json({ message: '既に登録されています' });
+        }
+        const passwordHash = await bcrypt.hash(password, 10);
+        await User.create({ email, passwordHash, role });
+        res.status(201).json({ message: 'ユーザーを作成しました' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// ログイン
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
+        }
+        const ok = await bcrypt.compare(password, user.passwordHash);
+        if (!ok) {
+            return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
+        }
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+        res.json({ token });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 });
 // 人材情報をすべて取得するAPI
 app.get('/api/talents', async (req, res) => {
