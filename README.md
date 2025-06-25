@@ -33,6 +33,8 @@ Each project has its own `package.json` and dependencies. They can be developed 
 
 ### API Endpoints
 
+- `POST /api/register` - Create a new user account.
+- `POST /api/login` - Authenticate and receive a JWT token.
 - `GET /api/talents` - Retrieve all registered talents.
 - `POST /api/talents` - Add a new talent.
 - `GET /api/talents/:id` - Retrieve a talent by its MongoDB `_id` (returns `404` if not found).

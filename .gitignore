@@ -1,3 +1,4 @@
 # Ignore environment files
 /Talentify-backend/.env
 *.env
+node_modules/
