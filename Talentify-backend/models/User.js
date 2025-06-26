@@ -18,6 +18,8 @@ const UserSchema = new mongoose.Schema({
     enum: ['store', 'performer'],
     required: true,
   },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
   createdAt: {
     type: Date,
     default: Date.now,

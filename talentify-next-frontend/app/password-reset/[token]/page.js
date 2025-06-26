@@ -42,8 +42,11 @@ export default function PasswordResetNewPage({ params }) {
       return;
     }
     try {
-      // 実際のAPI呼び出し部分
-      // await fetch(`/api/password-reset/${token}`, { method: "POST", body: JSON.stringify({ password }) });
+      await fetch(`/api/password-reset/${token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
       setStatus("success");
     } catch (err) {
       setStatus("error");

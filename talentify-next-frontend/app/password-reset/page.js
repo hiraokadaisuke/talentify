@@ -9,8 +9,11 @@ export default function PasswordResetPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // ここでパスワード再設定用メールを送信するAPIを呼び出す想定
-      // await fetch("/api/password-reset", { method: "POST", body: JSON.stringify({ email }) });
+      await fetch("/api/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
       setStatus("success");
     } catch (err) {
       setStatus("error");

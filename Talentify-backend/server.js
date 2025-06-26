@@ -8,6 +8,7 @@ const bcrypt         = require('bcryptjs');
 const jwt            = require('jsonwebtoken');
 const csrf           = require('csurf');
 const rateLimit      = require('express-rate-limit');
+const crypto         = require('crypto');
 
 const Talent         = require('./models/Talent');
 const User           = require('./models/User');
@@ -167,6 +168,55 @@ app.post('/api/refresh', (req, res) => {
     res.json({ accessToken });
   } catch {
     res.status(401).json({ message: 'invalid refresh token' });
+  }
+});
+
+// -------------------------------------------------------------
+//  パスワード再設定
+// -------------------------------------------------------------
+app.post('/api/password-reset', async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: 'メールアドレスが必要です' });
+  }
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = crypto.randomBytes(20).toString('hex');
+      const hashed = crypto.createHash('sha256').update(token).digest('hex');
+      user.passwordResetToken = hashed;
+      user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1h
+      await user.save();
+      console.log(`Password reset token for ${email}: ${token}`);
+    }
+    res.json({ message: 'If that email is registered, password reset instructions have been sent.' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/password-reset/:token', async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  if (!password) {
+    return res.status(400).json({ message: 'パスワードが必要です' });
+  }
+  try {
+    const hashed = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({
+      passwordResetToken: hashed,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      return res.status(400).json({ message: '無効または期限切れのトークンです' });
+    }
+    user.passwordHash = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+    res.json({ message: 'パスワードを更新しました' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
