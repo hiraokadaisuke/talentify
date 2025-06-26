@@ -1,4 +1,24 @@
-# Ignore environment files
-/Talentify-backend/.env
-*.env
+# 環境ファイル（全階層対応）
+.env
+**/.env
+
+# node_modules 全体を無視
 node_modules/
+
+# VSCode 設定
+.vscode/
+
+# OS関連
+.DS_Store
+Thumbs.db
+
+# Next.js
+.next/
+out/
+
+# その他（ビルド／カバレッジ）
+dist/
+coverage/
+
+# ログファイル
+*.log

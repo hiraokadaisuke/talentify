@@ -8,14 +8,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(null)
+  const [csrfToken, setCsrfToken] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
     try {
+      // CSRF トークンを取得
+      const tokenRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/csrf-token`,
+        { credentials: 'include' }
+      )
+      if (!tokenRes.ok) throw new Error('failed to get csrf token')
+      const tokenData = await tokenRes.json()
+      setCsrfToken(tokenData.csrfToken)
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': tokenData.csrfToken,
+        },
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
