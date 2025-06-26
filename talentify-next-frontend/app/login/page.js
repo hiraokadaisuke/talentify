@@ -16,13 +16,11 @@ export default function LoginPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
       if (!res.ok) throw new Error('login failed')
-      const data = await res.json()
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('token', data.token)
-      }
+      await res.json()
       console.log('login success')
     } catch (err) {
       setError('メールアドレスまたはパスワードが間違っています')
