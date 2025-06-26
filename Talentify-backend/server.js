@@ -1,207 +1,204 @@
 // server.js
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors'); // CORSエラー回避のため
-const cookieParser = require('cookie-parser');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const Talent = require('./models/Talent'); // Talentモデルをインポート
-const User = require('./models/User');
-const cookieParser = require('cookie-parser');
-const csrf = require('csurf');
-const rateLimit = require('express-rate-limit');
+const express        = require('express');
+const mongoose       = require('mongoose');
+const dotenv         = require('dotenv');
+const cors           = require('cors');
+const cookieParser   = require('cookie-parser');
+const bcrypt         = require('bcryptjs');
+const jwt            = require('jsonwebtoken');
+const csrf           = require('csurf');
+const rateLimit      = require('express-rate-limit');
 
-dotenv.config(); // .envファイルから環境変数を読み込む
+const Talent         = require('./models/Talent');
+const User           = require('./models/User');
+const auth           = require('./auth');                 // ⬅︎ 役割チェック付き JWT 認可
 
-// 必須環境変数をチェック
+dotenv.config();
+
+/* ---------------------------------------------------------------- *\
+   必須環境変数のチェック
+\* ---------------------------------------------------------------- */
 const requiredEnv = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
-const missing = requiredEnv.filter((name) => !process.env[name]);
+const missing = requiredEnv.filter((v) => !process.env[v]);
 if (missing.length) {
-    console.error(`Missing required environment variables: ${missing.join(', ')}`);
-    process.exit(1);
+  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
 }
 
-const app = express();
-const port = process.env.PORT;
+/* ---------------------------------------------------------------- *\
+   Express 初期化 & 共通ミドルウェア
+\* ---------------------------------------------------------------- */
+const app  = express();
+const PORT = process.env.PORT;
 
-// ミドルウェア
-app.use(cors({ origin: true, credentials: true })); // CORSを許可しCookieを受け渡す
-app.use(express.json()); // JSON形式のリクエストボディをパース
+app.use(cors({ origin: true, credentials: true })); // Cookie 受け渡しも許可
+app.use(express.json());
 app.use(cookieParser());
-<<<<<<< codex/update-login-api-with-cookies-and-refresh
-=======
+
+/* ---------------------------------------------------------------- *\
+   CSRF & レートリミット設定
+\* ---------------------------------------------------------------- */
 const csrfProtection = csrf({ cookie: true });
 
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5,
-    standardHeaders: true,
-    legacyHeaders: false,
+  windowMs: 15 * 60 * 1000,     // 15 分
+  max: 5,                        // 15 分以内に 5 回まで
+  standardHeaders: true,
+  legacyHeaders: false
 });
 
-// Rate limiting for authentication-related endpoints
 app.use(['/api/login', '/api/refresh', '/api/password-reset'], authLimiter);
 
-// CSRF protection for state-changing routes
+// State-changing メソッドのみ CSRF 保護を適用
 app.use((req, res, next) => {
-    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
-        return next();
-    }
-    csrfProtection(req, res, next);
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+  csrfProtection(req, res, next);
 });
->>>>>>> main
 
-// MongoDB接続
-const uri = process.env.MONGODB_URI; 
-
+/* ---------------------------------------------------------------- *\
+   MongoDB 接続
+\* ---------------------------------------------------------------- */
 async function connectDB() {
-    try {
-        await mongoose.connect(uri, {
-            // useNewUrlParser: true,    // MongoDBドライバーの新しいバージョンでは不要になる場合があります
-            // useUnifiedTopology: true  // 同上
-        });
-        console.log('MongoDBに接続しました！');
-    } catch (err) {
-        console.error('MongoDB接続エラー:', err);
-        // エラーの詳細を出力するために、エラーオブジェクト全体を表示
-        console.error('エラー詳細:', err.message); 
-        console.error('エラー名:', err.name);
-        // MongoDB接続エラー時にプログラムを終了させることで、エラーが明確になります
-        process.exit(1); 
-    }
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✅ MongoDB に接続しました');
+  } catch (err) {
+    console.error('❌ MongoDB 接続エラー:', err);
+    process.exit(1);
+  }
 }
-connectDB(); // 関数を実行
+connectDB();
 
-// ルートエンドポイント
+/* ---------------------------------------------------------------- *\
+   ルート
+\* ---------------------------------------------------------------- */
 app.get('/', (req, res) => {
-    res.send('Talentify API稼働中！'); // パチンコプラットフォームAPI稼働中！から変更しました
+  res.send('Talentify API 稼働中！');
 });
 
-// CSRF token endpoint
 app.get('/api/csrf-token', (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
+  res.json({ csrfToken: req.csrfToken() });
 });
 
-// ユーザー登録
+/* ---------------------------------------------------------------- *\
+   認証 & 認可エンドポイント
+\* ---------------------------------------------------------------- */
 app.post('/api/register', async (req, res) => {
-    const { email, password, role } = req.body;
-    if (!email || !password || !role) {
-        return res.status(400).json({ message: '必要な項目が不足しています' });
-    }
-    try {
-        const existing = await User.findOne({ email });
-        if (existing) {
-            return res.status(409).json({ message: '既に登録されています' });
-        }
-        await User.create({ email, passwordHash: password, role });
-        res.status(201).json({ message: 'ユーザーを作成しました' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+  const { email, password, role } = req.body;
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: '必要な項目が不足しています' });
+  }
+
+  try {
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(409).json({ message: '既に登録されています' });
+
+    await User.create({ email, passwordHash: password, role });
+    res.status(201).json({ message: 'ユーザーを作成しました' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-// ログイン
 app.post('/api/login', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
-        }
-        const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) {
-            return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
-        }
+  const { email, password } = req.body;
 
-        const accessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
-        const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
 
-        const cookieOptions = {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict'
-        };
+    const ok = await bcrypt.compare(password, user.passwordHash);
+    if (!ok) return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
 
-        res.cookie('access', accessToken, { ...cookieOptions, maxAge: 60 * 60 * 1000 });
-        res.cookie('refresh', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+    const accessToken  = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        res.json({ message: 'logged in' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+    const cookieOpts = {
+      httpOnly : true,
+      secure   : process.env.NODE_ENV === 'production',
+      sameSite : 'strict'
+    };
+
+    res.cookie('access',  accessToken,  { ...cookieOpts, maxAge: 60 * 60 * 1000 });
+    res.cookie('refresh', refreshToken, { ...cookieOpts, maxAge: 7  * 24 * 60 * 60 * 1000 });
+
+    res.json({ message: 'logged in' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-// アクセストークン再発行
 app.post('/api/refresh', (req, res) => {
-    const token = req.cookies.refresh;
-    if (!token) {
-        return res.status(401).json({ message: 'refresh token missing' });
-    }
-    try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-        const accessToken = jwt.sign({ userId: payload.userId, role: payload.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+  const token = req.cookies.refresh;
+  if (!token) return res.status(401).json({ message: 'refresh token missing' });
 
-        const cookieOptions = {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 1000
-        };
-        res.cookie('access', accessToken, cookieOptions);
-        res.json({ accessToken });
-    } catch (err) {
-        res.status(401).json({ message: 'invalid refresh token' });
-    }
-});
-// 人材情報をすべて取得するAPI
-app.get('/api/talents', async (req, res) => {
-    try {
-        const talents = await Talent.find(); // すべての人材情報を取得
-        res.json(talents); // JSON形式で返す
-    } catch (err) {
-        res.status(500).json({ message: err.message }); // エラーハンドリング
-    }
-});
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const accessToken = jwt.sign(
+      { userId: payload.userId, role: payload.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-// IDで特定の人材情報を取得するAPI
-app.get('/api/talents/:id', async (req, res) => {
-    try {
-        const talent = await Talent.findById(req.params.id);
-        if (!talent) {
-            return res.status(404).json({ message: 'Talent not found' });
-        }
-        res.json(talent);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-// 新しい人材情報を追加するAPI
-app.post('/api/talents', async (req, res) => {
-    const talent = new Talent({
-        name: req.body.name,
-        email: req.body.email,
-        skills: req.body.skills,
-        experienceYears: req.body.experienceYears,
-        avatarUrl: req.body.avatarUrl,
-        socialLinks: req.body.socialLinks,
-        bio: req.body.bio,
-        location: req.body.location,
-        rate: req.body.rate,
-        availability: req.body.availability
+    res.cookie('access', accessToken, {
+      httpOnly : true,
+      secure   : process.env.NODE_ENV === 'production',
+      sameSite : 'strict',
+      maxAge   : 60 * 60 * 1000
     });
-
-    try {
-        const newTalent = await talent.save(); // データベースに保存
-        res.status(201).json(newTalent); // 作成されたデータを201ステータスで返す
-    } catch (err) {
-        // バリデーションエラーなど、クライアント側の問題の場合は400 Bad Request
-        res.status(400).json({ message: err.message }); 
-    }
+    res.json({ accessToken });
+  } catch {
+    res.status(401).json({ message: 'invalid refresh token' });
+  }
 });
 
-// サーバー起動
-app.listen(port, () => {
-    console.log(`サーバーがポート ${port} で起動しました`);
+/* ---------------------------------------------------------------- *\
+   Talent API（要 JWT 認可）
+\* ---------------------------------------------------------------- */
+app.get('/api/talents', auth(), async (req, res) => {
+  try {
+    const talents = await Talent.find();
+    res.json(talents);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/api/talents/:id', auth(), async (req, res) => {
+  try {
+    const talent = await Talent.findById(req.params.id);
+    if (!talent) return res.status(404).json({ message: 'Talent not found' });
+    res.json(talent);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/talents', auth(['store']), async (req, res) => {
+  const talent = new Talent({
+    name            : req.body.name,
+    email           : req.body.email,
+    skills          : req.body.skills,
+    experienceYears : req.body.experienceYears,
+    avatarUrl       : req.body.avatarUrl,
+    socialLinks     : req.body.socialLinks,
+    bio             : req.body.bio,
+    location        : req.body.location,
+    rate            : req.body.rate,
+    availability    : req.body.availability
+  });
+
+  try {
+    const newTalent = await talent.save();
+    res.status(201).json(newTalent);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+/* ---------------------------------------------------------------- *\
+   サーバー起動
+\* ---------------------------------------------------------------- */
+app.listen(PORT, () => {
+  console.log(`🚀 サーバーがポート ${PORT} で起動しました`);
 });
