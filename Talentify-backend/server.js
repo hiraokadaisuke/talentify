@@ -54,8 +54,7 @@ app.post('/api/register', async (req, res) => {
         if (existing) {
             return res.status(409).json({ message: '既に登録されています' });
         }
-        const passwordHash = await bcrypt.hash(password, 10);
-        await User.create({ email, passwordHash, role });
+        await User.create({ email, passwordHash: password, role });
         res.status(201).json({ message: 'ユーザーを作成しました' });
     } catch (err) {
         res.status(500).json({ message: err.message });
