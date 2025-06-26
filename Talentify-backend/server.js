@@ -11,6 +11,8 @@ const rateLimit      = require('express-rate-limit');
 
 const Talent         = require('./models/Talent');
 const User           = require('./models/User');
+const Profile        = require('./models/Profile');
+const Schedule       = require('./models/Schedule');
 const auth           = require('./auth');                 // ⬅︎ 役割チェック付き JWT 認可
 
 // -------------------------------------------------------------
@@ -209,6 +211,61 @@ app.post('/api/talents', auth(['store']), async (req, res) => {
   try {
     const newTalent = await talent.save();
     res.status(201).json(newTalent);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+//  Profile API
+// -------------------------------------------------------------
+app.get('/api/profile', auth(), async (req, res) => {
+  try {
+    const profile = await Profile.findOne({ user: req.user.id });
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/profile', auth(), async (req, res) => {
+  try {
+    const data = {
+      displayName: req.body.displayName,
+      bio: req.body.bio,
+      avatarUrl: req.body.avatarUrl,
+    };
+    const profile = await Profile.findOneAndUpdate(
+      { user: req.user.id },
+      data,
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+    res.json(profile);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+//  Schedule API
+// -------------------------------------------------------------
+app.get('/api/schedule', auth(), async (req, res) => {
+  try {
+    const schedules = await Schedule.find({ user: req.user.id });
+    res.json(schedules);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/schedule', auth(), async (req, res) => {
+  try {
+    const schedule = await Schedule.create({
+      user: req.user.id,
+      date: req.body.date,
+      description: req.body.description,
+    });
+    res.status(201).json(schedule);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
