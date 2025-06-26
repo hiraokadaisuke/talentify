@@ -39,6 +39,8 @@ Each project has its own `package.json` and dependencies. They can be developed 
 - `POST /api/talents` - Add a new talent.
 - `GET /api/talents/:id` - Retrieve a talent by its MongoDB `_id` (returns `404` if not found).
 
+Passwords sent to `/api/register` are hashed automatically before being stored.
+
 ## React Frontend
 
 The `talentify-frontend` directory contains a Create React App project.
