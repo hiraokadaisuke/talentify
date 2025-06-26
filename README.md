@@ -21,10 +21,12 @@ Each project has its own `package.json` and dependencies. They can be developed 
 2. Copy `.env.example` to `.env` inside `Talentify-backend` and edit the values:
    ```bash
    cp .env.example .env
-   # then update the following variables
+   # then update the following **required** variables
    MONGODB_URI=<your Mongo connection string>
-   PORT=5000 # optional, defaults to 5000
+   JWT_SECRET=<secret used for JWT signing>
+   PORT=5000
    ```
+   The server will exit on startup if any of these variables are missing.
 
 3. Start the API server:
    ```bash

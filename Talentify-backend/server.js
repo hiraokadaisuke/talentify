@@ -10,8 +10,16 @@ const User = require('./models/User');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
+// 必須環境変数をチェック
+const requiredEnv = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
+const missing = requiredEnv.filter((name) => !process.env[name]);
+if (missing.length) {
+    console.error(`Missing required environment variables: ${missing.join(', ')}`);
+    process.exit(1);
+}
+
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
 
 // ミドルウェア
 app.use(cors()); // CORSを許可
