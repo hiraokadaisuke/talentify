@@ -13,11 +13,11 @@ const Talent         = require('./models/Talent');
 const User           = require('./models/User');
 const auth           = require('./auth');                 // ⬅︎ 役割チェック付き JWT 認可
 
+// -------------------------------------------------------------
+//  .env 読み込み & 必須環境変数チェック
+// -------------------------------------------------------------
 dotenv.config();
 
-/* ---------------------------------------------------------------- *\
-   必須環境変数のチェック
-\* ---------------------------------------------------------------- */
 const requiredEnv = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
 const missing = requiredEnv.filter((v) => !process.env[v]);
 if (missing.length) {
@@ -25,9 +25,9 @@ if (missing.length) {
   process.exit(1);
 }
 
-/* ---------------------------------------------------------------- *\
-   Express 初期化 & 共通ミドルウェア
-\* ---------------------------------------------------------------- */
+// -------------------------------------------------------------
+//  Express 初期化 & 共通ミドルウェア
+// -------------------------------------------------------------
 const app  = express();
 const PORT = process.env.PORT;
 
@@ -35,29 +35,29 @@ app.use(cors({ origin: true, credentials: true })); // Cookie 受け渡しも許
 app.use(express.json());
 app.use(cookieParser());
 
-/* ---------------------------------------------------------------- *\
-   CSRF & レートリミット設定
-\* ---------------------------------------------------------------- */
+// -------------------------------------------------------------
+//  CSRF & レートリミット設定
+// -------------------------------------------------------------
 const csrfProtection = csrf({ cookie: true });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,     // 15 分
-  max: 5,                        // 15 分以内に 5 回まで
+  windowMs       : 15 * 60 * 1000,   // 15 分
+  max            : 5,                // 15 分以内に 5 回まで
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders  : false
 });
 
 app.use(['/api/login', '/api/refresh', '/api/password-reset'], authLimiter);
 
-// State-changing メソッドのみ CSRF 保護を適用
+// State‑changing メソッドのみ CSRF 保護を適用
 app.use((req, res, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
   csrfProtection(req, res, next);
 });
 
-/* ---------------------------------------------------------------- *\
-   MongoDB 接続
-\* ---------------------------------------------------------------- */
+// -------------------------------------------------------------
+//  MongoDB 接続
+// -------------------------------------------------------------
 async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -69,9 +69,9 @@ async function connectDB() {
 }
 connectDB();
 
-/* ---------------------------------------------------------------- *\
-   ルート
-\* ---------------------------------------------------------------- */
+// -------------------------------------------------------------
+//  ルート
+// -------------------------------------------------------------
 app.get('/', (req, res) => {
   res.send('Talentify API 稼働中！');
 });
@@ -80,9 +80,9 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 
-/* ---------------------------------------------------------------- *\
-   認証 & 認可エンドポイント
-\* ---------------------------------------------------------------- */
+// -------------------------------------------------------------
+//  認証 & 認可エンドポイント
+// -------------------------------------------------------------
 app.post('/api/register', async (req, res) => {
   const { email, password, role } = req.body;
   if (!email || !password || !role) {
@@ -91,7 +91,9 @@ app.post('/api/register', async (req, res) => {
 
   try {
     const existing = await User.findOne({ email });
-    if (existing) return res.status(409).json({ message: '既に登録されています' });
+    if (existing) {
+      return res.status(409).json({ message: '既に登録されています' });
+    }
 
     await User.create({ email, passwordHash: password, role });
     res.status(201).json({ message: 'ユーザーを作成しました' });
@@ -105,13 +107,25 @@ app.post('/api/login', async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
+    if (!user) {
+      return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
+    }
 
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
+    if (!ok) {
+      return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
+    }
 
-    const accessToken  = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const accessToken = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    const refreshToken = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     const cookieOpts = {
       httpOnly : true,
@@ -130,7 +144,9 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/refresh', (req, res) => {
   const token = req.cookies.refresh;
-  if (!token) return res.status(401).json({ message: 'refresh token missing' });
+  if (!token) {
+    return res.status(401).json({ message: 'refresh token missing' });
+  }
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
@@ -152,9 +168,9 @@ app.post('/api/refresh', (req, res) => {
   }
 });
 
-/* ---------------------------------------------------------------- *\
-   Talent API（要 JWT 認可）
-\* ---------------------------------------------------------------- */
+// -------------------------------------------------------------
+//  Talent API（要 JWT 認可）
+// -------------------------------------------------------------
 app.get('/api/talents', auth(), async (req, res) => {
   try {
     const talents = await Talent.find();
@@ -167,7 +183,9 @@ app.get('/api/talents', auth(), async (req, res) => {
 app.get('/api/talents/:id', auth(), async (req, res) => {
   try {
     const talent = await Talent.findById(req.params.id);
-    if (!talent) return res.status(404).json({ message: 'Talent not found' });
+    if (!talent) {
+      return res.status(404).json({ message: 'Talent not found' });
+    }
     res.json(talent);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -196,9 +214,9 @@ app.post('/api/talents', auth(['store']), async (req, res) => {
   }
 });
 
-/* ---------------------------------------------------------------- *\
-   サーバー起動
-\* ---------------------------------------------------------------- */
+// -------------------------------------------------------------
+//  サーバー起動
+// -------------------------------------------------------------
 app.listen(PORT, () => {
   console.log(`🚀 サーバーがポート ${PORT} で起動しました`);
 });
