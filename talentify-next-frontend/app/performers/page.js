@@ -11,7 +11,9 @@ export default function PerformersPage() {
   useEffect(() => {
     const fetchTalents = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/talents`)
+        const res = await fetch(`${API_BASE}/api/talents`, {
+          credentials: 'include', // include cookies for authenticated APIs
+        })
         if (!res.ok) throw new Error('Failed to fetch')
         const data = await res.json()
         setTalents(data)
