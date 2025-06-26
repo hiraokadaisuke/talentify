@@ -14,7 +14,7 @@ const Talent         = require('./models/Talent');
 const User           = require('./models/User');
 const Profile        = require('./models/Profile');
 const Schedule       = require('./models/Schedule');
-const auth           = require('./auth');                 // ⬅︎ 役割チェック付き JWT 認可
+const auth           = require('./auth'); // ⬅︎ 役割チェック付き JWT 認可
 
 // -------------------------------------------------------------
 //  .env 読み込み & 必須環境変数チェック
@@ -44,15 +44,15 @@ app.use(cookieParser());
 const csrfProtection = csrf({ cookie: true });
 
 const authLimiter = rateLimit({
-  windowMs       : 15 * 60 * 1000,   // 15 分
-  max            : 5,                // 15 分以内に 5 回まで
+  windowMs       : 15 * 60 * 1000,   // 15分
+  max            : 5,
   standardHeaders: true,
   legacyHeaders  : false
 });
 
 app.use(['/api/login', '/api/refresh', '/api/password-reset'], authLimiter);
 
-// State‑changing メソッドのみ CSRF 保護を適用
+// CSRFはState‑changingメソッドのみ適用
 app.use((req, res, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
   csrfProtection(req, res, next);
@@ -73,7 +73,7 @@ async function connectDB() {
 connectDB();
 
 // -------------------------------------------------------------
-//  ルート
+//  ベースルート
 // -------------------------------------------------------------
 app.get('/', (req, res) => {
   res.send('Talentify API 稼働中！');
@@ -84,7 +84,7 @@ app.get('/api/csrf-token', csrfProtection, (req, res) => {
 });
 
 // -------------------------------------------------------------
-//  認証 & 認可エンドポイント
+//  認証 & 認可
 // -------------------------------------------------------------
 app.post('/api/register', async (req, res) => {
   const { email, password, role } = req.body;
@@ -119,16 +119,8 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
     }
 
-    const accessToken = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-    const refreshToken = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    const accessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     const cookieOpts = {
       httpOnly : true,
@@ -137,7 +129,7 @@ app.post('/api/login', async (req, res) => {
     };
 
     res.cookie('access',  accessToken,  { ...cookieOpts, maxAge: 60 * 60 * 1000 });
-    res.cookie('refresh', refreshToken, { ...cookieOpts, maxAge: 7  * 24 * 60 * 60 * 1000 });
+    res.cookie('refresh', refreshToken, { ...cookieOpts, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
     res.json({ message: 'logged in' });
   } catch (err) {
@@ -183,7 +175,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 // -------------------------------------------------------------
-//  Password Reset
+//  パスワードリセット
 // -------------------------------------------------------------
 app.post('/api/password-reset', async (req, res) => {
   const { email } = req.body;
@@ -193,7 +185,7 @@ app.post('/api/password-reset', async (req, res) => {
     if (user) {
       const token = crypto.randomBytes(32).toString('hex');
       user.passwordResetToken = token;
-      user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1h
+      user.passwordResetExpires = Date.now() + 60 * 60 * 1000;
       await user.save();
       console.log(`Password reset token for ${email}: ${token}`);
     }
@@ -226,7 +218,7 @@ app.post('/api/password-reset/:token', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-//  Talent API（要 JWT 認可）
+//  Talent API（要ログイン）
 // -------------------------------------------------------------
 app.get('/api/talents', auth(), async (req, res) => {
   try {
@@ -240,9 +232,7 @@ app.get('/api/talents', auth(), async (req, res) => {
 app.get('/api/talents/:id', auth(), async (req, res) => {
   try {
     const talent = await Talent.findById(req.params.id);
-    if (!talent) {
-      return res.status(404).json({ message: 'Talent not found' });
-    }
+    if (!talent) return res.status(404).json({ message: 'Talent not found' });
     res.json(talent);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -250,19 +240,7 @@ app.get('/api/talents/:id', auth(), async (req, res) => {
 });
 
 app.post('/api/talents', auth(['store']), async (req, res) => {
-  const talent = new Talent({
-    name            : req.body.name,
-    email           : req.body.email,
-    skills          : req.body.skills,
-    experienceYears : req.body.experienceYears,
-    avatarUrl       : req.body.avatarUrl,
-    socialLinks     : req.body.socialLinks,
-    bio             : req.body.bio,
-    location        : req.body.location,
-    rate            : req.body.rate,
-    availability    : req.body.availability
-  });
-
+  const talent = new Talent(req.body);
   try {
     const newTalent = await talent.save();
     res.status(201).json(newTalent);
