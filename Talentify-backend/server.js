@@ -7,6 +7,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Talent = require('./models/Talent'); // Talentモデルをインポート
 const User = require('./models/User');
+const cookieParser = require('cookie-parser');
+const auth = require('./auth');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
@@ -16,6 +18,7 @@ const port = process.env.PORT || 5000;
 // ミドルウェア
 app.use(cors()); // CORSを許可
 app.use(express.json()); // JSON形式のリクエストボディをパース
+app.use(cookieParser()); // Cookieをパース
 
 // MongoDB接続
 const uri = process.env.MONGODB_URI; 
@@ -75,13 +78,19 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
         }
         const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+        // Set token as httpOnly cookie
+        res.cookie('access', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 1000
+        });
         res.json({ token });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 // 人材情報をすべて取得するAPI
-app.get('/api/talents', async (req, res) => {
+app.get('/api/talents', auth(), async (req, res) => {
     try {
         const talents = await Talent.find(); // すべての人材情報を取得
         res.json(talents); // JSON形式で返す
@@ -91,7 +100,7 @@ app.get('/api/talents', async (req, res) => {
 });
 
 // IDで特定の人材情報を取得するAPI
-app.get('/api/talents/:id', async (req, res) => {
+app.get('/api/talents/:id', auth(), async (req, res) => {
     try {
         const talent = await Talent.findById(req.params.id);
         if (!talent) {
@@ -104,7 +113,7 @@ app.get('/api/talents/:id', async (req, res) => {
 });
 
 // 新しい人材情報を追加するAPI
-app.post('/api/talents', async (req, res) => {
+app.post('/api/talents', auth(['store']), async (req, res) => {
     const talent = new Talent({
         name: req.body.name,
         email: req.body.email,
