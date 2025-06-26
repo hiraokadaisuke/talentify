@@ -10,6 +10,11 @@ const User = require('./models/User');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
+if (!process.env.JWT_SECRET) {
+    console.error('JWT_SECRET is not set in environment variables');
+    process.exit(1);
+}
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -74,7 +79,7 @@ app.post('/api/login', async (req, res) => {
         if (!ok) {
             return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
         }
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ token });
     } catch (err) {
         res.status(500).json({ message: err.message });
