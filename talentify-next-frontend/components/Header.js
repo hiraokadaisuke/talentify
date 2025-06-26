@@ -20,6 +20,7 @@ export default function Header() {
         >
           新規登録
         </Link>
+        <Link href="/logout" className="hover:underline">ログアウト</Link>
       </nav>
     </header>
   );
