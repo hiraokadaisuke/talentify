@@ -170,6 +170,17 @@ app.post('/api/refresh', (req, res) => {
   }
 });
 
+app.post('/api/logout', (req, res) => {
+  const cookieOpts = {
+    httpOnly : true,
+    secure   : process.env.NODE_ENV === 'production',
+    sameSite : 'strict'
+  };
+  res.clearCookie('access', cookieOpts);
+  res.clearCookie('refresh', cookieOpts);
+  res.json({ message: 'logged out' });
+});
+
 // -------------------------------------------------------------
 //  Talent API（要 JWT 認可）
 // -------------------------------------------------------------
