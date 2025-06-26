@@ -6,6 +6,7 @@ const cors           = require('cors');
 const cookieParser   = require('cookie-parser');
 const bcrypt         = require('bcryptjs');
 const jwt            = require('jsonwebtoken');
+const crypto         = require('crypto');
 const csrf           = require('csurf');
 const rateLimit      = require('express-rate-limit');
 
@@ -167,6 +168,49 @@ app.post('/api/refresh', (req, res) => {
     res.json({ accessToken });
   } catch {
     res.status(401).json({ message: 'invalid refresh token' });
+  }
+});
+
+// -------------------------------------------------------------
+//  Password Reset
+// -------------------------------------------------------------
+app.post('/api/password-reset', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'email required' });
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = crypto.randomBytes(32).toString('hex');
+      user.passwordResetToken = token;
+      user.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1h
+      await user.save();
+      console.log(`Password reset token for ${email}: ${token}`);
+    }
+    res.json({ message: 'If the email is registered, a reset link was sent.' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/password-reset/:token', async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ message: 'password required' });
+  try {
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      return res.status(400).json({ message: 'invalid or expired token' });
+    }
+    user.passwordHash = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+    res.json({ message: 'password updated' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
