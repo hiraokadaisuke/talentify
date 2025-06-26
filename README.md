@@ -37,6 +37,8 @@ Each project has its own `package.json` and dependencies. They can be developed 
 
 - `POST /api/register` - Create a new user account.
 - `POST /api/login` - Authenticate and receive a JWT token.
+- `POST /api/password-reset` - Request a password reset email.
+- `POST /api/password-reset/:token` - Set a new password using the token.
 - `GET /api/talents` - Retrieve all registered talents.
 - `POST /api/talents` - Add a new talent.
 - `GET /api/talents/:id` - Retrieve a talent by its MongoDB `_id` (returns `404` if not found).
@@ -74,6 +76,12 @@ your backend URL (defaults to `http://localhost:5000`).
 Like the React app, it communicates with the backend at `http://localhost:5000/api/talents` (see `app/page.js`).
 
 The Next.js app also provides a performer search interface at `/performers` where you can filter and browse registered talents.
+
+### Password Reset Flow
+
+1. Visit `/password-reset` in the Next.js app and submit your email address.
+2. The backend generates a time-limited token and (in this demo) logs it to the console.
+3. Navigate to `/password-reset/<token>` and enter a new password. This issues a `POST /api/password-reset/<token>` request to update the password.
 
 ## License
 

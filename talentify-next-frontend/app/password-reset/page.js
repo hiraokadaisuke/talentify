@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
+
 export default function PasswordResetPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null); // "success" | "error"
@@ -9,8 +11,20 @@ export default function PasswordResetPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // ここでパスワード再設定用メールを送信するAPIを呼び出す想定
-      // await fetch("/api/password-reset", { method: "POST", body: JSON.stringify({ email }) });
+      const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
+        credentials: "include",
+      });
+      const { csrfToken } = await csrfRes.json();
+      const res = await fetch(`${API_BASE}/api/password-reset`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("failed");
       setStatus("success");
     } catch (err) {
       setStatus("error");
