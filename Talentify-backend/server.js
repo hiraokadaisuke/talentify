@@ -76,7 +76,7 @@ app.get('/', (req, res) => {
   res.send('Talentify API 稼働中！');
 });
 
-app.get('/api/csrf-token', (req, res) => {
+app.get('/api/csrf-token', csrfProtection, (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 
