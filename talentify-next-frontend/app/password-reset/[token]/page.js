@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
+
 function isPasswordValid(pwd) {
   return (
     pwd.length >= 8 &&
@@ -42,8 +44,20 @@ export default function PasswordResetNewPage({ params }) {
       return;
     }
     try {
-      // 実際のAPI呼び出し部分
-      // await fetch(`/api/password-reset/${token}`, { method: "POST", body: JSON.stringify({ password }) });
+      const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
+        credentials: "include",
+      });
+      const { csrfToken } = await csrfRes.json();
+      const res = await fetch(`${API_BASE}/api/password-reset/${token}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
+        credentials: "include",
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) throw new Error("failed");
       setStatus("success");
     } catch (err) {
       setStatus("error");
