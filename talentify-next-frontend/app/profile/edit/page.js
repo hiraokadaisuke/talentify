@@ -31,9 +31,19 @@ export default function ProfileEditPage() {
     e.preventDefault()
     setMessage('')
     try {
+      // CSRF トークンを取得
+      const tokenRes = await fetch(`${API_BASE}/api/csrf-token`, {
+        credentials: 'include',
+      })
+      if (!tokenRes.ok) throw new Error('failed to get csrf token')
+      const { csrfToken } = await tokenRes.json()
+
       const res = await fetch(`${API_BASE}/api/profile`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
         credentials: 'include',
         body: JSON.stringify({ displayName, bio }),
       })
