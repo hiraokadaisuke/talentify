@@ -10,6 +10,7 @@ function App() {
   const [email, setEmail] = useState(''); // フォーム入力用state: メールアドレス
   const [skills, setSkills] = useState(''); // フォーム入力用state: スキル (カンマ区切り)
   const [experienceYears, setExperienceYears] = useState(0); // フォーム入力用state: 経験年数
+  const [csrfToken, setCsrfToken] = useState('');
 
   // ページ読み込み時に人材情報を取得
   useEffect(() => {
@@ -32,6 +33,18 @@ function App() {
     }
   };
 
+  const fetchCsrfToken = async () => {
+    const res = await fetch(`${API_BASE}/api/csrf-token`, {
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    const data = await res.json();
+    setCsrfToken(data.csrfToken);
+    return data.csrfToken;
+  };
+
   // 新しい人材を追加する関数
   const addTalent = async (e) => {
     e.preventDefault(); // フォームのデフォルト送信を防ぐ
@@ -40,11 +53,14 @@ function App() {
     const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill !== '');
 
     try {
+      const token = await fetchCsrfToken();
+
       const response = await fetch(`${API_BASE}/api/talents`, {
         method: 'POST', // POSTリクエスト
         credentials: 'include', // ensure cookies are sent with request
         headers: {
           'Content-Type': 'application/json', // JSON形式で送信
+          'X-CSRF-Token': token,
         },
         body: JSON.stringify({ name, email, skills: skillsArray, experienceYears: Number(experienceYears) }), // JSON文字列に変換して送信
       });
