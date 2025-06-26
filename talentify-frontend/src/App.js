@@ -19,7 +19,9 @@ function App() {
   // バックエンドから人材情報を取得する関数
   const fetchTalents = async () => {
     try {
-      const response = await fetch(`${API_BASE}/api/talents`); // GETリクエスト
+      const response = await fetch(`${API_BASE}/api/talents`, {
+        credentials: 'include', // ensure cookies are sent with request
+      }); // GETリクエスト
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -40,6 +42,7 @@ function App() {
     try {
       const response = await fetch(`${API_BASE}/api/talents`, {
         method: 'POST', // POSTリクエスト
+        credentials: 'include', // ensure cookies are sent with request
         headers: {
           'Content-Type': 'application/json', // JSON形式で送信
         },
