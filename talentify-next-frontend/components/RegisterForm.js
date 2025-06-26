@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function RegisterForm() {
@@ -9,21 +9,47 @@ export default function RegisterForm() {
   const roleParam = searchParams.get('role')
   const initialRole = roleParam === 'performer' || roleParam === 'store' ? roleParam : null
   const [role, setRole] = useState(initialRole)
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [error, setError] = useState(null)
 
   const renderCommonFields = () => (
     <>
       <div>
         <label className="block mb-1">メールアドレス</label>
-        <input type="email" className="w-full p-2 border rounded" required />
+        <input
+          type="email"
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-2 border rounded"
+          required
+        />
       </div>
       <div>
         <label className="block mb-1">パスワード</label>
-        <input type="password" className="w-full p-2 border rounded" required />
+        <input
+          type="password"
+          name="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full p-2 border rounded"
+          required
+        />
         <p className="text-xs text-gray-500 mt-1">8文字以上、大文字小文字、数字を含めてください</p>
       </div>
       <div>
         <label className="block mb-1">パスワード（確認用）</label>
-        <input type="password" className="w-full p-2 border rounded" required />
+        <input
+          type="password"
+          name="confirm"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          className="w-full p-2 border rounded"
+          required
+        />
       </div>
     </>
   )
@@ -78,6 +104,35 @@ export default function RegisterForm() {
     </>
   )
 
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    if (password !== confirm) {
+      setError('パスワードが一致しません')
+      return
+    }
+    try {
+      const csrfRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/csrf-token`, {
+        credentials: 'include',
+      })
+      const { csrfToken } = await csrfRes.json()
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password, role }),
+      })
+      if (!res.ok) throw new Error('register failed')
+      await res.json()
+      router.push('/login')
+    } catch (err) {
+      setError('登録に失敗しました')
+    }
+  }
+
   return (
     <main className="max-w-xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-2">新規登録</h1>
@@ -100,7 +155,7 @@ export default function RegisterForm() {
       )}
 
       {role && (
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {renderCommonFields()}
           {role === 'store' ? renderStoreFields() : renderPerformerFields()}
 
@@ -111,6 +166,8 @@ export default function RegisterForm() {
               <Link href="/privacy" className="text-blue-600 underline ml-1">プライバシーポリシー</Link>に同意する
             </label>
           </div>
+
+          {error && <p className="text-red-600">{error}</p>}
 
           <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
             登録する
