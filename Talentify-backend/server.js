@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors'); // CORSエラー回避のため
+const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Talent = require('./models/Talent'); // Talentモデルをインポート
@@ -17,9 +18,11 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // ミドルウェア
-app.use(cors()); // CORSを許可
+app.use(cors({ origin: true, credentials: true })); // CORSを許可しCookieを受け渡す
 app.use(express.json()); // JSON形式のリクエストボディをパース
 app.use(cookieParser());
+<<<<<<< codex/update-login-api-with-cookies-and-refresh
+=======
 const csrfProtection = csrf({ cookie: true });
 
 const authLimiter = rateLimit({
@@ -39,6 +42,7 @@ app.use((req, res, next) => {
     }
     csrfProtection(req, res, next);
 });
+>>>>>>> main
 
 // MongoDB接続
 const uri = process.env.MONGODB_URI; 
@@ -101,10 +105,45 @@ app.post('/api/login', async (req, res) => {
         if (!ok) {
             return res.status(401).json({ message: 'メールアドレスまたはパスワードが間違っています' });
         }
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
-        res.json({ token });
+
+        const accessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+        const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '7d' });
+
+        const cookieOptions = {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict'
+        };
+
+        res.cookie('access', accessToken, { ...cookieOptions, maxAge: 60 * 60 * 1000 });
+        res.cookie('refresh', refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
+        res.json({ message: 'logged in' });
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+});
+
+// アクセストークン再発行
+app.post('/api/refresh', (req, res) => {
+    const token = req.cookies.refresh;
+    if (!token) {
+        return res.status(401).json({ message: 'refresh token missing' });
+    }
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+        const accessToken = jwt.sign({ userId: payload.userId, role: payload.role }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
+
+        const cookieOptions = {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 60 * 60 * 1000
+        };
+        res.cookie('access', accessToken, cookieOptions);
+        res.json({ accessToken });
+    } catch (err) {
+        res.status(401).json({ message: 'invalid refresh token' });
     }
 });
 // 人材情報をすべて取得するAPI
