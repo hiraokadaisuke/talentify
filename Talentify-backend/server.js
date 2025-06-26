@@ -8,6 +8,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Talent = require('./models/Talent'); // Talentモデルをインポート
 const User = require('./models/User');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+const rateLimit = require('express-rate-limit');
 
 dotenv.config(); // .envファイルから環境変数を読み込む
 
@@ -18,6 +21,28 @@ const port = process.env.PORT || 5000;
 app.use(cors({ origin: true, credentials: true })); // CORSを許可しCookieを受け渡す
 app.use(express.json()); // JSON形式のリクエストボディをパース
 app.use(cookieParser());
+<<<<<<< codex/update-login-api-with-cookies-and-refresh
+=======
+const csrfProtection = csrf({ cookie: true });
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Rate limiting for authentication-related endpoints
+app.use(['/api/login', '/api/refresh', '/api/password-reset'], authLimiter);
+
+// CSRF protection for state-changing routes
+app.use((req, res, next) => {
+    if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+        return next();
+    }
+    csrfProtection(req, res, next);
+});
+>>>>>>> main
 
 // MongoDB接続
 const uri = process.env.MONGODB_URI; 
@@ -45,6 +70,11 @@ app.get('/', (req, res) => {
     res.send('Talentify API稼働中！'); // パチンコプラットフォームAPI稼働中！から変更しました
 });
 
+// CSRF token endpoint
+app.get('/api/csrf-token', (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
+
 // ユーザー登録
 app.post('/api/register', async (req, res) => {
     const { email, password, role } = req.body;
@@ -56,8 +86,7 @@ app.post('/api/register', async (req, res) => {
         if (existing) {
             return res.status(409).json({ message: '既に登録されています' });
         }
-        const passwordHash = await bcrypt.hash(password, 10);
-        await User.create({ email, passwordHash, role });
+        await User.create({ email, passwordHash: password, role });
         res.status(201).json({ message: 'ユーザーを作成しました' });
     } catch (err) {
         res.status(500).json({ message: err.message });
