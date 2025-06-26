@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import LogoutButton from './LogoutButton';
 
 export default function Header() {
   return (
@@ -14,6 +15,7 @@ export default function Header() {
         <Link href="/contact" className="hover:underline">お問い合わせ</Link>
         <Link href="/manage" className="hover:underline">管理ページ</Link>
         <Link href="/login" className="font-semibold hover:underline">ログイン</Link>
+        <LogoutButton />
         <Link
           href="/register"
           className="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"

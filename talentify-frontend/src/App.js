@@ -12,6 +12,23 @@ function App() {
   const [experienceYears, setExperienceYears] = useState(0); // フォーム入力用state: 経験年数
   const [csrfToken, setCsrfToken] = useState('');
 
+  const logout = async () => {
+    try {
+      const tokenRes = await fetch(`${API_BASE}/api/csrf-token`, { credentials: 'include' });
+      if (!tokenRes.ok) throw new Error('failed');
+      const { csrfToken } = await tokenRes.json();
+      const res = await fetch(`${API_BASE}/api/logout`, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrfToken },
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('logout failed');
+      alert('ログアウトしました');
+    } catch (err) {
+      console.error('ログアウトに失敗しました', err);
+    }
+  };
+
   // ページ読み込み時に人材情報を取得
   useEffect(() => {
     fetchTalents();
@@ -86,6 +103,7 @@ function App() {
   return (
     <div className="App">
       <h1>Talentify - 人材管理</h1>
+      <button onClick={logout}>ログアウト</button>
 
       {/* 人材追加フォーム */}
       <form onSubmit={addTalent}>

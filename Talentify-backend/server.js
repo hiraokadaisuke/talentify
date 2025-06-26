@@ -37,6 +37,13 @@ app.use(cors({ origin: true, credentials: true })); // Cookie 受け渡しも許
 app.use(express.json());
 app.use(cookieParser());
 
+// Cookie 設定を一元化
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict',
+};
+
 // -------------------------------------------------------------
 //  CSRF & レートリミット設定
 // -------------------------------------------------------------
@@ -129,14 +136,8 @@ app.post('/api/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    const cookieOpts = {
-      httpOnly : true,
-      secure   : process.env.NODE_ENV === 'production',
-      sameSite : 'strict'
-    };
-
-    res.cookie('access',  accessToken,  { ...cookieOpts, maxAge: 60 * 60 * 1000 });
-    res.cookie('refresh', refreshToken, { ...cookieOpts, maxAge: 7  * 24 * 60 * 60 * 1000 });
+    res.cookie('access',  accessToken,  { ...COOKIE_OPTIONS, maxAge: 60 * 60 * 1000 });
+    res.cookie('refresh', refreshToken, { ...COOKIE_OPTIONS, maxAge: 7  * 24 * 60 * 60 * 1000 });
 
     res.json({ message: 'logged in' });
   } catch (err) {
@@ -159,15 +160,20 @@ app.post('/api/refresh', (req, res) => {
     );
 
     res.cookie('access', accessToken, {
-      httpOnly : true,
-      secure   : process.env.NODE_ENV === 'production',
-      sameSite : 'strict',
-      maxAge   : 60 * 60 * 1000
+      ...COOKIE_OPTIONS,
+      maxAge: 60 * 60 * 1000,
     });
     res.json({ accessToken });
   } catch {
     res.status(401).json({ message: 'invalid refresh token' });
   }
+});
+
+// ログアウト: Cookie を削除
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('access', COOKIE_OPTIONS);
+  res.clearCookie('refresh', COOKIE_OPTIONS);
+  res.json({ message: 'logged out' });
 });
 
 // -------------------------------------------------------------
