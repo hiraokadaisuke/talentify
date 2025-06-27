@@ -81,6 +81,19 @@ Like the React app, it communicates with the backend at `http://localhost:5000/a
 
 The Next.js app also provides a performer search interface at `/performers` where you can filter and browse registered talents.
 
+## Running Backend Tests
+
+The Jest test suite lives in `Talentify-backend/tests`. Make sure the backend
+dependencies are installed before running `npm test`:
+
+```bash
+cd Talentify-backend
+npm install
+npm test
+```
+
+Without installing dependencies first, the `jest` command will not be available.
+
 ### Password Reset Flow
 
 1. Visit `/password-reset` in the Next.js app and submit your email address.
