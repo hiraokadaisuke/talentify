@@ -41,7 +41,13 @@ app.use(cookieParser());
 // -------------------------------------------------------------
 //  CSRF & レートリミット設定
 // -------------------------------------------------------------
-const csrfProtection = csrf({ cookie: true });
+const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  }
+});
 
 const authLimiter = rateLimit({
   windowMs       : 15 * 60 * 1000,   // 15分
@@ -123,9 +129,9 @@ app.post('/api/login', async (req, res) => {
     const refreshToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     const cookieOpts = {
-      httpOnly : true,
-      secure   : process.env.NODE_ENV === 'production',
-      sameSite : 'strict'
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     };
 
     res.cookie('access',  accessToken,  { ...cookieOpts, maxAge: 60 * 60 * 1000 });
@@ -152,10 +158,10 @@ app.post('/api/refresh', (req, res) => {
     );
 
     res.cookie('access', accessToken, {
-      httpOnly : true,
-      secure   : process.env.NODE_ENV === 'production',
-      sameSite : 'strict',
-      maxAge   : 60 * 60 * 1000
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 60 * 60 * 1000
     });
     res.json({ accessToken });
   } catch {
@@ -165,9 +171,9 @@ app.post('/api/refresh', (req, res) => {
 
 app.post('/api/logout', (req, res) => {
   const cookieOpts = {
-    httpOnly : true,
-    secure   : process.env.NODE_ENV === 'production',
-    sameSite : 'strict'
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
   };
   res.clearCookie('access', cookieOpts);
   res.clearCookie('refresh', cookieOpts);
