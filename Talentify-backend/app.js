@@ -16,10 +16,26 @@ const auth = require('./auth');
 
 dotenv.config();
 
-const requiredEnv = ['MONGODB_URI', 'JWT_SECRET', 'PORT'];
-const missing = requiredEnv.filter(v => !process.env[v]);
+// Support legacy environment variable names
+if (!process.env.MONGODB_URI && process.env.MONGO_URI) {
+  process.env.MONGODB_URI = process.env.MONGO_URI;
+}
+if (!process.env.JWT_SECRET && process.env.SESSION_SECRET) {
+  process.env.JWT_SECRET = process.env.SESSION_SECRET;
+}
+const requiredEnv = [
+  ['MONGODB_URI', 'MONGO_URI'],
+  ['JWT_SECRET', 'SESSION_SECRET'],
+  'PORT'
+];
+const missing = requiredEnv.filter(v =>
+  Array.isArray(v) ? v.every(n => !process.env[n]) : !process.env[v]
+);
 if (missing.length) {
-  console.error(`Missing required environment variables: ${missing.join(', ')}`);
+  const names = missing
+    .map(v => (Array.isArray(v) ? v.join(' or ') : v))
+    .join(', ');
+  console.error(`Missing required environment variables: ${names}`);
   process.exit(1);
 }
 

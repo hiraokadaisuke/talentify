@@ -27,6 +27,9 @@ Each project has its own `package.json` and dependencies. They can be developed 
    PORT=5000
    ```
    The server will exit on startup if any of these variables are missing.
+   If you're migrating from an older setup, the legacy names `MONGO_URI` and
+   `SESSION_SECRET` are also accepted and automatically mapped to
+   `MONGODB_URI` and `JWT_SECRET`.
 
 3. Start the API server:
    ```bash
