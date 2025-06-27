@@ -11,7 +11,7 @@ module.exports = function auth(allowedRoles = []) {
       if (!token) {
         return res.status(401).json({ message: '認証トークンがありません' });
       }
-      const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+      const payload = jwt.verify(token, process.env.JWT_SECRET);
       req.user = { id: payload.userId, role: payload.role };
       if (allowedRoles.length && !allowedRoles.includes(payload.role)) {
         return res.status(403).json({ message: '権限がありません' });
