@@ -8,7 +8,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(null)
-  const [csrfToken, setCsrfToken] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -21,7 +20,6 @@ export default function LoginPage() {
       )
       if (!tokenRes.ok) throw new Error('failed to get csrf token')
       const tokenData = await tokenRes.json()
-      setCsrfToken(tokenData.csrfToken)
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/login`, {
         method: 'POST',
@@ -34,7 +32,6 @@ export default function LoginPage() {
       })
       if (!res.ok) throw new Error('login failed')
       await res.json()
-      console.log('login success')
     } catch (err) {
       setError('メールアドレスまたはパスワードが間違っています')
     }
