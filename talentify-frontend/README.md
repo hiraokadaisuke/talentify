@@ -4,6 +4,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
+Before running `npm start` or `npm test`, install the dependencies:
+
+```bash
+npm install
+```
+
 In the project directory, you can run:
 
 ### `npm start`
