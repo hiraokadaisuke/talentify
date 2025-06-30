@@ -3,8 +3,7 @@
 import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function RegisterForm() {
   const searchParams = useSearchParams()
@@ -114,23 +113,15 @@ export default function RegisterForm() {
       return
     }
     try {
-      const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
-        credentials: 'include',
+      const { error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { role } },
       })
-      const { csrfToken } = await csrfRes.json()
-      const res = await fetch(`${API_BASE}/api/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'CSRF-Token': csrfToken,
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password, role }),
-      })
-      if (!res.ok) throw new Error('register failed')
-      await res.json()
+      if (signUpError) throw signUpError
       router.push('/login')
     } catch (err) {
+      console.error(err)
       setError('登録に失敗しました')
     }
   }

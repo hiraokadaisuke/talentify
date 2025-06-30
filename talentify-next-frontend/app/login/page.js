@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -15,26 +14,13 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
     try {
-      // CSRF トークンを取得
-      const tokenRes = await fetch(
-        `${API_BASE}/api/csrf-token`,
-        { credentials: 'include' }
-      )
-      if (!tokenRes.ok) throw new Error('failed to get csrf token')
-      const tokenData = await tokenRes.json()
-
-      const res = await fetch(`${API_BASE}/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': tokenData.csrfToken,
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       })
-      if (!res.ok) throw new Error('login failed')
-      await res.json()
+      if (signInError) throw signInError
     } catch (err) {
+      console.error(err)
       setError('メールアドレスまたはパスワードが間違っています')
     }
   }
