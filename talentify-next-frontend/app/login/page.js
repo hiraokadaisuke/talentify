@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -15,13 +17,13 @@ export default function LoginPage() {
     try {
       // CSRF トークンを取得
       const tokenRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api/csrf-token`,
+        `${API_BASE}/api/csrf-token`,
         { credentials: 'include' }
       )
       if (!tokenRes.ok) throw new Error('failed to get csrf token')
       const tokenData = await tokenRes.json()
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/login`, {
+      const res = await fetch(`${API_BASE}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+
 export default function RegisterForm() {
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role')
@@ -112,11 +114,11 @@ export default function RegisterForm() {
       return
     }
     try {
-      const csrfRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/csrf-token`, {
+      const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
         credentials: 'include',
       })
       const { csrfToken } = await csrfRes.json()
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/register`, {
+      const res = await fetch(`${API_BASE}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
