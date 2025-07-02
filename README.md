@@ -89,4 +89,5 @@ Supabase Storage で画像/動画アップロード
 
 📄 ライセンス
 
-MIT LicenseSee the LICENSE file for details.
+MIT License  
+See the LICENSE file for details.
