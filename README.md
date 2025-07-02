@@ -1,108 +1,92 @@
-# Talentify Monorepo
+Talentify【タレントファイ】
 
-This repository contains a sample backend API and two separate React front‑ends.
+Talentify は、ライター・演者とパチンコホールをマッチングするプラットフォームです。ホールは演者を検索・オファー、演者はプロフィール作成・スケジュール管理ができます。
 
-## Repository Layout
+📁 プロジェクト構成
 
-- `Talentify-backend/` – Node.js + Express API with a MongoDB model.
-- `talentify-frontend/` – Create React App project that interacts with the backend.
-- `talentify-next-frontend/` – Next.js project using the `app` directory.
+/talentify-next-frontend   ← メインの Next.js アプリ (App Router 構成)
+/supabase                  ← Supabase プロジェクト構成・管理
 
-Each project has its own `package.json` and dependencies. They can be developed and deployed independently but all assume the backend runs locally on port `5000`.
+バックエンドは不要 (全て Supabase で完結)
 
-## Backend Setup
+認証、DB、API は Supabase
 
-1. Install dependencies:
-   ```bash
-   cd Talentify-backend
-   npm install
-   ```
+UI は shadcn/ui + Tailwind CSS
 
-2. Copy `.env.example` to `.env` inside `Talentify-backend` and edit the values:
-   ```bash
-   cp .env.example .env
-   # then update the following **required** variables
-   MONGODB_URI=<your Mongo connection string>
-   JWT_SECRET=<secret used for JWT signing>
-   PORT=5000
-   ```
-   The server will exit on startup if any of these variables are missing.
-   If you're migrating from an older setup, the legacy names `MONGO_URI` and
-   `SESSION_SECRET` are also accepted and automatically mapped to
-   `MONGODB_URI` and `JWT_SECRET`.
+✨ セットアップ手順
 
-3. Start the API server:
-   ```bash
-   node server.js
-   ```
+1. Supabase プロジェクトを作成
 
-### API Endpoints
+Supabase で新規プロジェクトを作成し、下記の情報を獲得:
 
-- `POST /api/register` - Create a new user account.
-- `POST /api/login` - Authenticate and receive a JWT token.
-- `POST /api/password-reset` - Request a password reset email.
-- `POST /api/password-reset/:token` - Set a new password using the token.
-- `GET /api/talents` - Retrieve all registered talents.
-- `POST /api/talents` - Add a new talent.
-- `GET /api/talents/:id` - Retrieve a talent by its MongoDB `_id` (returns `404` if not found).
+SUPABASE_URL
 
-Passwords sent to `/api/register` are hashed automatically before being stored.
+SUPABASE_ANON_KEY
 
-## React Frontend
+2. .env.local の作成
 
-The `talentify-frontend` directory contains a Create React App project.
+talentify-next-frontend 目に .env.local を作成し、下記を記述:
 
-```bash
-cd talentify-frontend
-npm install
-npm start
-```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-Copy `.env.example` to `.env` first and set `REACT_APP_API_BASE` to your backend
-URL. For online deployments you can use
-`https://talentify-production.up.railway.app` (defaults to
-`http://localhost:5000`).
+※ .env.local は .gitignore に含まれています。
 
-This frontend expects the backend API at `http://localhost:5000/api/talents` as referenced in `src/App.js`.
+3. 開発サーバーの起動
 
-## Next.js Frontend
-
-The `talentify-next-frontend` directory is a Next.js application.
-
-```bash
 cd talentify-next-frontend
 npm install
 npm run dev
-```
 
-Before starting, copy `.env.example` to `.env` and set `NEXT_PUBLIC_API_BASE` to
-your backend URL. When deploying online you can use
-`https://talentify-production.up.railway.app` (defaults to
-`http://localhost:5000`).
+http://localhost:3000 で開始します。
 
-Like the React app, it communicates with the backend at `http://localhost:5000/api/talents` (see `app/page.js`).
+✨ 実装済み・予定機能
 
-The Next.js app also provides a performer search interface at `/performers` where you can filter and browse registered talents.
+✅ 実装済
 
-## Running Backend Tests
+Supabase 認証 (ログイン/新規登録)
 
-The Jest test suite lives in `Talentify-backend/tests`. Make sure the backend
-dependencies are installed before running `npm test`:
+演者プロフィール登録/編集
 
-```bash
-cd Talentify-backend
-npm install
-npm test
-```
+店舗からのオファー機能
 
-Without installing dependencies first, the `jest` command will not be available.
+スケジュールカレンダー表示
 
-### Password Reset Flow
+ダッシュボード UI (演者/店舗)
 
-1. Visit `/password-reset` in the Next.js app and submit your email address.
-2. The backend generates a time-limited token and (in this demo) logs it to the console.
-3. Navigate to `/password-reset/<token>` and enter a new password. This issues a `POST /api/password-reset/<token>` request to update the password.
+🔜 実装予定
 
-## License
+メッセージ機能
 
-This repository is provided under the MIT License. See the [LICENSE](LICENSE) file for details.
+オファー承認/迷惑操作
+
+ギャラ管理/支払いフロー
+
+出演評価/レビュー投稿
+
+デプロイ (予定: Vercel)
+
+📦 ディレクトリ構成 (Next.js)
+
+talentify-next-frontend/
+├── app/                 # App Router のページ定義
+├── components/          # UI コンポーネント
+├── lib/                 # Supabase クライアント/ユーティリティ
+├── styles/              # CSS
+├── public/              # 静的ファイル
+├── .env.local           # Supabase 設定
+└── package.json
+
+🔐 Supabase の活用ポイント
+
+PostgreSQL を使用したスキーマベースのデータ構造
+
+Row Level Security (RLS) による安全なデータアクセス
+
+Supabase Auth による認証管理 (メール/パスワード)
+
+Supabase Storage で画像/動画アップロード
+
+📄 ライセンス
+
+MIT LicenseSee the LICENSE file for details.

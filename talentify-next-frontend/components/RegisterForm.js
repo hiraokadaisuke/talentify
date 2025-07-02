@@ -3,6 +3,13 @@
 import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
 
@@ -107,33 +114,46 @@ export default function RegisterForm() {
   )
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError(null)
-    if (password !== confirm) {
-      setError('パスワードが一致しません')
-      return
-    }
-    try {
-      const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
-        credentials: 'include',
-      })
-      const { csrfToken } = await csrfRes.json()
-      const res = await fetch(`${API_BASE}/api/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'CSRF-Token': csrfToken,
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password, role }),
-      })
-      if (!res.ok) throw new Error('register failed')
-      await res.json()
-      router.push('/login')
-    } catch (err) {
-      setError('登録に失敗しました')
-    }
+  e.preventDefault()
+  setError(null)
+  if (password !== confirm) {
+    setError('パスワードが一致しません')
+    return
   }
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { role }, // role: 'store' または 'performer'
+      }
+    })
+
+if (data.user) {
+  const { error: insertError } = await supabase.from('profiles').insert({
+    user_id: data.user.id,     // Supabase AuthのユーザーID
+    display_name: '',          // 空でOK（後からプロフィール編集）
+    bio: '',
+    avatar_url: '',
+  })
+
+  if (insertError) {
+    console.error('プロフィール作成失敗:', insertError.message)
+  }
+}
+
+
+
+    if (error) {
+      throw error
+    }
+
+    router.push('/login')
+  } catch (err) {
+    setError('登録に失敗しました')
+  }
+}
+
 
   return (
     <main className="max-w-xl mx-auto p-4">

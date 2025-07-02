@@ -1,7 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
 export default function ProfileEditPage() {
   const [displayName, setDisplayName] = useState('')
@@ -11,33 +15,55 @@ export default function ProfileEditPage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/profile`, {
-          credentials: 'include',
-        })
-        if (!res.ok) throw new Error('failed')
-        const data = await res.json()
+        const {
+          data: { session },
+          error: sessionError
+        } = await supabase.auth.getSession()
+
+        if (sessionError || !session?.user) throw new Error('ログイン情報が取得できません')
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('display_name, bio')
+          .eq('user_id', session.user.id)
+          .single()
+
+        if (error) throw error
         if (data) {
-          setDisplayName(data.displayName || '')
+          setDisplayName(data.display_name || '')
           setBio(data.bio || '')
         }
       } catch (e) {
         console.error(e)
+        setMessage('プロフィールの読み込みに失敗しました')
       }
     }
+
     fetchProfile()
   }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage('')
+
     try {
-      const res = await fetch(`${API_BASE}/api/profile`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ displayName, bio }),
-      })
-      if (!res.ok) throw new Error('failed')
+      const {
+        data: { session },
+        error: sessionError
+      } = await supabase.auth.getSession()
+
+      if (sessionError || !session?.user) throw new Error('ログイン情報が取得できません')
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: displayName,
+          bio: bio
+        })
+        .eq('user_id', session.user.id)
+
+      if (error) throw error
+
       setMessage('保存しました')
     } catch (err) {
       console.error(err)
