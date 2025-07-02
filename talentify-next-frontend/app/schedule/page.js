@@ -67,7 +67,7 @@ export default function SchedulePage() {
       </form>
       <ul className="space-y-2">
         {items.map((it) => (
-          <li key={it._id}>
+          <li key={it.id}>
             {new Date(it.date).toLocaleDateString()} - {it.description}
           </li>
         ))}

@@ -17,11 +17,11 @@ export default function PerformerCard({ talent }) {
       )}
       <p className="text-sm mb-4">
         <span className="font-medium">経験年数: </span>
-        {talent.experienceYears}年
+        {talent.experience_years}年
       </p>
       <div className="mt-auto flex space-x-2">
         <Link
-          href={`/performers/${talent._id}`}
+          href={`/performers/${talent.id}`}
           className="flex-1 py-1 border rounded text-center hover:bg-gray-50"
         >
           詳細を見る

@@ -44,7 +44,7 @@ export default function PerformerDetailPage({ params }) {
       )}
       <p>
         <span className="font-medium">経験年数: </span>
-        {talent.experienceYears}年
+        {talent.experience_years}年
       </p>
       <hr />
       <p className="text-gray-500">プロフィール詳細は今後ここに表示されます。</p>

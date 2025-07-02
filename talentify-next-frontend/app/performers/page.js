@@ -42,7 +42,7 @@ export default function PerformersPage() {
       />
       <div className="grid gap-4 md:grid-cols-2">
         {filtered.map(t => (
-          <PerformerCard key={t._id} talent={t} />
+          <PerformerCard key={t.id} talent={t} />
         ))}
         {filtered.length === 0 && (
           <p>該当する演者が見つかりませんでした。</p>
