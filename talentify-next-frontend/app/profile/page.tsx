@@ -36,7 +36,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, []);
+  }, [supabase]); // ✅ 依存配列に supabase を追加（警告解消）
 
   if (loading) return <p>読み込み中...</p>;
 
