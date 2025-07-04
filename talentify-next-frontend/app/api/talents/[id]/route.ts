@@ -19,6 +19,12 @@ export async function GET(
     })
   }
 
+  if (!data) {
+    return new Response(JSON.stringify({ error: 'Not found' }), {
+      status: 404,
+    })
+  }
+
   return new Response(JSON.stringify(data), {
     status: 200,
   })
