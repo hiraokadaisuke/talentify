@@ -44,3 +44,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Message Box
 
 A simple message interface is available at `/messages` for testing chat UI.
+
+## Reviews Page
+
+Visit `/reviews` to see a placeholder review list.
