@@ -1,5 +1,11 @@
 import PerformerDetailPageClient from './PerformerDetailPageClient'
 
-export default function Page() {
-  return <PerformerDetailPageClient />
+type PageProps = {
+  params: {
+    id: string
+  }
+}
+
+export default function Page({ params }: PageProps) {
+  return <PerformerDetailPageClient id={params.id} />
 }
