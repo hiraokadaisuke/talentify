@@ -13,7 +13,9 @@ export default async function TalentDetailPage({
 }: {
   params: { id: string }
 }) {
-  const res = await fetch(`http://localhost:3000/api/talents/${params.id}`, {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3000'
+
+  const res = await fetch(`${baseUrl}/api/talents/${params.id}`, {
     cache: 'no-store',
   })
 
