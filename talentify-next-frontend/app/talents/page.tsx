@@ -8,7 +8,9 @@ type Talent = {
 }
 
 export default async function TalentListPage() {
-  const res = await fetch('http://localhost:3000/api/talents', {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3000'
+
+  const res = await fetch(`${baseUrl}/api/talents`, {
     cache: 'no-store',
   })
 
