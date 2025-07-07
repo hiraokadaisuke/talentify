@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  // createClient は async 関数なので await を付ける
+  const supabase = await createClient()
   const { email } = await req.json()
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
