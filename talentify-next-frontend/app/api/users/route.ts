@@ -1,8 +1,8 @@
-// app/api/users/route.ts
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
-  const supabase = createClient()
+  // awaitをつける
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('users')
