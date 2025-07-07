@@ -1,6 +1,5 @@
 'use client'
 
-import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
@@ -20,8 +19,11 @@ type Performer = {
   user_id?: string
 }
 
-export default function PerformerDetailPageClient() {
-  const { id } = useParams()
+type Props = {
+  id: string
+}
+
+export default function PerformerDetailPageClient({ id }: Props) {
   const supabase = createClient()
   const [performer, setPerformer] = useState<Performer | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
