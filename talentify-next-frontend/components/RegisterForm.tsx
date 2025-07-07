@@ -193,9 +193,12 @@ router.push('/check-email')
 
           {error && <p className="text-red-600">{error}</p>}
 
-          <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            登録する
-          </button>
+          <button
+  type={"submit" as "submit"}
+  className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+>
+  登録する
+</button>
         </form>
       )}
 
