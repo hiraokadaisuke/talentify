@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import PerformerCard from '../../components/PerformerCard'
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+// 本番環境はNEXT_PUBLIC_API_BASEを設定、なければ同一オリジンでAPI呼び出し
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || ''
 
 export default function PerformersPage() {
   const [talents, setTalents] = useState([])
@@ -12,7 +13,7 @@ export default function PerformersPage() {
     const fetchTalents = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/talents`, {
-          credentials: 'include', // include cookies for authenticated APIs
+          credentials: 'include',
         })
         if (!res.ok) throw new Error('Failed to fetch')
         const data = await res.json()
