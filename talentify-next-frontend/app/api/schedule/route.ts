@@ -2,7 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest } from 'next/server'
 
 export async function GET() {
-  const supabase = createClient()
+  // awaitをつけてSupabaseクライアントを取得
+  const supabase = await createClient()
+
   const {
     data: { user },
     error: userError,
@@ -22,7 +24,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  // awaitをつけてSupabaseクライアントを取得
+  const supabase = await createClient()
   const body = await req.json()
   const { date, description } = body
 
