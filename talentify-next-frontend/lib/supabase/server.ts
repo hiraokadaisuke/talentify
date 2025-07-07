@@ -1,13 +1,20 @@
+// lib/supabase/server.ts
+
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/types/supabase'
 
-export async function createClient() { // ← ① asyncを追加
-  const cookieStore = await cookies()  // ← ② awaitを追加
+/**
+ * Next.jsのサーバーコンポーネントやAPIルートで
+ * 認証クッキー付きSupabaseクライアントを取得する関数
+ */
+export async function createClient() {
+  // Next.jsのcookies()はasyncなのでawaitが必要
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,      // Supabase URL（環境変数）
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, // Supabase匿名キー（環境変数）
     {
       cookies: {
         get(name: string) {
