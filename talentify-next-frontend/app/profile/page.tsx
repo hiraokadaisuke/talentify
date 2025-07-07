@@ -1,5 +1,3 @@
-// app/profile/page.tsx
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -36,10 +34,9 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, [supabase]); // ✅ 依存配列に supabase を追加（警告解消）
+  }, [supabase]);
 
   if (loading) return <p>読み込み中...</p>;
-
   if (!profile) return <p>プロフィールが見つかりません</p>;
 
   return (
@@ -47,6 +44,26 @@ export default function ProfilePage() {
       <h1 className="text-2xl font-bold mb-4">プロフィール</h1>
       <p><strong>名前：</strong>{profile.name}</p>
       <p><strong>自己紹介：</strong>{profile.bio}</p>
+
+      {profile.role === 'performer' && (
+        <div className="mt-4 space-y-2">
+          <p><strong>Twitter:</strong> {profile.twitter}</p>
+          <p><strong>Instagram:</strong> {profile.instagram}</p>
+          <p><strong>YouTube:</strong> {profile.youtube}</p>
+          <button
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={() => window.location.href = '/performer/profile/edit'}
+          >
+            プロフィールを編集
+          </button>
+        </div>
+      )}
+
+      {profile.role === 'store' && (
+        <div className="mt-4 text-green-700 font-semibold">
+          店舗アカウントとしてログイン中です。
+        </div>
+      )}
     </div>
   );
 }

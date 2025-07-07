@@ -135,6 +135,7 @@ if (data.user) {
     display_name: '',          // 空でOK（後からプロフィール編集）
     bio: '',
     avatar_url: '',
+    role: role 
   })
 
   if (insertError) {
@@ -145,10 +146,11 @@ if (data.user) {
 
 
     if (error) {
-      throw error
-    }
+  throw error
+}
 
-    router.push('/login')
+// ✅ 仮登録完了ページへリダイレクト
+router.push('/check-email')
   } catch (err) {
     setError('登録に失敗しました')
   }

@@ -1,18 +1,56 @@
-import Link from 'next/link';
+'use client'
+
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
+
+const supabase = createClient()
 
 export default function Header() {
+  const [role, setRole] = useState(null)
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single()
+
+      if (data?.role) {
+        setRole(data.role)
+      }
+    }
+
+    fetchRole()
+  }, [])
+
   return (
     <header className="flex items-center justify-between p-4 bg-white shadow">
       <Link href="/" className="text-2xl font-bold">
         Talentify
       </Link>
+
       <nav className="space-x-4 text-sm">
-        <a href="#about" className="hover:underline">このサイトについて</a>
+        <Link href="/about" className="hover:underline">このサイトについて</Link>
         <Link href="/performers" className="hover:underline">演者検索</Link>
         <Link href="/dashboard" className="hover:underline">ダッシュボード</Link>
         <Link href="/faq" className="hover:underline">FAQ</Link>
         <Link href="/contact" className="hover:underline">お問い合わせ</Link>
-        <Link href="/manage" className="hover:underline">管理ページ</Link>
+
+        {role === 'store' && (
+          <Link href="/manage" className="hover:underline">管理ページ</Link>
+        )}
+
+        {role === 'performer' && (
+          <Link href="/performer/profile/edit" className="hover:underline text-blue-600 font-semibold">
+            プロフィール編集
+          </Link>
+        )}
+
         <Link href="/login" className="font-semibold hover:underline">ログイン</Link>
         <Link
           href="/register"
@@ -23,5 +61,5 @@ export default function Header() {
         <Link href="/logout" className="hover:underline">ログアウト</Link>
       </nav>
     </header>
-  );
+  )
 }

@@ -1,13 +1,3 @@
-// types/supabase.ts
-
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json }
-  | Json[]
-
 export interface Database {
   public: {
     Tables: {
@@ -27,13 +17,34 @@ export interface Database {
           rate: number
           availability: string
         }
-        Insert: Omit<
-          Database['public']['Tables']['talents']['Row'],
-          'id'
-        >
-        Update: Partial<
-          Database['public']['Tables']['talents']['Row']
-        >
+        Insert: Omit<Database['public']['Tables']['talents']['Row'], 'id'>
+        Update: Partial<Database['public']['Tables']['talents']['Row']>
+      }
+
+      // ✅ ここに追加
+      offers: {
+        Row: {
+          id: string
+          user_id: string
+          talent_id: string
+          message: string
+          date: string
+          created_at: string
+        }
+        Insert: {
+          user_id: string
+          talent_id: string
+          message: string
+          date: string
+          created_at?: string // サーバー側で自動生成される場合は optional に
+        }
+        Update: Partial<{
+          user_id: string
+          talent_id: string
+          message: string
+          date: string
+          created_at: string
+        }>
       }
     }
   }

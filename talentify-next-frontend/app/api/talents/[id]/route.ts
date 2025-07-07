@@ -5,7 +5,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createClient()
+  const supabase = await createClient() // ← await を追加
 
   const { data, error } = await supabase
     .from('talents')
@@ -23,11 +23,13 @@ export async function GET(
     status: 200,
   })
 }
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createClient()
+  const supabase = await createClient() // ← await を追加
+
   const { name, email, profile } = await req.json()
 
   const { error } = await supabase
@@ -45,11 +47,12 @@ export async function PUT(
     status: 200,
   })
 }
+
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createClient()
+  const supabase = await createClient() // ← await を追加
 
   const { error } = await supabase
     .from('talents')
