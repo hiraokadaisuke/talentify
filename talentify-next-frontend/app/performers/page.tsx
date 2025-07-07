@@ -1,8 +1,8 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import PerformerCard from '../../components/PerformerCard'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+import { supabase } from '@/lib/supabase'  // ← ここを追加
 
 export default function PerformersPage() {
   const [talents, setTalents] = useState([])
@@ -10,15 +10,11 @@ export default function PerformersPage() {
 
   useEffect(() => {
     const fetchTalents = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/talents`, {
-          credentials: 'include', // include cookies for authenticated APIs
-        })
-        if (!res.ok) throw new Error('Failed to fetch')
-        const data = await res.json()
-        setTalents(data)
-      } catch (e) {
-        console.error(e)
+      const { data, error } = await supabase.from('talents').select('*')
+      if (error) {
+        console.error('Failed to fetch talents:', error)
+      } else {
+        setTalents(data || [])
       }
     }
     fetchTalents()

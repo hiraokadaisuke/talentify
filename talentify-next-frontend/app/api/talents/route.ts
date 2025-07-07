@@ -5,21 +5,23 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from('talents')
-    .select('*') // 新カラム含めてすべて取得
+    .select('*')
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
+      headers: { 'Content-Type': 'application/json' },
     })
   }
 
   return new Response(JSON.stringify(data), {
     status: 200,
+    headers: { 'Content-Type': 'application/json' },
   })
 }
 
 export async function POST(req: Request) {
-const supabase = await createClient()
+  const supabase = await createClient()
   const body = await req.json()
 
   const {
@@ -60,10 +62,12 @@ const supabase = await createClient()
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
+      headers: { 'Content-Type': 'application/json' },
     })
   }
 
   return new Response(JSON.stringify(data), {
     status: 201,
+    headers: { 'Content-Type': 'application/json' },
   })
 }
