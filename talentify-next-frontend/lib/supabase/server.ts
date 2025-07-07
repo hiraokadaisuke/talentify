@@ -1,4 +1,5 @@
 // lib/supabase/server.ts
+export const runtime = 'nodejs' //
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
