@@ -1,10 +1,5 @@
-// app/performers/[id]/page.tsx
-import dynamic from 'next/dynamic'
-
-const PerformerDetailPage = dynamic(() => import('./PerformerDetailPage'), {
-  ssr: false,
-})
+import PerformerDetailPageClient from './PerformerDetailPageClient'
 
 export default function Page() {
-  return <PerformerDetailPage />
+  return <PerformerDetailPageClient />
 }
