@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
 import { StarRating } from '@/components/StarRating'
@@ -92,9 +93,11 @@ export default function PerformerDetailPageClient({ id }: Props) {
 
       <div className="mt-6 space-y-2">
         {role === 'store' && (
-          <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            オファーを送る
-          </button>
+          <Link href={`/performers/${performer.id}/offer`}>
+            <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+              オファーを送る
+            </button>
+          </Link>
         )}
 
         {role === 'performer' && userId === performer.id && (
