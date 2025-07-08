@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const TABS = ['進行中の契約', 'スケジュール', '履歴', '支払い']
 
@@ -25,10 +25,44 @@ const history = [
   { id: 2, date: '2025/05/28', label: '△△さんトークイベント', reviewed: false },
 ]
 
-const payments = [
-  { id: 1, label: '○○さん', amount: 40000, status: '未払い', invoice: '#' },
-  { id: 2, label: '△△さん', amount: 35000, status: '支払済' },
-]
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || ''
+
+function usePayments() {
+  const [payments, setPayments] = useState([])
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/payments`)
+        if (!res.ok) throw new Error('failed')
+        const data = await res.json()
+        setPayments(data)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    load()
+  }, [])
+
+  const updateStatus = async (id, status) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/payments`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status }),
+      })
+      if (!res.ok) throw new Error('failed')
+      const updated = await res.json()
+      setPayments((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, ...updated } : p))
+      )
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  return { payments, updateStatus }
+}
 
 function TabButton({ current, tab, setTab }) {
   return (
@@ -100,15 +134,32 @@ function History() {
 }
 
 function Payments() {
+  const { payments, updateStatus } = usePayments()
+
   return (
     <div className="space-y-2">
-      {payments.map(p => (
-        <div key={p.id} className="border rounded p-2 flex items-center justify-between">
-          <div>{p.label} ¥{p.amount.toLocaleString()}</div>
+      {payments.map((p) => (
+        <div
+          key={p.id}
+          className="border rounded p-2 flex items-center justify-between"
+        >
+          <div>
+            {p.label} ¥{p.amount?.toLocaleString?.()}
+          </div>
           <div className="flex items-center space-x-2 text-sm">
             <span>{p.status}</span>
-            {p.invoice && (
-              <a href={p.invoice} className="text-blue-600 underline">請求書DL</a>
+            {p.invoice_url && (
+              <a href={p.invoice_url} className="text-blue-600 underline">
+                請求書DL
+              </a>
+            )}
+            {p.status !== '支払済' && (
+              <button
+                onClick={() => updateStatus(p.id, '支払済')}
+                className="px-2 py-1 border rounded"
+              >
+                支払済にする
+              </button>
             )}
           </div>
         </div>
