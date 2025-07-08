@@ -1,5 +1,6 @@
 "use client";
 import Link from 'next/link';
+import { useState } from 'react';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -22,6 +23,22 @@ const pendingOffers = [
 ];
 
 export default function DashboardPage() {
+  const [offers, setOffers] = useState(pendingOffers);
+
+  const handleStatus = async (id, status) => {
+    const res = await fetch(`/api/offers/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) {
+      setOffers((prev) => prev.filter((o) => o.id !== id));
+    } else {
+      const err = await res.text();
+      alert(`更新に失敗しました: ${err}`);
+    }
+  };
+
   return (
     <div className="p-4 grid gap-4 md:grid-cols-2">
       <Card>
@@ -66,13 +83,23 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {pendingOffers.map((o) => (
+              {offers.map((o) => (
                 <tr key={o.id} className="border-t">
                   <td className="py-2">{o.title}</td>
                   <td className="py-2 space-x-2">
                     <button className="text-blue-600">詳細確認</button>
-                    <button className="text-green-600">承諾</button>
-                    <button className="text-red-600">辞退</button>
+                    <button
+                      className="text-green-600"
+                      onClick={() => handleStatus(o.id, 'accepted')}
+                    >
+                      承諾
+                    </button>
+                    <button
+                      className="text-red-600"
+                      onClick={() => handleStatus(o.id, 'rejected')}
+                    >
+                      辞退
+                    </button>
                   </td>
                 </tr>
               ))}

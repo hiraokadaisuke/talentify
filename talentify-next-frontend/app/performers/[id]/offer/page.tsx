@@ -30,6 +30,7 @@ export default function OfferPage() {
         talent_id: id,
         message: message,
         date: date,
+        status: 'pending',
       },
     ])
 
