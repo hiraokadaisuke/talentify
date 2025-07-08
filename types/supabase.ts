@@ -116,6 +116,33 @@ export type Database = {
           social_links?: string[] | null
         }
         Relationships: []
+      },
+      payments: {
+        Row: {
+          id: string
+          offer_id: string | null
+          amount: number | null
+          status: string | null
+          invoice_url: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          offer_id?: string | null
+          amount?: number | null
+          status?: string | null
+          invoice_url?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          offer_id?: string | null
+          amount?: number | null
+          status?: string | null
+          invoice_url?: string | null
+          created_at?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
