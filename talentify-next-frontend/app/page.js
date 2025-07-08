@@ -1,33 +1,28 @@
 'use client';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
   return (
     <main className="flex flex-col items-center">
       <section
-        className="w-full text-center text-white py-20 bg-gradient-to-r from-blue-700 to-green-600"
+        className="w-full text-center text-white py-20 bg-gradient-to-br from-indigo-700 via-purple-600 to-indigo-700"
       >
         <h1 className="text-3xl md:text-4xl font-bold mb-4">
           パチンコ店と人気演者を繋ぐ、新しいマッチングプラットフォーム
         </h1>
         <p className="mb-6">イベント成功のための最適なパートナーを見つけましょう</p>
-        <div className="flex justify-center space-x-4">
-          <Link
-            href="/register?role=store"
-            className="px-5 py-3 bg-blue-600 rounded text-white hover:bg-blue-700"
-          >
-            店舗として登録する
-          </Link>
-          <Link
-            href="/register?role=performer"
-            className="px-5 py-3 bg-green-600 rounded text-white hover:bg-green-700"
-          >
-            演者として登録する
-          </Link>
+        <div className="flex justify-center gap-4">
+          <Button asChild>
+            <Link href="/register?role=store">店舗として登録する</Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/register?role=performer">演者として登録する</Link>
+          </Button>
         </div>
       </section>
 
-      <section id="about" className="py-12 max-w-3xl w-full px-4">
+      <section id="about" className="py-12 max-w-5xl w-full px-4">
         <h2 className="text-2xl font-bold text-center mb-6">パチンコ店様へ</h2>
         <ul className="list-disc list-inside space-y-2">
           <li>最適な演者と出会える</li>
@@ -41,7 +36,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-12 bg-gray-50 max-w-3xl w-full px-4">
+      <section className="py-12 bg-gray-50 max-w-5xl w-full px-4">
         <h2 className="text-2xl font-bold text-center mb-6">演者の皆様へ</h2>
         <ul className="list-disc list-inside space-y-2">
           <li>安定した仕事機会の獲得</li>
@@ -55,7 +50,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-12 max-w-3xl w-full px-4">
+      <section className="py-12 max-w-5xl w-full px-4">
         <h2 className="text-2xl font-bold text-center mb-6">よくある質問</h2>
         <p className="text-center">
           <Link href="/faq" className="text-blue-600 underline">
@@ -64,7 +59,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="py-12 bg-gray-50 max-w-3xl w-full px-4">
+      <section className="py-12 bg-gray-50 max-w-5xl w-full px-4">
         <h2 className="text-2xl font-bold text-center mb-6">お問い合わせ</h2>
         <p className="text-center">
           <Link href="/contact" className="text-blue-600 underline">
