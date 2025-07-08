@@ -30,6 +30,7 @@ export interface Database {
           message: string
           date: string
           created_at: string
+          status: string
         }
         Insert: {
           user_id: string
@@ -37,6 +38,7 @@ export interface Database {
           message: string
           date: string
           created_at?: string // サーバー側で自動生成される場合は optional に
+          status?: string
         }
         Update: Partial<{
           user_id: string
@@ -44,6 +46,7 @@ export interface Database {
           message: string
           date: string
           created_at: string
+          status: string
         }>
       }
     }
