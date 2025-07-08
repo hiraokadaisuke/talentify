@@ -29,17 +29,18 @@ export default function Header() {
   }, [])
 
   return (
-    <header className="flex items-center justify-between p-4 bg-white shadow">
-      <Link href="/" className="text-2xl font-bold">
-        Talentify
-      </Link>
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
+      <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
+        <Link href="/" className="text-2xl font-bold tracking-tight">
+          Talentify
+        </Link>
 
-      <nav className="space-x-4 text-sm">
-        <Link href="/about" className="hover:underline">このサイトについて</Link>
-        <Link href="/performers" className="hover:underline">演者検索</Link>
-        <Link href="/dashboard" className="hover:underline">ダッシュボード</Link>
-        <Link href="/faq" className="hover:underline">FAQ</Link>
-        <Link href="/contact" className="hover:underline">お問い合わせ</Link>
+        <nav className="space-x-4 text-sm flex items-center">
+          <Link href="/about" className="hover:underline">このサイトについて</Link>
+          <Link href="/performers" className="hover:underline">演者検索</Link>
+          <Link href="/dashboard" className="hover:underline">ダッシュボード</Link>
+          <Link href="/faq" className="hover:underline">FAQ</Link>
+          <Link href="/contact" className="hover:underline">お問い合わせ</Link>
 
         {role === 'store' && (
           <Link href="/manage" className="hover:underline">管理ページ</Link>
@@ -51,15 +52,16 @@ export default function Header() {
           </Link>
         )}
 
-        <Link href="/login" className="font-semibold hover:underline">ログイン</Link>
-        <Link
-          href="/register"
-          className="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          新規登録
-        </Link>
-        <Link href="/logout" className="hover:underline">ログアウト</Link>
-      </nav>
+          <Link href="/login" className="font-semibold hover:underline">ログイン</Link>
+          <Link
+            href="/register"
+            className="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            新規登録
+          </Link>
+          <Link href="/logout" className="hover:underline">ログアウト</Link>
+        </nav>
+      </div>
     </header>
   )
 }
