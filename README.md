@@ -44,6 +44,10 @@ npm install
 npm run dev
 
 http://localhost:3000 で開始します。
+4. Lint チェック
+cd talentify-next-frontend
+npm run lint
+
 
 ✨ 実装済み・予定機能
 
