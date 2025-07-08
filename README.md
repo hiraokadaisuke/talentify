@@ -25,14 +25,19 @@ SUPABASE_ANON_KEY
 
 2. .env.local の作成
 
-talentify-next-frontend 目に .env.local を作成し、下記を記述:
+talentify-next-frontend 目に `.env.local` を作成し、下記を記述:
 
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-※ .env.local は .gitignore に含まれています。
+※ `.env.local` は `.gitignore` に含まれています。
 
-3. 開発サーバーの起動
+3. ビルド / デプロイ
+
+`NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_ANON_KEY` は
+`npm run build` などのビルド時にも必須です。環境変数として設定した上で実行してください。
+
+4. 開発サーバーの起動
 
 cd talentify-next-frontend
 npm install
