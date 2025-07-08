@@ -22,3 +22,7 @@ coverage/
 
 # ログファイル
 *.log
+
+# Supabase temporary directories
+supabase/.temp/
+talentify-next-frontend/supabase/.temp/
