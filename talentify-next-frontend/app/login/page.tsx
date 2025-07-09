@@ -17,16 +17,36 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: { session }, error: loginError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
+    if (loginError || !session) {
       setError('メールアドレスまたはパスワードが間違っています')
-    } else {
-      router.push('/dashboard') // 成功後の遷移先
+      return
     }
+
+    const userId = session.user.id
+
+    // 🔽 profiles にレコードがあるかチェック
+    const { data: existingProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', userId)
+      .single()
+
+    if (!existingProfile) {
+      // 🔽 なければ作成（必要なら role: 'store' や 'performer' を付与）
+      await supabase.from('profiles').insert([
+        {
+          id: userId,
+          role: 'store', // ←仮に "store" としておく。条件分岐してもOK
+        }
+      ])
+    }
+
+    router.push('/dashboard')
   }
 
   return (

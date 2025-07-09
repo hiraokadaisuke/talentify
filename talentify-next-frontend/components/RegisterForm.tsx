@@ -1,211 +1,136 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/client'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { getRedirectUrl } from '@/lib/getRedirectUrl'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-)
-
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000'
+const supabase = createClient()
 
 export default function RegisterForm() {
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role')
   const initialRole = roleParam === 'performer' || roleParam === 'store' ? roleParam : null
-  const [role, setRole] = useState(initialRole)
-  const router = useRouter()
+
+  const [role] = useState(initialRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
-  const renderCommonFields = () => (
-    <>
-      <div>
-        <label className="block mb-1">メールアドレス</label>
-        <input
-          type="email"
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-      </div>
-      <div>
-        <label className="block mb-1">パスワード</label>
-        <input
-          type="password"
-          name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <p className="text-xs text-gray-500 mt-1">8文字以上、大文字小文字、数字を含めてください</p>
-      </div>
-      <div>
-        <label className="block mb-1">パスワード（確認用）</label>
-        <input
-          type="password"
-          name="confirm"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-      </div>
-    </>
-  )
+  const handleRegister = async () => {
+    setError(null)
 
-  const renderStoreFields = () => (
-    <>
-      <div>
-        <label className="block mb-1">店舗名</label>
-        <input type="text" className="w-full p-2 border rounded" required />
-      </div>
-      <div>
-        <label className="block mb-1">担当者名</label>
-        <input type="text" className="w-full p-2 border rounded" required />
-      </div>
-      <div>
-        <label className="block mb-1">電話番号</label>
-        <input type="tel" className="w-full p-2 border rounded" required />
-      </div>
-      <div>
-        <label className="block mb-1">所在地（都道府県）</label>
-        <input type="text" className="w-full p-2 border rounded" required />
-      </div>
-    </>
-  )
+    if (!email || !password || !confirm) {
+      setError('すべての項目を入力してください')
+      return
+    }
 
-  const renderPerformerFields = () => (
-    <>
-      <div>
-        <label className="block mb-1">氏名</label>
-        <input type="text" className="w-full p-2 border rounded" required />
-      </div>
-      <div>
-        <label className="block mb-1">芸名・活動名（任意）</label>
-        <input type="text" className="w-full p-2 border rounded" />
-      </div>
-      <div>
-        <label className="block mb-1">生年月日</label>
-        <input type="date" className="w-full p-2 border rounded" />
-      </div>
-      <div>
-        <label className="block mb-1">電話番号</label>
-        <input type="tel" className="w-full p-2 border rounded" required />
-      </div>
-      <div>
-        <label className="block mb-1">活動地域（都道府県）</label>
-        <input type="text" className="w-full p-2 border rounded" required />
-      </div>
-      <div>
-        <label className="block mb-1">得意なジャンル</label>
-        <input type="text" className="w-full p-2 border rounded" placeholder="パチンコライター, YouTuber 等" />
-      </div>
-    </>
-  )
+    if (password !== confirm) {
+      setError('パスワードが一致しません')
+      return
+    }
 
-  const handleSubmit = async (e) => {
-  e.preventDefault()
-  setError(null)
-  if (password !== confirm) {
-    setError('パスワードが一致しません')
-    return
-  }
-  try {
-    const { data, error } = await supabase.auth.signUp({
+    if (!role) {
+      setError('登録種別が不明です')
+      return
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { role }, // role: 'store' または 'performer'
-      }
+        emailRedirectTo: getRedirectUrl(role),
+      },
     })
 
-if (data.user) {
-  const { error: insertError } = await supabase.from('profiles').insert({
-    user_id: data.user.id,     // Supabase AuthのユーザーID
-    display_name: '',          // 空でOK（後からプロフィール編集）
-    bio: '',
-    avatar_url: '',
-    role: role 
-  })
+    // ✅ ログ出力で user と session の中身を確認
+    console.log('✅ signUp後のdata:', data)
+    console.log('➡️ data.user:', data.user)
+    console.log('➡️ data.session:', data.session)
 
-  if (insertError) {
-    console.error('プロフィール作成失敗:', insertError.message)
+    if (signUpError) {
+      setError(signUpError.message)
+      return
+    }
+
+    const user = data.user
+    if (user) {
+      const { error: profileError } = await supabase.from('profiles').insert([
+        {
+          id: user.id,
+          display_name: '',
+          bio: '',
+        },
+      ])
+
+      if (profileError) {
+        setError(`プロフィール登録エラー: ${profileError.message}`)
+        return
+      }
+
+      setSuccess(true)
+    } else {
+      console.warn('⚠️ userがnullのためprofilesにinsertできません')
+    }
   }
-}
-
-
-
-    if (error) {
-  throw error
-}
-
-// ✅ 仮登録完了ページへリダイレクト
-router.push('/check-email')
-  } catch (err) {
-    setError('登録に失敗しました')
-  }
-}
-
 
   return (
-    <main className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-2">新規登録</h1>
-      <p className="mb-6">アカウントを作成して、サービスを開始しましょう</p>
+    <div className="max-w-md mx-auto p-6 space-y-6">
+      <h1 className="text-2xl font-bold">新規登録</h1>
 
-      {!role && (
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">アカウント種別をお選びください</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button onClick={() => setRole('store')} className="p-6 border rounded hover:bg-gray-50 text-left">
-              <span className="block text-xl font-semibold mb-2">パチンコ店の方はこちら</span>
-              <span className="text-sm text-gray-600">演者を検索し、オファーを送る</span>
-            </button>
-            <button onClick={() => setRole('performer')} className="p-6 border rounded hover:bg-gray-50 text-left">
-              <span className="block text-xl font-semibold mb-2">演者の方はこちら</span>
-              <span className="text-sm text-gray-600">店舗からのオファーを受け取る</span>
-            </button>
-          </div>
-        </div>
-      )}
+      {error && <p className="text-red-600">{error}</p>}
 
-      {role && (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {renderCommonFields()}
-          {role === 'store' ? renderStoreFields() : renderPerformerFields()}
-
-          <div className="flex items-center">
-            <input id="terms" type="checkbox" className="mr-2" required />
-            <label htmlFor="terms" className="text-sm">
-              <Link href="/terms" className="text-blue-600 underline mr-1">利用規約</Link>と
-              <Link href="/privacy" className="text-blue-600 underline ml-1">プライバシーポリシー</Link>に同意する
-            </label>
+      {success ? (
+        <p className="text-green-600">
+          確認メールを送信しました。メールを確認してください。
+        </p>
+      ) : (
+        <>
+          <div>
+            <label className="block font-medium">メールアドレス</label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
-          {error && <p className="text-red-600">{error}</p>}
+          <div>
+            <label className="block font-medium">パスワード</label>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-          <button
-  type={"submit" as "submit"}
-  className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
->
-  登録する
-</button>
-        </form>
+          <div>
+            <label className="block font-medium">パスワード（確認）</label>
+            <Input
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              required
+            />
+          </div>
+
+          <Button onClick={handleRegister}>登録</Button>
+        </>
       )}
 
-      <div className="mt-6 text-sm">
+      <p className="text-sm text-center">
         すでにアカウントをお持ちの方は{' '}
-        <Link href="/login" className="text-blue-600 underline">ログインはこちら</Link>
-      </div>
-    </main>
+        <Link href="/login" className="text-blue-600 underline">
+          ログイン
+        </Link>
+      </p>
+    </div>
   )
 }
