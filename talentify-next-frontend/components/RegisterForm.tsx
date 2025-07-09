@@ -62,7 +62,7 @@ export default function RegisterForm() {
     if (user) {
       const { error: profileError } = await supabase.from('profiles').insert([
         {
-          id: user.id,
+          user_id: user.id,
           display_name: '',
           bio: '',
         },

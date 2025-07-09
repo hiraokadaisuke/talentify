@@ -33,14 +33,14 @@ export default function LoginPage() {
     const { data: existingProfile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single()
 
     if (!existingProfile) {
       // 🔽 なければ作成（必要なら role: 'store' や 'performer' を付与）
       await supabase.from('profiles').insert([
         {
-          id: userId,
+          user_id: userId,
           role: 'store', // ←仮に "store" としておく。条件分岐してもOK
         }
       ])
