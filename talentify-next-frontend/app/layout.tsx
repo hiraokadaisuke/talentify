@@ -17,6 +17,9 @@ const noto = Noto_Sans_JP({
 export const metadata = {
   title: "Talentify",
   description: "パチンコ店と演者をつなぐマッチングプラットフォーム",
+  icons: {
+    icon: "/favicon.png", // ← favicon.pngの場合は拡張子を変える
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
