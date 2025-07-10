@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from '@/components/ui/input'
@@ -11,6 +11,7 @@ import { getRedirectUrl } from '@/lib/getRedirectUrl'
 const supabase = createClient()
 
 export default function RegisterForm() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role')
   const initialRole = roleParam === 'performer' || roleParam === 'store' ? roleParam : null
@@ -48,7 +49,6 @@ export default function RegisterForm() {
       },
     })
 
-    // ✅ ログ出力で user と session の中身を確認
     console.log('✅ signUp後のdata:', data)
     console.log('➡️ data.user:', data.user)
     console.log('➡️ data.session:', data.session)
@@ -58,25 +58,8 @@ export default function RegisterForm() {
       return
     }
 
-    const user = data.user
-    if (user) {
-      const { error: profileError } = await supabase.from('profiles').insert([
-        {
-          user_id: user.id,
-          display_name: '',
-          bio: '',
-        },
-      ])
-
-      if (profileError) {
-        setError(`プロフィール登録エラー: ${profileError.message}`)
-        return
-      }
-
-      setSuccess(true)
-    } else {
-      console.warn('⚠️ userがnullのためprofilesにinsertできません')
-    }
+    // ✅ メール送信成功 → check-email に遷移
+    router.push('/check-email')
   }
 
   return (
