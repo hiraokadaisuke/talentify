@@ -48,7 +48,7 @@ export default function Header() {
         {/* メニュー（PC表示） */}
         <nav className="hidden md:flex space-x-4 text-sm items-center">
           <Link href="/about" className="hover:underline">このサイトについて</Link>
-          <Link href="/performers" className="hover:underline">演者検索</Link>
+          <Link href="/talents" className="hover:underline">演者検索</Link>
           <Link href="/dashboard" className="hover:underline">ダッシュボード</Link>
           <Link href="/faq" className="hover:underline">FAQ</Link>
           <Link href="/contact" className="hover:underline">お問い合わせ</Link>
@@ -58,7 +58,7 @@ export default function Header() {
           )}
 
           {role === 'performer' && (
-            <Link href="/performer/profile/edit" className="hover:underline text-blue-600 font-semibold">
+            <Link href="/talent/profile/edit" className="hover:underline text-blue-600 font-semibold">
               プロフィール編集
             </Link>
           )}
@@ -78,7 +78,7 @@ export default function Header() {
       {isOpen && (
         <nav className="md:hidden px-4 pb-4 space-y-2 text-sm font-medium">
           <Link href="/about" className="block">このサイトについて</Link>
-          <Link href="/performers" className="block">演者検索</Link>
+          <Link href="/talents" className="block">演者検索</Link>
           <Link href="/dashboard" className="block">ダッシュボード</Link>
           <Link href="/faq" className="block">FAQ</Link>
           <Link href="/contact" className="block">お問い合わせ</Link>
@@ -88,7 +88,7 @@ export default function Header() {
           )}
 
           {role === 'performer' && (
-            <Link href="/performer/profile/edit" className="block text-blue-600 font-semibold">
+            <Link href="/talent/profile/edit" className="block text-blue-600 font-semibold">
               プロフィール編集
             </Link>
           )}
