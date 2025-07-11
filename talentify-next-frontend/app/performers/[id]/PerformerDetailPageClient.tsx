@@ -93,7 +93,7 @@ export default function PerformerDetailPageClient({ id }: Props) {
 
       <div className="mt-6 space-y-2">
         {role === 'store' && (
-          <Link href={`/performers/${performer.id}/offer`}>
+          <Link href={`/talents/${performer.id}/offer`}>
             <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
               オファーを送る
             </button>
@@ -103,7 +103,7 @@ export default function PerformerDetailPageClient({ id }: Props) {
         {role === 'performer' && userId === performer.id && (
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => (window.location.href = '/performer/profile/edit')}
+            onClick={() => (window.location.href = '/talent/profile/edit')}
           >
             プロフィールを編集する
           </button>

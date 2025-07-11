@@ -31,12 +31,12 @@ export default function PerformerCard({ talent }) {
       </p>
       <div className="mt-auto flex space-x-2">
         <Link
-          href={`/performers/${talent.id}`}
+          href={`/talents/${talent.id}`}
           className="flex-1 py-1 border rounded text-center hover:bg-gray-50"
         >
           詳細を見る
         </Link>
-        <Link href={`/performers/${talent.id}/offer`} className="flex-1">
+        <Link href={`/talents/${talent.id}/offer`} className="flex-1">
           <button className="w-full py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
             オファーを送る
           </button>
