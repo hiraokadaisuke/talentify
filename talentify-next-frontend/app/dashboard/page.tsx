@@ -20,19 +20,23 @@ export default function DashboardRedirectPage() {
 
       const user = session.user
 
-      // プロフィールを探す
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
         .eq('user_id', user.id)
         .maybeSingle()
 
-      // 👇 プロフィールがない場合は初期登録（必要に応じて role は null に）
+      if (error) {
+        console.error('プロフィール取得エラー:', error.message)
+        router.replace('/login')
+        return
+      }
+
       if (!profile) {
         const { error: insertError } = await supabase.from('profiles').insert([
           {
             user_id: user.id,
-            role: null, // または `user_metadata` から取得する場合は変更
+            role: null,
             display_name: '',
             bio: '',
           }
@@ -42,17 +46,19 @@ export default function DashboardRedirectPage() {
           console.error('プロフィール作成エラー:', insertError.message)
         }
 
-        router.replace('/profile/setup') // プロフィール初期設定画面へ
+        router.replace('/profile/setup')
         return
       }
 
-      // 👇 既存プロフィールのroleで分岐
-      if (profile.role === 'performer') {
-        router.replace('/talent/dashboard')
-      } else if (profile.role === 'store') {
-        router.replace('/store/dashboard')
-      } else {
-        router.replace('/login') // 不正ロール
+      switch (profile.role) {
+        case 'talent':
+          router.replace('/talent/dashboard')
+          break
+        case 'store':
+          router.replace('/store/dashboard')
+          break
+        default:
+          router.replace('/login')
       }
     }
 

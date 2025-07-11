@@ -37,7 +37,7 @@ export default function LoginPage() {
       .single()
 
     if (!existingProfile) {
-      // 🔽 なければ作成（必要なら role: 'store' や 'performer' を付与）
+      // 🔽 なければ作成（必要なら role: 'store' や 'talent' を付与）
       await supabase.from('profiles').insert([
         {
           user_id: userId,

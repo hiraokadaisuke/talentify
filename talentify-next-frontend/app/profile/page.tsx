@@ -45,7 +45,7 @@ export default function ProfilePage() {
       <p><strong>名前：</strong>{profile.name}</p>
       <p><strong>自己紹介：</strong>{profile.bio}</p>
 
-      {profile.role === 'performer' && (
+      {profile.role === 'talent' && (
         <div className="mt-4 space-y-2">
           <p><strong>Twitter:</strong> {profile.twitter}</p>
           <p><strong>Instagram:</strong> {profile.instagram}</p>

@@ -96,6 +96,15 @@ Supabase Auth による認証管理 (メール/パスワード)
 
 Supabase Storage で画像/動画アップロード
 
+## Migration Notes
+
+The role string previously stored as `performer` is now `talent`.
+Run the following SQL on Supabase to migrate existing profiles:
+
+```sql
+UPDATE profiles SET role = 'talent' WHERE role = 'performer';
+```
+
 📄 ライセンス
 
 MIT License. See the LICENSE file for details.

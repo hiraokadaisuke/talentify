@@ -23,7 +23,7 @@ function groupMessages(messages, userId) {
     const th = map.get(otherId)
     th.messages.push({
       id: m.id,
-      from: m.sender_id === userId ? 'store' : 'performer',
+      from: m.sender_id === userId ? 'store' : 'talent',
       text: m.text,
       time: m.created_at
     })

@@ -5,7 +5,7 @@ export type Database = {
       profiles: {
         Row: {
           id: string
-          role: 'performer' | 'store' | null
+          role: 'talent' | 'store' | null
           // 必要に応じて他のカラムも追記
         }
       }

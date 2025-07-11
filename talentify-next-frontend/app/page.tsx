@@ -20,7 +20,7 @@ export default function HomePage() {
                 店舗として登録
               </Button>
             </Link>
-            <Link href="/register?role=performer">
+            <Link href="/register?role=talent">
               <Button variant="secondary" className="px-8 py-3 text-base rounded-full shadow-md">
                 演者として登録
               </Button>
@@ -98,7 +98,7 @@ export default function HomePage() {
         <li>安定した仕事機会の獲得</li>
         <li>自身のブランド力向上</li>
         <li>適切なギャラ交渉をサポート</li>
-        <CTA link="/register?role=performer" label="演者として利用開始する" />
+        <CTA link="/register?role=talent" label="演者として利用開始する" />
       </SectionBox>
 
       {/* FAQセクション */}

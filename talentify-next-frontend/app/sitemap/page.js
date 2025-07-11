@@ -66,7 +66,7 @@ export default function SitemapPage() {
         <h2 className="text-xl font-semibold mb-2">演者向けページ</h2>
         <ul className="list-disc list-inside space-y-1">
           <li>
-            <Link href="/register?role=performer" className="text-blue-600 underline">
+            <Link href="/register?role=talent" className="text-blue-600 underline">
               演者登録
             </Link>
           </li>

@@ -12,7 +12,7 @@ const supabase = createClient()
 export default function ProfileSetupPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const role = searchParams.get('role') // "store" または "performer"
+  const role = searchParams.get('role') // "store" または "talent"
 
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>({})
@@ -65,7 +65,7 @@ export default function ProfileSetupPage() {
           <Button onClick={() => router.push('/profile/setup?role=store')}>
             店舗として登録
           </Button>
-          <Button onClick={() => router.push('/profile/setup?role=performer')}>
+          <Button onClick={() => router.push('/profile/setup?role=talent')}>
             演者として登録
           </Button>
         </div>
