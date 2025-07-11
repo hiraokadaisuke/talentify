@@ -14,7 +14,7 @@ export default function RegisterForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role')
-  const initialRole = roleParam === 'performer' || roleParam === 'store' ? roleParam : null
+  const initialRole = roleParam === 'talent' || roleParam === 'store' ? roleParam : null
 
   const [role] = useState(initialRole)
   const [email, setEmail] = useState('')

@@ -47,7 +47,7 @@ export default function DashboardRedirectPage() {
       }
 
       // 👇 既存プロフィールのroleで分岐
-      if (profile.role === 'performer') {
+      if (profile.role === 'talent') {
         router.replace('/performer/dashboard')
       } else if (profile.role === 'store') {
         router.replace('/store/dashboard')

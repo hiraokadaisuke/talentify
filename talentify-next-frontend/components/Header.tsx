@@ -57,7 +57,7 @@ export default function Header() {
             <Link href="/manage" className="hover:underline">管理ページ</Link>
           )}
 
-          {role === 'performer' && (
+          {role === 'talent' && (
             <Link href="/performer/profile/edit" className="hover:underline text-blue-600 font-semibold">
               プロフィール編集
             </Link>
@@ -87,7 +87,7 @@ export default function Header() {
             <Link href="/manage" className="block">管理ページ</Link>
           )}
 
-          {role === 'performer' && (
+          {role === 'talent' && (
             <Link href="/performer/profile/edit" className="block text-blue-600 font-semibold">
               プロフィール編集
             </Link>
