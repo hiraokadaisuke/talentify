@@ -18,14 +18,25 @@ export default function StoreProfileEditPage() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        console.error("ユーザー取得失敗:", authError)
+        return
+      }
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('display_name, bio, avatar_url')
         .eq('user_id', user.id)
         .single()
+
+      if (error) {
+        console.error("プロフィール読み込みエラー:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+        })
+      }
 
       if (data) setProfile(data)
       setLoading(false)
@@ -39,11 +50,25 @@ export default function StoreProfileEditPage() {
   }
 
   const handleSave = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      console.error("ユーザー取得失敗:", authError)
+      alert("ユーザー情報の取得に失敗しました")
+      return
+    }
 
-    const { error } = await supabase.from('profiles').update(profile).eq('user_id', user.id)
+    const { error } = await supabase
+      .from('profiles')
+      .update(profile)
+      .eq('user_id', user.id)
+
     if (error) {
+      console.error("🔥 Supabase更新エラー:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      })
       alert('保存に失敗しました')
     } else {
       alert('保存しました')
