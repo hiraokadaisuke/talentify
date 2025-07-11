@@ -50,30 +50,45 @@ export default function StoreProfileEditPage() {
   }
 
   const handleSave = async () => {
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      console.error("ユーザー取得失敗:", authError)
-      alert("ユーザー情報の取得に失敗しました")
-      return
-    }
-
-    const { error } = await supabase
-      .from('profiles')
-      .update(profile)
-      .eq('user_id', user.id)
-
-    if (error) {
-      console.error("🔥 Supabase更新エラー:", {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
-      })
-      alert('保存に失敗しました')
-    } else {
-      alert('保存しました')
-    }
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    console.error("ユーザー取得失敗:", authError)
+    alert("ユーザー情報の取得に失敗しました")
+    return
   }
+
+  // ✅ 保存前のログ
+  console.log("📝 保存データ（送信前）:", {
+    ...profile,
+    user_id: user.id,
+  })
+
+  const { error } = await supabase
+    .from('profiles')
+    .upsert(
+      {
+        ...profile,
+        user_id: user.id,
+      },
+      {
+        onConflict: 'user_id', // ✅ string型に修正済
+      }
+    )
+
+  if (error) {
+    console.error("🔥 Supabase更新エラー:", {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    })
+    alert('保存に失敗しました')
+  } else {
+    // ✅ 成功ログ
+    console.log("✅ プロフィール保存成功")
+    alert('保存しました')
+  }
+}
 
   if (loading) return <p className="p-4">読み込み中...</p>
 
