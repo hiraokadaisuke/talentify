@@ -1,51 +1,49 @@
-// app/talents/page.tsx
+'use client'
 
-export const runtime = 'nodejs'
+import { useEffect, useState } from 'react'
+import TalentCard from '../../components/TalentCard'
+import { supabase } from '@/lib/supabase'  // ← ここを追加
 
-import Link from 'next/link'
+export default function TalentsPage() {
+  const [talents, setTalents] = useState([])
+  const [query, setQuery] = useState('')
 
-type Talent = {
-  id: string
-  name: string
-  email: string
-}
-
-export default async function TalentListPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3000'
-
-  try {
-    const res = await fetch(`${baseUrl}/api/talents`, {
-      cache: 'no-store',
-    })
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch: ${res.status}`)
+  useEffect(() => {
+    const fetchTalents = async () => {
+      const { data, error } = await supabase.from('talents').select('*')
+      if (error) {
+        console.error('Failed to fetch talents:', error)
+      } else {
+        setTalents(data || [])
+      }
     }
+    fetchTalents()
+  }, [])
 
-    const talents: Talent[] = await res.json()
+  const normalized = query.toLowerCase()
+  const filtered = talents.filter(t =>
+    t.name.toLowerCase().includes(normalized) ||
+    (t.skills || []).some(s => s.toLowerCase().includes(normalized))
+  )
 
-    return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">演者一覧</h1>
-        <ul className="space-y-2">
-          {talents.map((talent) => (
-            <li key={talent.id} className="border p-3 rounded">
-              <Link href={`/talents/${talent.id}`} className="text-blue-600 hover:underline">
-                {talent.name}
-              </Link>
-              <p className="text-sm text-gray-600">{talent.email}</p>
-            </li>
-          ))}
-        </ul>
+  return (
+    <main className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">演者を探す</h1>
+      <input
+        type="text"
+        value={query}
+        onChange={e => setQuery(e.target.value)}
+        placeholder="名前・スキルで検索"
+        className="w-full p-2 border rounded mb-6"
+      />
+      <div className="grid gap-4 md:grid-cols-2">
+        {filtered.map(t => (
+          <TalentCard key={t.id} talent={t} />
+        ))}
+        {filtered.length === 0 && (
+          <p>該当する演者が見つかりませんでした。</p>
+        )}
       </div>
-    )
-  } catch (error) {
-    console.error('API取得エラー:', error)
-    return (
-      <div className="p-4 text-red-600">
-        <h1 className="text-xl font-bold mb-2">エラーが発生しました</h1>
-        <p>演者一覧の取得に失敗しました。時間をおいて再度お試しください。</p>
-      </div>
-    )
-  }
+    </main>
+  )
 }
