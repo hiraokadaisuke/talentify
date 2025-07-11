@@ -93,12 +93,12 @@ export default function TalentDetailPageClient({ id }: Props) {
 
       <div className="mt-6 space-y-2">
         {role === 'store' && (
-          <Link href={`/talents/${talent.id}/offer`}>
-            <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-              オファーを送る
-            </button>
-          </Link>
-        )}
+  <Link href={`/talents/${talent.id}/offer`}>
+    <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+      オファーを送る
+    </button>
+  </Link>
+)}
 
         {role === 'performer' && userId === talent.id && (
           <button
