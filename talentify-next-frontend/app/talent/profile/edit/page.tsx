@@ -1,4 +1,4 @@
-// app/performer/profile/edit/page.tsx
+// app/talent/profile/edit/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -6,7 +6,7 @@ import { createClient } from '@/utils/supabase/client'
 
 const supabase = createClient()
 
-export default function PerformerProfileEditPage() {
+export default function TalentProfileEditPage() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState({
     stage_name: '',

@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function PerformerCard({ talent }) {
+export default function TalentCard({ talent }) {
   return (
     <div className="border rounded p-4 flex flex-col">
       <div className="flex items-center mb-2">
