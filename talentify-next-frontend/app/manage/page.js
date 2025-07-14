@@ -1,5 +1,6 @@
-'use client'
+"use client"
 import { useState, useEffect } from 'react'
+import { API_BASE } from '@/lib/api'
 
 const TABS = ['進行中の契約', 'スケジュール', '履歴', '支払い']
 
@@ -25,7 +26,6 @@ const history = [
   { id: 2, date: '2025/05/28', label: '△△さんトークイベント', reviewed: false },
 ]
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || ''
 
 function usePayments() {
   const [payments, setPayments] = useState([])
