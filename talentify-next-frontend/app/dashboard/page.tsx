@@ -20,13 +20,11 @@ export default function DashboardRedirectPage() {
 
       const user = session.user
 
-
       const { data: profile, error: fetchError } = await supabase
         .from('profiles')
         .select('role')
         .eq('user_id', user.id)
         .maybeSingle()
-
 
       if (fetchError) {
         console.error('プロフィール取得エラー:', fetchError.message)
@@ -34,38 +32,47 @@ export default function DashboardRedirectPage() {
         return
       }
 
-      // ✅ プロフィールが存在しない場合 → ロールごとの編集画面へ
-      if (!profileRole) {
-        const pendingRole = localStorage.getItem('pending_role') ?? 'store'
-        const table = pendingRole === 'talent' ? 'talents' : pendingRole === 'company' ? 'companies' : 'stores'
-        const { error: insertError } = await supabase.from(table).insert([{ user_id: user.id }])
+      if (!profile) {
+        const { error: insertError } = await supabase.from('profiles').insert([
+          {
+            user_id: user.id,
+            role: null,
+            display_name: '',
+            bio: '',
+          }
+        ])
+
         if (insertError) {
           console.error('プロフィール作成エラー:', insertError.message)
         }
-const pendingRole = localStorage.getItem('pending_role') ?? 'store'
 
-if (pendingRole === 'talent') {
-  router.replace('/talent/edit')
-} else if (pendingRole === 'company') {
-  router.replace('/company/edit')
-} else {
-  router.replace('/store/edit')
-}
-return
+        const pendingRole = localStorage.getItem('pending_role') ?? 'store'
 
-switch (profile.role) {
-  case 'talent':
-    router.replace('/talent/dashboard')
-    break
-  case 'store':
-    router.replace('/store/dashboard')
-    break
-  case 'company':
-    router.replace('/company/dashboard')
-    break
-  default:
-    router.replace('/login')
-}
+        if (pendingRole === 'talent') {
+          router.replace('/talent/edit')
+        } else if (pendingRole === 'company') {
+          router.replace('/company/edit')
+        } else {
+          router.replace('/store/edit')
+        }
+
+        return
+      }
+
+      switch (profile.role) {
+        case 'talent':
+          router.replace('/talent/dashboard')
+          break
+        case 'store':
+          router.replace('/store/dashboard')
+          break
+        case 'company':
+          router.replace('/company/dashboard')
+          break
+        default:
+          router.replace('/login')
+      }
+    }
 
     redirectByRole()
   }, [router, supabase])
