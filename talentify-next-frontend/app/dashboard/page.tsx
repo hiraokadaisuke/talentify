@@ -20,14 +20,16 @@ export default function DashboardRedirectPage() {
 
       const user = session.user
 
-      const { data: store } = await supabase.from('stores').select('id').eq('user_id', user.id).maybeSingle()
-      const { data: talent } = await supabase.from('talents').select('id').eq('user_id', user.id).maybeSingle()
-      const { data: company } = await supabase.from('companies').select('id').eq('user_id', user.id).maybeSingle()
 
-      const profileRole = store ? 'store' : talent ? 'talent' : company ? 'company' : null
+      const { data: profile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle()
 
-      if (error) {
-        console.error('プロフィール取得エラー:', error.message)
+
+      if (fetchError) {
+        console.error('プロフィール取得エラー:', fetchError.message)
         router.replace('/login')
         return
       }
