@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000";
+import { API_BASE } from "@/lib/api";
 
 function isPasswordValid(pwd) {
   return (
