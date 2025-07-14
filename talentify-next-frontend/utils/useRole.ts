@@ -11,15 +11,15 @@ export function useUserRole() {
   useEffect(() => {
     const fetchRole = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) { setLoading(false); return }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single()
+      const { data: store } = await supabase.from('stores').select('id').eq('user_id', user.id).maybeSingle()
+      const { data: talent } = await supabase.from('talents').select('id').eq('user_id', user.id).maybeSingle()
+      const { data: company } = await supabase.from('companies').select('id').eq('user_id', user.id).maybeSingle()
 
-      if (data?.role) setRole(data.role)
+      if (store) setRole('store')
+      else if (talent) setRole('talent')
+      else if (company) setRole('company')
       setLoading(false)
     }
 

@@ -74,7 +74,7 @@ export default function DashboardRedirectPage() {
       }
     }
 
-    redirectByRole()  // ✅ 呼び出しは useEffect の中
+    redirectByRole()
   }, [router, supabase])
 
   return <p className="p-4 text-sm text-gray-600">ダッシュボードにリダイレクト中...</p>

@@ -102,10 +102,10 @@ Supabase Storage で画像/動画アップロード
 ## Migration Notes
 
 The role string previously stored as `performer` is now `talent`.
-Run the following SQL on Supabase to migrate existing profiles:
+Run the following SQL on Supabase to migrate existing data:
 
 ```sql
-UPDATE profiles SET role = 'talent' WHERE role = 'performer';
+UPDATE talents SET role = 'talent' WHERE role = 'performer';
 ```
 
 📄 ライセンス

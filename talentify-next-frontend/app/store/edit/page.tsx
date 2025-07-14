@@ -25,7 +25,7 @@ export default function StoreProfileEditPage() {
       }
 
       const { data, error } = await supabase
-        .from('profiles')
+        .from('stores')
         .select('display_name, bio, avatar_url')
         .eq('user_id', user.id)
         .single()
@@ -64,7 +64,7 @@ export default function StoreProfileEditPage() {
   })
 
   const { error } = await supabase
-    .from('profiles')
+    .from('stores')
     .upsert(
       {
         ...profile,

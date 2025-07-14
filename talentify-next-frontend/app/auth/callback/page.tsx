@@ -22,22 +22,17 @@ export default function AuthCallbackPage() {
       const userId = session.user.id
       const role = localStorage.getItem('pending_role') ?? 'store'
 
-      // profiles にレコードがあるか確認
-      const { data: existingProfile } = await supabase
-        .from('profiles')
+      const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores'
+      const { data: existing } = await supabase
+        .from(table)
         .select('id')
         .eq('user_id', userId)
-        .single()
+        .maybeSingle()
 
-      if (!existingProfile) {
-        const { error: insertError } = await supabase.from('profiles').insert([
-          {
-            user_id: userId,
-            role,
-          },
-        ])
+      if (!existing) {
+        const { error: insertError } = await supabase.from(table).insert([{ user_id: userId }])
         if (insertError) {
-          console.error('profiles insert error:', insertError)
+          console.error('profile insert error:', insertError)
           return
         }
       }
