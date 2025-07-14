@@ -52,7 +52,7 @@ export default function ProfilePage() {
           <p><strong>YouTube:</strong> {profile.youtube}</p>
           <button
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => window.location.href = '/talent/profile/edit'}
+            onClick={() => window.location.href = '/talent/edit'}
           >
             プロフィールを編集
           </button>

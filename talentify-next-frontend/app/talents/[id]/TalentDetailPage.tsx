@@ -101,7 +101,7 @@ export default function TalentDetailPage() {
 {role === 'talent' && userId === talent.id && (
   <button
     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-    onClick={() => (window.location.href = '/talent/profile/edit')}
+    onClick={() => (window.location.href = '/talent/edit')}
   >
     プロフィールを編集する
   </button>
