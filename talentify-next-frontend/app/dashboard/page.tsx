@@ -32,7 +32,6 @@ export default function DashboardRedirectPage() {
         return
       }
 
-      // ✅ プロフィールが存在しない場合 → ロールごとの編集画面へ
       if (!profile) {
         const { error: insertError } = await supabase.from('profiles').insert([
           {
@@ -51,6 +50,8 @@ export default function DashboardRedirectPage() {
 
         if (pendingRole === 'talent') {
           router.replace('/talent/edit')
+        } else if (pendingRole === 'company') {
+          router.replace('/company/edit')
         } else {
           router.replace('/store/edit')
         }
@@ -58,7 +59,6 @@ export default function DashboardRedirectPage() {
         return
       }
 
-      // ✅ プロフィールあり → ロール別にダッシュボードへ遷移
       switch (profile.role) {
         case 'talent':
           router.replace('/talent/dashboard')
@@ -74,7 +74,7 @@ export default function DashboardRedirectPage() {
       }
     }
 
-    redirectByRole()
+    redirectByRole()  // ✅ 呼び出しは useEffect の中
   }, [router, supabase])
 
   return <p className="p-4 text-sm text-gray-600">ダッシュボードにリダイレクト中...</p>
