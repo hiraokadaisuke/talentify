@@ -42,26 +42,30 @@ export default function DashboardRedirectPage() {
         if (insertError) {
           console.error('プロフィール作成エラー:', insertError.message)
         }
-        if (pendingRole === 'talent') {
-          router.replace('/talent/edit')
-        } else {
-          router.replace('/store/edit')
-        }
-        return
-      }
+const pendingRole = localStorage.getItem('pending_role') ?? 'store'
 
-      // ✅ 既に role が登録されている場合 → 各ダッシュボードへ
-      switch (profileRole) {
-        case 'talent':
-          router.replace('/talent/dashboard')
-          break
-        case 'store':
-          router.replace('/store/dashboard')
-          break
-        default:
-          router.replace('/login')
-      }
-    }
+if (pendingRole === 'talent') {
+  router.replace('/talent/edit')
+} else if (pendingRole === 'company') {
+  router.replace('/company/edit')
+} else {
+  router.replace('/store/edit')
+}
+return
+
+switch (profile.role) {
+  case 'talent':
+    router.replace('/talent/dashboard')
+    break
+  case 'store':
+    router.replace('/store/dashboard')
+    break
+  case 'company':
+    router.replace('/company/dashboard')
+    break
+  default:
+    router.replace('/login')
+}
 
     redirectByRole()
   }, [router, supabase])
