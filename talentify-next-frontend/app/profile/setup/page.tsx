@@ -19,24 +19,8 @@ export default function ProfileSetupPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      if (!user || error) {
-        setError('ユーザー情報の取得に失敗しました')
-        return
-      }
-
-      setProfile((prev: any) => ({
-        ...prev,
-        user_id: user.id,
-        role: role || '', // role が未選択の時も空で入れておく
-      }))
-
-      setLoading(false)
-    }
-
-    fetchUser()
-  }, [role])
+    setLoading(false)
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value })
@@ -45,17 +29,68 @@ export default function ProfileSetupPage() {
   const handleSubmit = async () => {
     setError(null)
 
-    const { error } = await supabase.from('profiles').upsert(profile)
-    if (error) {
-      setError('保存に失敗しました')
-    } else {
-      router.push('/dashboard')
+    // ユーザーIDの取得
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (!user || userError) {
+      setError('ユーザー情報の取得に失敗しました')
+      return
     }
+
+    const user_id = user.id
+
+    // ① 共通プロフィールを保存
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({
+        user_id,
+        role,
+        display_name: role === 'store' ? profile.store_name : profile.stage_name || '',
+      }, { onConflict: 'user_id' })
+
+    if (profileError) {
+      setError('プロフィールの保存に失敗しました')
+      return
+    }
+
+    // ② ロールごとの追加情報を保存
+    if (role === 'store') {
+      const { error: storeError } = await supabase
+        .from('stores')
+        .upsert({
+          user_id,
+          store_name: profile.store_name,
+          staff_name: profile.staff_name,
+          address: profile.address,
+        }, { onConflict: 'user_id' })
+
+      if (storeError) {
+        setError('店舗情報の保存に失敗しました')
+        return
+      }
+    } else if (role === 'talent') {
+      const { error: talentError } = await supabase
+        .from('talents')
+        .upsert({
+          user_id,
+          stage_name: profile.stage_name,
+          bio: profile.bio,
+          twitter: profile.twitter,
+          instagram: profile.instagram,
+          youtube: profile.youtube,
+        }, { onConflict: 'user_id' })
+
+      if (talentError) {
+        setError('演者情報の保存に失敗しました')
+        return
+      }
+    }
+
+    // ③ 完了後にダッシュボードへ
+    router.push('/dashboard')
   }
 
   if (loading) return <p className="p-4">読み込み中...</p>
 
-  // ✅ role パラメータがない場合：ロール選択画面を表示
   if (!role) {
     return (
       <main className="max-w-xl mx-auto p-6 space-y-6">
@@ -73,7 +108,6 @@ export default function ProfileSetupPage() {
     )
   }
 
-  // ✅ roleがある場合：入力フォームを表示
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">
@@ -86,38 +120,70 @@ export default function ProfileSetupPage() {
         <>
           <div>
             <label className="block font-medium">店舗名</label>
-            <Input name="store_name" value={profile.store_name || ''} onChange={handleChange} />
+            <Input
+              name="store_name"
+              value={profile.store_name || ''}
+              onChange={handleChange}
+            />
           </div>
           <div>
             <label className="block font-medium">担当者名</label>
-            <Input name="staff_name" value={profile.staff_name || ''} onChange={handleChange} />
+            <Input
+              name="staff_name"
+              value={profile.staff_name || ''}
+              onChange={handleChange}
+            />
           </div>
           <div>
             <label className="block font-medium">店舗住所</label>
-            <Textarea name="address" value={profile.address || ''} onChange={handleChange} />
+            <Textarea
+              name="address"
+              value={profile.address || ''}
+              onChange={handleChange}
+            />
           </div>
         </>
       ) : (
         <>
           <div>
             <label className="block font-medium">芸名</label>
-            <Input name="stage_name" value={profile.stage_name || ''} onChange={handleChange} />
+            <Input
+              name="stage_name"
+              value={profile.stage_name || ''}
+              onChange={handleChange}
+            />
           </div>
           <div>
             <label className="block font-medium">自己紹介</label>
-            <Textarea name="bio" value={profile.bio || ''} onChange={handleChange} />
+            <Textarea
+              name="bio"
+              value={profile.bio || ''}
+              onChange={handleChange}
+            />
           </div>
           <div>
             <label className="block font-medium">Twitter</label>
-            <Input name="twitter" value={profile.twitter || ''} onChange={handleChange} />
+            <Input
+              name="twitter"
+              value={profile.twitter || ''}
+              onChange={handleChange}
+            />
           </div>
           <div>
             <label className="block font-medium">Instagram</label>
-            <Input name="instagram" value={profile.instagram || ''} onChange={handleChange} />
+            <Input
+              name="instagram"
+              value={profile.instagram || ''}
+              onChange={handleChange}
+            />
           </div>
           <div>
             <label className="block font-medium">YouTube</label>
-            <Input name="youtube" value={profile.youtube || ''} onChange={handleChange} />
+            <Input
+              name="youtube"
+              value={profile.youtube || ''}
+              onChange={handleChange}
+            />
           </div>
         </>
       )}

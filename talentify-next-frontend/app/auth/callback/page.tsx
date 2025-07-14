@@ -15,12 +15,12 @@ export default function AuthCallbackPage() {
       } = await supabase.auth.getSession()
 
       if (!session) {
-        // ログインできていない場合
         router.push('/login')
         return
       }
 
       const userId = session.user.id
+      const role = localStorage.getItem('pending_role') ?? 'store'
 
       // profiles にレコードがあるか確認
       const { data: existingProfile } = await supabase
@@ -30,17 +30,21 @@ export default function AuthCallbackPage() {
         .single()
 
       if (!existingProfile) {
-        // なければ作成（role: 'store'）
-        await supabase.from('profiles').insert([
+        const { error: insertError } = await supabase.from('profiles').insert([
           {
             user_id: userId,
-            role: 'store'
+            role,
           }
         ])
+        if (insertError) {
+          console.error('profiles insert error:', insertError)
+          return
+        }
+        localStorage.removeItem('pending_role')
       }
 
-      // プロフィール編集ページへ
-      router.push('/profile/edit')
+      // ✅ 共通プロフィールの初期設定ページへ
+      router.push('/profile/setup')
     }
 
     checkAndRedirect()

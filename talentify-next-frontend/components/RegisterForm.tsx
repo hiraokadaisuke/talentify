@@ -41,6 +41,9 @@ export default function RegisterForm() {
       return
     }
 
+// 🔽 ロールを保存（AuthCallback で使う）
+  localStorage.setItem('pending_role', role)
+
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
