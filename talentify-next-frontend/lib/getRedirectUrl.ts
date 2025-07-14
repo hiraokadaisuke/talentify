@@ -4,5 +4,11 @@ export function getRedirectUrl(role: string) {
       ? 'http://localhost:3000'
       : process.env.NEXT_PUBLIC_SITE_URL || 'https://talentify-xi.vercel.app'
 
-  return `${baseUrl}/profile/setup?role=${role}`
+  if (role === 'store') {
+    return `${baseUrl}/store/edit`
+  } else if (role === 'talent') {
+    return `${baseUrl}/talent/edit`
+  } else {
+    return `${baseUrl}/`
+  }
 }

@@ -11,7 +11,7 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const checkAndRedirect = async () => {
       const {
-        data: { session }
+        data: { session },
       } = await supabase.auth.getSession()
 
       if (!session) {
@@ -34,17 +34,24 @@ export default function AuthCallbackPage() {
           {
             user_id: userId,
             role,
-          }
+          },
         ])
         if (insertError) {
           console.error('profiles insert error:', insertError)
           return
         }
-        localStorage.removeItem('pending_role')
       }
 
-      // ✅ 共通プロフィールの初期設定ページへ
-      router.push('/profile/setup')
+      // ✅ ロールに応じて edit ページへリダイレクト
+      if (role === 'store') {
+        router.push('/store/edit')
+      } else if (role === 'talent') {
+        router.push('/talent/edit')
+      } else {
+        router.push('/') // 万が一不明なロールだった場合
+      }
+
+      localStorage.removeItem('pending_role')
     }
 
     checkAndRedirect()

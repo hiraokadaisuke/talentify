@@ -32,6 +32,7 @@ export default function DashboardRedirectPage() {
         return
       }
 
+      // ✅ プロフィールが存在しない場合 → ロールごとの編集画面へ
       if (!profile) {
         const { error: insertError } = await supabase.from('profiles').insert([
           {
@@ -46,10 +47,19 @@ export default function DashboardRedirectPage() {
           console.error('プロフィール作成エラー:', insertError.message)
         }
 
-        router.replace('/profile/setup')
+        // ✅ ロール情報を localStorage から取得して分岐
+        const pendingRole = localStorage.getItem('pending_role') ?? 'store'
+
+        if (pendingRole === 'talent') {
+          router.replace('/talent/edit')
+        } else {
+          router.replace('/store/edit')
+        }
+
         return
       }
 
+      // ✅ 既に role が登録されている場合 → 各ダッシュボードへ
       switch (profile.role) {
         case 'talent':
           router.replace('/talent/dashboard')
