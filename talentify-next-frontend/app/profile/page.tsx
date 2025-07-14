@@ -3,9 +3,18 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
+interface Profile {
+  name: string
+  bio: string | null
+  role?: string
+  twitter?: string
+  instagram?: string
+  youtube?: string
+}
+
 export default function ProfilePage() {
   const supabase = createClient();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
