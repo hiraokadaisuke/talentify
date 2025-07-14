@@ -47,7 +47,6 @@ export default function DashboardRedirectPage() {
           console.error('プロフィール作成エラー:', insertError.message)
         }
 
-        // ✅ ロール情報を localStorage から取得して分岐
         const pendingRole = localStorage.getItem('pending_role') ?? 'store'
 
         if (pendingRole === 'talent') {
@@ -59,13 +58,16 @@ export default function DashboardRedirectPage() {
         return
       }
 
-      // ✅ 既に role が登録されている場合 → 各ダッシュボードへ
+      // ✅ プロフィールあり → ロール別にダッシュボードへ遷移
       switch (profile.role) {
         case 'talent':
           router.replace('/talent/dashboard')
           break
         case 'store':
           router.replace('/store/dashboard')
+          break
+        case 'company':
+          router.replace('/company/dashboard')
           break
         default:
           router.replace('/login')
