@@ -18,60 +18,49 @@ export default function DashboardRedirectPage() {
         return
       }
 
-      const user = session.user
+      const userId = session.user.id
 
-      const { data: profile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
-      if (fetchError) {
-        console.error('プロフィール取得エラー:', fetchError.message)
-        router.replace('/login')
+      // 1. どのテーブルに存在するかチェック
+      const { data: store } = await supabase.from('stores').select('id').eq('user_id', userId).maybeSingle()
+      if (store) {
+        router.replace('/store/dashboard')
         return
       }
 
-      if (!profile) {
-        const { error: insertError } = await supabase.from('profiles').insert([
-          {
-            user_id: user.id,
-            role: null,
-            display_name: '',
-            bio: '',
-          }
-        ])
-
-        if (insertError) {
-          console.error('プロフィール作成エラー:', insertError.message)
-        }
-
-        const pendingRole = localStorage.getItem('pending_role') ?? 'store'
-
-        if (pendingRole === 'talent') {
-          router.replace('/talent/edit')
-        } else if (pendingRole === 'company') {
-          router.replace('/company/edit')
-        } else {
-          router.replace('/store/edit')
-        }
-
+      const { data: talent } = await supabase.from('talents').select('id').eq('user_id', userId).maybeSingle()
+      if (talent) {
+        router.replace('/talent/dashboard')
         return
       }
 
-      switch (profile.role) {
-        case 'talent':
-          router.replace('/talent/dashboard')
-          break
-        case 'store':
-          router.replace('/store/dashboard')
-          break
-        case 'company':
-          router.replace('/company/dashboard')
-          break
-        default:
-          router.replace('/login')
+      const { data: company } = await supabase.from('companies').select('id').eq('user_id', userId).maybeSingle()
+      if (company) {
+        router.replace('/company/dashboard')
+        return
       }
+
+      // 2. どこにも存在しない場合 → pending_role を元に insert
+      const pendingRole = localStorage.getItem('pending_role') ?? 'store'
+      console.log('pendingRole:', pendingRole)
+
+      if (pendingRole === 'talent') {
+        const { error } = await supabase.from('talents').insert([{ user_id: userId }])
+        if (error) console.error('talent insert error:', error.message)
+        router.replace('/talent/edit')
+        return
+      }
+
+      if (pendingRole === 'company') {
+        const { error } = await supabase.from('companies').insert([{ user_id: userId }])
+        if (error) console.error('company insert error:', error.message)
+        router.replace('/company/edit')
+        return
+      }
+
+      // デフォルトは store
+      const { error } = await supabase.from('stores').insert([{ user_id: userId }])
+      if (error) console.error('store insert error:', error.message)
+      router.replace('/store/edit')
     }
 
     redirectByRole()
