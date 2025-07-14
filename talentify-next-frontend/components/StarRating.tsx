@@ -1,5 +1,13 @@
 // components/StarRating.tsx
-export function StarRating({ rating }: { rating: number }) {
+export function StarRating({ rating }: { rating: number | null | undefined }) {
+  if (rating == null || isNaN(rating)) {
+    return (
+      <div className="flex items-center space-x-1 text-gray-400">
+        <span>評価なし</span>
+      </div>
+    )
+  }
+
   const filledStars = Math.floor(rating)
   const hasHalfStar = rating - filledStars >= 0.5
   const emptyStars = 5 - filledStars - (hasHalfStar ? 1 : 0)
