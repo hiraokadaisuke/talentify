@@ -18,7 +18,19 @@ export async function PUT(req: NextRequest) {
     })
   }
 
-  // TODO: Notify performer or store about status change
+  // Notify performer or store about status change via webhook if configured
+  const webhook = process.env.NOTIFICATION_WEBHOOK_URL
+  if (webhook) {
+    try {
+      await fetch(webhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerId: id, status }),
+      })
+    } catch (err) {
+      console.error('Failed to send notification:', err)
+    }
+  }
 
   return new Response(JSON.stringify({ message: '更新しました' }), {
     status: 200,

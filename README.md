@@ -29,6 +29,9 @@ talentify-next-frontend 目に `.env.local` を作成し、下記を記述:
 
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
+
+`NOTIFICATION_WEBHOOK_URL` はオファーのステータス更新後に通知を送るWebフックのURLです。
 
 ※ `.env.local` は `.gitignore` に含まれています。
 
