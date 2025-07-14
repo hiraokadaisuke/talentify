@@ -20,14 +20,14 @@ export default function DashboardRedirectPage() {
 
       const user = session.user
 
-      const { data: profile, error } = await supabase
+      const { data: profile, error: fetchError } = await supabase
         .from('profiles')
         .select('role')
         .eq('user_id', user.id)
         .maybeSingle()
 
-      if (error) {
-        console.error('プロフィール取得エラー:', error.message)
+      if (fetchError) {
+        console.error('プロフィール取得エラー:', fetchError.message)
         router.replace('/login')
         return
       }
