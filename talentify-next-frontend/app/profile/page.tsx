@@ -4,11 +4,20 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useUserRole } from '@/utils/useRole';
 
+interface Profile {
+  name: string
+  bio: string | null
+  role?: string
+  twitter?: string
+  instagram?: string
+  youtube?: string
+}
+
 export default function ProfilePage() {
   const supabase = createClient();
-  const { role, loading: roleLoading } = useUserRole();
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+const { role, loading: roleLoading } = useUserRole();
+const [profile, setProfile] = useState<any>(null);
+const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -60,7 +69,7 @@ export default function ProfilePage() {
           <p><strong>YouTube:</strong> {profile.youtube}</p>
           <button
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => window.location.href = '/talent/profile/edit'}
+            onClick={() => window.location.href = '/talent/edit'}
           >
             プロフィールを編集
           </button>

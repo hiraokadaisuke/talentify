@@ -40,7 +40,7 @@ export default function Header() {
           )}
 
 {role === 'talent' && (
-  <Link href="/talent/profile/edit" className="hover:underline text-blue-600 font-semibold">
+  <Link href="/talent/edit" className="hover:underline text-blue-600 font-semibold">
     プロフィール編集
   </Link>
 )}
@@ -70,7 +70,7 @@ export default function Header() {
           )}
 
 {role === 'talent' && (
-  <Link href="/talent/profile/edit" className="hover:underline text-blue-600 font-semibold">
+  <Link href="/talent/edit" className="hover:underline text-blue-600 font-semibold">
     プロフィール編集
   </Link>
 )}
