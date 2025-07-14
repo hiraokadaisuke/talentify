@@ -2,11 +2,25 @@
 export type Database = {
   public: {
     Tables: {
-      profiles: {
+      stores: {
         Row: {
           id: string
-          role: 'talent' | 'store' | null
-          // 必要に応じて他のカラムも追記
+          user_id: string
+          role: 'store'
+        }
+      }
+      talents: {
+        Row: {
+          id: string
+          user_id: string
+          role: 'talent'
+        }
+      }
+      companies: {
+        Row: {
+          id: string
+          user_id: string
+          role: 'company'
         }
       }
     }

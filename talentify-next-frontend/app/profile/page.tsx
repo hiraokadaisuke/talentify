@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { useUserRole } from '@/utils/useRole';
 
 export default function ProfilePage() {
   const supabase = createClient();
+  const { role, loading: roleLoading } = useUserRole();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -17,9 +19,15 @@ export default function ProfilePage() {
         return;
       }
 
+      if (!role) {
+        setLoading(false);
+        return;
+      }
+
       const userId = session.user.id;
+      const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores';
       const { data, error } = await supabase
-        .from('profiles')
+        .from(table)
         .select('*')
         .eq('user_id', userId)
         .single();
@@ -36,7 +44,7 @@ export default function ProfilePage() {
     fetchProfile();
   }, [supabase]);
 
-  if (loading) return <p>読み込み中...</p>;
+  if (loading || roleLoading) return <p>読み込み中...</p>;
   if (!profile) return <p>プロフィールが見つかりません</p>;
 
   return (
@@ -45,7 +53,7 @@ export default function ProfilePage() {
       <p><strong>名前：</strong>{profile.name}</p>
       <p><strong>自己紹介：</strong>{profile.bio}</p>
 
-      {profile.role === 'talent' && (
+      {role === 'talent' && (
         <div className="mt-4 space-y-2">
           <p><strong>Twitter:</strong> {profile.twitter}</p>
           <p><strong>Instagram:</strong> {profile.instagram}</p>
@@ -59,7 +67,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {profile.role === 'store' && (
+      {role === 'store' && (
         <div className="mt-4 text-green-700 font-semibold">
           店舗アカウントとしてログイン中です。
         </div>

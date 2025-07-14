@@ -3,11 +3,10 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
   const supabase = await createClient()
-  const { data, error } = await supabase.from('profiles').select('*')
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+  const { data: stores } = await supabase.from('stores').select('*')
+  const { data: talents } = await supabase.from('talents').select('*')
+  const { data: companies } = await supabase.from('companies').select('*')
 
-  return NextResponse.json(data)
+  return NextResponse.json({ stores, talents, companies })
 }

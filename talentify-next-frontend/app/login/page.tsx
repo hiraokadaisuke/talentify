@@ -29,21 +29,12 @@ export default function LoginPage() {
 
     const userId = session.user.id
 
-    // 🔽 profiles にレコードがあるかチェック
-    const { data: existingProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('user_id', userId)
-      .single()
+    const { data: store } = await supabase.from('stores').select('id').eq('user_id', userId).maybeSingle()
+    const { data: talent } = await supabase.from('talents').select('id').eq('user_id', userId).maybeSingle()
+    const { data: company } = await supabase.from('companies').select('id').eq('user_id', userId).maybeSingle()
 
-    if (!existingProfile) {
-      // 🔽 なければ作成（必要なら role: 'store' や 'talent' を付与）
-      await supabase.from('profiles').insert([
-        {
-          user_id: userId,
-          role: 'store', // ←仮に "store" としておく。条件分岐してもOK
-        }
-      ])
+    if (!store && !talent && !company) {
+      await supabase.from('stores').insert([{ user_id: userId }])
     }
 
     router.push('/dashboard')

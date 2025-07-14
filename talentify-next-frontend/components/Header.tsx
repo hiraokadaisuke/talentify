@@ -1,34 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
+import { useUserRole } from '@/utils/useRole'
 
 const supabase = createClient()
 
 export default function Header() {
-  const [role, setRole] = useState<string | null>(null)
+  const { role } = useUserRole()
   const [isOpen, setIsOpen] = useState(false)
-
-  useEffect(() => {
-    const fetchRole = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single()
-
-      if (data?.role) {
-        setRole(data.role)
-      }
-    }
-
-    fetchRole()
-  }, [])
 
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">

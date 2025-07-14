@@ -20,11 +20,11 @@ export default function DashboardRedirectPage() {
 
       const user = session.user
 
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      const { data: store } = await supabase.from('stores').select('id').eq('user_id', user.id).maybeSingle()
+      const { data: talent } = await supabase.from('talents').select('id').eq('user_id', user.id).maybeSingle()
+      const { data: company } = await supabase.from('companies').select('id').eq('user_id', user.id).maybeSingle()
+
+      const profileRole = store ? 'store' : talent ? 'talent' : company ? 'company' : null
 
       if (error) {
         console.error('プロフィール取得エラー:', error.message)
@@ -33,34 +33,23 @@ export default function DashboardRedirectPage() {
       }
 
       // ✅ プロフィールが存在しない場合 → ロールごとの編集画面へ
-      if (!profile) {
-        const { error: insertError } = await supabase.from('profiles').insert([
-          {
-            user_id: user.id,
-            role: null,
-            display_name: '',
-            bio: '',
-          }
-        ])
-
+      if (!profileRole) {
+        const pendingRole = localStorage.getItem('pending_role') ?? 'store'
+        const table = pendingRole === 'talent' ? 'talents' : pendingRole === 'company' ? 'companies' : 'stores'
+        const { error: insertError } = await supabase.from(table).insert([{ user_id: user.id }])
         if (insertError) {
           console.error('プロフィール作成エラー:', insertError.message)
         }
-
-        // ✅ ロール情報を localStorage から取得して分岐
-        const pendingRole = localStorage.getItem('pending_role') ?? 'store'
-
         if (pendingRole === 'talent') {
           router.replace('/talent/edit')
         } else {
           router.replace('/store/edit')
         }
-
         return
       }
 
       // ✅ 既に role が登録されている場合 → 各ダッシュボードへ
-      switch (profile.role) {
+      switch (profileRole) {
         case 'talent':
           router.replace('/talent/dashboard')
           break

@@ -49,16 +49,7 @@ export default function TalentProfileEditPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    // ✅ Step 1: profiles に user.id を upsert（存在しないとき用）
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({ id: user.id })
 
-    if (profileError) {
-      console.error('profiles の作成に失敗:', profileError)
-      alert('保存に失敗しました（ユーザー情報）')
-      return
-    }
 
     // 🔸 Step 2: talents テーブルに保存 or 更新
     const updateData = {
