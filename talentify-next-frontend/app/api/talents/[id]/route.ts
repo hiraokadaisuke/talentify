@@ -1,10 +1,13 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const supabase = await createClient()
 
-  const id = req.nextUrl.pathname.split('/').pop()
+  const { id } = params
 
   const { data, error } = await supabase
     .from('talents')
@@ -13,21 +16,18 @@ export async function GET(req: NextRequest) {
     .maybeSingle()
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
   }
 
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  })
+  return NextResponse.json(data, { status: 200 })
 }
 
-export async function PUT(req: NextRequest) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const supabase = await createClient()
-  const id = req.nextUrl.pathname.split('/').pop()
+  const { id } = params
   const body = await req.json()
 
   const {
@@ -64,21 +64,18 @@ export async function PUT(req: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
   }
 
-  return new Response(JSON.stringify({ message: '更新しました' }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  })
+  return NextResponse.json<{ message: string }>({ message: '更新しました' }, { status: 200 })
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const supabase = await createClient()
-  const id = req.nextUrl.pathname.split('/').pop()
+  const { id } = params
 
   const { error } = await supabase
     .from('talents')
@@ -86,14 +83,8 @@ export async function DELETE(req: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
   }
 
-  return new Response(JSON.stringify({ message: '削除しました' }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  })
+  return NextResponse.json<{ message: string }>({ message: '削除しました' }, { status: 200 })
 }
