@@ -5,11 +5,27 @@ export interface Database {
         Row: {
           id: string
           name: string
+          stage_name: string
+          birthdate: string
+          gender: string
+          residence: string
+          birthplace: string
+          height_cm: number
+          agency_name: string
           email: string
           profile: string
           sns_links: string[]
+          social_x: string
+          social_instagram: string
+          social_youtube: string
+          social_tiktok: string
+          photos: string[]
           area: string
           bio: string
+          bio_hobby: string
+          bio_certifications: string
+          bio_others: string
+          media_appearance: string
           skills: string[]
           experience_years: number
           avatar_url: string
