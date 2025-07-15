@@ -102,9 +102,25 @@ export type Database = {
           availability: string | null
           avatar_url: string | null
           bio: string | null
+          bio_hobby: string | null
+          bio_certifications: string | null
+          bio_others: string | null
           created_at: string | null
+          stage_name: string | null
+          birthdate: string | null
+          gender: string | null
+          residence: string | null
+          birthplace: string | null
+          height_cm: number | null
+          agency_name: string | null
           email: string
           experience_years: number | null
+          social_x: string | null
+          social_instagram: string | null
+          social_youtube: string | null
+          social_tiktok: string | null
+          photos: string[] | null
+          media_appearance: string | null
           id: string
           location: string | null
           name: string
@@ -118,9 +134,25 @@ export type Database = {
           availability?: string | null
           avatar_url?: string | null
           bio?: string | null
+          bio_hobby?: string | null
+          bio_certifications?: string | null
+          bio_others?: string | null
           created_at?: string | null
+          stage_name?: string | null
+          birthdate?: string | null
+          gender?: string | null
+          residence?: string | null
+          birthplace?: string | null
+          height_cm?: number | null
+          agency_name?: string | null
           email: string
           experience_years?: number | null
+          social_x?: string | null
+          social_instagram?: string | null
+          social_youtube?: string | null
+          social_tiktok?: string | null
+          photos?: string[] | null
+          media_appearance?: string | null
           id?: string
           location?: string | null
           name: string
@@ -134,9 +166,25 @@ export type Database = {
           availability?: string | null
           avatar_url?: string | null
           bio?: string | null
+          bio_hobby?: string | null
+          bio_certifications?: string | null
+          bio_others?: string | null
           created_at?: string | null
+          stage_name?: string | null
+          birthdate?: string | null
+          gender?: string | null
+          residence?: string | null
+          birthplace?: string | null
+          height_cm?: number | null
+          agency_name?: string | null
           email?: string
           experience_years?: number | null
+          social_x?: string | null
+          social_instagram?: string | null
+          social_youtube?: string | null
+          social_tiktok?: string | null
+          photos?: string[] | null
+          media_appearance?: string | null
           id?: string
           location?: string | null
           name?: string
