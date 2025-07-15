@@ -11,7 +11,13 @@ export async function GET(
 
   const { data, error } = await supabase
     .from('talents')
-    .select('*')
+    .select(
+      'stage_name,birthdate,gender,residence,birthplace,height_cm,agency_name,' +
+        'social_x,social_instagram,social_youtube,social_tiktok,photos,' +
+        'bio_hobby,bio_certifications,bio_others,media_appearance,' +
+        'id,name,email,profile,sns_links,area,bio,skills,experience_years,' +
+        'avatar_url,location,rate,availability'
+    )
     .eq('id', id)
     .maybeSingle()
 
