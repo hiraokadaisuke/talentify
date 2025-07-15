@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 
@@ -31,8 +32,8 @@ export default function TalentCard({ talent }: { talent: Talent }) {
         {talent.agency && <p className="text-xs text-gray-500">所属: {talent.agency}</p>}
       </CardContent>
       <CardFooter className="mt-auto flex gap-2">
-        <Button variant="outline" className="flex-1">
-          詳細を見る
+        <Button asChild variant="outline" className="flex-1">
+          <Link href={`/talents/${talent.id}`}>詳細を見る</Link>
         </Button>
         <Button className="flex-1">オファーする</Button>
       </CardFooter>
