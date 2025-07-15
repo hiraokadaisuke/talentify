@@ -1,7 +1,7 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
 
-// ここで HTML の props（id や className や onClick など）を継承
+// 共通の props
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function Card({ className, ...props }: CardProps) {
@@ -13,6 +13,12 @@ export function Card({ className, ...props }: CardProps) {
 export function CardHeader({ className, ...props }: CardProps) {
   return (
     <div className={cn('mb-2 font-semibold text-lg', className)} {...props} />
+  )
+}
+
+export function CardTitle({ className, ...props }: CardProps) {
+  return (
+    <h3 className={cn('text-xl font-bold tracking-tight', className)} {...props} />
   )
 }
 

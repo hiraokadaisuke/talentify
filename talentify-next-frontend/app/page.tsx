@@ -21,10 +21,10 @@ export default function HomePage() {
               </Button>
             </Link>
             <Link href="/register?role=talent">
-              <Button variant="secondary" className="px-8 py-3 text-base rounded-full shadow-md">
-                演者として登録
-              </Button>
-            </Link>
+  <Button className="px-8 py-3 text-base rounded-full bg-white text-gray-900 hover:bg-gray-100 shadow-md">
+    演者として登録
+  </Button>
+</Link>
           </div>
         </div>
       </section>

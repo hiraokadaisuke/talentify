@@ -2,7 +2,12 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Card, CardHeader, CardContent } from '@/components/ui/card'
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Calendar } from '@/components/ui/calendar'
@@ -46,46 +51,88 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-4 grid gap-4 md:grid-cols-2">
-      {/* 通知カード */}
+    <div className="p-4 space-y-6">
+      {/* ヘッダー */}
+      <div>
+        <h1 className="text-2xl font-semibold">Welcome, Alice!</h1>
+        <p className="text-muted-foreground text-sm">今日も頑張りましょう</p>
+      </div>
+
+      {/* 統計カード */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="bg-gradient-to-r from-cyan-200 to-blue-200 text-white shadow">
+          <CardContent className="p-6">
+            <p className="text-sm">CV Views</p>
+            <p className="text-3xl font-bold mt-2">12</p>
+            <p className="text-xs mt-1 text-white/80">+1.2% than last month</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-r from-pink-200 to-purple-200 text-white shadow">
+          <CardContent className="p-6">
+            <p className="text-sm">Applications Submitted</p>
+            <p className="text-3xl font-bold mt-2">5</p>
+            <p className="text-xs mt-1 text-white/80">-1.3% than last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <p className="text-sm text-muted-foreground">通知数</p>
+            <p className="text-3xl font-bold mt-2">
+              {mockNotifications.offers + mockNotifications.messages + mockNotifications.events}
+            </p>
+            <p className="text-xs mt-1 text-muted-foreground">合計通知件数</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 通知 & スケジュール */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* 通知カード */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span>通知</span>
+              <Badge>{mockNotifications.offers} オファー</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Alert>
+              <AlertTitle>メッセージ</AlertTitle>
+              <AlertDescription>
+                未読メッセージ {mockNotifications.messages} 件
+              </AlertDescription>
+            </Alert>
+            <Alert>
+              <AlertTitle>イベント</AlertTitle>
+              <AlertDescription>
+                近日予定 {mockNotifications.events} 件
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        {/* スケジュールカード */}
+        <Card>
+          <CardHeader>
+            <CardTitle>スケジュール</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Calendar events={upcomingEvents} />
+            <Link
+              href="/schedule"
+              className="text-blue-600 underline text-sm mt-2 block"
+            >
+              スケジュール詳細
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* オファー一覧 */}
       <Card>
-        <CardHeader className="flex items-center justify-between">
-          <span>通知</span>
-          <Badge>{mockNotifications.offers} オファー</Badge>
+        <CardHeader>
+          <CardTitle>保留中のオファー</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <Alert>
-            <AlertTitle>メッセージ</AlertTitle>
-            <AlertDescription>
-              未読メッセージ {mockNotifications.messages} 件
-            </AlertDescription>
-          </Alert>
-          <Alert>
-            <AlertTitle>イベント</AlertTitle>
-            <AlertDescription>
-              近日予定 {mockNotifications.events} 件
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-
-      {/* スケジュールカード */}
-      <Card>
-        <CardHeader>スケジュール</CardHeader>
-        <CardContent>
-          <Calendar events={upcomingEvents} />
-          <Link
-            href="/schedule"
-            className="text-blue-600 underline text-sm mt-2 block"
-          >
-            スケジュール詳細
-          </Link>
-        </CardContent>
-      </Card>
-
-      {/* オファー一覧カード */}
-      <Card className="md:col-span-2">
-        <CardHeader>保留中のオファー</CardHeader>
         <CardContent>
           {offers.length === 0 ? (
             <p>現在保留中のオファーはありません。</p>
@@ -124,9 +171,11 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* プロフィール情報カード */}
-      <Card className="md:col-span-2">
-        <CardHeader>プロフィール</CardHeader>
+      {/* プロフィール情報 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>プロフィール</CardTitle>
+        </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex items-center space-x-2">
             <span>公開設定:</span>

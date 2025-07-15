@@ -1,60 +1,36 @@
-'use client'
-import { useState } from 'react'
+"use client"
+
+
+
+import { useEffect, useState } from 'react'
+import { createClient } from '@/utils/supabase/client' // あなたのSupabaseラッパー
 import TalentSearchForm, { SearchFilters } from './TalentSearchForm'
 import TalentList from './TalentList'
 import { Talent } from './TalentCard'
 
-const SAMPLE_TALENTS: Talent[] = [
-  {
-    id: 1,
-    name: '山田 花子',
-    genre: 'アイドル',
-    gender: '女性',
-    ageGroup: '20代',
-    location: '東京',
-    bio: '歌とダンスが得意です。明るく元気に盛り上げます！',
-    agency: 'ABCプロダクション',
-    avatar: 'https://example.com/avatar1.jpg',
-  },
-  {
-    id: 2,
-    name: '佐藤 太郎',
-    genre: 'お笑い',
-    gender: '男性',
-    ageGroup: '30代',
-    location: '大阪',
-    bio: '関西弁で楽しくトークします。テレビ出演経験あり。',
-    agency: 'XYZエンターテインメント',
-    avatar: 'https://example.com/avatar2.jpg',
-  },
-  {
-    id: 3,
-    name: '鈴木 一郎',
-    genre: 'レポーター',
-    gender: '男性',
-    ageGroup: '40代',
-    location: '福岡',
-    bio: '冷静な実況レポートが得意です。全国各地の取材経験豊富。',
-    avatar: 'https://example.com/avatar3.jpg',
-  },
-  {
-    id: 4,
-    name: '高橋 真美',
-    genre: 'バラエティ',
-    gender: '女性',
-    ageGroup: '30代',
-    location: '東京',
-    bio: 'バラエティ番組を中心に活動中。明るさが武器です。',
-    avatar: 'https://example.com/avatar4.jpg',
-  },
-]
-
 const ITEMS_PER_PAGE = 6
 
 export default function TalentSearchPage() {
-  const [talents] = useState<Talent[]>(SAMPLE_TALENTS)
-  const [results, setResults] = useState<Talent[]>(SAMPLE_TALENTS)
+  const [talents, setTalents] = useState<Talent[]>([])
+  const [results, setResults] = useState<Talent[]>([])
   const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    const fetchTalents = async () => {
+      const supabase = createClient()
+      const { data, error } = await supabase.from('talents').select('*')
+
+      if (error) {
+        console.error('タレントの取得に失敗しました:', error)
+        return
+      }
+
+      setTalents(data as Talent[])
+      setResults(data as Talent[])
+    }
+
+    fetchTalents()
+  }, [])
 
   const handleSearch = (f: SearchFilters) => {
     const keyword = f.keyword.toLowerCase()
