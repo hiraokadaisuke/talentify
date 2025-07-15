@@ -65,6 +65,114 @@ export interface Database {
           status: string
         }>
       }
+
+      stores: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          display_name: string
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: Partial<{
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          display_name: string
+          id: string
+          updated_at: string | null
+          user_id: string
+        }>
+      }
+
+      messages: {
+        Row: {
+          id: string
+          sender_id: string
+          receiver_id: string
+          text: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          sender_id: string
+          receiver_id: string
+          text: string
+          created_at?: string | null
+        }
+        Update: Partial<{
+          id: string
+          sender_id: string
+          receiver_id: string
+          text: string
+          created_at: string | null
+        }>
+      }
+
+      payments: {
+        Row: {
+          id: string
+          offer_id: string | null
+          amount: number | null
+          status: string | null
+          invoice_url: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          offer_id?: string | null
+          amount?: number | null
+          status?: string | null
+          invoice_url?: string | null
+          created_at?: string | null
+        }
+        Update: Partial<{
+          id: string
+          offer_id: string | null
+          amount: number | null
+          status: string | null
+          invoice_url: string | null
+          created_at: string | null
+        }>
+      }
+
+      schedules: {
+        Row: {
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          description?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: Partial<{
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }>
+      }
     }
   }
 }
