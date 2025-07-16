@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
-  // awaitをつける
-  const supabase = await createClient()
+  const supabase = await createClient() as any
 
   const { data, error } = await supabase
     .from('users')

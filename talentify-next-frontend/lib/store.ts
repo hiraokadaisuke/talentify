@@ -1,5 +1,5 @@
 import { createClient } from './supabase/server'
-import type { Database } from '@/types/supabase'
+import type { Database } from '../types/supabase'
 
 export async function getOffersForStore(userId: string) {
   const supabase = await createClient()

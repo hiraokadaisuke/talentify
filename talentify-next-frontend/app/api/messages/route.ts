@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('messages')
-    .insert({ sender_id: user.id, receiver_id, text })
+    .insert({ sender_id: user.id, receiver_id, content: text })
     .select()
     .single()
 

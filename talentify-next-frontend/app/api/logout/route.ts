@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 
 
 export async function POST() {
-  const supabase = await createClient() // ← awaitを追加
+  const supabase = await createClient() as any
 
   const { error } = await supabase.auth.signOut()
   if (error) {
