@@ -1,6 +1,3 @@
-export const dynamic = 'force-dynamic'
-
-
 export type StoreContract = {
   offer_id: string
   talent_name: string
