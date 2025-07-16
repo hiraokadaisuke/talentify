@@ -44,13 +44,13 @@ export default function DashboardRedirectPage() {
       console.log('pendingRole:', pendingRole)
 
       if (pendingRole === 'talent') {
-        const { error } = await supabase
-          .from('talents')
-          .insert([{ user_id: userId }] as any)
-        if (error) console.error('talent insert error:', error.message)
-        router.replace('/talent/edit')
-        return
-      }
+  const { error } = await supabase
+    .from('talents')
+    .insert([{ user_id: userId, name: '' }])
+  if (error) console.error('talent insert error:', error.message)
+  router.replace('/talent/edit')
+  return
+}
 
       if (pendingRole === 'company') {
         const { error } = await supabase
