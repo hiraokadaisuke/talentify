@@ -5,7 +5,7 @@ import "../globals.css"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Inter, Noto_Sans_JP } from "next/font/google"
-import AuthSession from "@/components/AuthSession"
+import AuthSession from "@/components/AuthSession" // ✅ こちらを残す
 
 const inter = Inter({
   subsets: ["latin"],
