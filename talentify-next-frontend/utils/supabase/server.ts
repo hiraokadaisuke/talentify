@@ -1,4 +1,5 @@
-// utils/supabase/server.ts
+export const dynamic = 'force-dynamic' // ← 追加
+
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 

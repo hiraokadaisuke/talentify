@@ -1,4 +1,5 @@
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 import { cookies } from 'next/headers'
 import { randomBytes } from 'crypto'

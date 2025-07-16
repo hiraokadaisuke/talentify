@@ -1,4 +1,8 @@
 // utils/useRole.ts
+
+
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 

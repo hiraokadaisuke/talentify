@@ -1,6 +1,8 @@
 // /app/store/dashboard/page.tsx
 "use client"
 
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useState } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
