@@ -1,8 +1,6 @@
 // utils/supabase/client.ts
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { createBrowserClient } from '@supabase/ssr'
 
 export const createClient = () =>
