@@ -10,19 +10,25 @@ describe('getRedirectUrl', () => {
   })
 
   test('returns localhost path for store in development', () => {
-    process.env.NODE_ENV = 'development'
+    const env = { ...process.env } as NodeJS.ProcessEnv
+    env.NODE_ENV = 'development'
+    process.env = env
     expect(getRedirectUrl('store')).toBe('http://localhost:3000/store/edit')
   })
 
   test('returns NEXT_PUBLIC_SITE_URL for talent in production', () => {
-    process.env.NODE_ENV = 'production'
-    process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com'
+    const env = { ...process.env } as NodeJS.ProcessEnv
+    env.NODE_ENV = 'production'
+    env.NEXT_PUBLIC_SITE_URL = 'https://example.com'
+    process.env = env
     expect(getRedirectUrl('talent')).toBe('https://example.com/talent/edit')
   })
 
   test('defaults to root for unknown role', () => {
-    process.env.NODE_ENV = 'production'
-    process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com'
+    const env = { ...process.env } as NodeJS.ProcessEnv
+    env.NODE_ENV = 'production'
+    env.NEXT_PUBLIC_SITE_URL = 'https://example.com'
+    process.env = env
     expect(getRedirectUrl('unknown')).toBe('https://example.com/')
   })
 })
