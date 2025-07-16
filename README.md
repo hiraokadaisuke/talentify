@@ -6,6 +6,7 @@ Talentify は、ライター・演者とパチンコホールをマッチング�
 
 /talentify-next-frontend   ← メインの Next.js アプリ (App Router 構成)
 /supabase                  ← Supabase プロジェクト構成・管理
+全ての Node.js コマンド (npm install, npm run dev など) は `talentify-next-frontend` ディレクトリで実行してください。
 
 バックエンドは不要 (全て Supabase で完結)
 
@@ -37,8 +38,7 @@ NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
 
 3. ビルド / デプロイ
 
-`NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_ANON_KEY` は
-`npm run build` などのビルド時にも必須です。環境変数として設定した上で実行してください。
+`NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_ANON_KEY` は `talentify-next-frontend` ディレクトリで `npm run build` する際にも必須です。環境変数として設定した上で実行してください。
 
 4. 開発サーバーの起動
 
