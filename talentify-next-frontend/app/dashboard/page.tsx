@@ -44,7 +44,7 @@ export default function DashboardRedirectPage() {
       console.log('pendingRole:', pendingRole)
 
       if (pendingRole === 'talent') {
-        const { error } = await supabase.from('talents').insert([{ user_id: userId }])
+        const { error } = await supabase.from('talents').insert([{ user_id: userId, name: '' }])
         if (error) console.error('talent insert error:', error.message)
         router.replace('/talent/edit')
         return
