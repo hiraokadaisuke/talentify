@@ -1,4 +1,6 @@
-﻿export type Json =
+﻿export {}
+
+export type Json =
   | string
   | number
   | boolean
