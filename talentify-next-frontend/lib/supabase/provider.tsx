@@ -1,4 +1,4 @@
-// utils/supabase/provider.tsx
+// lib/supabase/provider.tsx
 'use client'
 
 import { createBrowserClient } from '@supabase/ssr'

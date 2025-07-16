@@ -8,7 +8,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Inter, Noto_Sans_JP } from "next/font/google"
 import { createClient } from "@/lib/supabase/server"
-import { SupabaseProvider } from "@/utils/supabase/provider"
+import { SupabaseProvider } from "@/lib/supabase/provider"
 
 const inter = Inter({
   subsets: ["latin"],
