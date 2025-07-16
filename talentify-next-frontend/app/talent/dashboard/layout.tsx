@@ -5,7 +5,7 @@ import Header from "@/components/Header"
 import Sidebar from "@/components/Sidebar"
 import Footer from "@/components/Footer"
 import { Inter, Noto_Sans_JP } from "next/font/google"
-import { createServerClient } from "@/utils/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { SupabaseProvider } from "@/utils/supabase/provider"
 
 const inter = Inter({
@@ -30,7 +30,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
   const {
     data: { session },
   } = await supabase.auth.getSession()
