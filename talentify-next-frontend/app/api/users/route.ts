@@ -5,7 +5,7 @@ export async function GET() {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('users')
+    .from("users" as any)
     .select('*')
 
   if (error) {
