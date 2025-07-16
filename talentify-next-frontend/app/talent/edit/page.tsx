@@ -1,7 +1,5 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useUser } from '@supabase/auth-helpers-react'

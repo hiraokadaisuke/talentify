@@ -44,3 +44,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Message Box
 
 A simple message interface is available at `/messages` for testing chat UI.
+
+## Dynamic Routes
+
+The root layout reads authentication cookies, making the app dynamic by default.
+Only API routes that read or set cookies (such as `/api/csrf-token`, `/api/logout`,
+`/api/messages` and `/api/schedule`) need `dynamic = 'force-dynamic'`. Pure client
+components and other API endpoints should omit this flag to allow static
+optimization when possible.
