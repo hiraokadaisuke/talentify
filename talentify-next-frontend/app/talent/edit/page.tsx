@@ -3,12 +3,11 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { useUser } from '@supabase/auth-helpers-react'
 
 const supabase = createClient()
 
 export default function TalentProfileEditPage() {
-  const user = useUser()
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState({
     name: '',
@@ -21,9 +20,16 @@ export default function TalentProfileEditPage() {
 
   // プロフィール読み込み
   useEffect(() => {
-    if (!user) return
-
     const loadProfile = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        setLoading(false)
+        return
+      }
+      setUserId(user.id)
+
       const { data, error } = await supabase
         .from('talents')
         .select('name, stage_name, bio, twitter, instagram, youtube')
@@ -39,17 +45,17 @@ export default function TalentProfileEditPage() {
     }
 
     loadProfile()
-  }, [user])
+  }, [supabase])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value })
   }
 
   const handleSave = async () => {
-    if (!user) return
+    if (!userId) return
 
     const updateData = {
-      user_id: user.id,
+      user_id: userId,
       name: profile.name || '',
       stage_name: profile.stage_name || '',
       bio: profile.bio || '',
@@ -61,7 +67,7 @@ export default function TalentProfileEditPage() {
     const { data: existing } = await supabase
       .from('talents')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     let error
@@ -70,7 +76,7 @@ export default function TalentProfileEditPage() {
       ({ error } = await supabase
         .from('talents')
         .update(updateData)
-        .eq('user_id', user.id))
+        .eq('user_id', userId))
     } else {
       ({ error } = await supabase
         .from('talents')

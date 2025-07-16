@@ -1,9 +1,8 @@
 // utils/supabase/provider.tsx
 'use client'
 
-import { SessionContextProvider } from '@supabase/auth-helpers-react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function SupabaseProvider({
   children,
@@ -19,9 +18,11 @@ export function SupabaseProvider({
     )
   )
 
-  return (
-    <SessionContextProvider supabaseClient={supabase} initialSession={session}>
-      {children}
-    </SessionContextProvider>
-  )
+  useEffect(() => {
+    if (session) {
+      supabase.auth.setSession(session)
+    }
+  }, [session, supabase])
+
+  return <>{children}</>
 }
