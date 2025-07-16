@@ -1,14 +1,11 @@
 // app/(auth)/layout.tsx
 
-export const dynamic = 'force-dynamic'
-
 import React from "react"
 import "../globals.css"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Inter, Noto_Sans_JP } from "next/font/google"
-import { createClient } from "@/lib/supabase/server"
-import { SupabaseProvider } from "@/utils/supabase/provider"
+import AuthSession from "@/components/AuthSession"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -30,24 +27,19 @@ export const metadata = {
   },
 }
 
-export default async function AuthLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
   return (
     <html lang="ja" className={`${inter.variable} ${noto.variable}`}>
       <body className="font-sans antialiased bg-white text-black">
-        <SupabaseProvider session={session}>
+        <AuthSession>
           <Header />
           {children}
           <Footer />
-        </SupabaseProvider>
+        </AuthSession>
       </body>
     </html>
   )
