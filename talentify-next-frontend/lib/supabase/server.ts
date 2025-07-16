@@ -10,8 +10,8 @@ import { Database } from '@/types/supabase'
  * 認証クッキー付きSupabaseクライアントを取得する関数
  */
 export async function createClient() {
-  // Next.jsのcookies()はasyncなのでawaitが必要
-  const cookieStore = await cookies()
+  // Next.jsのcookies()は同期関数なのでawaitは不要
+  const cookieStore = cookies()
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,      // Supabase URL（環境変数）
