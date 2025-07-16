@@ -8,8 +8,17 @@ import { Inter, Noto_Sans_JP } from "next/font/google"
 import { createServerClient } from "@/utils/supabase/server"
 import { SupabaseProvider } from "@/utils/supabase/provider"
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
-const noto = Noto_Sans_JP({ subsets: ["latin"], variable: "--font-noto" })
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap", // ✅ 追加！
+})
+
+const noto = Noto_Sans_JP({
+  subsets: ["latin"],
+  variable: "--font-noto",
+  display: "swap", // ✅ 追加！
+})
 
 export const metadata = {
   title: "Talentify | ダッシュボード",
@@ -30,7 +39,7 @@ export default async function DashboardLayout({
     <html lang="ja" className={`${inter.variable} ${noto.variable}`}>
       <body className="font-sans antialiased bg-white text-black">
         <SupabaseProvider session={session}>
-          <Header /> {/* ✅ ←これを復活 */}
+          <Header />
           <div className="flex min-h-screen">
             <aside className="w-64 border-r p-4 bg-gray-50">
               <Sidebar />

@@ -1,3 +1,5 @@
+// app/layout.tsx
+
 import React from "react"
 import "./globals.css"
 import Header from "../components/Header"
@@ -9,11 +11,13 @@ import { SupabaseProvider } from "@/utils/supabase/provider"
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap", // ✅ 追加！
 })
 
 const noto = Noto_Sans_JP({
   subsets: ["latin"],
   variable: "--font-noto",
+  display: "swap", // ✅ 追加！
 })
 
 export const metadata = {
