@@ -44,21 +44,27 @@ export default function DashboardRedirectPage() {
       console.log('pendingRole:', pendingRole)
 
       if (pendingRole === 'talent') {
-        const { error } = await supabase.from('talents').insert([{ user_id: userId }])
+        const { error } = await supabase
+          .from('talents')
+          .insert([{ user_id: userId }] as any)
         if (error) console.error('talent insert error:', error.message)
         router.replace('/talent/edit')
         return
       }
 
       if (pendingRole === 'company') {
-        const { error } = await supabase.from('companies').insert([{ user_id: userId }])
+        const { error } = await supabase
+          .from('companies')
+          .insert([{ user_id: userId }] as any)
         if (error) console.error('company insert error:', error.message)
         router.replace('/company/edit')
         return
       }
 
       // デフォルトは store
-      const { error } = await supabase.from('stores').insert([{ user_id: userId }])
+      const { error } = await supabase
+        .from('stores')
+        .insert([{ user_id: userId }] as any)
       if (error) console.error('store insert error:', error.message)
       router.replace('/store/edit')
     }
