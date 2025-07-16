@@ -1,5 +1,7 @@
 // app/layout.tsx
 
+export const dynamic = 'force-dynamic'
+
 import React from "react"
 import "./globals.css"
 import Header from "../components/Header"
@@ -33,7 +35,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   const {
     data: { session },
   } = await supabase.auth.getSession()

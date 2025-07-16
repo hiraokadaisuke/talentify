@@ -1,8 +1,8 @@
 'use client'
 
+
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { useUser } from '@supabase/auth-helpers-react'
 
 type Offer = {
   id: string
@@ -13,11 +13,13 @@ type Offer = {
 
 export default function TalentOffersPage() {
   const supabase = createClient()
-  const user = useUser()
   const [offers, setOffers] = useState<Offer[]>([])
 
   useEffect(() => {
     const fetchOffers = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) return
 
       const { data, error } = await supabase
@@ -33,7 +35,7 @@ export default function TalentOffersPage() {
     }
 
     fetchOffers()
-  }, [user])
+  }, [supabase])
 
   return (
     <div className="p-6 space-y-4">
