@@ -10,60 +10,47 @@ export default function DashboardRedirectPage() {
   const supabase = createClientComponentClient<Database>()
 
   useEffect(() => {
-    const redirectByRole = async () => {
+    const redirectUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-
       if (!session) {
-        router.replace('/login')
-        return
+        return router.replace('/login')
       }
 
       const userId = session.user.id
 
-      // 1. どのテーブルに存在するかチェック
-      const { data: store } = await supabase.from('stores').select('id').eq('user_id', userId).maybeSingle()
-      if (store) {
-        router.replace('/store/dashboard')
-        return
+      // テーブルとリダイレクト先の対応リスト
+      const roleRedirectMap = [
+        { table: 'stores', path: '/store/dashboard' },
+        { table: 'talents', path: '/talent/dashboard' },
+        { table: 'companies', path: '/company/dashboard' },
+      ]
+
+      // 所属テーブルがあれば即リダイレクト
+      for (const { table, path } of roleRedirectMap) {
+        const { data } = await supabase.from(table).select('id').eq('user_id', userId).maybeSingle()
+        if (data) {
+          return router.replace(path)
+        }
       }
 
-      const { data: talent } = await supabase.from('talents').select('id').eq('user_id', userId).maybeSingle()
-      if (talent) {
-        router.replace('/talent/dashboard')
-        return
-      }
-
-      const { data: company } = await supabase.from('companies').select('id').eq('user_id', userId).maybeSingle()
-      if (company) {
-        router.replace('/company/dashboard')
-        return
-      }
-
-      // 2. どこにも存在しない場合 → pending_role を元に insert
+      // 所属がなければ pending_role から判断して insert → 編集ページへ
       const pendingRole = localStorage.getItem('pending_role') ?? 'store'
-      console.log('pendingRole:', pendingRole)
-
-      if (pendingRole === 'talent') {
-        const { error } = await supabase.from('talents').insert([{ user_id: userId }])
-        if (error) console.error('talent insert error:', error.message)
-        router.replace('/talent/edit')
-        return
+      const insertMap = {
+        talent: { table: 'talents', editPath: '/talent/edit' },
+        company: { table: 'companies', editPath: '/company/edit' },
+        store: { table: 'stores', editPath: '/store/edit' },
       }
 
-      if (pendingRole === 'company') {
-        const { error } = await supabase.from('companies').insert([{ user_id: userId }])
-        if (error) console.error('company insert error:', error.message)
-        router.replace('/company/edit')
-        return
+      const { table, editPath } = insertMap[pendingRole] ?? insertMap['store']
+      const { error } = await supabase.from(table).insert([{ user_id: userId }])
+      if (error) {
+        console.error(`${pendingRole} insert error:`, error.message)
       }
 
-      // デフォルトは store
-      const { error } = await supabase.from('stores').insert([{ user_id: userId }])
-      if (error) console.error('store insert error:', error.message)
-      router.replace('/store/edit')
+      return router.replace(editPath)
     }
 
-    redirectByRole()
+    redirectUser()
   }, [router, supabase])
 
   return <p className="p-4 text-sm text-gray-600">ダッシュボードにリダイレクト中...</p>

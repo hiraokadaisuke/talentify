@@ -1,197 +1,121 @@
 'use client'
 
-import Link from 'next/link'
-import { useState } from 'react'
 import {
   Card,
-  CardHeader,
   CardContent,
-  CardTitle
-} from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import { Calendar } from '@/components/ui/calendar'
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import Link from 'next/link'
 
-const mockNotifications = {
-  offers: 2,
-  messages: 3,
-  events: 1,
-}
-
-const upcomingEvents = [
-  { date: '2025-07-01', title: 'イベントA' },
-  { date: '2025-07-15', title: 'イベントB' },
-]
-
-const pendingOffers = [
-  { id: 1, title: '出演依頼1' },
-  { id: 2, title: '出演依頼2' },
-]
-
-export default function DashboardPage() {
-  const [offers, setOffers] = useState(pendingOffers)
-
-  const handleStatus = async (id: number, status: 'accepted' | 'rejected') => {
-    try {
-      const res = await fetch(`/api/offers/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      })
-
-      if (!res.ok) {
-        const errorText = await res.text()
-        throw new Error(errorText)
-      }
-
-      setOffers((prev) => prev.filter((o) => o.id !== id))
-    } catch (err: any) {
-      alert(`更新に失敗しました: ${err.message}`)
-    }
-  }
-
+export default function TalentDashboard() {
   return (
-    <div className="p-4 space-y-6">
-      {/* ヘッダー */}
-      <div>
-        <h1 className="text-2xl font-semibold">Welcome, Alice!</h1>
-        <p className="text-muted-foreground text-sm">今日も頑張りましょう</p>
-      </div>
-
-      {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-r from-cyan-200 to-blue-200 text-white shadow">
-          <CardContent className="p-6">
-            <p className="text-sm">CV Views</p>
-            <p className="text-3xl font-bold mt-2">12</p>
-            <p className="text-xs mt-1 text-white/80">+1.2% than last month</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-r from-pink-200 to-purple-200 text-white shadow">
-          <CardContent className="p-6">
-            <p className="text-sm">Applications Submitted</p>
-            <p className="text-3xl font-bold mt-2">5</p>
-            <p className="text-xs mt-1 text-white/80">-1.3% than last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-sm text-muted-foreground">通知数</p>
-            <p className="text-3xl font-bold mt-2">
-              {mockNotifications.offers + mockNotifications.messages + mockNotifications.events}
-            </p>
-            <p className="text-xs mt-1 text-muted-foreground">合計通知件数</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* 通知 & スケジュール */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* 通知カード */}
+    <div className="grid grid-cols-9 gap-6 py-8 max-w-screen-xl mx-auto">
+      {/* 中央カラム：主要情報 */}
+      <main className="col-span-5 space-y-6">
+        {/* A: 未対応のオファー */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>通知</span>
-              <Badge>{mockNotifications.offers} オファー</Badge>
+            <CardTitle className="flex justify-between items-center">
+              <span>未対応のオファー</span>
+              <Badge variant="destructive">3件</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <Alert>
-              <AlertTitle>メッセージ</AlertTitle>
-              <AlertDescription>
-                未読メッセージ {mockNotifications.messages} 件
-              </AlertDescription>
-            </Alert>
-            <Alert>
-              <AlertTitle>イベント</AlertTitle>
-              <AlertDescription>
-                近日予定 {mockNotifications.events} 件
-              </AlertDescription>
-            </Alert>
+          <CardContent className="space-y-3 text-sm">
+            <div className="flex justify-between items-center border rounded px-3 py-2">
+              <div>
+                <p className="font-medium">パチンコMAX秋葉原</p>
+                <p className="text-xs text-gray-500">来店＋SNS投稿</p>
+              </div>
+              <Button size="sm">詳細を見る</Button>
+            </div>
+            {/* 他2件も同様の形式でOK */}
           </CardContent>
         </Card>
 
-        {/* スケジュールカード */}
+        {/* B: 今週のスケジュール */}
         <Card>
           <CardHeader>
-            <CardTitle>スケジュール</CardTitle>
+            <CardTitle>今週の予定</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Calendar events={upcomingEvents} />
-            <Link
-              href="/schedule"
-              className="text-blue-600 underline text-sm mt-2 block"
-            >
-              スケジュール詳細
-            </Link>
+          <CardContent className="space-y-2 text-sm">
+            <div className="flex justify-between items-center">
+              <span>7月17日（水）</span>
+              <Badge>確定</Badge>
+            </div>
+            <div className="flex justify-between items-center text-red-600">
+              <span>7月19日（金）</span>
+              <Badge variant="outline">変更あり</Badge>
+            </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* オファー一覧 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>保留中のオファー</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {offers.length === 0 ? (
-            <p>現在保留中のオファーはありません。</p>
-          ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left">
-                  <th className="py-1">タイトル</th>
-                  <th className="py-1">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {offers.map((o) => (
-                  <tr key={o.id} className="border-t">
-                    <td className="py-2">{o.title}</td>
-                    <td className="py-2 space-x-2">
-                      <button className="text-blue-600">詳細確認</button>
-                      <button
-                        className="text-green-600"
-                        onClick={() => handleStatus(o.id, 'accepted')}
-                      >
-                        承諾
-                      </button>
-                      <button
-                        className="text-red-600"
-                        onClick={() => handleStatus(o.id, 'rejected')}
-                      >
-                        辞退
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </CardContent>
-      </Card>
+        {/* C: 通知・お知らせ */}
+        <Card>
+          <CardHeader>
+            <CardTitle>お知らせ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div>
+              <Badge className="mr-2">システム</Badge>
+              プロフィール機能が更新されました
+            </div>
+            <div>
+              <Badge className="mr-2" variant="destructive">重要</Badge>
+              銀行口座の登録が必要です
+            </div>
+          </CardContent>
+        </Card>
+      </main>
 
-      {/* プロフィール情報 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>プロフィール</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <span>公開設定:</span>
-            <Badge variant="secondary">公開</Badge>
-          </div>
-          <div>平均評価: ★★★★☆</div>
-          <div className="space-x-4">
-            <Link href="/profile/edit" className="text-blue-600 underline">
-              プロフィール編集
-            </Link>
-            <Link href="/reviews" className="text-blue-600 underline">
-              レビューを見る
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      {/* 右カラム：補助情報 */}
+      <aside className="col-span-4 space-y-6">
+        {/* D: プロフィール進捗 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>プロフィール進捗</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Progress value={70} className="mb-2" />
+            <p className="text-xs text-gray-500 mb-2">未入力項目：SNSリンク、動画</p>
+            <Button size="sm" variant="outline">プロフィールを編集</Button>
+          </CardContent>
+        </Card>
+
+        {/* E: 評価・レビュー */}
+        <Card>
+          <CardHeader>
+            <CardTitle>評価・レビュー</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            <p>平均スコア：<span className="font-bold">4.6</span> / 5</p>
+            <p className="mt-2 text-gray-600">「明るくて盛り上げ上手！」</p>
+          </CardContent>
+        </Card>
+
+        {/* F: ギャラ状況 */}
+        <Link href="/talent/payments">
+          <Card className="hover:shadow-md transition cursor-pointer">
+            <CardHeader>
+              <CardTitle>今月のギャラ</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>7/10 渋谷</span>
+                <span className="text-green-600 font-semibold">¥30,000</span>
+              </div>
+              <div className="flex justify-between">
+                <span>7/18 梅田</span>
+                <span className="text-yellow-600 font-semibold">¥35,000</span>
+              </div>
+              <p className="text-xs text-red-600 mt-1">※ 振込先未設定</p>
+            </CardContent>
+          </Card>
+        </Link>
+      </aside>
     </div>
   )
 }

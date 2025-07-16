@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { useUser } from '@supabase/auth-helpers-react'
 
 const supabase = createClient()
 
 export default function TalentProfileEditPage() {
+  const user = useUser()
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState({
-    name: '',         // ← 本名
+    name: '',
     stage_name: '',
     bio: '',
     twitter: '',
@@ -18,10 +20,9 @@ export default function TalentProfileEditPage() {
 
   // プロフィール読み込み
   useEffect(() => {
-    const loadProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+    if (!user) return
 
+    const loadProfile = async () => {
       const { data, error } = await supabase
         .from('talents')
         .select('name, stage_name, bio, twitter, instagram, youtube')
@@ -37,21 +38,15 @@ export default function TalentProfileEditPage() {
     }
 
     loadProfile()
-  }, [])
+  }, [user])
 
-  // 入力変更ハンドラ
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value })
   }
 
-  // 保存処理
   const handleSave = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-
-
-    // 🔸 Step 2: talents テーブルに保存 or 更新
     const updateData = {
       user_id: user.id,
       name: profile.name || '',
