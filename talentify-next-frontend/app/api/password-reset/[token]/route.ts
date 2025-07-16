@@ -1,5 +1,4 @@
-export const dynamic = 'force-dynamic'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
@@ -7,7 +6,6 @@ export async function POST(
   { params }: { params: { token: string } }
 ) {
   // Supabaseクライアントをawaitで取得
-  const supabase = await createClient()
 
   // リクエストボディから password と email を取得
   const { password, email } = await request.json()

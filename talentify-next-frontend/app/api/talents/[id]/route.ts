@@ -1,12 +1,10 @@
-export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase'
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient()
 
   const { id } = params
 
@@ -33,7 +31,6 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient()
   const { id } = params
   const body = await req.json()
 
@@ -81,7 +78,6 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient()
   const { id } = params
 
   const { error } = await supabase

@@ -1,5 +1,4 @@
 export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic' // ← これを追加
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'

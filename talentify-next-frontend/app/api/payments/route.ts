@@ -1,9 +1,7 @@
-export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase'
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
   const offerId = req.nextUrl.searchParams.get('offer_id')
 
   let query = supabase.from('payments').select('*')
@@ -19,7 +17,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const supabase = await createClient()
   const body = await req.json()
   const { id, ...fields } = body
 

@@ -1,9 +1,6 @@
-export const dynamic = 'force-dynamic'
-import { createClient } from '@/lib/supabase/server'
+import { supabase } from '@/lib/supabase'
 
 export async function GET() {
-  // awaitをつける
-  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("users" as any)

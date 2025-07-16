@@ -1,4 +1,3 @@
-export const dynamic = 'force-dynamic'
 import { createClient } from './supabase/server'
 import type { Database } from '@/types/supabase'
 
