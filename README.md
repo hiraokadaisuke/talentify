@@ -51,6 +51,10 @@ http://localhost:3000 で開始します。
 cd talentify-next-frontend
 npm run lint
 
+5. テスト実行
+cd talentify-next-frontend
+npm test
+
 
 ✨ 実装済み・予定機能
 
