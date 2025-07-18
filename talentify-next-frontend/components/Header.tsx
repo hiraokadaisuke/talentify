@@ -152,11 +152,13 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 </>
               ) : (
                 <>
-                  <Link href="/dashboard" className="hover:underline">ダッシュボード</Link>
-                  <Link href="/contact" className="hover:underline">お問い合わせ</Link>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <span className="cursor-pointer font-semibold">{userName} ▼</span>
+                      <span className="cursor-pointer flex items-baseline font-semibold">
+                        <span className="text-base">{userName}</span>
+                        <span className="ml-1 text-sm text-muted-foreground align-top">様</span>
+                        <span className="ml-1">▼</span>
+                      </span>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem>
@@ -207,8 +209,6 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             </>
           ) : (
             <>
-              <Link href="/dashboard" className="block">ダッシュボード</Link>
-              <Link href="/contact" className="block">お問い合わせ</Link>
               <Link href={profileEditPath} className="block">プロフィール</Link>
               <button onClick={handleLogout} className="block text-left w-full">ログアウト</button>
             </>
