@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { createClient } from '@/utils/supabase/client'
 import {
   LayoutDashboard,
   Mail,
@@ -12,6 +14,7 @@ import {
   Star,
   Wallet,
   Bell,
+  LogOut,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
@@ -44,14 +47,43 @@ export default function Sidebar({
   collapsible?: boolean
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
   const [collapsed, setCollapsed] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      setLoggedIn(!!session)
+    }
+
+    checkSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setLoggedIn(!!session)
+      }
+    )
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [supabase])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   const items = role === 'store' ? navItems.store : navItems.talent
 
   return (
     <div
       className={cn(
-        'relative bg-background border-r shadow-sm flex flex-col',
+        'relative bg-background border-r shadow-sm flex flex-col justify-between h-full',
         collapsible && collapsed ? 'w-16 min-w-[64px]' : 'min-w-[220px]'
       )}
     >
@@ -73,6 +105,19 @@ export default function Sidebar({
           </Link>
         ))}
       </nav>
+      {loggedIn && (
+        <div className="p-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="w-full justify-start text-destructive"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            ログアウト
+          </Button>
+        </div>
+      )}
       {collapsible && (
         <button
           onClick={() => setCollapsed(!collapsed)}
