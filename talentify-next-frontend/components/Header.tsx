@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Menu } from 'lucide-react'
 import Sidebar from './Sidebar'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
+import { Button } from './ui/button'
 import { createClient } from '@/utils/supabase/client'
 
 const supabase = createClient()
@@ -82,6 +83,16 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             Talentify
           </Link>
         </div>
+        {!isLoading && !isLoggedIn && (
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="ml-auto md:hidden hover:bg-muted"
+          >
+            <Link href="/login">ログイン</Link>
+          </Button>
+        )}
         {!isLoading && (
           <nav className="hidden md:flex justify-between items-center w-full text-sm">
             {/* 左メニュー */}
