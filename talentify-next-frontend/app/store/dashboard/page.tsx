@@ -4,6 +4,7 @@ import OfferSummaryCard from '@/components/OfferSummaryCard'
 import ScheduleCard, { ScheduleItem } from '@/components/ScheduleCard'
 import MessageAlertCard from '@/components/MessageAlertCard'
 import { EmptyState } from '@/components/ui/empty-state'
+import NotificationListCard from '@/components/NotificationListCard'
 
 export default function StoreDashboard() {
   const offerStats = { pending: 1, accepted: 2 }
@@ -25,6 +26,7 @@ export default function StoreDashboard() {
           <div className='sm:col-span-2'>
             <MessageAlertCard count={unread} link='/store/messages' />
           </div>
+          <NotificationListCard className='sm:col-span-2' />
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import OfferSummaryCard from '@/components/OfferSummaryCard'
 import ScheduleCard, { ScheduleItem } from '@/components/ScheduleCard'
 import MessageAlertCard from '@/components/MessageAlertCard'
 import ProfileProgressCard from '@/components/ProfileProgressCard'
+import NotificationListCard from '@/components/NotificationListCard'
 
 export default function TalentDashboard() {
   const pending = 2
@@ -17,6 +18,7 @@ export default function TalentDashboard() {
       <ScheduleCard items={schedule} />
       <OfferSummaryCard pending={pending} accepted={schedule.length} link='/talent/offers' />
       <MessageAlertCard count={unread} link='/talent/messages' />
+      <NotificationListCard className='sm:col-span-2 lg:col-span-3' />
       <div className='sm:col-span-2 lg:col-span-3'>
         <ProfileProgressCard />
       </div>
