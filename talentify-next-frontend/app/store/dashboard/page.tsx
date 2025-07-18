@@ -6,6 +6,7 @@ import MessageAlertCard from '@/components/MessageAlertCard'
 import { EmptyState } from '@/components/ui/empty-state'
 import NotificationListCard from '@/components/NotificationListCard'
 import { CardSkeleton } from '@/components/ui/skeleton'
+import { useEffect, useState } from 'react'
 
 export default function StoreDashboard() {
   const offerStats = { pending: 1, accepted: 2 }

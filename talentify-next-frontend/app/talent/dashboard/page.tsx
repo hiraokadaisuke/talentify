@@ -6,6 +6,7 @@ import MessageAlertCard from '@/components/MessageAlertCard'
 import ProfileProgressCard from '@/components/ProfileProgressCard'
 import NotificationListCard from '@/components/NotificationListCard'
 import { CardSkeleton } from '@/components/ui/skeleton'
+import { useEffect, useState } from 'react'
 
 export default function TalentDashboard() {
   const pending = 2
