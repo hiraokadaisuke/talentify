@@ -16,6 +16,7 @@ import getDay from 'date-fns/getDay'
 import ja from 'date-fns/locale/ja'
 import { createClient } from '@/utils/supabase/client'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
+import OfferModal from '@/components/modals/OfferModal'
 
 interface OfferEvent extends BigCalendarEvent {
   talentId: string
@@ -36,6 +37,8 @@ export default function StoreSchedulePage() {
   const supabase = createClient()
   const [events, setEvents] = useState<OfferEvent[]>([])
   const [view, setView] = useState<View>(Views.MONTH)
+  const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     const loadOffers = async () => {
@@ -82,6 +85,11 @@ export default function StoreSchedulePage() {
     router.push(`/talents/${event.talentId}`)
   }
 
+  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+    setSlot({ start, end })
+    setModalOpen(true)
+  }
+
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">スケジュール</h1>
@@ -110,6 +118,13 @@ export default function StoreSchedulePage() {
         style={{ height: 600 }}
         eventPropGetter={eventStyleGetter}
         onSelectEvent={handleSelectEvent}
+        selectable
+        onSelectSlot={handleSelectSlot}
+      />
+      <OfferModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        initialDate={slot ? slot.start : null}
       />
     </main>
   )
