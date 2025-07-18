@@ -1,8 +1,34 @@
-'use client';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+export const dynamic = 'force-dynamic'
 
-export default function HomePage() {
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { createClient } from '@/lib/supabase/server';
+
+export default async function HomePage() {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    const userId = session.user.id;
+    const { data: store } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+    const { data: talent } = await supabase
+      .from('talents')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (store) redirect('/store/dashboard');
+    else if (talent) redirect('/talent/dashboard');
+    else redirect('/dashboard');
+  }
+
   return (
     <main className="flex flex-col items-center text-gray-900 bg-white">
       {/* Hero Section */}
