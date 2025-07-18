@@ -4,22 +4,26 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/server';
+type GenericSupabaseClient = {
+  from<T>(table: string): any;
+};
 
 export default async function HomePage() {
   const supabase = await createClient();
+  const sb = supabase as unknown as GenericSupabaseClient;
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (session) {
     const userId = session.user.id;
-    const { data: store } = await supabase
-      .from('stores')
+    const { data: store } = await sb
+      .from<{ id: string }>('stores')
       .select('id')
       .eq('user_id', userId)
       .maybeSingle();
-    const { data: talent } = await supabase
-      .from('talents')
+    const { data: talent } = await sb
+      .from<{ id: string }>('talents')
       .select('id')
       .eq('user_id', userId)
       .maybeSingle();
