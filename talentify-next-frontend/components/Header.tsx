@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
+import Sidebar from './Sidebar'
+import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { createClient } from '@/utils/supabase/client'
 import {
   DropdownMenu,
@@ -13,7 +15,7 @@ import {
 
 const supabase = createClient()
 
-export default function Header() {
+export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'store' }) {
   const [isOpen, setIsOpen] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [role, setRole] = useState<string | null>(null)
@@ -91,9 +93,23 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
       <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
-        <Link href="/" className="text-2xl font-bold tracking-tight">
-          Talentify
-        </Link>
+        <div className="flex items-center gap-2">
+          {sidebarRole && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="md:hidden text-gray-800">
+                  <Menu size={24} />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-4">
+                <Sidebar role={sidebarRole} />
+              </SheetContent>
+            </Sheet>
+          )}
+          <Link href="/" className="text-2xl font-bold tracking-tight">
+            Talentify
+          </Link>
+        </div>
 
         <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-gray-800">
           {isOpen ? <X size={24} /> : <Menu size={24} />}
