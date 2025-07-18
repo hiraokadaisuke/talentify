@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 'use client'
 
 import Link from 'next/link'
@@ -52,11 +51,11 @@ export default function Sidebar({
   return (
     <div
       className={cn(
-        'relative flex flex-col bg-muted border-r shadow-sm p-4',
+        'relative bg-background border-r shadow-sm flex flex-col',
         collapsible && collapsed ? 'w-16 min-w-[64px]' : 'min-w-[220px]'
       )}
     >
-      <nav className="flex-1 space-y-2">
+      <nav className="flex-1 space-y-2 px-2 py-4">
         {items.map(({ href, label, icon: Icon }) => (
           <Link href={href} key={href}>
             <div
