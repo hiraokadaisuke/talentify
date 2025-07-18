@@ -1,14 +1,19 @@
 'use client'
 
-
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { format, isBefore, parseISO, addDays } from 'date-fns'
 
 type Offer = {
   id: string
   date: string
   message: string
-  status: string
+  status: string | null
+  respond_deadline: string | null
 }
 
 export default function TalentOffersPage() {
@@ -24,7 +29,7 @@ export default function TalentOffersPage() {
 
       const { data, error } = await supabase
         .from('offers')
-        .select('id, date, message, status')
+        .select('id, date, message, status, respond_deadline')
         .eq('talent_id', user.id) // ログイン中タレント宛のみに限定
 
       if (error) {
@@ -37,6 +42,12 @@ export default function TalentOffersPage() {
     fetchOffers()
   }, [supabase])
 
+  const statusMap: Record<string, { label: string; className?: string }> = {
+    pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
+    accepted: { label: '承諾済み', className: 'bg-gray-400 text-white' },
+    rejected: { label: '辞退済み', className: 'bg-gray-400 text-white' },
+  }
+
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-xl font-bold">受信したオファー一覧</h1>
@@ -44,15 +55,40 @@ export default function TalentOffersPage() {
         <p>現在オファーはありません。</p>
       ) : (
         <ul className="space-y-2">
-          {offers.map((offer) => (
-            <li key={offer.id} className="p-4 border rounded-lg">
-              <div className="text-sm text-gray-500">日付: {offer.date}</div>
-              <div className="text-base font-medium mt-1">{offer.message}</div>
-              <div className="text-sm mt-2">
-                ステータス: <span className="font-semibold">{offer.status}</span>
-              </div>
-            </li>
-          ))}
+          {offers.map(offer => {
+            const deadline =
+              offer.respond_deadline ||
+              format(addDays(parseISO(offer.date), 3), 'yyyy-MM-dd')
+            const isExpired = isBefore(parseISO(deadline), new Date())
+            const statusInfo = statusMap[offer.status ?? 'pending']
+
+            return (
+              <li key={offer.id}>
+                <Card>
+                  <CardContent className="space-y-2 p-4">
+                    <div className="flex items-center justify-between">
+                      <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
+                      <span className={isExpired ? 'text-red-600 text-sm' : 'text-sm'}>
+                        期限: {deadline}
+                      </span>
+                    </div>
+                    <div className="text-base font-medium">{offer.message}</div>
+                    <div className="flex justify-end gap-2">
+                      <Button size="sm" variant="secondary" disabled={offer.status !== 'pending'}>
+                        辞退
+                      </Button>
+                      <Button size="sm" disabled={offer.status !== 'pending'}>
+                        承諾
+                      </Button>
+                      <Link href={`/talent/offers/${offer.id}`} className="text-sm underline ml-2">
+                        詳細
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
