@@ -91,8 +91,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isLoggedIn = !!userName
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
-      <div className="max-w-5xl mx-auto flex items-center justify-between p-4">
+    <header className="fixed top-0 z-50 w-full h-16 bg-white shadow-sm">
+      <div className="mx-auto flex h-full max-w-5xl items-center justify-between p-4">
         <div className="flex items-center gap-2">
           {sidebarRole && (
             <Sheet>

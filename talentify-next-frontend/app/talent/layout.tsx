@@ -1,7 +1,6 @@
 import React from 'react'
 import Header from '@/components/Header'
 import Sidebar from '@/components/Sidebar'
-import Footer from '@/components/Footer'
 import { Inter, Noto_Sans_JP } from 'next/font/google'
 import { createClient } from '@/lib/supabase/server'
 import { SupabaseProvider } from '@/lib/supabase/provider'
@@ -23,15 +22,18 @@ export default async function TalentLayout({ children }: { children: React.React
     <html lang="ja" className={`${inter.variable} ${noto.variable}`}>
       <body className="font-sans antialiased bg-white text-black">
         <SupabaseProvider session={session}>
-          <div className="flex min-h-screen">
-            <aside className="hidden md:block">
+          {/* 上部固定ヘッダー */}
+          <Header sidebarRole="talent" />
+
+          {/* ヘッダー高さ分の余白を考慮して下部を分割 */}
+          <div className="flex h-[calc(100vh-64px)] pt-16">
+            {/* サイドバー（デスクトップのみ表示） */}
+            <aside className="hidden md:block w-[220px] shrink-0">
               <Sidebar role="talent" collapsible />
             </aside>
-            <div className="flex flex-1 flex-col">
-              <Header sidebarRole="talent" />
-              <main className="flex-1 p-6">{children}</main>
-              <Footer />
-            </div>
+
+            {/* メインコンテンツ */}
+            <main className="flex-1 overflow-y-auto p-6">{children}</main>
           </div>
         </SupabaseProvider>
       </body>
