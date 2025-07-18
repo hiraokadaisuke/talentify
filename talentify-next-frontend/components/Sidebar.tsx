@@ -60,8 +60,10 @@ export default function Sidebar({
           <Link href={href} key={href}>
             <div
               className={cn(
-                'group flex items-center gap-3 rounded-2xl px-4 py-2 text-sm font-semibold transition-colors hover:bg-muted',
-                pathname === href ? 'bg-muted text-primary shadow-md' : 'text-muted-foreground',
+                'group flex items-center gap-3 rounded-2xl px-4 py-2 text-sm transition-colors hover:bg-muted',
+                pathname === href
+                  ? 'bg-muted text-primary font-medium shadow-md'
+                  : 'text-muted-foreground font-normal',
                 collapsed && 'justify-center px-3'
               )}
             >
