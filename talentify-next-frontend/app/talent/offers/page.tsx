@@ -6,6 +6,8 @@ import { createClient } from '@/utils/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { ListSkeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/ui/empty-state'
 import { format, isBefore, parseISO, addDays } from 'date-fns'
 
 type Offer = {
@@ -19,13 +21,17 @@ type Offer = {
 export default function TalentOffersPage() {
   const supabase = createClient()
   const [offers, setOffers] = useState<Offer[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchOffers = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) {
+        setLoading(false)
+        return
+      }
 
       const { data, error } = await supabase
         .from('offers')
@@ -37,6 +43,7 @@ export default function TalentOffersPage() {
       } else {
         setOffers(data)
       }
+      setLoading(false)
     }
 
     fetchOffers()
@@ -51,8 +58,10 @@ export default function TalentOffersPage() {
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-xl font-bold">受信したオファー一覧</h1>
-      {offers.length === 0 ? (
-        <p>現在オファーはありません。</p>
+      {loading ? (
+        <ListSkeleton count={3} />
+      ) : offers.length === 0 ? (
+        <EmptyState title="まだオファーがありません" />
       ) : (
         <ul className="space-y-2">
           {offers.map(offer => {

@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
+import { ListSkeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/ui/empty-state'
 const supabase = createClient()
 
 type MessageRow = {
@@ -62,6 +64,7 @@ function groupMessages(messages: MessageRow[], userId: string | null): Thread[] 
 
 export default function StoreMessagePage() {
   const [messages, setMessages] = useState<MessageRow[]>([])
+  const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [input, setInput] = useState('')
@@ -81,6 +84,7 @@ export default function StoreMessagePage() {
       } catch (e) {
         console.error(e)
       }
+      setLoading(false)
     }
     init()
   }, [])
@@ -131,22 +135,28 @@ export default function StoreMessagePage() {
   return (
     <main className="flex h-[80vh] border rounded overflow-hidden">
       <aside className="w-1/3 border-r overflow-y-auto">
-        {threads.sort((a,b) => {
-          const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
-          const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : 0
-          return bTime - aTime
-        }).map(thread => (
-          <div key={thread.id} className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-50 ${activeId===thread.id?'bg-gray-100':''}`} onClick={() => setActiveId(thread.id)}>
-            <Image src={thread.avatar} alt="avatar" width={40} height={40} className="rounded-full mr-3" />
-            <div className="flex-1">
-              <p className="font-semibold text-sm">{thread.name}</p>
-              <p className="text-xs text-gray-500 truncate">{thread.latest}</p>
+        {loading ? (
+          <ListSkeleton count={4} className='p-4' />
+        ) : threads.length === 0 ? (
+          <EmptyState title='まだメッセージがありません' className='p-4' />
+        ) : (
+          threads.sort((a,b) => {
+            const aTime = a.updatedAt ? new Date(a.updatedAt).getTime() : 0
+            const bTime = b.updatedAt ? new Date(b.updatedAt).getTime() : 0
+            return bTime - aTime
+          }).map(thread => (
+            <div key={thread.id} className={`flex items-center px-4 py-3 cursor-pointer hover:bg-gray-50 ${activeId===thread.id?'bg-gray-100':''}`} onClick={() => setActiveId(thread.id)}>
+              <Image src={thread.avatar} alt="avatar" width={40} height={40} className="rounded-full mr-3" />
+              <div className="flex-1">
+                <p className="font-semibold text-sm">{thread.name}</p>
+                <p className="text-xs text-gray-500 truncate">{thread.latest}</p>
+              </div>
+              {thread.unread > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2">{thread.unread}</span>
+              )}
             </div>
-            {thread.unread > 0 && (
-              <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2">{thread.unread}</span>
-            )}
-          </div>
-        ))}
+          ))
+        )}
       </aside>
       <section className="flex flex-col flex-1">
         <div className="flex-1 overflow-y-auto p-4 space-y-2">

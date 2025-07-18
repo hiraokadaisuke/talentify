@@ -24,9 +24,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <html lang='ja' className={`${inter.variable} ${noto.variable}`}>
       <body className='font-sans antialiased bg-white text-black'>
         <SupabaseProvider session={session}>
-          <Header />
+          <Header sidebarRole='store' />
           <div className='flex min-h-screen'>
-            <aside className='w-64 border-r p-4 bg-gray-50'>
+            <aside className='hidden md:block w-64 border-r p-4 bg-gray-50'>
               <Sidebar role='store' />
             </aside>
             <main className='flex-1 p-6'>{children}</main>

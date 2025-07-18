@@ -45,10 +45,8 @@ export default function Sidebar({ role = 'talent' }: { role?: 'talent' | 'store'
         <Link href={href} key={href}>
           <div
             className={cn(
-              'flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors',
-              pathname === href
-                ? 'bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700'
-                : 'text-gray-600 hover:bg-gray-100'
+              'flex items-center gap-3 px-4 py-2 rounded-2xl font-semibold text-sm transition-colors hover:bg-muted',
+              pathname === href ? 'bg-muted text-primary shadow-md' : 'text-muted-foreground'
             )}
           >
             <Icon className="w-5 h-5" />

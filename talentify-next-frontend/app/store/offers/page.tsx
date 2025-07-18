@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { getOffersForStore, Offer } from '@/utils/getOffersForStore'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { TableSkeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/ui/empty-state'
 import {
   Modal,
   ModalTrigger,
@@ -24,6 +26,7 @@ const statusLabels: Record<string, string> = {
 
 export default function StoreOffersPage() {
   const [offers, setOffers] = useState<Offer[]>([])
+  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('all')
   const [sortKey, setSortKey] = useState<'date' | 'created_at'>('date')
   const [selected, setSelected] = useState<Offer | null>(null)
@@ -32,6 +35,7 @@ export default function StoreOffersPage() {
     const load = async () => {
       const data = await getOffersForStore()
       setOffers(data)
+      setLoading(false)
     }
     load()
   }, [])
@@ -80,53 +84,59 @@ export default function StoreOffersPage() {
         </select>
       </div>
 
-      {(['pending', 'approved', 'rejected', 'expired'] as const).map(status => (
-        groups[status].length > 0 && (
-          <div key={status} className="space-y-2">
-            <h2 className="font-semibold">{statusLabels[status]}</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>日付</TableHead>
-                  <TableHead>メッセージ</TableHead>
-                  <TableHead>操作</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {groups[status].map(o => (
-                  <TableRow key={o.id}>
-                    <TableCell>{o.date}</TableCell>
-                    <TableCell className="truncate max-w-xs">{o.message}</TableCell>
-                    <TableCell>
-                      <Modal onOpenChange={open => !open && setSelected(null)}>
-                        <ModalTrigger asChild>
-                          <Button size="sm" onClick={() => setSelected(o)}>
-                            詳細を見る
-                          </Button>
-                        </ModalTrigger>
-                        <ModalContent>
-                          <ModalHeader>
-                            <ModalTitle>オファー詳細</ModalTitle>
-                          </ModalHeader>
-                          <p className="text-sm whitespace-pre-line mb-4">{selected?.message}</p>
-                          <ModalFooter>
-                            <Button asChild variant="outline">
-                              <Link href={`/store/offers/${selected?.id}`}>詳細ページへ</Link>
-                            </Button>
-                            <ModalClose asChild>
-                              <Button variant="secondary">閉じる</Button>
-                            </ModalClose>
-                          </ModalFooter>
-                        </ModalContent>
-                      </Modal>
-                    </TableCell>
+      {loading ? (
+        <TableSkeleton rows={3} />
+      ) : offers.length === 0 ? (
+        <EmptyState title='まだオファーがありません' actionHref='/talent-search' actionLabel='オファーを送ってみましょう' />
+      ) : (
+        (['pending', 'approved', 'rejected', 'expired'] as const).map(status => (
+          groups[status].length > 0 && (
+            <div key={status} className="space-y-2">
+              <h2 className="font-semibold">{statusLabels[status]}</h2>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>日付</TableHead>
+                    <TableHead>メッセージ</TableHead>
+                    <TableHead>操作</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )
-      ))}
+                </TableHeader>
+                <TableBody>
+                  {groups[status].map(o => (
+                    <TableRow key={o.id}>
+                      <TableCell>{o.date}</TableCell>
+                      <TableCell className="truncate max-w-xs">{o.message}</TableCell>
+                      <TableCell>
+                        <Modal onOpenChange={open => !open && setSelected(null)}>
+                          <ModalTrigger asChild>
+                            <Button size='sm' onClick={() => setSelected(o)}>
+                              詳細を見る
+                            </Button>
+                          </ModalTrigger>
+                          <ModalContent>
+                            <ModalHeader>
+                              <ModalTitle>オファー詳細</ModalTitle>
+                            </ModalHeader>
+                            <p className='text-sm whitespace-pre-line mb-4'>{selected?.message}</p>
+                            <ModalFooter>
+                              <Button asChild variant='outline'>
+                                <Link href={`/store/offers/${selected?.id}`}>詳細ページへ</Link>
+                              </Button>
+                              <ModalClose asChild>
+                                <Button variant='secondary'>閉じる</Button>
+                              </ModalClose>
+                            </ModalFooter>
+                          </ModalContent>
+                        </Modal>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )
+        ))
+      )}
     </main>
   )
 }
