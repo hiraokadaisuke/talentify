@@ -17,12 +17,12 @@ export default async function HomePage() {
       .from('stores')
       .select('id')
       .eq('user_id', userId)
-      .maybeSingle();
+      .maybeSingle<{ id: string }>();
     const { data: talent } = await supabase
       .from('talents')
       .select('id')
       .eq('user_id', userId)
-      .maybeSingle();
+      .maybeSingle<{ id: string }>();
 
     if (store) redirect('/store/dashboard');
     else if (talent) redirect('/talent/dashboard');
