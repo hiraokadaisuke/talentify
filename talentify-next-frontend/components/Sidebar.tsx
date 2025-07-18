@@ -4,6 +4,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useState } from 'react'
 import {
   LayoutDashboard,
   Mail,
@@ -12,6 +13,8 @@ import {
   Star,
   Wallet,
   Bell,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 
 const navItems = {
@@ -34,26 +37,53 @@ const navItems = {
   ],
 } as const
 
-export default function Sidebar({ role = 'talent' }: { role?: 'talent' | 'store' }) {
+export default function Sidebar({
+  role = 'talent',
+  collapsible = false,
+}: {
+  role?: 'talent' | 'store'
+  collapsible?: boolean
+}) {
   const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false)
 
   const items = role === 'store' ? navItems.store : navItems.talent
 
   return (
-    <nav className="space-y-2">
-      {items.map(({ href, label, icon: Icon }) => (
-        <Link href={href} key={href}>
-          <div
-            className={cn(
-              'flex items-center gap-3 px-4 py-2 rounded-2xl font-semibold text-sm transition-colors hover:bg-muted',
-              pathname === href ? 'bg-muted text-primary shadow-md' : 'text-muted-foreground'
-            )}
-          >
-            <Icon className="w-5 h-5" />
-            {label}
-          </div>
-        </Link>
-      ))}
-    </nav>
+    <div
+      className={cn(
+        'relative bg-background border-r shadow-sm flex flex-col',
+        collapsible && collapsed ? 'w-16 min-w-[64px]' : 'min-w-[220px]'
+      )}
+    >
+      <nav className="flex-1 space-y-2 px-2 py-4">
+        {items.map(({ href, label, icon: Icon }) => (
+          <Link href={href} key={href}>
+            <div
+              className={cn(
+                'group flex items-center gap-3 rounded-2xl px-4 py-2 text-sm font-semibold transition-colors hover:bg-muted',
+                pathname === href ? 'bg-muted text-primary shadow-md' : 'text-muted-foreground',
+                collapsed && 'justify-center px-3'
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              <span className={cn(collapsed && 'hidden')}>{label}</span>
+            </div>
+          </Link>
+        ))}
+      </nav>
+      {collapsible && (
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-2 hidden h-6 w-6 items-center justify-center rounded-full border bg-background shadow md:flex"
+        >
+          {collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </button>
+      )}
+    </div>
   )
 }

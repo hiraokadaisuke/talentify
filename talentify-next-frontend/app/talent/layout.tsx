@@ -10,28 +10,29 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'sw
 const noto = Noto_Sans_JP({ subsets: ['latin'], variable: '--font-noto', display: 'swap' })
 
 export const metadata = {
-  title: 'Talentify | 店舗ダッシュボード',
-  description: 'Talentify の店舗用管理画面',
+  title: 'Talentify | タレント',
 }
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function TalentLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const {
     data: { session },
   } = await supabase.auth.getSession()
 
   return (
-    <html lang='ja' className={`${inter.variable} ${noto.variable}`}>
-      <body className='font-sans antialiased bg-white text-black'>
+    <html lang="ja" className={`${inter.variable} ${noto.variable}`}>
+      <body className="font-sans antialiased bg-white text-black">
         <SupabaseProvider session={session}>
-          <Header sidebarRole='store' />
-          <div className='flex min-h-screen'>
-            <aside className='hidden md:block w-64 border-r p-4 bg-gray-50'>
-              <Sidebar role='store' />
+          <div className="flex min-h-screen">
+            <aside className="hidden md:block">
+              <Sidebar role="talent" collapsible />
             </aside>
-            <main className='flex-1 p-6'>{children}</main>
+            <div className="flex flex-1 flex-col">
+              <Header sidebarRole="talent" />
+              <main className="flex-1 p-6">{children}</main>
+              <Footer />
+            </div>
           </div>
-          <Footer />
         </SupabaseProvider>
       </body>
     </html>
