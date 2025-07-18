@@ -1,73 +1,50 @@
-// components/ScheduleCard.tsx
 'use client'
 
+import React from 'react'
+import Link from 'next/link'
 import { CalendarCheck, Clock, AlertCircle } from 'lucide-react'
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from '@/components/ui/badge'
+import { DashboardCard } from './ui/dashboard-card'
 
-const dummySchedule = [
-  {
-    date: "7月17日（水）",
-    events: [
-      {
-        title: "グリーンパチンコ新宿店 来店実践",
-        status: "confirmed",
-      },
-      {
-        title: "撮影案件（午後）",
-        status: "pending",
-      },
-    ],
-  },
-  {
-    date: "7月18日（木）",
-    events: [
-      {
-        title: "スロットキング大阪 SNS投稿",
-        status: "cancelled",
-      },
-    ],
-  },
-]
+export type ScheduleStatus = 'confirmed' | 'pending' | 'cancelled'
+export interface ScheduleItem {
+  date: string
+  performer: string
+  status: ScheduleStatus
+  href?: string
+}
 
-export default function ScheduleCard() {
+interface ScheduleCardProps {
+  title?: string
+  items: ScheduleItem[]
+}
+
+export default function ScheduleCard({ title = '今週の予定', items }: ScheduleCardProps) {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm shadow-md">
-      <CardHeader>
-        <CardTitle className="text-base font-semibold">今週の予定</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {dummySchedule.map((day, index) => (
-          <div key={index}>
-            <div className="text-sm font-semibold text-gray-700 mb-1">{day.date}</div>
-            <div className="space-y-2">
-              {day.events.map((event, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between bg-white border rounded-lg px-4 py-2"
-                >
-                  <div className="text-sm text-gray-800">{event.title}</div>
-                  {event.status === "confirmed" && (
-                    <Badge variant="default" className="flex items-center gap-1">
-                      <CalendarCheck className="w-4 h-4" /> 確定
-                    </Badge>
-                  )}
-                  {event.status === "pending" && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" /> 保留
-                    </Badge>
-                  )}
-                  {event.status === "cancelled" && (
-                    <div className="flex items-center gap-1 text-red-600 text-sm font-medium">
-                      <AlertCircle className="w-4 h-4" /> キャンセル
-                    </div>
-                  )}
-                </div>
-              ))}
+    <DashboardCard title={title}>
+      <div className="space-y-2 text-sm">
+        {items.length === 0 && <p className="text-muted-foreground">予定はありません</p>}
+        {items.map((ev, i) => (
+          <div key={i} className="flex justify-between items-center rounded border p-2">
+            <div>
+              <div>{ev.date}</div>
+              <div className="text-xs text-muted-foreground">{ev.performer}</div>
             </div>
+            {ev.status === 'confirmed' && (
+              <Badge className="flex items-center gap-1"><CalendarCheck className="w-4 h-4"/>確定</Badge>
+            )}
+            {ev.status === 'pending' && (
+              <Badge variant="secondary" className="flex items-center gap-1"><Clock className="w-4 h-4"/>保留</Badge>
+            )}
+            {ev.status === 'cancelled' && (
+              <div className="flex items-center gap-1 text-red-600 text-xs"><AlertCircle className="w-4 h-4"/>キャンセル</div>
+            )}
+            {ev.href && (
+              <Link href={ev.href} className="text-blue-600 text-xs ml-2">詳細</Link>
+            )}
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </DashboardCard>
   )
 }
