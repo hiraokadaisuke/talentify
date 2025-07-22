@@ -54,7 +54,7 @@ export default function TalentProfileEditPage() {
       const { data, error } = await supabase
         .from('talents')
         .select(
-          'name, stage_name, bio, residence, area, skills, availability, min_hours, transportation, rate, bio_others, media_appearance, video_url, avatar_url, photos, twitter: social_x, instagram: social_instagram, youtube: social_youtube'
+          'name, stage_name, bio, residence, area, genre, availability, min_hours, transportation, rate, notes, achievements, video_url, avatar_url, photos, twitter: social_x, instagram: social_instagram, youtube: social_youtube'
         )
         .eq('user_id', user.id)
         .maybeSingle()
@@ -63,7 +63,13 @@ export default function TalentProfileEditPage() {
         console.error('プロフィールの取得に失敗:', error)
       }
 
-      if (data) setProfile(data)
+      if (data)
+        setProfile({
+          ...data,
+          genre: data.genre ?? '',
+          notes: data.notes ?? '',
+          achievements: data.achievements ?? ''
+        })
       setLoading(false)
     }
 
@@ -73,8 +79,9 @@ export default function TalentProfileEditPage() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value, type, checked } = e.target
+    const { name, value, type } = e.target
     if (type === 'checkbox') {
+      const { checked } = e.target as HTMLInputElement
       if (checked) {
         setProfile(prev => ({ ...prev, [name]: [...(prev as any)[name], value] }))
       } else {
@@ -137,13 +144,13 @@ export default function TalentProfileEditPage() {
       bio: profile.bio || '',
       residence: profile.residence || '',
       area: profile.area,
-      skills: profile.genre ? [profile.genre] : [],
+      genre: profile.genre || '',
       availability: profile.availability || '',
       min_hours: profile.min_hours || '',
       transportation: profile.transportation || '',
       rate: profile.rate ? Number(profile.rate) : null,
-      bio_others: profile.notes || '',
-      media_appearance: profile.achievements || '',
+      notes: profile.notes || '',
+      achievements: profile.achievements || '',
       video_url: profile.video_url || '',
       avatar_url: profile.avatar_url || '',
       photos: profile.photos,
