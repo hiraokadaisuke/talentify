@@ -35,7 +35,9 @@ export default function TalentCard({ talent }: { talent: Talent }) {
         <Button asChild variant="outline" className="flex-1">
           <Link href={`/talents/${talent.id}`}>詳細を見る</Link>
         </Button>
-        <Button className="flex-1">オファーする</Button>
+        <Button asChild className="flex-1">
+          <Link href={`/talents/${talent.id}/offer`}>オファーする</Link>
+        </Button>
       </CardFooter>
     </Card>
   )
