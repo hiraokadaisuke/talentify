@@ -107,6 +107,9 @@ export type Database = {
           bio_hobby: string | null
           bio_certifications: string | null
           bio_others: string | null
+          genre: string | null
+          notes: string | null
+          achievements: string | null
           created_at: string | null
           stage_name: string | null
           birthdate: string | null
@@ -139,6 +142,9 @@ export type Database = {
           bio_hobby?: string | null
           bio_certifications?: string | null
           bio_others?: string | null
+          genre?: string | null
+          notes?: string | null
+          achievements?: string | null
           created_at?: string | null
           stage_name?: string | null
           birthdate?: string | null
@@ -171,6 +177,9 @@ export type Database = {
           bio_hobby?: string | null
           bio_certifications?: string | null
           bio_others?: string | null
+          genre?: string | null
+          notes?: string | null
+          achievements?: string | null
           created_at?: string | null
           stage_name?: string | null
           birthdate?: string | null
