@@ -1,26 +1,13 @@
 // app/(auth)/layout.tsx
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
-import React from "react"
-import "../globals.css"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import { Inter, Noto_Sans_JP } from "next/font/google"
-import { createClient } from "@/lib/supabase/server"
-import { SupabaseProvider } from "@/lib/supabase/provider"
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap", // ✅ 追加！
-})
-
-const noto = Noto_Sans_JP({
-  subsets: ["latin"],
-  variable: "--font-noto",
-  display: "swap", // ✅ 追加！
-})
+import React from "react";
+import "../globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { createClient } from "@/lib/supabase/server";
+import { SupabaseProvider } from "@/lib/supabase/provider";
 
 export const metadata = {
   title: "Talentify",
@@ -28,20 +15,20 @@ export const metadata = {
   icons: {
     icon: "/favicon.png?v=2",
   },
-}
+};
 
 export default async function AuthLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { session },
-  } = await supabase.auth.getSession()
+  } = await supabase.auth.getSession();
 
   return (
-    <html lang="ja" className={`${inter.variable} ${noto.variable}`}>
+    <html lang="ja">
       <body className="font-sans antialiased bg-white text-black">
         <SupabaseProvider session={session}>
           <Header />
@@ -50,5 +37,5 @@ export default async function AuthLayout({
         </SupabaseProvider>
       </body>
     </html>
-  )
+  );
 }
