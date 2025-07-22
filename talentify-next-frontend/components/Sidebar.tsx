@@ -45,6 +45,7 @@ const navItems = {
     { href: "/store/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
     { href: "/store/offers", label: "オファー管理", icon: Mail },
     { href: "/store/schedule", label: "スケジュール", icon: Calendar },
+    { href: "/store/reviews", label: "レビュー管理", icon: Star },
     { href: "/store/messages", label: "メッセージ", icon: Bell },
     { href: "/store/edit", label: "店舗情報", icon: User },
     { href: "/store/settings", label: "設定", icon: Star },
