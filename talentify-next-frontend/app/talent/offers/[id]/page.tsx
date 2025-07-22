@@ -1,12 +1,15 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import { format, isBefore, parseISO } from 'date-fns'
+import ja from 'date-fns/locale/ja'
 
 interface Offer {
   id: string
@@ -14,8 +17,16 @@ interface Offer {
   message: string
   status: string | null
   respond_deadline: string | null
+  event_name?: string | null
+  start_time?: string | null
+  end_time?: string | null
+  reward?: number | null
+  notes?: string | null
+  question_allowed?: boolean | null
   user_id?: string
   store_name?: string | null
+  store_address?: string | null
+  store_logo_url?: string | null
 }
 
 export default function TalentOfferDetailPage() {
@@ -23,21 +34,40 @@ export default function TalentOfferDetailPage() {
   const supabase = createClient()
   const [offer, setOffer] = useState<Offer | null>(null)
 
+  const handleStatusChange = async (status: 'accepted' | 'rejected') => {
+    if (!offer) return
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+    if (res.ok) {
+      setOffer({ ...offer, status })
+    } else {
+      alert('更新に失敗しました')
+    }
+  }
+
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
         .from('offers')
-        .select('id, date, message, status, respond_deadline, user_id')
+        .select(
+          `id, date, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, user_id, stores(display_name,address,avatar_url)`,
+        )
         .eq('id', params.id)
         .single()
 
       if (data) {
-        const { data: store } = await supabase
-          .from('stores')
-          .select('display_name')
-          .eq('user_id', data.user_id)
-          .single()
-        setOffer({ ...data, store_name: store?.display_name })
+        const store = (data as any).stores || {}
+        const offerData = { ...data } as any
+        delete offerData.stores
+        setOffer({
+          ...offerData,
+          store_name: store.display_name ?? null,
+          store_address: store.address ?? null,
+          store_logo_url: store.avatar_url ?? null,
+        })
       }
     }
     load()
@@ -47,6 +77,10 @@ export default function TalentOfferDetailPage() {
 
   const deadline = offer.respond_deadline || ''
   const deadlinePassed = deadline && isBefore(parseISO(deadline), new Date())
+  const timeRange =
+    offer.start_time && offer.end_time
+      ? `${offer.start_time}〜${offer.end_time}`
+      : null
 
   const statusMap: Record<string, { label: string; className?: string }> = {
     pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
@@ -57,36 +91,80 @@ export default function TalentOfferDetailPage() {
   const statusInfo = statusMap[offer.status ?? 'pending']
 
   return (
-    <div className="max-w-screen-md mx-auto p-6 space-y-6">
+    <div className="max-w-screen-md mx-auto p-6 space-y-6 pb-24">
+      <Link href="/talent/offers" className="text-sm underline">
+        ← オファー一覧へ戻る
+      </Link>
+
       <Card>
         <CardHeader>
-          <CardTitle>オファー詳細</CardTitle>
+          <CardTitle>店舗情報</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          {offer.store_logo_url && (
+            <div className="w-full flex justify-center">
+              <Image
+                src={offer.store_logo_url}
+                alt="store logo"
+                width={200}
+                height={120}
+                className="object-contain h-24 w-auto"
+              />
+            </div>
+          )}
+          {offer.store_name && <div className="text-lg font-bold">{offer.store_name}</div>}
+          {offer.store_address && (
+            <div className="text-sm text-muted-foreground">{offer.store_address}</div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>オファー内容</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
           {deadline && (
             <div className={deadlinePassed ? 'text-red-600' : ''}>
-              対応期限: {format(parseISO(deadline), 'yyyy-MM-dd')}
+              要返信: {format(parseISO(deadline), 'yyyy-MM-dd')}
             </div>
           )}
-          {offer.store_name && <div>店舗名: {offer.store_name}</div>}
-          <div>希望日: {offer.date}</div>
+          {offer.event_name && <div>イベント名: {offer.event_name}</div>}
+          <div>
+            日付:{' '}
+            {format(parseISO(offer.date), 'M月d日(E)', { locale: ja })}
+          </div>
+          {timeRange && <div>時間帯: {timeRange}</div>}
+          {typeof offer.reward === 'number' && (
+            <div>報酬: {offer.reward.toLocaleString()}円</div>
+          )}
           <div className="whitespace-pre-wrap">{offer.message}</div>
+          {offer.notes && (
+            <div className="p-2 bg-muted rounded text-sm whitespace-pre-wrap">
+              {offer.notes}
+            </div>
+          )}
         </CardContent>
-        <CardFooter className="flex gap-2">
-          <Button disabled>辞退</Button>
-          <Button>承諾</Button>
-        </CardFooter>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>この近辺の予定</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          近日のスケジュール表示（予定）
-        </CardContent>
-      </Card>
+      {offer.question_allowed && (
+        <div className="text-right text-sm">
+          <Button variant="link" onClick={() => alert('質問機能は未実装です')}>質問する</Button>
+        </div>
+      )}
+
+      {offer.status === 'pending' && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex gap-4 justify-center">
+          <Button
+            variant="secondary"
+            onClick={() => handleStatusChange('rejected')}
+          >
+            見送る
+          </Button>
+          <Button onClick={() => handleStatusChange('accepted')}>承諾する</Button>
+        </div>
+      )}
     </div>
   )
 }
