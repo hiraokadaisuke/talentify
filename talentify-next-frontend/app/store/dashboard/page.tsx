@@ -6,7 +6,7 @@ import MessageAlertCard from '@/components/MessageAlertCard'
 import { EmptyState } from '@/components/ui/empty-state'
 import NotificationListCard from '@/components/NotificationListCard'
 import { CardSkeleton } from '@/components/ui/skeleton'
-import { Card, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardFooter, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Search as SearchIcon } from 'lucide-react'
@@ -45,10 +45,11 @@ export default function StoreDashboard() {
         <div className='grid gap-4 sm:grid-cols-2'>
           <Card className='sm:col-span-2'>
             <CardHeader>
-              <CardTitle>次の来店イベントを企画しませんか？</CardTitle>
-              <CardDescription>
-                演者一覧から希望に合ったタレントを探しましょう。
-              </CardDescription>
+  <CardTitle>次の来店イベントを企画しませんか？</CardTitle>
+</CardHeader>
+<CardContent className="text-sm text-muted-foreground">
+  演者一覧から希望に合ったタレントを探しましょう。
+</CardContent>
             </CardHeader>
             <CardFooter>
               <Button variant='default' size='lg' asChild>
