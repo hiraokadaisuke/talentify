@@ -36,7 +36,11 @@ export default function StoreDashboard() {
           <CardSkeleton className='sm:col-span-2' />
         </div>
       ) : !hasData ? (
-        <EmptyState title='まだオファーがありません' actionHref='/talent-search' actionLabel='オファーを送ってみましょう' />
+        <EmptyState
+          title='まだオファーがありません'
+          actionHref='/search'
+          actionLabel='オファーを送ってみましょう'
+        />
       ) : (
         <div className='grid gap-4 sm:grid-cols-2'>
           <Card className='sm:col-span-2'>
@@ -48,7 +52,7 @@ export default function StoreDashboard() {
             </CardHeader>
             <CardFooter>
               <Button variant='default' size='lg' asChild>
-                <Link href='/store/talents'>
+                <Link href='/search'>
                   <SearchIcon className='mr-2' /> 演者を探す
                 </Link>
               </Button>
@@ -65,3 +69,4 @@ export default function StoreDashboard() {
     </div>
   )
 }
+

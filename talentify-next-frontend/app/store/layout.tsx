@@ -1,25 +1,25 @@
-import React from 'react'
-import Header from '@/components/Header'
-import Sidebar from '@/components/Sidebar'
-import { Inter, Noto_Sans_JP } from 'next/font/google'
-import { createClient } from '@/lib/supabase/server'
-import { SupabaseProvider } from '@/lib/supabase/provider'
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
-const noto = Noto_Sans_JP({ subsets: ['latin'], variable: '--font-noto', display: 'swap' })
+import React from "react";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import { createClient } from "@/lib/supabase/server";
+import { SupabaseProvider } from "@/lib/supabase/provider";
 
 export const metadata = {
-  title: 'Talentify | 店舗',
-}
+  title: "Talentify | 店舗",
+};
 
-export default async function StoreLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
+export default async function StoreLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
   const {
     data: { session },
-  } = await supabase.auth.getSession()
+  } = await supabase.auth.getSession();
 
   return (
-    <html lang="ja" className={`${inter.variable} ${noto.variable}`}>
+    <html lang="ja">
       <body className="font-sans antialiased bg-white text-black">
         <SupabaseProvider session={session}>
           <Header sidebarRole="store" />
@@ -32,5 +32,5 @@ export default async function StoreLayout({ children }: { children: React.ReactN
         </SupabaseProvider>
       </body>
     </html>
-  )
+  );
 }
