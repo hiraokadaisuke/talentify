@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Menu } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import Sidebar from './Sidebar'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
@@ -104,6 +104,14 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
             {/* 右メニュー */}
             <div className="flex items-center space-x-2 ml-auto">
+              {sidebarRole === 'store' && (
+                <Link
+                  href="/store/talents"
+                  className="hidden md:inline-flex items-center rounded-full bg-[#daa520] text-white font-normal px-4 py-2 hover:brightness-110 transition"
+                >
+                  <Search className="w-4 h-4 mr-1" /> 演者を探す
+                </Link>
+              )}
               {!isLoggedIn ? (
                 <>
                   <span className="text-black text-sm font-normal mr-2">
