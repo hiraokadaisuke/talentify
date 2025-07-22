@@ -14,6 +14,7 @@ import {
   Star,
   Wallet,
   Bell,
+  Search,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -30,6 +31,7 @@ const navItems = {
     { href: '/talent/notifications', label: '通知・設定', icon: Bell },
   ],
   store: [
+    { href: '/store/talents', label: '演者を探す', icon: Search },
     { href: '/store/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
     { href: '/store/offers', label: 'オファー管理', icon: Mail },
     { href: '/store/schedule', label: 'スケジュール', icon: Calendar },
