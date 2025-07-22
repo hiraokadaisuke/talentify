@@ -31,12 +31,9 @@ export default function TalentCard({ talent }: { talent: Talent }) {
         <p className="line-clamp-2">{talent.bio}</p>
         {talent.agency && <p className="text-xs text-gray-500">所属: {talent.agency}</p>}
       </CardContent>
-      <CardFooter className="mt-auto flex gap-2">
-        <Button asChild variant="outline" className="flex-1">
+      <CardFooter className="mt-auto">
+        <Button asChild variant="outline" className="w-full">
           <Link href={`/talents/${talent.id}`}>詳細を見る</Link>
-        </Button>
-        <Button asChild className="flex-1">
-          <Link href={`/talents/${talent.id}/offer`}>オファーする</Link>
         </Button>
       </CardFooter>
     </Card>

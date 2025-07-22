@@ -8,6 +8,8 @@ import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
 
 type Talent = {
@@ -41,6 +43,14 @@ export default function TalentDetailPageClient({ id }: Props) {
   const [talent, setTalent] = useState<Talent | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
   const { role, loading: roleLoading } = useUserRole()
+  const [showForm, setShowForm] = useState(false)
+  const [date1, setDate1] = useState('')
+  const [date2, setDate2] = useState('')
+  const [date3, setDate3] = useState('')
+  const [timeSlot, setTimeSlot] = useState('')
+  const [remarks, setRemarks] = useState('')
+  const [agree, setAgree] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +79,27 @@ export default function TalentDetailPageClient({ id }: Props) {
   }
 
   const age = talent.birthdate ? calcAge(talent.birthdate) : null
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      alert('ログインしてください')
+      return
+    }
+
+    const message = `第1希望:${date1}\n第2希望:${date2}\n第3希望:${date3}\n希望時間帯:${timeSlot}\n備考:${remarks}`
+
+    const { error } = await supabase.from('offers').insert([
+      { user_id: user.id, talent_id: id, message, date: date1, status: 'pending' }
+    ])
+    if (error) {
+      alert('送信に失敗しました')
+      return
+    }
+
+    setSubmitted(true)
+  }
 
   return (
     <main className="max-w-3xl mx-auto p-4 space-y-6">
@@ -169,9 +200,54 @@ export default function TalentDetailPageClient({ id }: Props) {
 
       <div className="space-y-2">
         {role === 'store' && (
-          <Button asChild>
-            <Link href={`/talents/${talent.id}/offer`}>オファーを送る</Link>
-          </Button>
+          <>
+            {!submitted ? (
+              <>
+                <Button onClick={() => setShowForm(v => !v)} className="w-full">
+                  {showForm ? 'フォームを閉じる' : 'オファーする'}
+                </Button>
+                {showForm && (
+                  <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">来店希望日(第1希望)</label>
+                      <Input type="date" value={date1} onChange={e => setDate1(e.target.value)} required />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">来店希望日(第2希望)</label>
+                      <Input type="date" value={date2} onChange={e => setDate2(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">来店希望日(第3希望)</label>
+                      <Input type="date" value={date3} onChange={e => setDate3(e.target.value)} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">希望時間帯</label>
+                      <Input value={timeSlot} onChange={e => setTimeSlot(e.target.value)} placeholder="例: 10:00〜18:00" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        id="agree"
+                        type="checkbox"
+                        checked={agree}
+                        onChange={e => setAgree(e.target.checked)}
+                        required
+                      />
+                      <label htmlFor="agree" className="text-sm">出演条件に同意します</label>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">備考（任意）</label>
+                      <Textarea value={remarks} onChange={e => setRemarks(e.target.value)} />
+                    </div>
+                    <Button type="submit" disabled={!agree}>送信</Button>
+                  </form>
+                )}
+              </>
+            ) : (
+              <div className="p-4 border rounded text-sm">
+                <p>送信完了しました。オファーステータスはダッシュボードで確認できます。</p>
+              </div>
+            )}
+          </>
         )}
         {role === 'talent' && userId === talent.id && (
           <Button onClick={() => (window.location.href = '/talent/edit')}>
