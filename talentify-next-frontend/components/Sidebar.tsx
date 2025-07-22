@@ -38,6 +38,7 @@ const navItems = {
     { href: "/talent/edit", label: "プロフィール編集", icon: User },
     { href: "/talent/reviews", label: "評価・レビュー", icon: Star },
     { href: "/talent/payments", label: "ギャラ管理", icon: Wallet },
+    { href: "/talent/invoices", label: "請求管理", icon: Mail },
     { href: "/talent/notifications", label: "通知・設定", icon: Bell },
   ],
   store: [
@@ -47,6 +48,7 @@ const navItems = {
     { href: "/store/schedule", label: "スケジュール", icon: Calendar },
     { href: "/store/reviews", label: "レビュー管理", icon: Star },
     { href: "/store/messages", label: "メッセージ", icon: Bell },
+    { href: "/store/invoices", label: "請求一覧", icon: Wallet },
     { href: "/store/edit", label: "店舗情報", icon: User },
     { href: "/store/settings", label: "設定", icon: Star },
   ],
