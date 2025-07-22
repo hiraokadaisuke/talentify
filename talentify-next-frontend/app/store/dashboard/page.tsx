@@ -6,7 +6,7 @@ import MessageAlertCard from '@/components/MessageAlertCard'
 import { EmptyState } from '@/components/ui/empty-state'
 import NotificationListCard from '@/components/NotificationListCard'
 import { CardSkeleton } from '@/components/ui/skeleton'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardFooter, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Search as SearchIcon } from 'lucide-react'
@@ -36,16 +36,20 @@ export default function StoreDashboard() {
           <CardSkeleton className='sm:col-span-2' />
         </div>
       ) : !hasData ? (
-        <EmptyState title='まだオファーがありません' actionHref='/talent-search' actionLabel='オファーを送ってみましょう' />
+        <EmptyState
+          title='まだオファーがありません'
+          actionHref='/search'
+          actionLabel='オファーを送ってみましょう'
+        />
       ) : (
         <div className='grid gap-4 sm:grid-cols-2'>
           <Card className='sm:col-span-2'>
             <CardHeader>
-              <CardTitle>次の来店イベントを企画しませんか？</CardTitle>
-            </CardHeader>
-            <CardContent className='text-sm text-muted-foreground'>
-              演者一覧から希望に合ったタレントを探しましょう。
-            </CardContent>
+  <CardTitle>次の来店イベントを企画しませんか？</CardTitle>
+</CardHeader>
+<CardContent className="text-sm text-muted-foreground">
+  演者一覧から希望に合ったタレントを探しましょう。
+</CardContent>
             <CardFooter>
               <Button variant='default' size='lg' asChild>
                 <Link href='/search'>
@@ -62,14 +66,7 @@ export default function StoreDashboard() {
           <NotificationListCard className='sm:col-span-2' />
         </div>
       )}
-      <Button
-        asChild
-        className='fixed bottom-4 right-4 md:hidden rounded-full shadow-lg px-4 py-3'
-      >
-        <Link href='/search'>
-          <SearchIcon className='mr-1 w-5 h-5' /> 演者を探す
-        </Link>
-      </Button>
     </div>
   )
 }
+

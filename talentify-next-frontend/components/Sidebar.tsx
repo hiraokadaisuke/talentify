@@ -42,11 +42,7 @@ const navItems = {
   ],
   store: [
     { href: "/search", label: "演者を探す", icon: Search },
-    {
-      href: "/store/dashboard",
-      label: "ダッシュボード",
-      icon: LayoutDashboard,
-    },
+    { href: "/store/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
     { href: "/store/offers", label: "オファー管理", icon: Mail },
     { href: "/store/schedule", label: "スケジュール", icon: Calendar },
     { href: "/store/messages", label: "メッセージ", icon: Bell },
