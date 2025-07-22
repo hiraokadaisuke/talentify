@@ -111,10 +111,13 @@ export default function Sidebar({
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="w-full justify-start text-destructive"
+            className={cn(
+              'w-full justify-start text-destructive',
+              collapsed && 'justify-center px-3'
+            )}
           >
-            <LogOut className="mr-2 h-4 w-4" />
-            ログアウト
+            <LogOut className="h-4 w-4" />
+            {!collapsed && <span className="ml-2">ログアウト</span>}
           </Button>
         </div>
       )}
