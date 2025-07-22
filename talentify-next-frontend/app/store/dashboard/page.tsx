@@ -50,7 +50,6 @@ export default function StoreDashboard() {
 <CardContent className="text-sm text-muted-foreground">
   演者一覧から希望に合ったタレントを探しましょう。
 </CardContent>
-            </CardHeader>
             <CardFooter>
               <Button variant='default' size='lg' asChild>
                 <Link href='/search'>
