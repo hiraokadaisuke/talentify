@@ -5,6 +5,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip'
 import { createClient } from '@/utils/supabase/client'
 import {
   LayoutDashboard,
@@ -89,38 +95,66 @@ export default function Sidebar({
         collapsible && collapsed ? 'w-16 min-w-[64px]' : 'min-w-[220px]'
       )}
     >
-      <nav className="flex-1 space-y-2 px-2 py-4">
-        {items.map(({ href, label, icon: Icon }) => (
-          <Link href={href} key={href}>
-            <div
-              className={cn(
-                'group flex items-center gap-3 rounded-2xl px-4 py-2 text-sm transition-colors hover:bg-muted',
-                pathname === href
-                  ? 'bg-muted text-primary font-medium shadow-md'
-                  : 'text-muted-foreground font-normal',
-                collapsed && 'justify-center px-3'
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              <span className={cn(collapsed && 'hidden')}>{label}</span>
-            </div>
-          </Link>
-        ))}
-      </nav>
+      <TooltipProvider delayDuration={0}>
+        <nav className="flex-1 space-y-2 px-2 py-4">
+          {items.map(({ href, label, icon: Icon }) => {
+            const itemContent = (
+              <div
+                className={cn(
+                  'group flex items-center gap-3 rounded-2xl px-4 py-2 text-sm transition-colors hover:bg-muted',
+                  pathname === href
+                    ? 'bg-muted text-primary font-medium shadow-md'
+                    : 'text-muted-foreground font-normal',
+                  collapsed && 'justify-center px-3'
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                {!collapsed && <span>{label}</span>}
+              </div>
+            )
+
+            return collapsed ? (
+              <Tooltip key={href}>
+                <TooltipTrigger asChild>
+                  <Link href={href}>{itemContent}</Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">{label}</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Link href={href} key={href}>
+                {itemContent}
+              </Link>
+            )
+          })}
+        </nav>
+      </TooltipProvider>
       {loggedIn && (
         <div className="p-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            className={cn(
-              'w-full justify-start text-destructive',
-              collapsed && 'justify-center px-3'
-            )}
-          >
-            <LogOut className="h-4 w-4" />
-            {!collapsed && <span className="ml-2">ログアウト</span>}
-          </Button>
+          {collapsed ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className={cn('w-full justify-center text-destructive px-3')}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">ログアウト</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="w-full justify-start text-destructive"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="ml-2">ログアウト</span>
+            </Button>
+          )
         </div>
       )}
       {collapsible && (
