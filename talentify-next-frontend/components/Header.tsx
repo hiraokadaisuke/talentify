@@ -106,7 +106,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <div className="flex items-center space-x-2 ml-auto">
               {sidebarRole === 'store' && (
                 <Link
-                  href="/store/talents"
+                  href="/search"
                   className="hidden md:inline-flex items-center rounded-full bg-[#daa520] text-white font-normal px-4 py-2 hover:brightness-110 transition"
                 >
                   <Search className="w-4 h-4 mr-1" /> 演者を探す

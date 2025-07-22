@@ -48,7 +48,7 @@ export default function StoreDashboard() {
             </CardContent>
             <CardFooter>
               <Button variant='default' size='lg' asChild>
-                <Link href='/store/talents'>
+                <Link href='/search'>
                   <SearchIcon className='mr-2' /> 演者を探す
                 </Link>
               </Button>
@@ -66,7 +66,7 @@ export default function StoreDashboard() {
         asChild
         className='fixed bottom-4 right-4 md:hidden rounded-full shadow-lg px-4 py-3'
       >
-        <Link href='/store/talents'>
+        <Link href='/search'>
           <SearchIcon className='mr-1 w-5 h-5' /> 演者を探す
         </Link>
       </Button>
