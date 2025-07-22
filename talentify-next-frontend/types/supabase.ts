@@ -224,6 +224,49 @@ export type Database = {
         }
         Relationships: []
       }
+      ,
+      invoices: {
+        Row: {
+          id: string
+          offer_id: string
+          talent_id: string
+          store_id: string
+          amount: number
+          transportation_cost: number | null
+          memo: string | null
+          bank_account: string | null
+          status: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          offer_id: string
+          talent_id: string
+          store_id: string
+          amount: number
+          transportation_cost?: number | null
+          memo?: string | null
+          bank_account?: string | null
+          status?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          offer_id?: string
+          talent_id?: string
+          store_id?: string
+          amount?: number
+          transportation_cost?: number | null
+          memo?: string | null
+          bank_account?: string | null
+          status?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
 
       messages: {
         Row: {
