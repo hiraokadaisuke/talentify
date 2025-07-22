@@ -41,7 +41,7 @@ const navItems = {
     { href: "/talent/notifications", label: "通知・設定", icon: Bell },
   ],
   store: [
-    { href: "/store/talents", label: "演者を探す", icon: Search },
+    { href: "/search", label: "演者を探す", icon: Search },
     {
       href: "/store/dashboard",
       label: "ダッシュボード",
