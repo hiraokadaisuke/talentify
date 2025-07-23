@@ -54,7 +54,26 @@ export default function TalentProfileEditPage() {
       const { data, error } = await supabase
         .from('talents')
         .select(
-          'name, stage_name, bio, residence, area, genre, availability, min_hours, transportation, rate, notes, achievements, video_url, avatar_url, photos, twitter: social_x, instagram: social_instagram, youtube: social_youtube'
+          [
+            'name',
+            'stage_name',
+            'bio',
+            'residence',
+            'area',
+            'genre',
+            'availability',
+            'min_hours',
+            'transportation',
+            'rate',
+            'notes:bio_others',
+            'achievements:media_appearance',
+            'video_url',
+            'avatar_url',
+            'photos',
+            'twitter:social_x',
+            'instagram:social_instagram',
+            'youtube:social_youtube',
+          ].join(',')
         )
         .eq('user_id', user.id)
         .maybeSingle()
@@ -66,9 +85,11 @@ export default function TalentProfileEditPage() {
       if (data)
         setProfile({
           ...data,
+          area: (data.area as string[] | null) ?? [],
+          photos: (data.photos as string[] | null) ?? [],
           genre: data.genre ?? '',
           notes: data.notes ?? '',
-          achievements: data.achievements ?? ''
+          achievements: data.achievements ?? '',
         })
       setLoading(false)
     }
@@ -149,14 +170,14 @@ export default function TalentProfileEditPage() {
       min_hours: profile.min_hours || '',
       transportation: profile.transportation || '',
       rate: profile.rate !== '' ? Number(profile.rate) : null,
-      notes: profile.notes || '',
-      achievements: profile.achievements || '',
+      bio_others: profile.notes || '',
+      media_appearance: profile.achievements || '',
       video_url: profile.video_url || '',
       avatar_url: profile.avatar_url || '',
       photos: profile.photos.length > 0 ? profile.photos : null,
-      twitter: profile.twitter || '',
-      instagram: profile.instagram || '',
-      youtube: profile.youtube || ''
+      social_x: profile.twitter || '',
+      social_instagram: profile.instagram || '',
+      social_youtube: profile.youtube || '',
     }
 
     // Debug log before sending

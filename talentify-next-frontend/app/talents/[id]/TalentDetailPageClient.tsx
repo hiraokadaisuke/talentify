@@ -14,6 +14,7 @@ import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
 
 type Talent = {
   id: string
+  user_id: string | null
   stage_name: string
   birthdate?: string | null
   gender?: string | null
@@ -23,7 +24,7 @@ type Talent = {
   agency?: string | null
   agency_url?: string | null
   profile_photo?: string | null
-  photos?: string[]
+  photos: string[]
   hobby?: string | null
   certifications?: string | null
   notes?: string | null
@@ -31,7 +32,6 @@ type Talent = {
   twitter?: string | null
   instagram?: string | null
   youtube?: string | null
-  user_id?: string | null
 }
 
 type Props = {
@@ -254,7 +254,7 @@ export default function TalentDetailPageClient({ id }: Props) {
             )}
           </>
         )}
-        {role === 'talent' && userId === talent.id && (
+        {role === 'talent' && userId === talent.user_id && (
           <Button onClick={() => (window.location.href = '/talent/edit')}>
             プロフィールを編集する
           </Button>
