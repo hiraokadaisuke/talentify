@@ -148,16 +148,19 @@ export default function TalentProfileEditPage() {
       availability: profile.availability || '',
       min_hours: profile.min_hours || '',
       transportation: profile.transportation || '',
-      rate: profile.rate ? Number(profile.rate) : null,
+      rate: profile.rate !== '' ? Number(profile.rate) : null,
       notes: profile.notes || '',
       achievements: profile.achievements || '',
       video_url: profile.video_url || '',
       avatar_url: profile.avatar_url || '',
-      photos: profile.photos,
+      photos: profile.photos.length > 0 ? profile.photos : null,
       twitter: profile.twitter || '',
       instagram: profile.instagram || '',
       youtube: profile.youtube || ''
     }
+
+    // Debug log before sending
+    console.log('📝 updateData:', updateData)
 
     const { data: existing } = await supabase
       .from('talents')

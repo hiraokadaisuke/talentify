@@ -58,9 +58,14 @@ export default function TalentDetailPageClient({ id }: Props) {
       if (res.ok) {
         const data = await res.json()
         setTalent(data)
+      } else {
+        const text = await res.text()
+        console.error('Failed to fetch talent:', text)
       }
 
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (user) setUserId(user.id)
     }
 
@@ -161,11 +166,11 @@ export default function TalentDetailPageClient({ id }: Props) {
         </CardContent>
       </Card>
 
-      {talent.photos && talent.photos.length > 0 && (
+      {Array.isArray(talent.photos) && talent.photos.length > 0 && (
         <Card>
           <CardContent>
             <div className="flex overflow-x-auto gap-3 pb-2">
-              {talent.photos.map((p, i) => (
+              {(talent.photos ?? []).map((p, i) => (
                 <div
                   key={i}
                   className="flex-none w-40 h-40 rounded-lg overflow-hidden bg-gray-100"
