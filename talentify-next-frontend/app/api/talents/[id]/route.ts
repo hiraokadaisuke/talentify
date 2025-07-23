@@ -14,34 +14,13 @@ export async function GET(
     return NextResponse.json({ error: 'id is required' }, { status: 400 })
   }
 
+  const fields = 'id,user_id,stage_name,birthdate,gender,residence,birthplace,height_cm,agency_name,agency_url,avatar_url,photos,area,bio_hobby,bio_certifications,bio_others,media_appearance,social_x,social_instagram,social_youtube' as const
+
   const { data, error } = await supabase
     .from('talents')
-    .select(
-      [
-        'id',
-        'user_id',
-        'stage_name',
-        'birthdate',
-        'gender',
-        'residence',
-        'birthplace',
-        'height_cm',
-        'agency_name',
-        'agency_url',
-        'avatar_url',
-        'photos',
-        'area',
-        'bio_hobby',
-        'bio_certifications',
-        'bio_others',
-        'media_appearance',
-        'social_x',
-        'social_instagram',
-        'social_youtube',
-      ].join(',')
-    )
+    .select(fields)
     .eq('id', id)
-    .maybeSingle()
+    .maybeSingle<any>()
 
   if (error || !data) {
     if (error) {

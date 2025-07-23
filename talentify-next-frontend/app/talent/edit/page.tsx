@@ -51,32 +51,13 @@ export default function TalentProfileEditPage() {
       }
       setUserId(user.id)
 
+      const fields = 'name,stage_name,bio,residence,area,genre,availability,min_hours,transportation,rate,notes:bio_others,achievements:media_appearance,video_url,avatar_url,photos,twitter:social_x,instagram:social_instagram,youtube:social_youtube' as const
+
       const { data, error } = await supabase
         .from('talents')
-        .select(
-          [
-            'name',
-            'stage_name',
-            'bio',
-            'residence',
-            'area',
-            'genre',
-            'availability',
-            'min_hours',
-            'transportation',
-            'rate',
-            'notes:bio_others',
-            'achievements:media_appearance',
-            'video_url',
-            'avatar_url',
-            'photos',
-            'twitter:social_x',
-            'instagram:social_instagram',
-            'youtube:social_youtube',
-          ].join(',')
-        )
+        .select(fields)
         .eq('user_id', user.id)
-        .maybeSingle()
+        .maybeSingle<any>()
 
       if (error) {
         console.error('プロフィールの取得に失敗:', error)
