@@ -43,17 +43,15 @@ export async function GET(
     .eq('id', id)
     .maybeSingle()
 
-  if (error) {
-    console.error('Supabase fetch error:', {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-    })
-    return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
-  }
-
-  if (!data) {
-    return NextResponse.json({ error: 'Talent not found' }, { status: 404 })
+  if (error || !data) {
+    if (error) {
+      console.error('Supabase fetch error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      })
+    }
+    return NextResponse.json({ error: 'タレントが見つかりません' }, { status: 404 })
   }
 
   const result = {
