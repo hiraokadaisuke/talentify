@@ -9,6 +9,11 @@ export async function GET(
 
   const { id } = params
 
+  if (!id) {
+    console.error('GET /api/talents/[id] called without id')
+    return NextResponse.json({ error: 'id is required' }, { status: 400 })
+  }
+
   const { data, error } = await supabase
     .from('talents')
     .select(
@@ -22,7 +27,16 @@ export async function GET(
     .maybeSingle()
 
   if (error) {
+    console.error('Supabase fetch error:', {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
     return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
+  }
+
+  if (!data) {
+    return NextResponse.json({ error: 'Talent not found' }, { status: 404 })
   }
 
   return NextResponse.json(data, { status: 200 })
