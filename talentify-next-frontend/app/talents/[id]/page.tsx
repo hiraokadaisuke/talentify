@@ -15,7 +15,7 @@ export default async function Page({ params }: PageProps) {
   const { data, error } = await supabase
     .from('talents')
     .select(
-      'id,user_id,stage_name,birthdate,gender,residence,birthplace,height_cm,agency_name,agency_url,avatar_url,photos,bio_hobby,bio_certifications,bio_others,media_appearance,social_x,social_instagram,social_youtube'
+      'id,user_id,stage_name,birthdate,gender,residence,birthplace,height_cm,agency_name,agency_url,avatar_url,photos,bio_hobby,bio_certifications,notes,media_appearance,profile,social_x,social_instagram,social_youtube'
     )
     .eq('id', params.id)
     .maybeSingle<any>()
@@ -39,7 +39,8 @@ export default async function Page({ params }: PageProps) {
     photos: data.photos ?? [],
     hobby: data.bio_hobby,
     certifications: data.bio_certifications,
-    notes: data.bio_others,
+    notes: data.notes,
+    profile: data.profile,
     media_appearance: data.media_appearance,
     twitter: data.social_x,
     instagram: data.social_instagram,
