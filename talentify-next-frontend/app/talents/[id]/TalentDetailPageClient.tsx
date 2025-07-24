@@ -36,11 +36,13 @@ type Talent = {
 
 type Props = {
   id: string
+  initialTalent?: Talent | null
 }
 
-export default function TalentDetailPageClient({ id }: Props) {
+export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const supabase = createClient()
-  const [talent, setTalent] = useState<Talent | null>(null)
+  const [talent, setTalent] = useState<Talent | null>(initialTalent ?? null)
+  const [loadingTalent, setLoadingTalent] = useState(!initialTalent)
   const [userId, setUserId] = useState<string | null>(null)
   const { role, loading: roleLoading } = useUserRole()
   const [showForm, setShowForm] = useState(false)
@@ -54,13 +56,15 @@ export default function TalentDetailPageClient({ id }: Props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`/api/talents/${id}`)
-      if (res.ok) {
-        const data = await res.json()
-        setTalent(data)
-      } else {
-        const text = await res.text()
-        console.error('Failed to fetch talent:', text)
+      if (!initialTalent) {
+        const res = await fetch(`/api/talents/${id}`)
+        if (res.ok) {
+          const data = await res.json()
+          setTalent(data)
+        } else {
+          const text = await res.text()
+          console.error('Failed to fetch talent:', text)
+        }
       }
 
       const {
@@ -69,10 +73,13 @@ export default function TalentDetailPageClient({ id }: Props) {
       if (user) setUserId(user.id)
     }
 
-    if (id) fetchData()
-  }, [id, supabase])
+    if (id) {
+      fetchData().finally(() => setLoadingTalent(false))
+    }
+  }, [id, supabase, initialTalent])
 
-  if (!talent || roleLoading) return <div>読み込み中...</div>
+  if (loadingTalent || roleLoading) return <div>読み込み中...</div>
+  if (!talent) return <div>タレントが見つかりませんでした</div>
 
   const calcAge = (d: string) => {
     const today = new Date()
