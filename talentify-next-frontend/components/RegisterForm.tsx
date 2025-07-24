@@ -20,56 +20,90 @@ export default function RegisterForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [globalError, setGlobalError] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
+  const [confirmError, setConfirmError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
   const handleRegister = async () => {
-    setError(null)
+    setGlobalError(null)
+    setEmailError(null)
+    setPasswordError(null)
+    setConfirmError(null)
 
-    if (!email || !password || !confirm) {
-      setError('すべての項目を入力してください')
-      return
+    let hasError = false
+
+    if (!email) {
+      setEmailError('メールアドレスを入力してください')
+      hasError = true
+    } else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setEmailError('メールアドレスの形式が正しくありません')
+      hasError = true
     }
 
-    if (password !== confirm) {
-      setError('パスワードが一致しません')
-      return
+    if (!password) {
+      setPasswordError('パスワードを入力してください')
+      hasError = true
+    }
+
+    if (!confirm) {
+      setConfirmError('パスワード（確認）を入力してください')
+      hasError = true
+    } else if (password !== confirm) {
+      setConfirmError('パスワードが一致しません')
+      hasError = true
     }
 
     if (!role) {
-      setError('登録種別が不明です')
+      setGlobalError('登録種別が不明です')
       return
     }
+
+    if (hasError) return
 
 // 🔽 ロールを保存（AuthCallback で使う）
   localStorage.setItem('pending_role', role)
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: getRedirectUrl(role),
-      },
-    })
+    try {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: getRedirectUrl(role),
+        },
+      })
 
-    console.log('✅ signUp後のdata:', data)
-    console.log('➡️ data.user:', data.user)
-    console.log('➡️ data.session:', data.session)
+      console.log('✅ signUp後のdata:', data)
+      console.log('➡️ data.user:', data.user)
+      console.log('➡️ data.session:', data.session)
 
-    if (signUpError) {
-      setError(signUpError.message)
-      return
+      if (signUpError) {
+        console.error('signUp error:', signUpError)
+        const msg = signUpError.message
+        if (msg.toLowerCase().includes('already')) {
+          setGlobalError('このメールアドレスは既に登録されています')
+        } else if (msg.toLowerCase().includes('invalid')) {
+          setGlobalError('メールアドレスの形式が正しくありません')
+        } else {
+          setGlobalError('登録に失敗しました')
+        }
+        return
+      }
+
+      // ✅ メール送信成功 → check-email に遷移
+      router.push('/check-email')
+    } catch (e) {
+      console.error('signUp failed:', e)
+      setGlobalError('通信に失敗しました。インターネット接続をご確認ください')
     }
-
-    // ✅ メール送信成功 → check-email に遷移
-    router.push('/check-email')
   }
 
   return (
     <div className="max-w-md mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">新規登録</h1>
 
-      {error && <p className="text-red-600">{error}</p>}
+      {globalError && <p className="text-red-600">{globalError}</p>}
 
       {success ? (
         <p className="text-green-600">
@@ -83,8 +117,12 @@ export default function RegisterForm() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={!!emailError}
               required
             />
+            {emailError && (
+              <p className="text-red-600 text-sm mt-1">{emailError}</p>
+            )}
           </div>
 
           <div>
@@ -93,8 +131,12 @@ export default function RegisterForm() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={!!passwordError}
               required
             />
+            {passwordError && (
+              <p className="text-red-600 text-sm mt-1">{passwordError}</p>
+            )}
           </div>
 
           <div>
@@ -103,8 +145,12 @@ export default function RegisterForm() {
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
+              aria-invalid={!!confirmError}
               required
             />
+            {confirmError && (
+              <p className="text-red-600 text-sm mt-1">{confirmError}</p>
+            )}
           </div>
 
           <Button onClick={handleRegister}>登録</Button>
