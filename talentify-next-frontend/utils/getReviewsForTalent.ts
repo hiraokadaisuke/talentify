@@ -18,7 +18,7 @@ export async function getReviewsForTalent() {
   if (!user) return [] as TalentReview[]
 
   const { data, error } = await supabase
-    .from('reviews')
+    .from('reviews' as any)
     .select('id, rating, category_ratings, comment, created_at, stores(display_name), offers(date)')
     .eq('talent_id', user.id)
     .order('created_at', { ascending: false })
@@ -28,10 +28,10 @@ export async function getReviewsForTalent() {
     return [] as TalentReview[]
   }
 
-  return (data || []).map(r => ({
+  return (data || []).map((r: any) => ({
     id: r.id as string,
-    store_name: (r as any).stores?.display_name ?? null,
-    visit_date: (r as any).offers?.date ?? null,
+    store_name: r.stores?.display_name ?? null,
+    visit_date: r.offers?.date ?? null,
     rating: r.rating as number,
     category_ratings: r.category_ratings,
     comment: r.comment,

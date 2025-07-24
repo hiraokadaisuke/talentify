@@ -34,14 +34,14 @@ export default function TalentOffersPage() {
       }
 
       const { data, error } = await supabase
-        .from('offers')
+        .from('offers' as any)
         .select('id, date, message, status, respond_deadline')
         .eq('talent_id', user.id) // ログイン中タレント宛のみに限定
 
       if (error) {
         console.error('Error fetching offers:', error)
       } else {
-        setOffers(data)
+        setOffers(data as any)
       }
       setLoading(false)
     }

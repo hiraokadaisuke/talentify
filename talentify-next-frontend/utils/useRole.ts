@@ -1,26 +1,25 @@
-// utils/useRole.ts
-
+'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { getUserRoleInfo, UserRole } from '@/lib/getUserRole'
 
 const supabase = createClient()
 
 export function useUserRole() {
-  const [role, setRole] = useState<string | null>(null)
+  const [role, setRole] = useState<UserRole | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchRole = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setLoading(false); return }
-
-      const { data: store } = await supabase.from('stores').select('id').eq('user_id', user.id).maybeSingle()
-      const { data: talent } = await supabase.from('talents').select('id').eq('user_id', user.id).maybeSingle()
-      const { data: company } = await supabase.from('companies').select('id').eq('user_id', user.id).maybeSingle()
-
-      if (store) setRole('store')
-      else if (talent) setRole('talent')
-      else if (company) setRole('company')
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        setLoading(false)
+        return
+      }
+      const { role: r } = await getUserRoleInfo(supabase, user.id)
+      setRole(r)
       setLoading(false)
     }
 

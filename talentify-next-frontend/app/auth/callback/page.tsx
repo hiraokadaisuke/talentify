@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -22,18 +23,39 @@ export default function AuthCallbackPage() {
       const userId = session.user.id
       const role = localStorage.getItem('pending_role') ?? 'store'
 
-      const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores'
-      const { data: existing } = await supabase
-        .from(table)
-        .select('id')
-        .eq('user_id', userId)
-        .maybeSingle()
+      const { role: existingRole } = await getUserRoleInfo(supabase, userId)
 
-      if (!existing) {
-        const { error: insertError } = await supabase.from(table).insert([{ user_id: userId }])
-        if (insertError) {
-          console.error('profile insert error:', insertError)
-          return
+      if (!existingRole) {
+        if (role === 'talent') {
+          const { error: insertError } = await supabase
+            .from('talents')
+            .insert([
+              {
+                user_id: userId,
+                email: session.user.email ?? '',
+                name: '',
+              },
+            ])
+          if (insertError) {
+            console.error('profile insert error:', insertError)
+            return
+          }
+        } else if (role === 'company') {
+          const { error: insertError } = await supabase
+            .from('companies')
+            .insert([{ user_id: userId, display_name: '' }])
+          if (insertError) {
+            console.error('profile insert error:', insertError)
+            return
+          }
+        } else {
+          const { error: insertError } = await supabase
+            .from('stores')
+            .insert([{ user_id: userId, display_name: '' }])
+          if (insertError) {
+            console.error('profile insert error:', insertError)
+            return
+          }
         }
       }
 

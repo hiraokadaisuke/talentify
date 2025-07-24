@@ -7,6 +7,7 @@ import Sidebar from './Sidebar'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
 import { createClient } from '@/utils/supabase/client'
+import { getUserRoleInfo } from '@/lib/getUserRole'
 
 const supabase = createClient()
 
@@ -16,32 +17,17 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
   useEffect(() => {
     const fetchSessionAndProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       const user = session?.user
       if (!user) {
         setIsLoading(false)
         return
       }
 
-      let nameToDisplay = 'ユーザー'
-
-      // role 推定
-      const store = await supabase.from('stores').select('display_name').eq('user_id', user.id).single()
-      if (store.data) {
-        nameToDisplay = store.data.display_name ?? '店舗ユーザー'
-      } else {
-        const talent = await supabase.from('talents').select('stage_name').eq('user_id', user.id).single()
-        if (talent.data) {
-          nameToDisplay = talent.data.stage_name ?? 'タレント'
-        } else {
-          const company = await supabase.from('companies').select('display_name').eq('user_id', user.id).single()
-          if (company.data) {
-            nameToDisplay = company.data.display_name ?? '会社ユーザー'
-          }
-        }
-      }
-
-      setUserName(nameToDisplay)
+      const { name } = await getUserRoleInfo(supabase, user.id)
+      setUserName(name ?? 'ユーザー')
       setIsLoading(false)
     }
 

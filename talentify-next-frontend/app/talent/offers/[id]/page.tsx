@@ -60,7 +60,7 @@ export default function TalentOfferDetailPage() {
 
       if (data) {
         const store = (data as any).stores || {}
-        const offerData = { ...data } as any
+        const offerData = { ...(data as any) }
         delete offerData.stores
         setOffer({
           ...offerData,
