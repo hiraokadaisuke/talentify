@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -28,13 +29,10 @@ export default function LoginPage() {
     }
 
     const userId = session.user.id
+    const { role } = await getUserRoleInfo(supabase, userId)
 
-    const { data: store } = await supabase.from('stores').select('id').eq('user_id', userId).maybeSingle()
-    const { data: talent } = await supabase.from('talents').select('id').eq('user_id', userId).maybeSingle()
-    const { data: company } = await supabase.from('companies').select('id').eq('user_id', userId).maybeSingle()
-
-    if (!store && !talent && !company) {
-      await supabase.from('stores').insert([{ user_id: userId }])
+    if (!role) {
+      // TODO: explicit role selection page can be implemented here
     }
 
     router.push('/dashboard')

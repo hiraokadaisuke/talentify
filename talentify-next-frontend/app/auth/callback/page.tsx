@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -22,14 +23,10 @@ export default function AuthCallbackPage() {
       const userId = session.user.id
       const role = localStorage.getItem('pending_role') ?? 'store'
 
-      const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores'
-      const { data: existing } = await supabase
-        .from(table)
-        .select('id')
-        .eq('user_id', userId)
-        .maybeSingle()
+      const { role: existingRole } = await getUserRoleInfo(supabase, userId)
 
-      if (!existing) {
+      if (!existingRole) {
+        const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores'
         const { error: insertError } = await supabase.from(table).insert([{ user_id: userId }])
         if (insertError) {
           console.error('profile insert error:', insertError)
