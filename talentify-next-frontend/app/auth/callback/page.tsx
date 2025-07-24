@@ -70,6 +70,8 @@ export default function AuthCallbackPage() {
         router.push('/store/edit')
       } else if (role === 'talent') {
         router.push('/talent/edit')
+      } else if (role === 'company') {
+        router.push('/company/edit')
       } else {
         router.push('/') // 万が一不明なロールだった場合
       }
