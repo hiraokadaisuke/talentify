@@ -43,31 +43,43 @@ export type Database = {
       }
       companies: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          display_name: string
           id: string
-          updated_at: string | null
           user_id: string
+          company_name: string
+          address: string | null
+          tel: string | null
+          description: string | null
+          avatar_url: string | null
+          display_name: string | null
+          is_setup_complete: boolean | null
+          created_at: string | null
+          updated_at: string | null
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name: string
           id?: string
-          updated_at?: string | null
           user_id: string
+          company_name: string
+          address?: string | null
+          tel?: string | null
+          description?: string | null
+          avatar_url?: string | null
+          display_name?: string | null
+          is_setup_complete?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          display_name?: string
           id?: string
-          updated_at?: string | null
           user_id?: string
+          company_name?: string
+          address?: string | null
+          tel?: string | null
+          description?: string | null
+          avatar_url?: string | null
+          display_name?: string | null
+          is_setup_complete?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -238,41 +250,41 @@ export type Database = {
         Row: {
           id: string
           offer_id: string
-          talent_id: string
           store_id: string
+          talent_id: string
           amount: number
-          transportation_cost: number | null
-          memo: string | null
-          bank_account: string | null
-          status: string
+          invoice_url: string | null
           created_at: string | null
           updated_at: string | null
+          status: Enums<'invoice_status'>
+          due_date: string | null
+          invoice_number: string | null
         }
         Insert: {
           id?: string
           offer_id: string
-          talent_id: string
           store_id: string
+          talent_id: string
           amount: number
-          transportation_cost?: number | null
-          memo?: string | null
-          bank_account?: string | null
-          status?: string
+          invoice_url?: string | null
           created_at?: string | null
           updated_at?: string | null
+          status?: Enums<'invoice_status'>
+          due_date?: string | null
+          invoice_number?: string | null
         }
         Update: {
           id?: string
           offer_id?: string
-          talent_id?: string
           store_id?: string
+          talent_id?: string
           amount?: number
-          transportation_cost?: number | null
-          memo?: string | null
-          bank_account?: string | null
-          status?: string
+          invoice_url?: string | null
           created_at?: string | null
           updated_at?: string | null
+          status?: Enums<'invoice_status'>
+          due_date?: string | null
+          invoice_number?: string | null
         }
         Relationships: []
       }
@@ -281,23 +293,38 @@ export type Database = {
         Row: {
           id: string
           sender_id: string
-          receiver_id: string
-          text: string
+          content: string | null
+          payload: Json | null
+          topic: string | null
+          event: string | null
+          private: boolean | null
+          extension: string | null
           created_at: string | null
+          updated_at: string | null
         }
         Insert: {
           id?: string
           sender_id: string
-          receiver_id: string
-          text: string
+          content?: string | null
+          payload?: Json | null
+          topic?: string | null
+          event?: string | null
+          private?: boolean | null
+          extension?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
         Update: {
           id?: string
           sender_id?: string
-          receiver_id?: string
-          text?: string
+          content?: string | null
+          payload?: Json | null
+          topic?: string | null
+          event?: string | null
+          private?: boolean | null
+          extension?: string | null
           created_at?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -339,7 +366,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected'
+      notification_type:
+        | 'offer_created'
+        | 'offer_updated'
+        | 'payment_created'
+        | 'invoice_submitted'
+        | 'review_received'
+      offer_status: 'pending' | 'accepted' | 'rejected'
+      payment_status: 'pending' | 'paid' | 'cancelled'
+      status_type: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed'
+      visit_status: 'scheduled' | 'confirmed' | 'visited'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -454,6 +491,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      invoice_status: ['draft', 'submitted', 'approved', 'rejected'],
+      notification_type: [
+        'offer_created',
+        'offer_updated',
+        'payment_created',
+        'invoice_submitted',
+        'review_received'
+      ],
+      offer_status: ['pending', 'accepted', 'rejected'],
+      payment_status: ['pending', 'paid', 'cancelled'],
+      status_type: ['draft', 'pending', 'approved', 'rejected', 'completed'],
+      visit_status: ['scheduled', 'confirmed', 'visited']
+    },
   },
 } as const

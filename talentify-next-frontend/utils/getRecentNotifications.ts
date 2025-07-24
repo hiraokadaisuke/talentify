@@ -19,8 +19,7 @@ export async function getRecentNotifications(): Promise<Notification[]> {
   const { data: messages } = await supabase
     .from('messages' as any)
     .select('*')
-    .eq('receiver_id', user.id)
-    .eq('is_read', false)
+    .eq('topic', user.id)
     .order('created_at', { ascending: false })
     .limit(5)
 
@@ -47,9 +46,9 @@ export async function getRecentNotifications(): Promise<Notification[]> {
       id: (m as any).id,
       type: 'message',
       title: '新着メッセージ',
-      body: (m as any).text ?? '',
+      body: (m as any).content ?? '',
       created_at: (m as any).created_at ?? '',
-      is_read: !!(m as any).is_read,
+      is_read: false,
     }),
   )
 
