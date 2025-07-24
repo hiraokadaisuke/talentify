@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createBrowserSupabaseClient } from './index'
+import { createClient as createBrowserSupabaseClient } from './client'
 
 export function SupabaseProvider({
   children,

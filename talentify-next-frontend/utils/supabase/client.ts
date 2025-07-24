@@ -1,3 +1,3 @@
 'use client'
 
-export { createBrowserSupabaseClient as createClient } from '@/lib/supabase'
+export { createClient } from '@/lib/supabase/client'
