@@ -54,7 +54,7 @@ export default function TalentProfileEditPage() {
       const fields = 'name,stage_name,bio,residence,area,genre,availability,min_hours,transportation,rate,notes:bio_others,achievements:media_appearance,video_url,avatar_url,photos,twitter:social_x,instagram:social_instagram,youtube:social_youtube' as const
 
       const { data, error } = await supabase
-        .from('talents')
+        .from('talents' as any)
         .select(fields)
         .eq('user_id', user.id)
         .maybeSingle<any>()
@@ -165,7 +165,7 @@ export default function TalentProfileEditPage() {
     console.log('📝 updateData:', updateData)
 
     const { data: existing } = await supabase
-      .from('talents')
+      .from('talents' as any)
       .select('id')
       .eq('user_id', userId)
       .maybeSingle()
@@ -174,12 +174,12 @@ export default function TalentProfileEditPage() {
 
     if (existing) {
       ({ error } = await supabase
-        .from('talents')
+        .from('talents' as any)
         .update(updateData)
         .eq('user_id', userId))
     } else {
       ({ error } = await supabase
-        .from('talents')
+        .from('talents' as any)
         .insert(updateData))
     }
 

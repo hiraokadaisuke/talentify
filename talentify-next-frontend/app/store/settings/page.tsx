@@ -34,12 +34,13 @@ export default function StoreSettingsPage() {
         .eq('user_id', user.id)
         .maybeSingle()
 
-      if (data) {
+      const store = data as any
+      if (store) {
         setSettings({
-          store_name: data.store_name ?? '',
-          contact_person: data.contact_person ?? '',
-          email: data.email ?? '',
-          phone: data.phone ?? '',
+          store_name: store.store_name ?? '',
+          contact_person: store.contact_person ?? '',
+          email: store.email ?? '',
+          phone: store.phone ?? '',
         })
       }
       setLoading(false)
@@ -55,12 +56,10 @@ export default function StoreSettingsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
+    const storeValues = { user_id: user.id, ...settings } as any
     const { error } = await supabase
       .from('stores')
-      .upsert({
-        user_id: user.id,
-        ...settings,
-      }, { onConflict: 'user_id' })
+      .upsert(storeValues, { onConflict: 'user_id' })
 
     if (error) {
       console.error('保存に失敗しました', error)

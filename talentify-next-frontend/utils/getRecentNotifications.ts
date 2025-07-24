@@ -17,7 +17,7 @@ export async function getRecentNotifications(): Promise<Notification[]> {
 
   // Unread messages
   const { data: messages } = await supabase
-    .from('messages')
+    .from('messages' as any)
     .select('*')
     .eq('receiver_id', user.id)
     .eq('is_read', false)
@@ -26,7 +26,7 @@ export async function getRecentNotifications(): Promise<Notification[]> {
 
   // Pending offers
   const { data: offers } = await supabase
-    .from('offers')
+    .from('offers' as any)
     .select('*')
     .eq('talent_id', user.id)
     .eq('status', 'pending')
@@ -44,22 +44,22 @@ export async function getRecentNotifications(): Promise<Notification[]> {
 
   messages?.forEach((m) =>
     notifications.push({
-      id: m.id,
+      id: (m as any).id,
       type: 'message',
       title: '新着メッセージ',
-      body: m.text ?? '',
-      created_at: m.created_at ?? '',
-      is_read: !!m.is_read,
+      body: (m as any).text ?? '',
+      created_at: (m as any).created_at ?? '',
+      is_read: !!(m as any).is_read,
     }),
   )
 
   offers?.forEach((o) =>
     notifications.push({
-      id: o.id,
+      id: (o as any).id,
       type: 'offer',
       title: 'オファー対応待ち',
-      body: `オファーの日程 ${o.date}`,
-      created_at: o.created_at ?? '',
+      body: `オファーの日程 ${(o as any).date}`,
+      created_at: (o as any).created_at ?? '',
       is_read: false,
     }),
   )

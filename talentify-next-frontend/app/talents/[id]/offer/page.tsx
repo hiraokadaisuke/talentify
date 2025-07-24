@@ -12,6 +12,7 @@ const supabase = createClient()
 
 export default function OfferPage() {
   const { id } = useParams()
+  const talentId = Array.isArray(id) ? id[0] : id
   const [message, setMessage] = useState('')
   const [date, setDate] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -28,7 +29,7 @@ export default function OfferPage() {
     const { error } = await supabase.from('offers').insert([
       {
         user_id: user.id,
-        talent_id: id,
+        talent_id: talentId,
         message: message,
         date: date,
         status: 'pending',

@@ -26,11 +26,36 @@ export default function AuthCallbackPage() {
       const { role: existingRole } = await getUserRoleInfo(supabase, userId)
 
       if (!existingRole) {
-        const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores'
-        const { error: insertError } = await supabase.from(table).insert([{ user_id: userId }])
-        if (insertError) {
-          console.error('profile insert error:', insertError)
-          return
+        if (role === 'talent') {
+          const { error: insertError } = await supabase
+            .from('talents')
+            .insert([
+              {
+                user_id: userId,
+                email: session.user.email ?? '',
+                name: '',
+              },
+            ])
+          if (insertError) {
+            console.error('profile insert error:', insertError)
+            return
+          }
+        } else if (role === 'company') {
+          const { error: insertError } = await supabase
+            .from('companies')
+            .insert([{ user_id: userId, display_name: '' }])
+          if (insertError) {
+            console.error('profile insert error:', insertError)
+            return
+          }
+        } else {
+          const { error: insertError } = await supabase
+            .from('stores')
+            .insert([{ user_id: userId, display_name: '' }])
+          if (insertError) {
+            console.error('profile insert error:', insertError)
+            return
+          }
         }
       }
 

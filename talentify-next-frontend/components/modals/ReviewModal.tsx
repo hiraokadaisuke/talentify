@@ -42,15 +42,17 @@ export default function ReviewModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    const { error } = await supabase.from('reviews').insert({
-      offer_id: offerId,
-      store_id: storeId,
-      talent_id: talentId,
-      rating,
-      category_ratings: { time, attitude, fan, play },
-      comment,
-      is_public: isPublic,
-    })
+    const { error } = await supabase
+      .from('reviews' as any)
+      .insert({
+        offer_id: offerId,
+        store_id: storeId,
+        talent_id: talentId,
+        rating,
+        category_ratings: { time, attitude, fan, play },
+        comment,
+        is_public: isPublic,
+      } as any)
     setSubmitting(false)
     if (!error) {
       setOpen(false)

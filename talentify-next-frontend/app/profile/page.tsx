@@ -37,7 +37,7 @@ const [loading, setLoading] = useState(true);
       const userId = session.user.id;
       const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores';
       const { data, error } = await supabase
-        .from(table)
+        .from(table as any)
         .select('*')
         .eq('user_id', userId)
         .single();

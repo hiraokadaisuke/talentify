@@ -23,8 +23,8 @@ export default function TalentSearchPage() {
         return
       }
 
-      setTalents(data as Talent[])
-      setResults(data as Talent[])
+      setTalents(data as unknown as Talent[])
+      setResults(data as unknown as Talent[])
     }
 
     fetchTalents()
