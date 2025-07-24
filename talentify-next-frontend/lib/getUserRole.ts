@@ -9,11 +9,11 @@ export async function getUserRoleInfo(
 ): Promise<{ role: UserRole | null; name: string | null }> {
   const { data: store } = await supabase
     .from('stores' as any)
-    .select('display_name')
+    .select('store_name')
     .eq('user_id', userId)
     .maybeSingle()
   if (store) {
-    return { role: 'store', name: (store as any).display_name ?? '店舗ユーザー' }
+    return { role: 'store', name: (store as any).store_name ?? '店舗ユーザー' }
   }
 
   const { data: talent } = await supabase

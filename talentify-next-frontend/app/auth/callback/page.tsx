@@ -58,7 +58,7 @@ export default function AuthCallbackPage() {
           const { error: upsertError } = await supabase
             .from('stores')
             .upsert(
-              { user_id: userId, display_name: '' },
+              { user_id: userId, store_name: '' },
               { onConflict: 'user_id' }
             )
           if (upsertError) {

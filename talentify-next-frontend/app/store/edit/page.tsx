@@ -11,7 +11,7 @@ const supabase = createClient()
 export default function StoreProfileEditPage() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState({
-    display_name: '',
+    store_name: '',
     bio: '',
     avatar_url: ''
   })
@@ -26,7 +26,7 @@ export default function StoreProfileEditPage() {
 
       const { data, error } = await supabase
         .from('stores')
-        .select('display_name, bio, avatar_url')
+        .select('store_name, bio, avatar_url')
         .eq('user_id', user.id)
         .single()
 
@@ -57,7 +57,7 @@ export default function StoreProfileEditPage() {
     return
   }
 
-  if (!profile.display_name.trim()) {
+  if (!profile.store_name.trim()) {
     alert('店舗名（表示名）は必須です')
     return
   }
@@ -110,7 +110,7 @@ export default function StoreProfileEditPage() {
       <div className="space-y-4">
         <div>
           <label className="block font-medium">店舗名（表示名）</label>
-          <Input name="display_name" value={profile.display_name} onChange={handleChange} />
+          <Input name="store_name" value={profile.store_name} onChange={handleChange} />
         </div>
 
         <div>
