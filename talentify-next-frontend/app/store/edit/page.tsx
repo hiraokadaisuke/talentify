@@ -57,6 +57,11 @@ export default function StoreProfileEditPage() {
     return
   }
 
+  if (!profile.display_name.trim()) {
+    alert('店舗名（表示名）は必須です')
+    return
+  }
+
   // ✅ 保存前のログ
   console.log("📝 保存データ（送信前）:", {
     ...profile,
@@ -82,7 +87,13 @@ export default function StoreProfileEditPage() {
       hint: error.hint,
       code: error.code,
     })
-    alert('保存に失敗しました')
+    alert(`保存に失敗しました: ${error.message}`)
+    if (
+      error.message.toLowerCase().includes('row level security') ||
+      error.message.toLowerCase().includes('permission')
+    ) {
+      console.warn('RLS policy may prevent inserting/updating stores')
+    }
   } else {
     // ✅ 成功ログ
     console.log("✅ プロフィール保存成功")
