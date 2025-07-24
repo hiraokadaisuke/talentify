@@ -46,7 +46,7 @@ export default function StoreInvoiceDetail() {
   if (loading) return <div className='p-4'>読み込み中...</div>
   if (!invoice) return <div className='p-4'>データがありません</div>
 
-  const total = Number(invoice.amount) + Number(invoice.transportation_cost || 0)
+  const total = Number(invoice.amount)
 
   return (
     <main className='p-6 space-y-4'>
@@ -58,16 +58,12 @@ export default function StoreInvoiceDetail() {
             <TableCell>¥{invoice.amount.toLocaleString()}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className='font-medium'>交通費</TableCell>
-            <TableCell>¥{(invoice.transportation_cost ?? 0).toLocaleString()}</TableCell>
+            <TableCell className='font-medium'>請求書番号</TableCell>
+            <TableCell>{invoice.invoice_number}</TableCell>
           </TableRow>
           <TableRow>
-            <TableCell className='font-medium'>備考</TableCell>
-            <TableCell>{invoice.memo}</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className='font-medium'>振込先</TableCell>
-            <TableCell>{invoice.bank_account}</TableCell>
+            <TableCell className='font-medium'>支払期限</TableCell>
+            <TableCell>{invoice.due_date}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell className='font-medium'>合計金額</TableCell>

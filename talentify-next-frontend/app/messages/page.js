@@ -8,13 +8,13 @@ const supabase = createClient()
 function groupMessages(messages, userId) {
   const map = new Map()
   for (const m of messages) {
-    const otherId = m.sender_id === userId ? m.receiver_id : m.sender_id
+    const otherId = m.sender_id === userId ? m.topic : m.sender_id
     if (!map.has(otherId)) {
       map.set(otherId, {
         id: otherId,
         name: `User ${otherId.slice(0, 8)}`,
         avatar: '/avatar-default.svg',
-        latest: m.text,
+        latest: m.content,
         unread: 0,
         updatedAt: m.created_at,
         messages: []
@@ -24,12 +24,12 @@ function groupMessages(messages, userId) {
     th.messages.push({
       id: m.id,
       from: m.sender_id === userId ? 'store' : 'talent',
-      text: m.text,
+      text: m.content,
       time: m.created_at
     })
     if (new Date(th.updatedAt) < new Date(m.created_at)) {
       th.updatedAt = m.created_at
-      th.latest = m.text
+      th.latest = m.content
     }
   }
   return Array.from(map.values())
@@ -66,7 +66,7 @@ export default function MessageBoxPage() {
       .channel('public:messages')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
         const m = payload.new
-        if (m.sender_id === userId || m.receiver_id === userId) {
+        if (m.sender_id === userId || m.topic === userId) {
           setMessages(prev => [...prev, m])
         }
       })
@@ -94,7 +94,7 @@ export default function MessageBoxPage() {
       const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receiver_id: activeId, text: input })
+        body: JSON.stringify({ topic: activeId, content: input })
       })
       if (!res.ok) throw new Error('failed')
       setInput('')

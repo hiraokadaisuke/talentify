@@ -15,7 +15,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from('messages')
     .select('*')
-    .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+    .or(`sender_id.eq.${user.id},topic.eq.${user.id}`)
     .order('created_at', { ascending: true })
 
   if (error) {
@@ -27,7 +27,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
-  const { receiver_id, text } = await req.json()
+  const { topic, content } = await req.json()
 
   const {
     data: { user },
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('messages')
-    .insert({ sender_id: user.id, receiver_id, text })
+    .insert({ sender_id: user.id, topic, content })
     .select()
     .single()
 
