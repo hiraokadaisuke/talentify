@@ -10,7 +10,7 @@ export type Talent = {
   gender: string
   ageGroup: string
   location: string
-  bio: string
+  profile: string
   agency?: string
   avatar: string
 }
@@ -28,7 +28,7 @@ export default function TalentCard({ talent }: { talent: Talent }) {
         <p className="text-gray-600">
           {talent.genre}・{talent.location}
         </p>
-        <p className="line-clamp-2">{talent.bio}</p>
+        <p className="line-clamp-2">{talent.profile}</p>
         {talent.agency && <p className="text-xs text-gray-500">所属: {talent.agency}</p>}
       </CardContent>
       <CardFooter className="mt-auto">

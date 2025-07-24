@@ -7,7 +7,7 @@ import { useUserRole } from '@/utils/useRole';
 
 interface Profile {
   name: string
-  bio: string | null
+  profile: string | null
   role?: string
   twitter?: string
   instagram?: string
@@ -61,7 +61,7 @@ const [loading, setLoading] = useState(true);
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">プロフィール</h1>
       <p><strong>名前：</strong>{profile.name}</p>
-      <p><strong>自己紹介：</strong>{profile.bio}</p>
+      <p><strong>自己紹介：</strong>{profile.profile}</p>
 
       {role === 'talent' && (
         <div className="mt-4 space-y-2">

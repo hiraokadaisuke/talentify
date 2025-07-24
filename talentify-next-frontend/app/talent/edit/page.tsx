@@ -19,7 +19,7 @@ export default function TalentProfileEditPage() {
   const [profile, setProfile] = useState({
     name: '',
     stage_name: '',
-    bio: '',
+    description: '',
     residence: '',
     area: [] as string[],
     genre: '',
@@ -51,7 +51,7 @@ export default function TalentProfileEditPage() {
       }
       setUserId(user.id)
 
-      const fields = 'name,stage_name,bio,residence,area,genre,availability,min_hours,transportation,rate,notes:bio_others,achievements:media_appearance,video_url,avatar_url,photos,twitter:social_x,instagram:social_instagram,youtube:social_youtube' as const
+      const fields = 'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitter:social_x,instagram:social_instagram,youtube:social_youtube' as const
 
       const { data, error } = await supabase
         .from('talents' as any)
@@ -143,7 +143,7 @@ export default function TalentProfileEditPage() {
       user_id: userId,
       name: profile.name || '',
       stage_name: profile.stage_name || '',
-      bio: profile.bio || '',
+      profile: profile.description || '',
       residence: profile.residence || '',
       area: profile.area,
       genre: profile.genre || '',
@@ -151,7 +151,7 @@ export default function TalentProfileEditPage() {
       min_hours: profile.min_hours || '',
       transportation: profile.transportation || '',
       rate: profile.rate !== '' ? Number(profile.rate) : null,
-      bio_others: profile.notes || '',
+      notes: profile.notes || '',
       media_appearance: profile.achievements || '',
       video_url: profile.video_url || '',
       avatar_url: profile.avatar_url || '',
@@ -223,9 +223,9 @@ export default function TalentProfileEditPage() {
         <div>
           <label className="block font-semibold">自己紹介</label>
           <textarea
-            name="bio"
+            name="description"
             maxLength={300}
-            value={profile.bio}
+            value={profile.description}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
