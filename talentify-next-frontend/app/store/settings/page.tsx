@@ -56,6 +56,11 @@ export default function StoreSettingsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
+    if (!settings.store_name.trim()) {
+      alert('店舗名は必須です')
+      return
+    }
+
     const storeValues = { user_id: user.id, ...settings } as any
     const { error } = await supabase
       .from('stores')
@@ -63,7 +68,13 @@ export default function StoreSettingsPage() {
 
     if (error) {
       console.error('保存に失敗しました', error)
-      alert('保存に失敗しました')
+      alert(`保存に失敗しました: ${error.message}`)
+      if (
+        error.message.toLowerCase().includes('row level security') ||
+        error.message.toLowerCase().includes('permission')
+      ) {
+        console.warn('RLS policy may prevent inserting/updating stores')
+      }
     } else {
       setToast('更新しました')
       setTimeout(() => setToast(null), 3000)

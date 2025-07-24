@@ -55,11 +55,21 @@ export default function AuthCallbackPage() {
             return
           }
         } else {
-          const { error: insertError } = await supabase
+          const { error: upsertError } = await supabase
             .from('stores')
-            .insert([{ user_id: userId, display_name: '' }])
-          if (insertError) {
-            console.error('profile insert error:', insertError)
+            .upsert(
+              { user_id: userId, display_name: '' },
+              { onConflict: 'user_id' }
+            )
+          if (upsertError) {
+            console.error('profile insert error:', upsertError)
+            alert(`Supabase更新エラー: ${upsertError.message}`)
+            if (
+              upsertError.message.toLowerCase().includes('row level security') ||
+              upsertError.message.toLowerCase().includes('permission')
+            ) {
+              console.warn('RLS policy may prevent inserting/updating stores')
+            }
             return
           }
         }
