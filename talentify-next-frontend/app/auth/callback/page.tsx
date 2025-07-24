@@ -43,7 +43,13 @@ export default function AuthCallbackPage() {
         } else if (role === 'company') {
           const { error: insertError } = await supabase
             .from('companies')
-            .insert([{ user_id: userId, display_name: '' }])
+            .insert([
+              {
+                user_id: userId,
+                company_name: '',
+                display_name: '',
+              },
+            ])
           if (insertError) {
             console.error('profile insert error:', insertError)
             return
