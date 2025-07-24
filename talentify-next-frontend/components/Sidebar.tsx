@@ -67,6 +67,27 @@ export default function Sidebar({
   const [collapsed, setCollapsed] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
+  // Load sidebar state from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('sidebarCollapsed');
+      if (stored !== null) {
+        setCollapsed(stored === 'true');
+      }
+    } catch (err) {
+      console.error('Failed to read sidebar state', err);
+    }
+  }, []);
+
+  // Persist sidebar state
+  useEffect(() => {
+    try {
+      localStorage.setItem('sidebarCollapsed', String(collapsed));
+    } catch (err) {
+      console.error('Failed to save sidebar state', err);
+    }
+  }, [collapsed]);
+
   useEffect(() => {
     const checkSession = async () => {
       const {
@@ -91,6 +112,14 @@ export default function Sidebar({
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
+  };
+
+  const handleToggle = () => {
+    try {
+      setCollapsed((prev) => !prev);
+    } catch (err) {
+      console.error('Failed to toggle sidebar', err);
+    }
   };
 
   const items = role === "store" ? navItems.store : navItems.talent;
@@ -166,7 +195,7 @@ export default function Sidebar({
       )}
       {collapsible && (
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={handleToggle}
           className="absolute -right-3 top-2 hidden h-6 w-6 items-center justify-center rounded-full border bg-background shadow md:flex"
         >
           {collapsed ? (
