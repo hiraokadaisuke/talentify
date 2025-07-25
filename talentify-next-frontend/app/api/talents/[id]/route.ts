@@ -14,7 +14,7 @@ export async function GET(
     return NextResponse.json({ error: 'id is required' }, { status: 400 })
   }
 
-  const fields = 'id,user_id,stage_name,birthdate,gender,residence,birthplace,height_cm,agency_name,agency_url,avatar_url,photos,area,bio_hobby,bio_certifications,notes,media_appearance,profile,social_x,social_instagram,social_youtube' as const
+  const fields = 'id,user_id,stage_name,birthdate,gender,residence,birthplace,height_cm,agency_name,agency_url,avatar_url,photos,area,bio_hobby,bio_certifications,notes,media_appearance,profile,x,instagram,youtube' as const
 
   const { data, error } = await supabase
     .from('talents')
@@ -52,9 +52,9 @@ export async function GET(
     notes: data.notes,
     profile: data.profile,
     media_appearance: data.media_appearance,
-    twitter: data.social_x,
-    instagram: data.social_instagram,
-    youtube: data.social_youtube,
+    twitter: data.x,
+    instagram: data.instagram,
+    youtube: data.youtube,
   }
 
   return NextResponse.json(result, { status: 200 })

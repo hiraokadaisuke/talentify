@@ -134,9 +134,9 @@ export type Database = {
           height_cm: number | null
           agency_name: string | null
           experience_years: number | null
-          social_x: string | null
-          social_instagram: string | null
-          social_youtube: string | null
+          x: string | null
+          instagram: string | null
+          youtube: string | null
           social_tiktok: string | null
           photos: string[] | null
           media_appearance: string | null
@@ -169,9 +169,9 @@ export type Database = {
           height_cm?: number | null
           agency_name?: string | null
           experience_years?: number | null
-          social_x?: string | null
-          social_instagram?: string | null
-          social_youtube?: string | null
+          x?: string | null
+          instagram?: string | null
+          youtube?: string | null
           social_tiktok?: string | null
           photos?: string[] | null
           media_appearance?: string | null
@@ -204,9 +204,9 @@ export type Database = {
           height_cm?: number | null
           agency_name?: string | null
           experience_years?: number | null
-          social_x?: string | null
-          social_instagram?: string | null
-          social_youtube?: string | null
+          x?: string | null
+          instagram?: string | null
+          youtube?: string | null
           social_tiktok?: string | null
           photos?: string[] | null
           media_appearance?: string | null
