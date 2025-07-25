@@ -34,11 +34,11 @@ export default function CompanyProfileEditPage() {
         .eq('user_id', user.id)
         .single()
 
-      if (error) {
+      if (!error && data) {
+        setProfile(data)
+      } else {
         console.error('プロフィール読み込みエラー:', error)
       }
-
-      if (data) setProfile(data)
       setLoading(false)
     }
 

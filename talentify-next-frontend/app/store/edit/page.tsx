@@ -30,15 +30,15 @@ export default function StoreProfileEditPage() {
         .eq('user_id', user.id)
         .single()
 
-      if (error) {
+      if (!error && data) {
+        setProfile(data)
+      } else {
         console.error("プロフィール読み込みエラー:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
+          message: error?.message,
+          details: error?.details,
+          hint: error?.hint,
         })
       }
-
-      if (data) setProfile(data)
       setLoading(false)
     }
 

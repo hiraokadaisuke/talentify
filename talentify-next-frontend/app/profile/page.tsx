@@ -42,10 +42,10 @@ const [loading, setLoading] = useState(true);
         .eq('user_id', userId)
         .single();
 
-      if (error) {
-        console.error('プロフィール取得エラー:', error);
-      } else {
+      if (!error && data) {
         setProfile(data);
+      } else {
+        console.error('プロフィール取得エラー:', error);
       }
 
       setLoading(false);
