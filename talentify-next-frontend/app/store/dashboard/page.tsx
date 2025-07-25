@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Search as SearchIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function StoreDashboard() {
   const offerStats = { pending: 1, accepted: 2 }
@@ -19,12 +20,22 @@ export default function StoreDashboard() {
   ]
   const unread = 3
   const [loading, setLoading] = useState(true)
+  const [toast, setToast] = useState<string | null>(null)
+  const searchParams = useSearchParams()
 
   const hasData = offerStats.pending + offerStats.accepted > 0
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 500)
   }, [])
+
+  useEffect(() => {
+    if (searchParams.get('saved') === '1') {
+      setToast('保存しました')
+      const timer = setTimeout(() => setToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams])
 
   return (
     <div className='space-y-4'>
@@ -63,7 +74,12 @@ export default function StoreDashboard() {
           <div className='sm:col-span-2'>
             <MessageAlertCard count={unread} link='/store/messages' />
           </div>
-          <NotificationListCard className='sm:col-span-2' />
+        <NotificationListCard className='sm:col-span-2' />
+      </div>
+      )}
+      {toast && (
+        <div className='fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow'>
+          {toast}
         </div>
       )}
     </div>
