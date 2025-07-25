@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import type { Database } from './types/supabase'
+import { getUserRoleInfo } from './lib/getUserRole'
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
@@ -31,6 +32,19 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === '/' && !isLoggedIn) {
     return res
+  }
+
+  if (isLoggedIn) {
+    const { role, isSetupComplete } = await getUserRoleInfo(
+      supabase,
+      session!.user.id
+    )
+    const editPath = role ? `/${role}/edit` : null
+    if (role && isSetupComplete === false && !pathname.startsWith(editPath || '')) {
+      const url = req.nextUrl.clone()
+      url.pathname = editPath!
+      return NextResponse.redirect(url)
+    }
   }
 
   if (

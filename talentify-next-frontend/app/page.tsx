@@ -18,19 +18,33 @@ export default async function HomePage() {
   if (session) {
     const userId = session.user.id;
     const { data: store } = await sb
-      .from<{ id: string }>('stores')
-      .select('id')
+      .from<{ id: string; is_setup_complete: boolean | null }>('stores')
+      .select('id, is_setup_complete')
       .eq('user_id', userId)
       .maybeSingle();
     const { data: talent } = await sb
-      .from<{ id: string }>('talents')
-      .select('id')
+      .from<{ id: string; is_setup_complete: boolean | null }>('talents')
+      .select('id, is_setup_complete')
+      .eq('user_id', userId)
+      .maybeSingle();
+    const { data: company } = await sb
+      .from<{ id: string; is_setup_complete: boolean | null }>('companies')
+      .select('id, is_setup_complete')
       .eq('user_id', userId)
       .maybeSingle();
 
-    if (store) redirect('/store/dashboard');
-    else if (talent) redirect('/talent/dashboard');
-    else redirect('/dashboard');
+    if (store) {
+      if (!(store as any).is_setup_complete) redirect('/store/edit');
+      else redirect('/store/dashboard');
+    } else if (talent) {
+      if (!(talent as any).is_setup_complete) redirect('/talent/edit');
+      else redirect('/talent/dashboard');
+    } else if (company) {
+      if (!(company as any).is_setup_complete) redirect('/company/edit');
+      else redirect('/company/dashboard');
+    } else {
+      redirect('/dashboard');
+    }
   }
 
   return (

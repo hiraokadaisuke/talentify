@@ -20,6 +20,7 @@ export type Database = {
           id: string
           updated_at: string | null
           user_id: string
+          is_setup_complete: boolean | null
         }
         Insert: {
           avatar_url?: string | null
@@ -29,6 +30,7 @@ export type Database = {
           id?: string
           updated_at?: string | null
           user_id: string
+          is_setup_complete?: boolean | null
         }
         Update: {
           avatar_url?: string | null
@@ -38,6 +40,7 @@ export type Database = {
           id?: string
           updated_at?: string | null
           user_id?: string
+          is_setup_complete?: boolean | null
         }
         Relationships: []
       }
@@ -145,6 +148,7 @@ export type Database = {
           rate: number | null
           skills: string[] | null
           social_links: string[] | null
+          is_setup_complete: boolean | null
         }
         Insert: {
           area?: string | null
@@ -180,6 +184,7 @@ export type Database = {
           rate?: number | null
           skills?: string[] | null
           social_links?: string[] | null
+          is_setup_complete?: boolean | null
         }
         Update: {
           area?: string | null
@@ -215,6 +220,7 @@ export type Database = {
           rate?: number | null
           skills?: string[] | null
           social_links?: string[] | null
+          is_setup_complete?: boolean | null
         }
         Relationships: []
       },

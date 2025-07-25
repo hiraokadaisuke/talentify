@@ -169,6 +169,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       social_x: profile.twitter || null,
       social_instagram: profile.instagram || null,
       social_youtube: profile.youtube || null,
+      is_setup_complete: true,
     }
 
     // Debug log before sending
