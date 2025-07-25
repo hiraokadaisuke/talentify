@@ -43,6 +43,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const [photoFiles, setPhotoFiles] = useState<File[]>([])
 
   // プロフィール読み込み
+
   useEffect(() => {
     const loadProfile = async () => {
       const {
@@ -56,12 +57,15 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       }
       setUserId(user.id)
 
-      const fields = 'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitter:x,instagram,youtube' as const
+      const idToLoad = code ?? user.id
+
+      const fields =
+        'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitter:x,instagram,youtube' as const
 
       const { data, error } = await supabase
         .from('talents' as any)
         .select(fields)
-        .eq('id', user.id)
+        .eq('id', idToLoad)
         .maybeSingle<any>()
 
       if (error) {
@@ -85,7 +89,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     }
 
     loadProfile()
-  }, [supabase])
+  }, [supabase, code])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
