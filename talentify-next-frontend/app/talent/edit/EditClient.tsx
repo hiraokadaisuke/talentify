@@ -175,7 +175,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       ...(profile.video_url && { video_url: profile.video_url }),
       ...(profile.avatar_url && { avatar_url: profile.avatar_url }),
       ...(profile.photos.length > 0 && { photos: profile.photos }),
-      ...(profile.twitter && { x: profile.twitter }),
+      ...(profile.twitter && { twitter: profile.twitter }),
       ...(profile.instagram && { instagram: profile.instagram }),
       ...(profile.youtube && { youtube: profile.youtube }),
       is_setup_complete: true,
