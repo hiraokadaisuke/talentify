@@ -92,11 +92,22 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
     }
 
     const message = `第1希望:${date1}\n第2希望:${date2}\n第3希望:${date3}\n希望時間帯:${timeSlot}\n備考:${remarks}`
+    const payload = {
+      user_id: user.id,
+      talent_id: id,
+      message,
+      date: date1,
+      second_date: date2 || null,
+      third_date: date3 || null,
+      time_range: timeSlot || null,
+      remarks: remarks || null,
+      agreed: agree,
+      status: 'pending'
+    }
 
-    const { error } = await supabase.from('offers').insert([
-      { user_id: user.id, talent_id: id, message, date: date1, status: 'pending' }
-    ])
+    const { error } = await supabase.from('offers').insert([payload])
     if (error) {
+      console.log('offer insert error', { payload, error })
       alert('送信に失敗しました')
       return
     }
