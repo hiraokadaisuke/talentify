@@ -150,7 +150,6 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
     const updateData = {
       id: user.id,
-      email: user.email ?? '',
       name: profile.name,
       stage_name: profile.stage_name,
       profile: profile.description || null,

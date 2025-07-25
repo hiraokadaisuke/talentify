@@ -133,7 +133,6 @@ export type Database = {
           birthplace: string | null
           height_cm: number | null
           agency_name: string | null
-          email: string
           experience_years: number | null
           social_x: string | null
           social_instagram: string | null
@@ -169,7 +168,6 @@ export type Database = {
           birthplace?: string | null
           height_cm?: number | null
           agency_name?: string | null
-          email: string
           experience_years?: number | null
           social_x?: string | null
           social_instagram?: string | null
@@ -205,7 +203,6 @@ export type Database = {
           birthplace?: string | null
           height_cm?: number | null
           agency_name?: string | null
-          email?: string
           experience_years?: number | null
           social_x?: string | null
           social_instagram?: string | null

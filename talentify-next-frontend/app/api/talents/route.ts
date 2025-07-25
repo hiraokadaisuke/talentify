@@ -26,7 +26,6 @@ export async function POST(req: Request) {
 
   const {
     name,
-    email,
     profile,
     sns_links,
     area,
@@ -43,7 +42,6 @@ export async function POST(req: Request) {
     .insert([
       {
         name,
-        email,
         profile,
         sns_links,
         area,
