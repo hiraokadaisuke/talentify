@@ -50,7 +50,7 @@ export default function TalentOfferDetailPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('offers')
         .select(
           `id, date, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, user_id, stores(store_name,address,avatar_url)`,
@@ -58,7 +58,7 @@ export default function TalentOfferDetailPage() {
         .eq('id', params.id)
         .single()
 
-      if (data) {
+      if (!error && data) {
         const store = (data as any).stores || {}
         const offerData = { ...(data as any) }
         delete offerData.stores
@@ -68,6 +68,9 @@ export default function TalentOfferDetailPage() {
           store_address: store.address ?? null,
           store_logo_url: store.avatar_url ?? null,
         })
+      } else {
+        console.error("offer fetch error:", error)
+        setOffer(null)
       }
     }
     load()
