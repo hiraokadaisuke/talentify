@@ -4,13 +4,9 @@ export function getRedirectUrl(role: string) {
       ? 'http://localhost:3000'
       : process.env.NEXT_PUBLIC_SITE_URL || 'https://talentify-xi.vercel.app'
 
-  if (role === 'store') {
-    return `${baseUrl}/store/edit`
-  } else if (role === 'talent') {
-    return `${baseUrl}/talent/edit`
-  } else if (role === 'company') {
-    return `${baseUrl}/company/edit`
-  } else {
-    return `${baseUrl}/`
-  }
+  // Always redirect to the auth callback so that Supabase session tokens
+  // contained in the confirmation link can be exchanged properly. The
+  // callback page will handle inserting profile rows and redirecting the user
+  // to the appropriate edit page based on their role stored in localStorage.
+  return `${baseUrl}/auth/callback`
 }
