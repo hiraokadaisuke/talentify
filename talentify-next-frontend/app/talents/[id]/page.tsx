@@ -41,7 +41,7 @@ export default async function Page({ params }: PageProps) {
     video_url: data.video_url,
     avatar_url: data.avatar_url,
     photos: data.photos ?? [],
-    twitter: data.x,
+    twitter: data.twitter,
     instagram: data.instagram,
     youtube: data.youtube,
   }
