@@ -30,7 +30,7 @@ export default async function Page({ params }: PageProps) {
     stage_name: data.stage_name,
     profile: data.profile,
     residence: data.residence,
-    area: data.area ?? [],
+    area: Array.isArray(data.area) ? data.area : JSON.parse(data.area ?? '[]'),
     genre: data.genre,
     availability: data.availability,
     min_hours: data.min_hours,
