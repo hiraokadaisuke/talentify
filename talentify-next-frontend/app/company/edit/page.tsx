@@ -57,15 +57,19 @@ export default function CompanyProfileEditPage() {
       return
     }
 
+    const updateData = {
+      company_name: profile.company_name,
+      display_name: profile.display_name || null,
+      address: profile.address || null,
+      tel: profile.tel || null,
+      description: profile.description || null,
+      avatar_url: profile.avatar_url || null,
+      user_id: user.id,
+    }
+
     const { error } = await supabase
       .from('companies')
-      .upsert(
-        {
-          ...profile,
-          user_id: user.id
-        },
-        { onConflict: 'user_id' }
-      )
+      .upsert(updateData, { onConflict: 'user_id' })
 
     if (error) {
       console.error('Supabase更新エラー:', error)

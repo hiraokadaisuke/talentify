@@ -68,17 +68,16 @@ export default function StoreProfileEditPage() {
     user_id: user.id,
   })
 
+  const updateData = {
+    store_name: profile.store_name,
+    bio: profile.bio || null,
+    avatar_url: profile.avatar_url || null,
+    user_id: user.id,
+  }
+
   const { error } = await supabase
     .from('stores')
-    .upsert(
-      {
-        ...profile,
-        user_id: user.id,
-      },
-      {
-        onConflict: 'user_id', // ✅ string型に修正済
-      }
-    )
+    .upsert(updateData, { onConflict: 'user_id' })
 
   if (error) {
     console.error("🔥 Supabase更新エラー:", {
