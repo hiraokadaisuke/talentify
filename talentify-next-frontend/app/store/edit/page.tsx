@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -9,7 +10,9 @@ import { Button } from "@/components/ui/button"
 const supabase = createClient()
 
 export default function StoreProfileEditPage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [isNew, setIsNew] = useState(false)
   const [profile, setProfile] = useState({
     store_name: '',
     bio: '',
@@ -28,16 +31,25 @@ export default function StoreProfileEditPage() {
         .from('stores')
         .select('store_name, bio, avatar_url')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
-      if (!error && data) {
-        setProfile(data)
-      } else {
+      if (error) {
         console.error("プロフィール読み込みエラー:", {
           message: error?.message,
           details: error?.details,
           hint: error?.hint,
         })
+      }
+
+      if (data) {
+        setProfile({
+          store_name: data.store_name ?? '',
+          bio: data.bio ?? '',
+          avatar_url: data.avatar_url ?? '',
+        })
+        setIsNew(false)
+      } else {
+        setIsNew(true)
       }
       setLoading(false)
     }
@@ -97,7 +109,11 @@ export default function StoreProfileEditPage() {
   } else {
     // ✅ 成功ログ
     console.log("✅ プロフィール保存成功")
-    alert('保存しました')
+    if (isNew) {
+      router.push('/store/edit/complete')
+    } else {
+      router.push('/dashboard?saved=1')
+    }
   }
 }
 
