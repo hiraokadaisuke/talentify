@@ -31,7 +31,7 @@ export default function AuthCallbackPage() {
             .from('talents')
             .insert([
               {
-                user_id: userId,
+                id: userId,
                 email: session.user.email ?? '',
                 name: '',
               },

@@ -19,7 +19,7 @@ export async function getUserRoleInfo(
   const { data: talent } = await supabase
     .from('talents' as any)
     .select('stage_name')
-    .eq('user_id', userId)
+    .eq('id', userId)
     .maybeSingle()
   if (talent) {
     return { role: 'talent', name: (talent as any).stage_name ?? 'タレント' }

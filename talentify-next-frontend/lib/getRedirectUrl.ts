@@ -8,6 +8,8 @@ export function getRedirectUrl(role: string) {
     return `${baseUrl}/store/edit`
   } else if (role === 'talent') {
     return `${baseUrl}/talent/edit`
+  } else if (role === 'company') {
+    return `${baseUrl}/company/edit`
   } else {
     return `${baseUrl}/`
   }
