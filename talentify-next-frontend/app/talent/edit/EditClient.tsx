@@ -176,7 +176,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
     const { error } = await supabase
       .from('talents' as any)
-      .upsert(updateData, { onConflict: 'id' })
+      .update(updateData)
+      .eq('id', user.id)
 
     if (error) {
       console.error('talents の保存に失敗:', error)
