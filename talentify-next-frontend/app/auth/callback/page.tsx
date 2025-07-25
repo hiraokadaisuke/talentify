@@ -11,6 +11,19 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const checkAndRedirect = async () => {
+      // When the user clicks the confirmation link from the email, Supabase
+      // appends an auth `code` to the callback URL. We need to exchange this
+      // code for a session so that `getSession` returns a valid session.
+      const urlParams = new URLSearchParams(window.location.search)
+      const code = urlParams.get('code')
+
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        if (error) {
+          console.error('Failed to exchange code:', error)
+        }
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession()
