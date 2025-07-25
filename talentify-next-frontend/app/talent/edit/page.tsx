@@ -44,8 +44,10 @@ export default function TalentProfileEditPage() {
     const loadProfile = async () => {
       const {
         data: { user },
+        error: authError,
       } = await supabase.auth.getUser()
-      if (!user) {
+      if (authError || !user) {
+        console.error('ユーザー取得失敗:', authError)
         setLoading(false)
         return
       }
@@ -56,10 +58,10 @@ export default function TalentProfileEditPage() {
       const { data, error } = await supabase
         .from('talents' as any)
         .select(fields)
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .maybeSingle<any>()
 
-      if (error) {
+      if (error || !data) {
         console.error('プロフィールの取得に失敗:', error)
       }
 
@@ -139,8 +141,17 @@ export default function TalentProfileEditPage() {
       profile.photos = urls
     }
 
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      console.error('ユーザー取得失敗:', authError)
+      alert('ユーザー情報の取得に失敗しました')
+      return
+    }
+
     const updateData = {
-      user_id: userId,
+      id: user.id,
+      email: user.email ?? '',
+      user_id: user.id,
       name: profile.name || '',
       stage_name: profile.stage_name || '',
       profile: profile.description || '',
@@ -164,24 +175,9 @@ export default function TalentProfileEditPage() {
     // Debug log before sending
     console.log('📝 updateData:', updateData)
 
-    const { data: existing } = await supabase
+    const { error } = await supabase
       .from('talents' as any)
-      .select('id')
-      .eq('user_id', userId)
-      .maybeSingle()
-
-    let error
-
-    if (existing) {
-      ({ error } = await supabase
-        .from('talents' as any)
-        .update(updateData)
-        .eq('user_id', userId))
-    } else {
-      ({ error } = await supabase
-        .from('talents' as any)
-        .insert(updateData))
-    }
+      .upsert(updateData, { onConflict: 'id' })
 
     if (error) {
       console.error('talents の保存に失敗:', error)
@@ -201,7 +197,7 @@ export default function TalentProfileEditPage() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">基本情報</h2>
         <div>
-          <label className="block font-semibold">本名</label>
+          <label className="block font-semibold">本名<span className="text-red-500 ml-1">*</span></label>
           <input
             type="text"
             name="name"
@@ -211,7 +207,7 @@ export default function TalentProfileEditPage() {
           />
         </div>
         <div>
-          <label className="block font-semibold">芸名</label>
+          <label className="block font-semibold">芸名<span className="text-red-500 ml-1">*</span></label>
           <input
             type="text"
             name="stage_name"
@@ -221,7 +217,7 @@ export default function TalentProfileEditPage() {
           />
         </div>
         <div>
-          <label className="block font-semibold">自己紹介</label>
+          <label className="block font-semibold">自己紹介<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <textarea
             name="description"
             maxLength={300}
@@ -266,7 +262,7 @@ export default function TalentProfileEditPage() {
           </div>
         </div>
         <div>
-          <label className="block font-semibold">ジャンル</label>
+          <label className="block font-semibold">ジャンル<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <select
             name="genre"
             value={profile.genre}
@@ -339,7 +335,7 @@ export default function TalentProfileEditPage() {
           </label>
         </div>
         <div>
-          <label className="block font-semibold">出演料金目安</label>
+          <label className="block font-semibold">出演料金目安<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="number"
             name="rate"
@@ -350,7 +346,7 @@ export default function TalentProfileEditPage() {
           />
         </div>
         <div>
-          <label className="block font-semibold">NG事項・特記事項</label>
+          <label className="block font-semibold">NG事項・特記事項<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <textarea
             name="notes"
             value={profile.notes}
@@ -365,7 +361,7 @@ export default function TalentProfileEditPage() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">実績・PR</h2>
         <div>
-          <label className="block font-semibold">来店実績</label>
+          <label className="block font-semibold">来店実績<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <textarea
             name="achievements"
             value={profile.achievements}
@@ -375,7 +371,7 @@ export default function TalentProfileEditPage() {
           />
         </div>
         <div>
-          <label className="block font-semibold">動画URL</label>
+          <label className="block font-semibold">動画URL<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="url"
             name="video_url"
@@ -398,7 +394,7 @@ export default function TalentProfileEditPage() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">SNSリンク</h2>
         <div>
-          <label className="block font-semibold">X (旧Twitter)</label>
+          <label className="block font-semibold">X (旧Twitter)<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="url"
             name="twitter"
@@ -408,7 +404,7 @@ export default function TalentProfileEditPage() {
           />
         </div>
         <div>
-          <label className="block font-semibold">Instagram</label>
+          <label className="block font-semibold">Instagram<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="url"
             name="instagram"
@@ -418,7 +414,7 @@ export default function TalentProfileEditPage() {
           />
         </div>
         <div>
-          <label className="block font-semibold">YouTube</label>
+          <label className="block font-semibold">YouTube<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="url"
             name="youtube"
