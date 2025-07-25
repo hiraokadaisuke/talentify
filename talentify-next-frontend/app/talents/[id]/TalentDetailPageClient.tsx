@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
 import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,19 +17,19 @@ type Talent = {
   id: string
   user_id: string | null
   stage_name: string
-  birthdate?: string | null
-  gender?: string | null
+  profile?: string | null
   residence?: string | null
-  birthplace?: string | null
-  height?: number | null
-  agency?: string | null
-  agency_url?: string | null
-  profile_photo?: string | null
-  photos: string[]
-  hobby?: string | null
-  certifications?: string | null
+  area: string[]
+  genre?: string | null
+  availability?: string | null
+  min_hours?: string | null
+  transportation?: string | null
+  rate?: number | null
   notes?: string | null
   media_appearance?: string | null
+  video_url?: string | null
+  avatar_url?: string | null
+  photos: string[]
   twitter?: string | null
   instagram?: string | null
   youtube?: string | null
@@ -81,16 +82,6 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   if (loadingTalent || roleLoading) return <div>読み込み中...</div>
   if (!talent) return <div>タレントが見つかりませんでした</div>
 
-  const calcAge = (d: string) => {
-    const today = new Date()
-    const birth = new Date(d)
-    let age = today.getFullYear() - birth.getFullYear()
-    const m = today.getMonth() - birth.getMonth()
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-    return age
-  }
-
-  const age = talent.birthdate ? calcAge(talent.birthdate) : null
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -118,9 +109,9 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       <Card>
         <CardContent className="flex flex-col sm:flex-row gap-4 items-start">
           <div className="w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-            {talent.profile_photo && (
+            {talent.avatar_url && (
               <Image
-                src={talent.profile_photo}
+                src={talent.avatar_url}
                 alt={talent.stage_name}
                 width={192}
                 height={192}
@@ -128,30 +119,9 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
               />
             )}
           </div>
-          <div className="flex-1 space-y-1 text-sm">
-            <h1 className="text-2xl font-bold">{talent.stage_name}</h1>
-            {age != null && <p>年齢: {age}</p>}
-            {talent.gender && <p>性別: {talent.gender}</p>}
-            {talent.residence && <p>居住地: {talent.residence}</p>}
-            {talent.birthplace && <p>出身地: {talent.birthplace}</p>}
-            {talent.height && <p>身長: {talent.height}cm</p>}
-            {talent.agency && (
-              <p>
-                所属:{' '}
-                {talent.agency_url ? (
-                  <a
-                    href={talent.agency_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    {talent.agency}
-                  </a>
-                ) : (
-                  talent.agency
-                )}
-              </p>
-            )}
+          <div className="flex-1 space-y-2 text-sm">
+            <h1 className="text-3xl font-bold">{talent.stage_name}</h1>
+            {talent.profile && <p className="whitespace-pre-line">{talent.profile}</p>}
             <div className="flex gap-3 mt-2 text-lg">
               {talent.twitter && (
                 <a href={talent.twitter} target="_blank" rel="noopener noreferrer">
@@ -173,11 +143,80 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
         </CardContent>
       </Card>
 
+      {(talent.residence || talent.area.length > 0 || talent.genre) && (
+        <Card>
+          <CardContent className="space-y-2 text-sm">
+            {talent.residence && <p>拠点地域: {talent.residence}</p>}
+            {talent.area.length > 0 && (
+              <div>
+                <p className="font-semibold">対応エリア</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {talent.area.map(p => (
+                    <Badge key={p} variant="secondary">
+                      {p}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            {talent.genre && <p>ジャンル: {talent.genre}</p>}
+          </CardContent>
+        </Card>
+      )}
+
+      {(talent.availability || talent.min_hours || talent.transportation || talent.rate || talent.notes) && (
+        <Card>
+          <CardContent className="space-y-2 text-sm">
+            {talent.availability && <p>出演可能時間帯: {talent.availability}</p>}
+            {talent.min_hours && <p>最低拘束時間: {talent.min_hours}</p>}
+            {talent.transportation && <p>交通費扱い: {talent.transportation}</p>}
+            {talent.rate != null && <p>出演料金目安: {talent.rate.toLocaleString()}円</p>}
+            {talent.notes && <p>NG事項・特記事項: {talent.notes}</p>}
+          </CardContent>
+        </Card>
+      )}
+
+      {(talent.media_appearance || talent.video_url) && (
+        <Card>
+          <CardContent className="space-y-2 text-sm">
+            {talent.media_appearance && (
+              <div>
+                <p className="font-semibold">来店実績／PR文</p>
+                <p className="whitespace-pre-line">{talent.media_appearance}</p>
+              </div>
+            )}
+            {talent.video_url && (
+              (() => {
+                const m = talent.video_url.match(/(?:youtu.be\/|youtube.com\/.+v=)([^&]+)/)
+                return m ? (
+                  <div className="aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${m[1]}`}
+                      className="w-full h-full"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <a
+                    href={talent.video_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 underline"
+                  >
+                    動画を見る
+                  </a>
+                )
+              })()
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {Array.isArray(talent.photos) && talent.photos.length > 0 && (
         <Card>
           <CardContent>
             <div className="flex overflow-x-auto gap-3 pb-2">
-              {(talent.photos ?? []).map((p, i) => (
+              {talent.photos.map((p, i) => (
                 <div
                   key={i}
                   className="flex-none w-40 h-40 rounded-lg overflow-hidden bg-gray-100"
@@ -195,20 +234,6 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
           </CardContent>
         </Card>
       )}
-
-      <Card>
-        <CardContent className="space-y-2 text-sm">
-          {talent.hobby && <p>趣味: {talent.hobby}</p>}
-          {talent.certifications && <p>資格: {talent.certifications}</p>}
-          {talent.notes && <p>備考: {talent.notes}</p>}
-          {talent.media_appearance && (
-            <div>
-              <p className="font-semibold">メディア出演歴</p>
-              <p className="whitespace-pre-line">{talent.media_appearance}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       <div className="space-y-2">
         {role === 'store' && (
