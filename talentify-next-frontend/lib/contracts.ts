@@ -17,7 +17,7 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
 
   const { data: offers } = await supabase
     .from('offers')
-    .select('id, talent_id, date')
+    .select('id, talent_id, visit_date1')
     .eq('user_id', user.id)
 
   if (!offers) return []
@@ -44,7 +44,7 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
     results.push({
       offer_id: offer.id,
       talent_name: talent?.stage_name || '',
-      performance_date: offer.date,
+      performance_date: offer.visit_date1,
       amount: payment?.amount ?? null,
       pdf_url: data.publicUrl || null,
     })

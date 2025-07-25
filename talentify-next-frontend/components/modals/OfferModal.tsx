@@ -31,14 +31,14 @@ const TEMPLATE_KEY = 'offer_templates'
 export default function OfferModal({ open, onOpenChange, initialDate }: OfferModalProps) {
   const supabase = createClient()
   const [talents, setTalents] = useState<{ id: string; stage_name: string | null }[]>([])
-  const [date, setDate] = useState('')
+  const [visitDate1, setVisitDate1] = useState('')
   const [talentId, setTalentId] = useState('')
   const [message, setMessage] = useState('')
   const [templates, setTemplates] = useState<Template[]>([])
 
   useEffect(() => {
     if (open) {
-      if (initialDate) setDate(formatDate(initialDate))
+      if (initialDate) setVisitDate1(formatDate(initialDate))
       loadTalents()
       loadTemplates()
     }
@@ -83,7 +83,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
       return
     }
     const { error } = await supabase.from('offers').insert([
-      { user_id: user.id, talent_id: talentId, message, date, status: 'pending' },
+      { user_id: user.id, talent_id: talentId, message, visit_date1: visitDate1, status: 'pending' },
     ])
     if (error) {
       alert('送信に失敗しました')
@@ -101,7 +101,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">日付</label>
-            <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
+            <Input type="date" value={visitDate1} onChange={e => setVisitDate1(e.target.value)} />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">演者</label>

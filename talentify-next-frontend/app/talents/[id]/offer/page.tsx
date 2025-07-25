@@ -14,7 +14,7 @@ export default function OfferPage() {
   const { id } = useParams()
   const talentId = Array.isArray(id) ? id[0] : id
   const [message, setMessage] = useState('')
-  const [date, setDate] = useState('')
+  const [visitDate1, setVisitDate1] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,7 +31,7 @@ export default function OfferPage() {
         user_id: user.id,
         talent_id: talentId,
         message: message,
-        date: date,
+        visit_date1: visitDate1,
         status: 'pending',
       },
     ])
@@ -62,8 +62,8 @@ export default function OfferPage() {
           <label className="block text-sm font-medium mb-1">希望日</label>
           <Input
             type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
+            value={visitDate1}
+            onChange={e => setVisitDate1(e.target.value)}
           />
         </div>
         <div>

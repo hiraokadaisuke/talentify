@@ -13,7 +13,7 @@ import ja from 'date-fns/locale/ja'
 
 interface Offer {
   id: string
-  date: string
+  visit_date1: string
   message: string
   status: string | null
   respond_deadline: string | null
@@ -21,7 +21,7 @@ interface Offer {
   start_time?: string | null
   end_time?: string | null
   reward?: number | null
-  notes?: string | null
+  note?: string | null
   question_allowed?: boolean | null
   user_id?: string
   store_name?: string | null
@@ -53,7 +53,7 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-          `id, date, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, user_id, stores(store_name,address,avatar_url)`,
+          `id, visit_date1, message, status, respond_deadline, event_name, start_time, end_time, reward, note, question_allowed, user_id, stores(store_name,address,avatar_url)`,
         )
         .eq('id', params.id)
         .single()
@@ -136,16 +136,16 @@ export default function TalentOfferDetailPage() {
           {offer.event_name && <div>イベント名: {offer.event_name}</div>}
           <div>
             日付:{' '}
-            {format(parseISO(offer.date), 'M月d日(E)', { locale: ja })}
+            {format(parseISO(offer.visit_date1), 'M月d日(E)', { locale: ja })}
           </div>
           {timeRange && <div>時間帯: {timeRange}</div>}
           {typeof offer.reward === 'number' && (
             <div>報酬: {offer.reward.toLocaleString()}円</div>
           )}
           <div className="whitespace-pre-wrap">{offer.message}</div>
-          {offer.notes && (
+          {offer.note && (
             <div className="p-2 bg-muted rounded text-sm whitespace-pre-wrap">
-              {offer.notes}
+              {offer.note}
             </div>
           )}
         </CardContent>

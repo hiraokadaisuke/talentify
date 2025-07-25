@@ -12,7 +12,7 @@ import { format, isBefore, parseISO, addDays } from 'date-fns'
 
 type Offer = {
   id: string
-  date: string
+  visit_date1: string
   message: string
   status: string | null
   respond_deadline: string | null
@@ -35,7 +35,7 @@ export default function TalentOffersPage() {
 
       const { data, error } = await supabase
         .from('offers' as any)
-        .select('id, date, message, status, respond_deadline')
+        .select('id, visit_date1, message, status, respond_deadline')
         .eq('talent_id', user.id) // ログイン中タレント宛のみに限定
 
       if (error) {
@@ -67,7 +67,7 @@ export default function TalentOffersPage() {
           {offers.map(offer => {
             const deadline =
               offer.respond_deadline ||
-              format(addDays(parseISO(offer.date), 3), 'yyyy-MM-dd')
+              format(addDays(parseISO(offer.visit_date1), 3), 'yyyy-MM-dd')
             const isExpired = isBefore(parseISO(deadline), new Date())
             const statusInfo = statusMap[offer.status ?? 'pending']
 

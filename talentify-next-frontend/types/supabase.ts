@@ -337,12 +337,12 @@ export type Database = {
           user_id: string
           talent_id: string
           message: string
-          date: string
-          second_date: string | null
-          third_date: string | null
+          visit_date1: string
+          visit_date2: string | null
+          visit_date3: string | null
           time_range: string | null
-          remarks: string | null
-          agreed: boolean | null
+          note: string | null
+          is_agreed: boolean | null
           created_at: string | null
           status: string | null
         }
@@ -351,12 +351,12 @@ export type Database = {
           user_id: string
           talent_id: string
           message: string
-          date: string
-          second_date?: string | null
-          third_date?: string | null
+          visit_date1: string
+          visit_date2?: string | null
+          visit_date3?: string | null
           time_range?: string | null
-          remarks?: string | null
-          agreed?: boolean | null
+          note?: string | null
+          is_agreed?: boolean | null
           created_at?: string | null
           status?: string | null
         }
@@ -365,12 +365,12 @@ export type Database = {
           user_id?: string
           talent_id?: string
           message?: string
-          date?: string
-          second_date?: string | null
-          third_date?: string | null
+          visit_date1?: string
+          visit_date2?: string | null
+          visit_date3?: string | null
           time_range?: string | null
-          remarks?: string | null
-          agreed?: boolean | null
+          note?: string | null
+          is_agreed?: boolean | null
           created_at?: string | null
           status?: string | null
         }
