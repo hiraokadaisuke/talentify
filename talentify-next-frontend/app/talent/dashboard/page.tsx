@@ -7,6 +7,7 @@ import ProfileProgressCard from '@/components/ProfileProgressCard'
 import NotificationListCard from '@/components/NotificationListCard'
 import { CardSkeleton } from '@/components/ui/skeleton'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function TalentDashboard() {
   const pending = 2
@@ -15,10 +16,20 @@ export default function TalentDashboard() {
   ]
   const unread = 5
   const [loading, setLoading] = useState(true)
+  const [toast, setToast] = useState<string | null>(null)
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 500)
   }, [])
+
+  useEffect(() => {
+    if (searchParams.get('saved') === '1') {
+      setToast('保存しました')
+      const timer = setTimeout(() => setToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [searchParams])
 
   return (
     <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
@@ -39,6 +50,11 @@ export default function TalentDashboard() {
             <ProfileProgressCard />
           </div>
         </>
+      )}
+      {toast && (
+        <div className='fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow'>
+          {toast}
+        </div>
       )}
     </div>
   )

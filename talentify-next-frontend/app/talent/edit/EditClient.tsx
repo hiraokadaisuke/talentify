@@ -2,6 +2,7 @@
 
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 const prefectures = [
@@ -14,8 +15,10 @@ const minHourOptions = ['1時間','2時間','3時間以上']
 const supabase = createClient()
 
 export default function TalentProfileEditPageClient({ code }: { code?: string | null }) {
+  const router = useRouter()
   const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isNew, setIsNew] = useState(false)
   const [profile, setProfile] = useState({
     name: '',
     stage_name: '',
@@ -61,11 +64,11 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         .eq('id', user.id)
         .maybeSingle<any>()
 
-      if (error || !data) {
+      if (error) {
         console.error('プロフィールの取得に失敗:', error)
       }
 
-      if (data)
+      if (data) {
         setProfile({
           ...data,
           area: (data.area as string[] | null) ?? [],
@@ -74,6 +77,10 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           notes: data.notes ?? '',
           achievements: data.achievements ?? '',
         })
+        setIsNew(false)
+      } else {
+        setIsNew(true)
+      }
       setLoading(false)
     }
 
@@ -183,7 +190,11 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       console.error('talents の保存に失敗:', error)
       alert('保存に失敗しました')
     } else {
-      alert('保存しました')
+      if (isNew) {
+        router.push('/talent/edit/complete')
+      } else {
+        router.push('/talent/dashboard?saved=1')
+      }
     }
   }
 
