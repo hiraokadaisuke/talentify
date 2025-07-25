@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import EditClient from './EditClient'
 
@@ -14,6 +15,10 @@ export default async function Page({ searchParams }: { searchParams: { code?: st
   }
 
   const code = searchParams.code ?? session.user.id
+
+  if (searchParams.code && searchParams.code !== session.user.id) {
+    redirect(`/talent/edit/${searchParams.code}`)
+  }
 
   if (code) {
     const { data, error } = await supabase
