@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import EditClient from './EditClient'
 
@@ -6,9 +5,16 @@ export const dynamic = 'force-dynamic'
 
 export default async function Page({ searchParams }: { searchParams: { code?: string } }) {
   const supabase = await createClient()
-  const code = searchParams.code || null
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
-  // If code provided, fetch that talent; otherwise fetch logged-in user
+  if (!session) {
+    return <main className="p-4">ログインしてください</main>
+  }
+
+  const code = searchParams.code ?? session.user.id
+
   if (code) {
     const { data, error } = await supabase
       .from('talents')
@@ -17,7 +23,7 @@ export default async function Page({ searchParams }: { searchParams: { code?: st
       .maybeSingle()
 
     if (error || !data) {
-      notFound()
+      return <main className="p-4">このプロフィールは存在しません</main>
     }
   }
 
