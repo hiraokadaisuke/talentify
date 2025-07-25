@@ -35,9 +35,9 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     video_url: '',
     avatar_url: '',
     photos: [] as string[],
-    twitter: '',
-    instagram: '',
-    youtube: ''
+    twitterUrl: '',
+    instagramUrl: '',
+    youtubeUrl: ''
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [photoFiles, setPhotoFiles] = useState<File[]>([])
@@ -60,7 +60,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       const idToLoad = code ?? user.id
 
       const fields =
-        'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitter:x,instagram,youtube' as const
+        'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url' as const
 
       const { data, error } = await supabase
         .from('talents' as any)
@@ -80,6 +80,9 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           genre: data.genre ?? '',
           notes: data.notes ?? '',
           achievements: data.achievements ?? '',
+          twitterUrl: data.twitterUrl ?? '',
+          instagramUrl: data.instagramUrl ?? '',
+          youtubeUrl: data.youtubeUrl ?? '',
         })
         setIsNew(false)
       } else {
@@ -175,9 +178,9 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       ...(profile.video_url && { video_url: profile.video_url }),
       ...(profile.avatar_url && { avatar_url: profile.avatar_url }),
       ...(profile.photos.length > 0 && { photos: profile.photos }),
-      ...(profile.twitter && { twitter: profile.twitter }),
-      ...(profile.instagram && { instagram: profile.instagram }),
-      ...(profile.youtube && { youtube: profile.youtube }),
+      ...(profile.twitterUrl && { twitter_url: profile.twitterUrl }),
+      ...(profile.instagramUrl && { instagram_url: profile.instagramUrl }),
+      ...(profile.youtubeUrl && { youtube_url: profile.youtubeUrl }),
       is_setup_complete: true,
     }
 
@@ -411,8 +414,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">X (旧Twitter)<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="url"
-            name="twitter"
-            value={profile.twitter}
+            name="twitterUrl"
+            value={profile.twitterUrl}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
@@ -421,8 +424,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">Instagram<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="url"
-            name="instagram"
-            value={profile.instagram}
+            name="instagramUrl"
+            value={profile.instagramUrl}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
@@ -431,8 +434,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">YouTube<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <input
             type="url"
-            name="youtube"
-            value={profile.youtube}
+            name="youtubeUrl"
+            value={profile.youtubeUrl}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
