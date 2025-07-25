@@ -45,8 +45,10 @@ export default function AuthCallbackPage() {
             .insert([
               {
                 id: userId,
+                user_id: userId,
                 email: session.user.email ?? '',
                 name: '',
+                is_setup_complete: false,
               },
             ])
           if (insertError) {
