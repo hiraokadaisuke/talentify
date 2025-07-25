@@ -40,6 +40,11 @@ export async function middleware(req: NextRequest) {
       session!.user.id
     )
     const editPath = role ? `/${role}/edit` : null
+
+    if (editPath && pathname.startsWith(editPath)) {
+      return res
+    }
+
     if (role && isSetupComplete === false && !pathname.startsWith(editPath || '')) {
       const url = req.nextUrl.clone()
       url.pathname = editPath!
