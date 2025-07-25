@@ -15,12 +15,12 @@ export default async function Page({ params }: PageProps) {
   const { data, error } = await supabase
     .from('talents')
     .select(
-      'id,user_id,stage_name,birthdate,gender,residence,birthplace,height_cm,agency_name,agency_url,avatar_url,photos,bio_hobby,bio_certifications,notes,media_appearance,profile,x,instagram,youtube'
+      'id,user_id,stage_name,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,media_appearance,video_url,avatar_url,photos,x,instagram,youtube,is_setup_complete'
     )
     .eq('id', params.id)
     .maybeSingle<any>()
 
-  if (error || !data) {
+  if (error || !data || data.is_setup_complete === false) {
     notFound()
   }
 
@@ -28,20 +28,19 @@ export default async function Page({ params }: PageProps) {
     id: data.id,
     user_id: data.user_id,
     stage_name: data.stage_name,
-    birthdate: data.birthdate,
-    gender: data.gender,
-    residence: data.residence,
-    birthplace: data.birthplace,
-    height: data.height_cm,
-    agency: data.agency_name,
-    agency_url: data.agency_url,
-    profile_photo: data.avatar_url,
-    photos: data.photos ?? [],
-    hobby: data.bio_hobby,
-    certifications: data.bio_certifications,
-    notes: data.notes,
     profile: data.profile,
+    residence: data.residence,
+    area: data.area ?? [],
+    genre: data.genre,
+    availability: data.availability,
+    min_hours: data.min_hours,
+    transportation: data.transportation,
+    rate: data.rate,
+    notes: data.notes,
     media_appearance: data.media_appearance,
+    video_url: data.video_url,
+    avatar_url: data.avatar_url,
+    photos: data.photos ?? [],
     twitter: data.x,
     instagram: data.instagram,
     youtube: data.youtube,
