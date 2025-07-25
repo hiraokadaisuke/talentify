@@ -53,7 +53,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       }
       setUserId(user.id)
 
-      const fields = 'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitter:social_x,instagram:social_instagram,youtube:social_youtube' as const
+      const fields = 'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitter:x,instagram,youtube' as const
 
       const { data, error } = await supabase
         .from('talents' as any)
@@ -149,25 +149,24 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     }
 
     const updateData = {
-      id: user.id,
       name: profile.name,
       stage_name: profile.stage_name,
-      profile: profile.description || null,
-      residence: profile.residence || null,
-      area: profile.area.length > 0 ? profile.area : null,
-      genre: profile.genre || null,
-      availability: profile.availability || null,
-      min_hours: profile.min_hours || null,
-      transportation: profile.transportation || null,
-      rate: profile.rate !== '' ? Number(profile.rate) : null,
-      notes: profile.notes || null,
-      media_appearance: profile.achievements || null,
-      video_url: profile.video_url || null,
-      avatar_url: profile.avatar_url || null,
-      photos: profile.photos.length > 0 ? profile.photos : null,
-      social_x: profile.twitter || null,
-      social_instagram: profile.instagram || null,
-      social_youtube: profile.youtube || null,
+      ...(profile.description && { profile: profile.description }),
+      ...(profile.residence && { residence: profile.residence }),
+      ...(profile.area.length > 0 && { area: profile.area }),
+      ...(profile.genre && { genre: profile.genre }),
+      ...(profile.availability && { availability: profile.availability }),
+      ...(profile.min_hours && { min_hours: profile.min_hours }),
+      ...(profile.transportation && { transportation: profile.transportation }),
+      ...(profile.rate !== '' && { rate: Number(profile.rate) }),
+      ...(profile.notes && { notes: profile.notes }),
+      ...(profile.achievements && { media_appearance: profile.achievements }),
+      ...(profile.video_url && { video_url: profile.video_url }),
+      ...(profile.avatar_url && { avatar_url: profile.avatar_url }),
+      ...(profile.photos.length > 0 && { photos: profile.photos }),
+      ...(profile.twitter && { x: profile.twitter }),
+      ...(profile.instagram && { instagram: profile.instagram }),
+      ...(profile.youtube && { youtube: profile.youtube }),
       is_setup_complete: true,
     }
 
