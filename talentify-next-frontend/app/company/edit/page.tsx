@@ -65,6 +65,7 @@ export default function CompanyProfileEditPage() {
       description: profile.description || null,
       avatar_url: profile.avatar_url || null,
       user_id: user.id,
+      is_setup_complete: true,
     }
 
     const { error } = await supabase

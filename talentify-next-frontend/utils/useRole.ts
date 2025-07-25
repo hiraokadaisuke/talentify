@@ -7,6 +7,7 @@ const supabase = createClient()
 
 export function useUserRole() {
   const [role, setRole] = useState<UserRole | null>(null)
+  const [isSetupComplete, setIsSetupComplete] = useState<boolean | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -18,13 +19,14 @@ export function useUserRole() {
         setLoading(false)
         return
       }
-      const { role: r } = await getUserRoleInfo(supabase, user.id)
+      const { role: r, isSetupComplete } = await getUserRoleInfo(supabase, user.id)
       setRole(r)
+      setIsSetupComplete(isSetupComplete)
       setLoading(false)
     }
 
     fetchRole()
   }, [])
 
-  return { role, loading }
+  return { role, isSetupComplete, loading }
 }
