@@ -105,7 +105,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   }
 
   return (
-    <main className="max-w-3xl mx-auto p-4 space-y-6">
+    <main className="max-w-3xl mx-auto p-4 space-y-6 mt-16 scroll-mt-16">
       <Card>
         <CardContent className="flex flex-col sm:flex-row gap-4 items-start">
           <div className="w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
