@@ -96,12 +96,12 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       user_id: user.id,
       talent_id: id,
       message,
-      visit_date1: visitDate1,
-      visit_date2: visitDate2 || null,
-      visit_date3: visitDate3 || null,
+      date: visitDate1,
+      second_date: visitDate2 || null,
+      third_date: visitDate3 || null,
       time_range: timeRange || null,
-      note: note || null,
-      is_agreed: isAgreed,
+      remarks: note || null,
+      agreed: isAgreed,
       status: 'pending'
     }
 
