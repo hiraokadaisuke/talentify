@@ -47,12 +47,12 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [userId, setUserId] = useState<string | null>(null)
   const { role, loading: roleLoading } = useUserRole()
   const [showForm, setShowForm] = useState(false)
-  const [date1, setDate1] = useState('')
-  const [date2, setDate2] = useState('')
-  const [date3, setDate3] = useState('')
-  const [timeSlot, setTimeSlot] = useState('')
+  const [date, setDate] = useState('')
+  const [secondDate, setSecondDate] = useState('')
+  const [thirdDate, setThirdDate] = useState('')
+  const [timeRange, setTimeRange] = useState('')
   const [remarks, setRemarks] = useState('')
-  const [agree, setAgree] = useState(false)
+  const [agreed, setAgreed] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   useEffect(() => {
@@ -91,17 +91,17 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       return
     }
 
-    const message = `第1希望:${date1}\n第2希望:${date2}\n第3希望:${date3}\n希望時間帯:${timeSlot}\n備考:${remarks}`
+    const message = `第1希望:${date}\n第2希望:${secondDate}\n第3希望:${thirdDate}\n希望時間帯:${timeRange}\n備考:${remarks}`
     const payload = {
       user_id: user.id,
       talent_id: id,
       message,
-      date: date1,
-      second_date: date2 || null,
-      third_date: date3 || null,
-      time_range: timeSlot || null,
+      date,
+      second_date: secondDate || null,
+      third_date: thirdDate || null,
+      time_range: timeRange || null,
       remarks: remarks || null,
-      agreed: agree,
+      agreed,
       status: 'pending'
     }
 
@@ -258,35 +258,35 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                   <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded">
                     <div>
                       <label className="block text-sm font-medium mb-1">来店希望日(第1希望)</label>
-                      <Input type="date" value={date1} onChange={e => setDate1(e.target.value)} required />
+                      <Input type="date" value={date} onChange={e => setDate(e.target.value)} required />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">来店希望日(第2希望)</label>
-                      <Input type="date" value={date2} onChange={e => setDate2(e.target.value)} />
+                      <Input type="date" value={secondDate} onChange={e => setSecondDate(e.target.value)} />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">来店希望日(第3希望)</label>
-                      <Input type="date" value={date3} onChange={e => setDate3(e.target.value)} />
+                      <Input type="date" value={thirdDate} onChange={e => setThirdDate(e.target.value)} />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">希望時間帯</label>
-                      <Input value={timeSlot} onChange={e => setTimeSlot(e.target.value)} placeholder="例: 10:00〜18:00" />
+                      <Input value={timeRange} onChange={e => setTimeRange(e.target.value)} placeholder="例: 10:00〜18:00" />
                     </div>
                     <div className="flex items-center gap-2">
                       <input
-                        id="agree"
+                        id="agreed"
                         type="checkbox"
-                        checked={agree}
-                        onChange={e => setAgree(e.target.checked)}
+                        checked={agreed}
+                        onChange={e => setAgreed(e.target.checked)}
                         required
                       />
-                      <label htmlFor="agree" className="text-sm">出演条件に同意します</label>
+                      <label htmlFor="agreed" className="text-sm">出演条件に同意します</label>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">備考（任意）</label>
                       <Textarea value={remarks} onChange={e => setRemarks(e.target.value)} />
                     </div>
-                    <Button type="submit" disabled={!agree}>送信</Button>
+                    <Button type="submit" disabled={!agreed}>送信</Button>
                   </form>
                 )}
               </>
