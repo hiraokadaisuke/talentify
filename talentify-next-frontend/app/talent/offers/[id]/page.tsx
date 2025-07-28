@@ -60,15 +60,15 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-          `id, date, second_date, third_date, time_range, created_at, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, user_id, stores(store_name,store_address,avatar_url)`,
+          `id, date, second_date, third_date, time_range, created_at, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, user_id, store:store_id(store_name,store_address,avatar_url)`,
         )
         .eq('id', params.id)
         .single()
 
       if (!error && data) {
-        const store = (data as any).stores || {}
+        const store = (data as any).store || {}
         const offerData = { ...(data as any) }
-        delete offerData.stores
+        delete offerData.store
         setOffer({
           ...offerData,
           store_name: store.store_name ?? null,
