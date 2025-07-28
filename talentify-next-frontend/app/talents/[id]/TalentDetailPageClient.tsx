@@ -102,7 +102,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       time_range: timeRange || null,
       notes: note || null,
       agreed: isAgreed,
-      status: 'pending'
+      status: 'pending', // ensure status_type is valid
     }
 
     const { error } = await supabase.from('offers').insert([payload])

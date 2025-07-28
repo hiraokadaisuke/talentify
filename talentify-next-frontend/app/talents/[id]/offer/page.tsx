@@ -32,7 +32,7 @@ export default function OfferPage() {
         talent_id: talentId,
         message: message,
         date: date,
-        status: 'pending',
+        status: 'pending', // "offer_created" is not allowed
       },
     ])
 

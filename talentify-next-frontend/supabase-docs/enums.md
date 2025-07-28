@@ -71,6 +71,7 @@
 - approved
 - rejected
 - completed
+- offer_created <!-- TODO: If new status is required, add this value to Supabase enum -->
 
 ### public.visit_status
 - scheduled
