@@ -341,7 +341,7 @@ export type Database = {
           second_date: string | null
           third_date: string | null
           time_range: string | null
-          remarks: string | null
+          notes: string | null
           agreed: boolean | null
           created_at: string | null
           status: string | null
@@ -355,7 +355,7 @@ export type Database = {
           second_date?: string | null
           third_date?: string | null
           time_range?: string | null
-          remarks?: string | null
+          notes?: string | null
           agreed?: boolean | null
           created_at?: string | null
           status?: string | null
@@ -369,7 +369,7 @@ export type Database = {
           second_date?: string | null
           third_date?: string | null
           time_range?: string | null
-          remarks?: string | null
+          notes?: string | null
           agreed?: boolean | null
           created_at?: string | null
           status?: string | null
