@@ -100,7 +100,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       second_date: visitDate2 || null,
       third_date: visitDate3 || null,
       time_range: timeRange || null,
-      remarks: note || null,
+      notes: note || null,
       agreed: isAgreed,
       status: 'pending'
     }

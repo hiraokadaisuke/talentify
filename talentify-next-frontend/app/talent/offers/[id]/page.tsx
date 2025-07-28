@@ -21,7 +21,7 @@ interface Offer {
   start_time?: string | null
   end_time?: string | null
   reward?: number | null
-  remarks?: string | null
+  notes?: string | null
   question_allowed?: boolean | null
   user_id?: string
   store_name?: string | null
@@ -53,7 +53,7 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-          `id, date, message, status, respond_deadline, event_name, start_time, end_time, reward, remarks, question_allowed, user_id, stores(store_name,address,avatar_url)`,
+          `id, date, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, user_id, stores(store_name,address,avatar_url)`,
         )
         .eq('id', params.id)
         .single()
@@ -143,9 +143,9 @@ export default function TalentOfferDetailPage() {
             <div>報酬: {offer.reward.toLocaleString()}円</div>
           )}
           <div className="whitespace-pre-wrap">{offer.message}</div>
-          {offer.remarks && (
+          {offer.notes && (
             <div className="p-2 bg-muted rounded text-sm whitespace-pre-wrap">
-              {offer.remarks}
+              {offer.notes}
             </div>
           )}
         </CardContent>
