@@ -14,6 +14,10 @@ import ja from 'date-fns/locale/ja'
 interface Offer {
   id: string
   date: string
+  second_date?: string | null
+  third_date?: string | null
+  time_range?: string | null
+  created_at?: string | null
   message: string
   status: string | null
   respond_deadline: string | null
@@ -23,6 +27,7 @@ interface Offer {
   reward?: number | null
   notes?: string | null
   question_allowed?: boolean | null
+  agreed?: boolean | null
   user_id?: string
   store_name?: string | null
   store_address?: string | null
@@ -53,7 +58,7 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-          `id, date, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, user_id, stores(store_name,address,avatar_url)`,
+          `id, date, second_date, third_date, time_range, created_at, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, user_id, stores(store_name,store_address,avatar_url)`,
         )
         .eq('id', params.id)
         .single()
@@ -65,7 +70,7 @@ export default function TalentOfferDetailPage() {
         setOffer({
           ...offerData,
           store_name: store.store_name ?? null,
-          store_address: store.address ?? null,
+          store_address: store.store_address ?? null,
           store_logo_url: store.avatar_url ?? null,
         })
       } else {
@@ -81,9 +86,10 @@ export default function TalentOfferDetailPage() {
   const deadline = offer.respond_deadline || ''
   const deadlinePassed = deadline && isBefore(parseISO(deadline), new Date())
   const timeRange =
-    offer.start_time && offer.end_time
+    offer.time_range ??
+    (offer.start_time && offer.end_time
       ? `${offer.start_time}〜${offer.end_time}`
-      : null
+      : null)
 
   const statusMap: Record<string, { label: string; className?: string }> = {
     pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
@@ -127,6 +133,10 @@ export default function TalentOfferDetailPage() {
           <CardTitle>オファー内容</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
+          <div>オファーID: {offer.id}</div>
+          {offer.created_at && (
+            <div>作成日: {format(parseISO(offer.created_at), 'yyyy-MM-dd')}</div>
+          )}
           <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
           {deadline && (
             <div className={deadlinePassed ? 'text-red-600' : ''}>
@@ -134,10 +144,13 @@ export default function TalentOfferDetailPage() {
             </div>
           )}
           {offer.event_name && <div>イベント名: {offer.event_name}</div>}
-          <div>
-            日付:{' '}
-            {format(parseISO(offer.date), 'M月d日(E)', { locale: ja })}
-          </div>
+          <div>候補日1: {format(parseISO(offer.date), 'yyyy-MM-dd')}</div>
+          {offer.second_date && (
+            <div>候補日2: {format(parseISO(offer.second_date), 'yyyy-MM-dd')}</div>
+          )}
+          {offer.third_date && (
+            <div>候補日3: {format(parseISO(offer.third_date), 'yyyy-MM-dd')}</div>
+          )}
           {timeRange && <div>時間帯: {timeRange}</div>}
           {typeof offer.reward === 'number' && (
             <div>報酬: {offer.reward.toLocaleString()}円</div>
@@ -147,6 +160,9 @@ export default function TalentOfferDetailPage() {
             <div className="p-2 bg-muted rounded text-sm whitespace-pre-wrap">
               {offer.notes}
             </div>
+          )}
+          {offer.agreed !== undefined && (
+            <div>同意: {offer.agreed ? '済' : '未'}</div>
           )}
         </CardContent>
       </Card>
