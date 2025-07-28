@@ -9,7 +9,6 @@ export type Offer = {
   user_id: string
   talent_id: string
   message: string
-  date: string
   created_at: string | null
   status: string | null
 }
