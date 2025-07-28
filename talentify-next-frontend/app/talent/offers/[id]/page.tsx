@@ -38,6 +38,7 @@ export default function TalentOfferDetailPage() {
   const params = useParams<{ id: string }>()
   const supabase = createClient()
   const [offer, setOffer] = useState<Offer | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const handleStatusChange = async (status: 'accepted' | 'rejected') => {
     if (!offer) return
@@ -55,6 +56,7 @@ export default function TalentOfferDetailPage() {
 
   useEffect(() => {
     const load = async () => {
+      setErrorMessage(null)
       const { data, error } = await supabase
         .from('offers')
         .select(
@@ -74,13 +76,16 @@ export default function TalentOfferDetailPage() {
           store_logo_url: store.avatar_url ?? null,
         })
       } else {
-        console.error("offer fetch error:", error)
+        console.error('offer fetch error:', error)
         setOffer(null)
+        setErrorMessage(error?.message || 'オファー情報を取得できませんでした')
       }
     }
     load()
   }, [params.id, supabase])
 
+  if (errorMessage)
+    return <p className="p-4 text-red-600">{errorMessage}</p>
   if (!offer) return <p className="p-4">Loading...</p>
 
   const deadline = offer.respond_deadline || ''
