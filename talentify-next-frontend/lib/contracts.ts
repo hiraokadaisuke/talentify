@@ -15,10 +15,17 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
   } = await supabase.auth.getUser()
   if (!user) return []
 
+  const { data: store } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!store) return []
+
   const { data: offers } = await supabase
     .from('offers')
     .select('id, talent_id, date')
-    .eq('user_id', user.id)
+    .eq('store_id', store.id)
 
   if (!offers) return []
 

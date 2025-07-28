@@ -5,7 +5,7 @@ const supabase = createClient()
 export type VisitedOffer = {
   id: string
   talent_id: string
-  user_id: string
+  store_id: string
   date: string
   message: string
   reviewed: boolean
@@ -13,12 +13,22 @@ export type VisitedOffer = {
 }
 
 export async function getVisitedOffersForStore() {
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return [] as VisitedOffer[]
+
+  const { data: store } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!store) return [] as VisitedOffer[]
+
   const { data, error } = await supabase
     .from('offers')
-    .select('id, talent_id, user_id, date, message, reviews(id), talents(stage_name)')
-    .eq('user_id', user.id)
+    .select('id, talent_id, store_id, date, message, reviews(id), talents(stage_name)')
+    .eq('store_id', store.id)
     .eq('status', 'visited')
   if (error) {
     console.error('failed to fetch visited offers', error)
@@ -27,7 +37,7 @@ export async function getVisitedOffersForStore() {
   return (data || []).map(o => ({
     id: o.id,
     talent_id: o.talent_id,
-    user_id: o.user_id,
+    store_id: o.store_id,
     date: o.date,
     message: o.message,
     reviewed: !!(o as any).reviews?.length,
