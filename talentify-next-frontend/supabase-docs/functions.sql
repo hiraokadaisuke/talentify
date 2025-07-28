@@ -1,10 +1,8 @@
--- update_updated_at_column
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-
 -- notify_talent_on_offer_created
+CREATE OR REPLACE FUNCTION public.notify_talent_on_offer_created()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
 BEGIN
   INSERT INTO notifications (
     id,
@@ -27,17 +25,25 @@ BEGIN
     false,
     now()
   );
+
   RETURN NEW;
 END;
+$function$;
 
 -- notify_talent_on_payment_created
+CREATE OR REPLACE FUNCTION public.notify_talent_on_payment_created()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
 DECLARE
   _talent_id UUID;
 BEGIN
+  -- オファー経由でタレントIDを取得
   SELECT talent_id INTO _talent_id
   FROM offers
   WHERE offers.id = NEW.offer_id;
 
+  -- 通知を挿入
   INSERT INTO notifications (
     user_id,
     type,
@@ -55,3 +61,15 @@ BEGIN
   );
   RETURN NEW;
 END;
+$function$;
+
+-- update_updated_at_column
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$function$;

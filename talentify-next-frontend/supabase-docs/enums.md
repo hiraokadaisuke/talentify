@@ -1,36 +1,83 @@
 ## ENUM型定義
 
-### invoice_status
+### auth.aal_level
+- aal1
+- aal2
+- aal3
+
+### realtime.action
+- INSERT
+- UPDATE
+- DELETE
+- TRUNCATE
+- ERROR
+
+### auth.code_challenge_method
+- s256
+- plain
+
+### realtime.equality_op
+- eq
+- neq
+- lt
+- lte
+- gt
+- gte
+- in
+
+### auth.factor_status
+- unverified
+- verified
+
+### auth.factor_type
+- totp
+- webauthn
+- phone
+
+### public.invoice_status
 - draft
 - submitted
 - approved
 - rejected
 
-### notification_type
+### public.notification_type
 - offer_created
 - offer_updated
 - payment_created
 - invoice_submitted
 - review_received
 
-### offer_status
+### public.offer_status
 - pending
 - accepted
 - rejected
 
-### payment_status
+### auth.one_time_token_type
+- confirmation_token
+- reauthentication_token
+- recovery_token
+- email_change_token_new
+- email_change_token_current
+- phone_change_token
+
+### public.payment_status
 - pending
 - paid
 - cancelled
 
-### status_type
+### public.status_type
 - draft
 - pending
 - approved
 - rejected
 - completed
 
-### visit_status
+### public.visit_status
 - scheduled
 - confirmed
 - visited
+
+### public.your_enum_type
+- value1
+- value2
+- value3
