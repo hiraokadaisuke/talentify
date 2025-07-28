@@ -28,7 +28,7 @@ export default function StoreOffersPage() {
   const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('all')
-  const [sortKey, setSortKey] = useState<'date' | 'created_at'>('date')
+  const [sortKey, setSortKey] = useState<'created_at'>('created_at')
   const [selected, setSelected] = useState<Offer | null>(null)
 
   useEffect(() => {
@@ -76,10 +76,9 @@ export default function StoreOffersPage() {
         </select>
         <select
           value={sortKey}
-          onChange={e => setSortKey(e.target.value as 'date' | 'created_at')}
+          onChange={e => setSortKey(e.target.value as 'created_at')}
           className="border rounded p-1"
         >
-          <option value="date">日付順</option>
           <option value="created_at">作成順</option>
         </select>
       </div>
@@ -96,7 +95,7 @@ export default function StoreOffersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>日付</TableHead>
+                    <TableHead>作成日</TableHead>
                     <TableHead>メッセージ</TableHead>
                     <TableHead>操作</TableHead>
                   </TableRow>
@@ -104,7 +103,7 @@ export default function StoreOffersPage() {
                 <TableBody>
                   {groups[status].map(o => (
                     <TableRow key={o.id}>
-                      <TableCell>{o.date}</TableCell>
+                      <TableCell>{o.created_at?.slice(0, 10)}</TableCell>
                       <TableCell className="truncate max-w-xs">{o.message}</TableCell>
                       <TableCell>
                         <Modal onOpenChange={open => !open && setSelected(null)}>
