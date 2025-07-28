@@ -83,7 +83,13 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
       return
     }
     const { error } = await supabase.from('offers').insert([
-      { user_id: user.id, talent_id: talentId, message, date, status: 'pending' },
+      {
+        user_id: user.id,
+        talent_id: talentId,
+        message,
+        date,
+        status: 'pending', // "offer_created" is not a valid status_type. Use pending.
+      },
     ])
     if (error) {
       alert('送信に失敗しました')
