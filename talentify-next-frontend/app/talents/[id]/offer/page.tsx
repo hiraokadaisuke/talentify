@@ -20,15 +20,28 @@ export default function OfferPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) {
       alert('ログインしてください')
+      return
+    }
+
+    const { data: store } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+    if (!store) {
+      alert('店舗情報が見つかりません')
       return
     }
 
     const { error } = await supabase.from('offers').insert([
       {
         user_id: user.id,
+        store_id: store.id,
         talent_id: talentId,
         message: message,
         date: date,

@@ -85,15 +85,28 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) {
       alert('ログインしてください')
+      return
+    }
+
+    const { data: store } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+    if (!store) {
+      alert('店舗情報が見つかりません')
       return
     }
 
     const message = `第1希望:${visitDate1}\n第2希望:${visitDate2}\n第3希望:${visitDate3}\n希望時間帯:${timeRange}\n備考:${note}`
     const payload = {
       user_id: user.id,
+      store_id: store.id,
       talent_id: id,
       message,
       date: visitDate1,

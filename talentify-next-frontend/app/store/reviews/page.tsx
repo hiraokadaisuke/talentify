@@ -15,7 +15,7 @@ export default function StoreReviewsPage() {
       const data = await getVisitedOffersForStore()
       setOffers(data)
       setLoading(false)
-      if (data[0]) setStoreId(data[0].user_id)
+      if (data[0]) setStoreId(data[0].store_id)
     }
     load()
   }, [])
@@ -48,7 +48,7 @@ export default function StoreReviewsPage() {
                     <ReviewModal
                       offerId={o.id}
                       talentId={o.talent_id}
-                      storeId={o.user_id}
+                      storeId={o.store_id}
                       trigger={<Button size="sm">レビューする</Button>}
                       onSubmitted={() => {
                         setOffers(prev => prev.map(p => p.id === o.id ? { ...p, reviewed: true } : p))

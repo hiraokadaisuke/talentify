@@ -335,6 +335,7 @@ export type Database = {
         Row: {
           id: string
           user_id: string
+          store_id: string | null
           talent_id: string
           message: string
           date: string
@@ -349,6 +350,7 @@ export type Database = {
         Insert: {
           id?: string
           user_id: string
+          store_id?: string | null
           talent_id: string
           message: string
           date: string
@@ -363,6 +365,7 @@ export type Database = {
         Update: {
           id?: string
           user_id?: string
+          store_id?: string | null
           talent_id?: string
           message?: string
           date?: string

@@ -7,6 +7,7 @@ const supabase = createClient()
 export type Offer = {
   id: string
   user_id: string
+  store_id: string
   talent_id: string
   message: string
   created_at: string | null
@@ -14,13 +15,22 @@ export type Offer = {
 }
 
 export async function getOffersForStore() {
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) return [] as Offer[]
+
+  const { data: store } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!store) return [] as Offer[]
 
   const { data, error } = await supabase
     .from('offers')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('store_id', store.id)
     .order('created_at', { ascending: false })
 
   if (error) {
