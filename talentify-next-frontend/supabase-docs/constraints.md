@@ -1,15 +1,31 @@
 ## 制約（外部キー）
 
-- invoices.offer_id: FOREIGN KEY → offers.id
-- invoices.talent_id: FOREIGN KEY → talents.id
-- invoices.store_id: FOREIGN KEY → stores.id
-- offers.talent_id: FOREIGN KEY → talents.id
+- auth.refresh_tokens.session_id: FOREIGN KEY → auth.sessions.id
+- storage.objects.bucket_id: FOREIGN KEY → storage.buckets.id
+- auth.identities.user_id: FOREIGN KEY → auth.users.id
+- auth.sessions.user_id: FOREIGN KEY → auth.users.id
+- auth.mfa_factors.user_id: FOREIGN KEY → auth.users.id
+- auth.mfa_challenges.factor_id: FOREIGN KEY → auth.mfa_factors.id
+- auth.mfa_amr_claims.session_id: FOREIGN KEY → auth.sessions.id
+- auth.sso_domains.sso_provider_id: FOREIGN KEY → auth.sso_providers.id
+- auth.saml_providers.sso_provider_id: FOREIGN KEY → auth.sso_providers.id
+- auth.saml_relay_states.flow_state_id: FOREIGN KEY → auth.flow_state.id
+- auth.saml_relay_states.sso_provider_id: FOREIGN KEY → auth.sso_providers.id
+- auth.one_time_tokens.user_id: FOREIGN KEY → auth.users.id
+- storage.s3_multipart_uploads.bucket_id: FOREIGN KEY → storage.buckets.id
+- storage.s3_multipart_uploads_parts.bucket_id: FOREIGN KEY → storage.buckets.id
+- storage.s3_multipart_uploads_parts.upload_id: FOREIGN KEY → storage.s3_multipart_uploads.id
+- talents.company_id: FOREIGN KEY → companies.id
 - offers.store_id: FOREIGN KEY → stores.id
+- offers.talent_id: FOREIGN KEY → talents.id
+- offers.user_id: FOREIGN KEY → auth.users.id
 - payments.offer_id: FOREIGN KEY → offers.id
+- invoices.offer_id: FOREIGN KEY → offers.id
+- invoices.store_id: FOREIGN KEY → stores.id
+- invoices.talent_id: FOREIGN KEY → talents.id
+- reviews.offer_id: FOREIGN KEY → offers.id
 - reviews.store_id: FOREIGN KEY → stores.id
 - reviews.talent_id: FOREIGN KEY → talents.id
-- reviews.offer_id: FOREIGN KEY → offers.id
-- talents.company_id: FOREIGN KEY → companies.id
 - visits.offer_id: FOREIGN KEY → offers.id
 - visits.store_id: FOREIGN KEY → stores.id
 - visits.talent_id: FOREIGN KEY → talents.id
