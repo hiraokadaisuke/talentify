@@ -81,6 +81,7 @@
 - second_date: date
 - third_date: date
 - time_range: text
+- fixed_date: date
 
 ### payments
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()

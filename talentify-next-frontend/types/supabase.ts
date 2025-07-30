@@ -342,6 +342,7 @@ export type Database = {
           second_date: string | null
           third_date: string | null
           time_range: string | null
+          fixed_date: string | null
           notes: string | null
           agreed: boolean | null
           created_at: string | null
@@ -357,6 +358,7 @@ export type Database = {
           second_date?: string | null
           third_date?: string | null
           time_range?: string | null
+          fixed_date?: string | null
           notes?: string | null
           agreed?: boolean | null
           created_at?: string | null
@@ -372,6 +374,7 @@ export type Database = {
           second_date?: string | null
           third_date?: string | null
           time_range?: string | null
+          fixed_date?: string | null
           notes?: string | null
           agreed?: boolean | null
           created_at?: string | null
@@ -394,7 +397,7 @@ export type Database = {
         | 'payment_created'
         | 'invoice_submitted'
         | 'review_received'
-      offer_status: 'pending' | 'accepted' | 'rejected'
+      offer_status: 'pending' | 'accepted' | 'rejected' | 'confirmed'
       payment_status: 'pending' | 'paid' | 'cancelled'
       status_type: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed'
       visit_status: 'scheduled' | 'confirmed' | 'visited'
@@ -521,7 +524,7 @@ export const Constants = {
         'invoice_submitted',
         'review_received'
       ],
-      offer_status: ['pending', 'accepted', 'rejected'],
+      offer_status: ['pending', 'accepted', 'rejected', 'confirmed'],
       payment_status: ['pending', 'paid', 'cancelled'],
       status_type: ['draft', 'pending', 'approved', 'rejected', 'completed'],
       visit_status: ['scheduled', 'confirmed', 'visited']

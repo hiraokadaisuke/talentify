@@ -23,13 +23,28 @@ export async function getRecentNotifications(): Promise<Notification[]> {
     .order('created_at', { ascending: false })
     .limit(5)
 
-  // Pending offers
+  // Pending offers for talents
   const { data: offers } = await supabase
     .from('offers' as any)
     .select('*')
     .eq('talent_id', user.id)
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
+
+  // Check if current user is a store
+  const { data: store } = await supabase
+    .from('stores')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  const { data: accepted } = store
+    ? await supabase
+        .from('offers')
+        .select('id, created_at, talents(stage_name), date')
+        .eq('store_id', store.id)
+        .eq('status', 'accepted')
+    : { data: null }
 
   // Schedules for the next 7 days
   const { data: schedules } = await supabase
@@ -58,6 +73,17 @@ export async function getRecentNotifications(): Promise<Notification[]> {
       type: 'offer',
       title: 'オファー対応待ち',
       body: `オファーの日程 ${(o as any).date}`,
+      created_at: (o as any).created_at ?? '',
+      is_read: false,
+    }),
+  )
+
+  accepted?.forEach((o) =>
+    notifications.push({
+      id: (o as any).id,
+      type: 'offer',
+      title: 'オファー承諾通知',
+      body: `🎉 ${(o as any).talents?.stage_name ?? ''} さんがオファーを承諾しました`,
       created_at: (o as any).created_at ?? '',
       is_read: false,
     }),
