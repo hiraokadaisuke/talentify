@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,7 +20,7 @@ type Offer = {
 }
 
 export default function TalentOffersPage() {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
 

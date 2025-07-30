@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ interface Settings {
 }
 
 export default function StoreSettingsPage() {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [loading, setLoading] = useState(true)
   const [settings, setSettings] = useState<Settings>({
     store_name: '',
@@ -46,7 +46,7 @@ export default function StoreSettingsPage() {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [supabase])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSettings({ ...settings, [e.target.name]: e.target.value })

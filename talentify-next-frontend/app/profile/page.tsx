@@ -1,7 +1,7 @@
 'use client';
 
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useUserRole } from '@/utils/useRole';
 
@@ -15,7 +15,7 @@ interface Profile {
 }
 
 export default function ProfilePage() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 const { role, loading: roleLoading } = useUserRole();
 const [profile, setProfile] = useState<any>(null);
 const [loading, setLoading] = useState(true);
@@ -52,7 +52,7 @@ const [loading, setLoading] = useState(true);
     };
 
     fetchProfile();
-  }, [supabase]);
+  }, [supabase, role]);
 
   if (loading || roleLoading) return <p>読み込み中...</p>;
   if (!profile) return <p>プロフィールが見つかりません</p>;

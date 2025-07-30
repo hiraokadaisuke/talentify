@@ -42,6 +42,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
       loadTalents()
       loadTemplates()
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialDate])
 
   const formatDate = (d: Date) => d.toISOString().slice(0, 10)

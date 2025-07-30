@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   TooltipProvider,
@@ -64,7 +64,7 @@ export default function Sidebar({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const [collapsed, setCollapsed] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -78,7 +78,7 @@ export default function Sidebar({
     } catch (err) {
       console.error('Failed to read sidebar state', err);
     }
-  }, []);
+  }, [supabase]);
 
   // Persist sidebar state
   useEffect(() => {
