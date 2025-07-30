@@ -37,8 +37,13 @@ talentify-next-frontend 目に `.env.local` を作成し、下記を記述:
 
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_API_BASE=
 NEXT_PUBLIC_SITE_URL=https://example.com
 NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
+
+`NEXT_PUBLIC_API_BASE` を空にしておくと、フロントエンドと同じオリジンの API ルー
+トを使用します。別ドメインを指定すると認証リクエストが CORS でブロックされる
+ため注意してください。
 
 `NOTIFICATION_WEBHOOK_URL` はオファーのステータス更新後に通知を送るWebフックのURLです。
 
