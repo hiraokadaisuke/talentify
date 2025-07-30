@@ -7,11 +7,28 @@ export async function getUserRoleInfo(
   supabase: SupabaseClient<Database>,
   userId: string
 ): Promise<{ role: UserRole | null; name: string | null; isSetupComplete: boolean | null }> {
-  const { data: store } = await supabase
-    .from('stores' as any)
-    .select('store_name, is_setup_complete')
-    .eq('user_id', userId)
-    .maybeSingle()
+  const [
+    { data: store },
+    { data: talent },
+    { data: company },
+  ] = await Promise.all([
+    supabase
+      .from('stores' as any)
+      .select('store_name, is_setup_complete')
+      .eq('user_id', userId)
+      .maybeSingle(),
+    supabase
+      .from('talents' as any)
+      .select('stage_name, is_setup_complete')
+      .eq('id', userId)
+      .maybeSingle(),
+    supabase
+      .from('companies' as any)
+      .select('display_name, is_setup_complete')
+      .eq('user_id', userId)
+      .maybeSingle(),
+  ])
+
   if (store) {
     return {
       role: 'store',
@@ -20,11 +37,6 @@ export async function getUserRoleInfo(
     }
   }
 
-  const { data: talent } = await supabase
-    .from('talents' as any)
-    .select('stage_name, is_setup_complete')
-    .eq('id', userId)
-    .maybeSingle()
   if (talent) {
     return {
       role: 'talent',
@@ -33,11 +45,6 @@ export async function getUserRoleInfo(
     }
   }
 
-  const { data: company } = await supabase
-    .from('companies' as any)
-    .select('display_name, is_setup_complete')
-    .eq('user_id', userId)
-    .maybeSingle()
   if (company) {
     return {
       role: 'company',

@@ -5,8 +5,7 @@ export function getRedirectUrl(role: string) {
       : process.env.NEXT_PUBLIC_SITE_URL
 
   // Always redirect to the auth callback so that Supabase session tokens
-  // contained in the confirmation link can be exchanged properly. The
-  // callback page will handle inserting profile rows and redirecting the user
-  // to the appropriate edit page based on their role stored in localStorage.
-  return `${baseUrl}/auth/callback`
+  // contained in the confirmation link can be exchanged properly. Pass the
+  // desired role via query parameters instead of using localStorage.
+  return `${baseUrl}/auth/callback?role=${encodeURIComponent(role)}`
 }
