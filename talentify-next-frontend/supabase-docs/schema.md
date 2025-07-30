@@ -82,6 +82,8 @@
 - third_date: date
 - time_range: text
 - fixed_date: date
+- paid: boolean, DEFAULT false
+- paid_at: timestamp with time zone
 
 ### payments
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
