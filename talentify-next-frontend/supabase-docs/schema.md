@@ -82,6 +82,16 @@
 - third_date: date
 - time_range: text
 - fixed_date: date
+- paid: boolean, DEFAULT false
+- paid_at: timestamp with time zone
+- invoice_date: date
+- invoice_amount: integer
+- bank_name: text
+- bank_branch: text
+- bank_account_number: text
+- bank_account_holder: text
+- invoice_submitted: boolean, DEFAULT false
+- contract_url: text
 
 ### payments
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
