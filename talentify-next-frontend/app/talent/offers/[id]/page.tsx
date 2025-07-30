@@ -11,6 +11,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Input } from '@/components/ui/input'
 import { format, isBefore, parseISO } from 'date-fns'
 import ja from 'date-fns/locale/ja'
+import { addNotification } from '@/utils/notifications'
 
 interface Offer {
   id: string
@@ -68,6 +69,14 @@ export default function TalentOfferDetailPage() {
     })
     if (res.ok) {
       setOffer({ ...offer, status })
+      if (status === 'accepted' && offer.user_id) {
+        await addNotification({
+          user_id: offer.user_id,
+          offer_id: offer.id,
+          type: 'offer_accepted',
+          title: 'オファーが承諾されました'
+        })
+      }
       setToast(status === 'accepted' ? 'オファーを承諾しました' : 'オファーを辞退しました')
       setTimeout(() => setToast(null), 3000)
     } else {
@@ -85,6 +94,14 @@ export default function TalentOfferDetailPage() {
     })
     if (res.ok) {
       setOffer({ ...offer, agreed: true })
+      if (offer.user_id) {
+        await addNotification({
+          user_id: offer.user_id,
+          offer_id: offer.id,
+          type: 'contract_checked',
+          title: 'タレントが契約書を確認しました'
+        })
+      }
       setToast('契約書を確認しました')
     } else {
       setToast('更新に失敗しました')
@@ -118,6 +135,14 @@ export default function TalentOfferDetailPage() {
         bank_account_holder: bankAccountHolder,
         invoice_submitted: true,
       })
+      if (offer.user_id) {
+        await addNotification({
+          user_id: offer.user_id,
+          offer_id: offer.id,
+          type: 'invoice_submitted',
+          title: '請求書が提出されました'
+        })
+      }
       setEditingInvoice(false)
       setToast('請求書を提出しました')
     } else {

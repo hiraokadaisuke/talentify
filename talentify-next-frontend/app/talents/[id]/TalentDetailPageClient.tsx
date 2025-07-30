@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
 import { Card, CardContent } from '@/components/ui/card'
+import { addNotification } from '@/utils/notifications'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -118,11 +119,24 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       status: 'pending', // ensure status_type is valid
     }
 
-    const { error } = await supabase.from('offers').insert([payload])
-    if (error) {
+    const { data: inserted, error } = await supabase
+      .from('offers')
+      .insert([payload])
+      .select('id')
+      .single()
+    if (error || !inserted) {
       console.log('offer insert error', { payload, error })
       alert('送信に失敗しました')
       return
+    }
+
+    if (talent.user_id) {
+      await addNotification({
+        user_id: talent.user_id,
+        offer_id: inserted.id,
+        type: 'offer',
+        title: 'オファー対応待ち'
+      })
     }
 
     setSubmitted(true)
