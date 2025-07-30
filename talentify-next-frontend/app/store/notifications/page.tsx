@@ -6,7 +6,7 @@ import { NotificationItem } from '@/components/ui/notification-item'
 import type { NotificationRow } from '@/utils/getNotifications'
 import { fetchNotifications, markAsRead } from '@/utils/getNotifications'
 
-export default function TalentNotificationsPage() {
+export default function StoreNotificationsPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function TalentNotificationsPage() {
   }
 
   const getLink = (n: NotificationRow) =>
-    n.type === 'message' ? '/talent/messages' : `/talent/offers/${n.offer_id}`
+    n.type === 'message' ? '/store/messages' : `/store/offers/${n.offer_id}`
 
   return (
     <div className="max-w-screen-md mx-auto py-8 space-y-4">

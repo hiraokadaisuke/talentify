@@ -53,11 +53,13 @@
 ### notifications
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
 - user_id: uuid, NOT NULL
-- type: USER-DEFINED, NOT NULL
-- data: jsonb
+ - offer_id: uuid
+ - type: USER-DEFINED, NOT NULL
+ - title: text, NOT NULL
+ - body: text
 - is_read: boolean, DEFAULT false
-- created_at: timestamp without time zone, DEFAULT now()
-- read_at: timestamp without time zone
+ - created_at: timestamp with time zone, DEFAULT now()
+ - read_at: timestamp with time zone
 
 ### offers
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()

@@ -8,6 +8,7 @@ import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
+import NotificationBellIcon from './NotificationBellIcon'
 
 const supabase = createClient()
 
@@ -116,6 +117,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 </>
               ) : (
                 <>
+                  <NotificationBellIcon />
                   <span className="flex items-baseline font-semibold">
                     <span className="text-base">{userName}</span>
                     <span className="ml-1 text-sm text-muted-foreground align-top">様</span>

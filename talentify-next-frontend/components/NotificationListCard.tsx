@@ -30,7 +30,11 @@ export default function NotificationListCard({ title = '通知', className }: Pr
       {items && items.length > 0 && (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {items.map((n) => (
-            <NotificationItem key={n.id} notification={n} />
+            <NotificationItem
+              key={n.id}
+              notification={n}
+              href="/"
+            />
           ))}
         </div>
       )}

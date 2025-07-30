@@ -331,6 +331,43 @@ export type Database = {
         }
         Relationships: []
       }
+      ,
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          offer_id: string | null
+          type: Enums<'notification_type'>
+          title: string
+          body: string | null
+          is_read: boolean | null
+          created_at: string | null
+          read_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          offer_id?: string | null
+          type: Enums<'notification_type'>
+          title: string
+          body?: string | null
+          is_read?: boolean | null
+          created_at?: string | null
+          read_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          offer_id?: string | null
+          type?: Enums<'notification_type'>
+          title?: string
+          body?: string | null
+          is_read?: boolean | null
+          created_at?: string | null
+          read_at?: string | null
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           id: string
@@ -419,11 +456,13 @@ export type Database = {
     Enums: {
       invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected'
       notification_type:
-        | 'offer_created'
-        | 'offer_updated'
-        | 'payment_created'
+        | 'offer_accepted'
+        | 'schedule_fixed'
+        | 'contract_uploaded'
+        | 'contract_checked'
         | 'invoice_submitted'
-        | 'review_received'
+        | 'payment_completed'
+        | 'message'
       offer_status: 'pending' | 'accepted' | 'rejected' | 'confirmed'
       payment_status: 'pending' | 'paid' | 'cancelled'
       status_type: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed'
@@ -545,11 +584,13 @@ export const Constants = {
     Enums: {
       invoice_status: ['draft', 'submitted', 'approved', 'rejected'],
       notification_type: [
-        'offer_created',
-        'offer_updated',
-        'payment_created',
+        'offer_accepted',
+        'schedule_fixed',
+        'contract_uploaded',
+        'contract_checked',
         'invoice_submitted',
-        'review_received'
+        'payment_completed',
+        'message'
       ],
       offer_status: ['pending', 'accepted', 'rejected', 'confirmed'],
       payment_status: ['pending', 'paid', 'cancelled'],

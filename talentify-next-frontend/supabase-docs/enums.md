@@ -41,11 +41,13 @@
 - rejected
 
 ### public.notification_type
-- offer_created
-- offer_updated
-- payment_created
+- offer_accepted
+- schedule_fixed
+- contract_uploaded
+- contract_checked
 - invoice_submitted
-- review_received
+- payment_completed
+- message
 
 ### public.offer_status
 - pending
