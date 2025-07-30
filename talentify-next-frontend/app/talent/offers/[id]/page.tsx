@@ -39,6 +39,7 @@ export default function TalentOfferDetailPage() {
   const supabase = createClient()
   const [offer, setOffer] = useState<Offer | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
 
   const handleStatusChange = async (status: 'accepted' | 'rejected') => {
     if (!offer) return
@@ -49,8 +50,11 @@ export default function TalentOfferDetailPage() {
     })
     if (res.ok) {
       setOffer({ ...offer, status })
+      setToast(status === 'accepted' ? 'オファーを承諾しました' : 'オファーを辞退しました')
+      setTimeout(() => setToast(null), 3000)
     } else {
-      alert('更新に失敗しました')
+      setToast('処理に失敗しました。もう一度お試しください')
+      setTimeout(() => setToast(null), 3000)
     }
   }
 
@@ -98,7 +102,7 @@ export default function TalentOfferDetailPage() {
 
   const statusMap: Record<string, { label: string; className?: string }> = {
     pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
-    accepted: { label: '承諾済み', className: 'bg-gray-400 text-white' },
+    accepted: { label: '承諾済', className: 'bg-green-600 text-white' },
     rejected: { label: '辞退済み', className: 'bg-gray-400 text-white' },
   }
 
@@ -187,6 +191,18 @@ export default function TalentOfferDetailPage() {
             見送る
           </Button>
           <Button onClick={() => handleStatusChange('accepted')}>承諾する</Button>
+        </div>
+      )}
+
+      {offer.status === 'accepted' && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 text-center text-sm">
+          確定待ちです
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow">
+          {toast}
         </div>
       )}
     </div>
