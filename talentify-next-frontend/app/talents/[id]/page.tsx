@@ -2,7 +2,7 @@ import TalentDetailPageClient from './TalentDetailPageClient'
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'auto'
 
 type PageProps = {
   params: {

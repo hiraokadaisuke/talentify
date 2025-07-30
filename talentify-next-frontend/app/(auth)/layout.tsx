@@ -1,6 +1,6 @@
 // app/(auth)/layout.tsx
 
-export const dynamic = "force-dynamic";
+export const dynamic = "auto";
 
 import React from "react";
 import "../globals.css";

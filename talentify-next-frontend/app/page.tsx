@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+export const dynamic = 'auto'
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';

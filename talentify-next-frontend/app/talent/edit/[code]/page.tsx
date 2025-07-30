@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import EditClient from '../EditClient'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'auto'
 
 export default async function Page({ params }: { params: { code: string } }) {
   const supabase = await createClient()
