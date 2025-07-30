@@ -7,13 +7,33 @@ export async function PUT(
 ) {
   const supabase = await createClient()
   const { id } = params
-  const { status, fixed_date, contract_url, agreed } = await req.json()
+  const {
+    status,
+    fixed_date,
+    contract_url,
+    agreed,
+    invoice_date,
+    invoice_amount,
+    bank_name,
+    bank_branch,
+    bank_account_number,
+    bank_account_holder,
+    invoice_submitted,
+  } = await req.json()
 
   const updates: Record<string, any> = {}
   if (status) updates.status = status
   if (fixed_date) updates.fixed_date = fixed_date
   if (contract_url) updates.contract_url = contract_url
   if (typeof agreed === 'boolean') updates.agreed = agreed
+  if (invoice_date) updates.invoice_date = invoice_date
+  if (invoice_amount) updates.invoice_amount = invoice_amount
+  if (bank_name) updates.bank_name = bank_name
+  if (bank_branch) updates.bank_branch = bank_branch
+  if (bank_account_number) updates.bank_account_number = bank_account_number
+  if (bank_account_holder) updates.bank_account_holder = bank_account_holder
+  if (typeof invoice_submitted === 'boolean')
+    updates.invoice_submitted = invoice_submitted
 
   const { error } = await supabase
     .from('offers')

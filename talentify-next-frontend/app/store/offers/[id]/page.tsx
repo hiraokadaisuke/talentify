@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
+import jsPDF from 'jspdf'
 
 interface Offer {
   id: string
@@ -20,6 +21,13 @@ interface Offer {
   status: string | null
   created_at?: string | null
   talent_stage_name?: string | null
+  invoice_date?: string | null
+  invoice_amount?: number | null
+  bank_name?: string | null
+  bank_branch?: string | null
+  bank_account_number?: string | null
+  bank_account_holder?: string | null
+  invoice_submitted?: boolean | null
 }
 
 export default function StoreOfferDetailPage() {
@@ -33,7 +41,7 @@ export default function StoreOfferDetailPage() {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,talents(stage_name)')
+        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,talents(stage_name)')
         .eq('id', params.id)
         .single()
 
@@ -94,6 +102,25 @@ export default function StoreOfferDetailPage() {
     setTimeout(() => setToast(null), 3000)
   }
 
+  const downloadInvoice = () => {
+    if (!offer || !offer.invoice_submitted) return
+    const doc = new jsPDF()
+    doc.text(`請求日: ${offer.invoice_date}`, 10, 10)
+    doc.text(
+      `金額: ¥${(offer.invoice_amount || 0).toLocaleString()} (税込)`,
+      10,
+      20
+    )
+    doc.text(
+      `振込先: ${offer.bank_name || ''} ${offer.bank_branch || ''} ${
+        offer.bank_account_number || ''
+      } ${offer.bank_account_holder || ''}`,
+      10,
+      30
+    )
+    doc.save(`invoice-${offer.id}.pdf`)
+  }
+
   if (!offer) return <p className='p-4'>Loading...</p>
 
   const dateItems = [
@@ -134,6 +161,20 @@ export default function StoreOfferDetailPage() {
           <a href={offer.contract_url} target='_blank' className='text-blue-600 underline'>契約書を開く</a>
           {offer.agreed && <Badge className='ml-2'>確認済</Badge>}
         </div>
+      )}
+      {offer.invoice_submitted ? (
+        <div className='space-y-1 text-sm'>
+          <h2 className='font-semibold'>請求情報</h2>
+          <div>請求日: {offer.invoice_date}</div>
+          <div>金額: ¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
+          <div>
+            振込先: {offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
+            {offer.bank_account_holder}
+          </div>
+          <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
+        </div>
+      ) : (
+        <div className='text-sm'>まだ請求書が提出されていません</div>
       )}
       {offer.status === 'confirmed' && (
         <div className='space-y-2'>

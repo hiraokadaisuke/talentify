@@ -8,6 +8,7 @@ import { createClient } from '@/utils/supabase/client'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { format, isBefore, parseISO } from 'date-fns'
 import ja from 'date-fns/locale/ja'
 
@@ -33,6 +34,13 @@ interface Offer {
   store_name?: string | null
   store_address?: string | null
   store_logo_url?: string | null
+  invoice_date?: string | null
+  invoice_amount?: number | null
+  bank_name?: string | null
+  bank_branch?: string | null
+  bank_account_number?: string | null
+  bank_account_holder?: string | null
+  invoice_submitted?: boolean | null
 }
 
 export default function TalentOfferDetailPage() {
@@ -41,6 +49,13 @@ export default function TalentOfferDetailPage() {
   const [offer, setOffer] = useState<Offer | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [editingInvoice, setEditingInvoice] = useState(false)
+  const [invoiceDate, setInvoiceDate] = useState('')
+  const [invoiceAmount, setInvoiceAmount] = useState(0)
+  const [bankName, setBankName] = useState('')
+  const [bankBranch, setBankBranch] = useState('')
+  const [bankAccountNumber, setBankAccountNumber] = useState('')
+  const [bankAccountHolder, setBankAccountHolder] = useState('')
 
   const handleStatusChange = async (status: 'accepted' | 'rejected') => {
     if (!offer) return
@@ -75,13 +90,47 @@ export default function TalentOfferDetailPage() {
     setTimeout(() => setToast(null), 3000)
   }
 
+  const submitInvoice = async () => {
+    if (!offer) return
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        invoice_date: invoiceDate,
+        invoice_amount: invoiceAmount,
+        bank_name: bankName,
+        bank_branch: bankBranch,
+        bank_account_number: bankAccountNumber,
+        bank_account_holder: bankAccountHolder,
+        invoice_submitted: true,
+      }),
+    })
+    if (res.ok) {
+      setOffer({
+        ...offer,
+        invoice_date: invoiceDate,
+        invoice_amount: invoiceAmount,
+        bank_name: bankName,
+        bank_branch: bankBranch,
+        bank_account_number: bankAccountNumber,
+        bank_account_holder: bankAccountHolder,
+        invoice_submitted: true,
+      })
+      setEditingInvoice(false)
+      setToast('請求書を提出しました')
+    } else {
+      setToast('更新に失敗しました')
+    }
+    setTimeout(() => setToast(null), 3000)
+  }
+
   useEffect(() => {
     const load = async () => {
       setErrorMessage(null)
       const { data, error } = await supabase
         .from('offers')
         .select(
-  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, user_id, store:store_id(store_name,store_address,avatar_url)`
+  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, user_id, store:store_id(store_name,store_address,avatar_url)`
 )
         .eq('id', params.id)
         .single()
@@ -96,6 +145,12 @@ export default function TalentOfferDetailPage() {
           store_address: store.store_address ?? null,
           store_logo_url: store.avatar_url ?? null,
         })
+        setInvoiceDate(offerData.invoice_date || new Date().toISOString().slice(0,10))
+        setInvoiceAmount(offerData.invoice_amount || offerData.reward || 0)
+        setBankName(offerData.bank_name || '')
+        setBankBranch(offerData.bank_branch || '')
+        setBankAccountNumber(offerData.bank_account_number || '')
+        setBankAccountHolder(offerData.bank_account_holder || '')
       } else {
         console.error('offer fetch error:', error)
         setOffer(null)
@@ -153,6 +208,69 @@ export default function TalentOfferDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {offer.invoice_submitted ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>請求情報</CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-1 text-sm'>
+            <div>請求日：{offer.invoice_date}</div>
+            <div>金額：¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
+            <div>
+              振込先：{offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
+              {offer.bank_account_holder}
+            </div>
+          </CardContent>
+        </Card>
+      ) : offer.status === 'confirmed' && offer.agreed ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>請求書作成</CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-2'>
+            {editingInvoice ? (
+              <div className='space-y-2'>
+                <Input
+                  type='date'
+                  value={invoiceDate}
+                  onChange={e => setInvoiceDate(e.target.value)}
+                />
+                <Input
+                  type='number'
+                  value={invoiceAmount}
+                  onChange={e => setInvoiceAmount(Number(e.target.value))}
+                />
+                <Input
+                  placeholder='銀行名'
+                  value={bankName}
+                  onChange={e => setBankName(e.target.value)}
+                />
+                <Input
+                  placeholder='支店名'
+                  value={bankBranch}
+                  onChange={e => setBankBranch(e.target.value)}
+                />
+                <Input
+                  placeholder='口座番号'
+                  value={bankAccountNumber}
+                  onChange={e => setBankAccountNumber(e.target.value)}
+                />
+                <Input
+                  placeholder='口座名義'
+                  value={bankAccountHolder}
+                  onChange={e => setBankAccountHolder(e.target.value)}
+                />
+                <Button onClick={submitInvoice}>請求書を提出する</Button>
+              </div>
+            ) : (
+              <Button onClick={() => setEditingInvoice(true)}>請求書を作成する</Button>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className='text-sm'>まだ請求書が提出されていません</div>
+      )}
 
       <Card>
         <CardHeader>
