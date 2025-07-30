@@ -5,7 +5,7 @@ import { NotificationItem } from '@/components/ui/notification-item'
 import { getNotifications, markNotificationRead } from '@/utils/getNotifications'
 import type { Notification } from '@/types/ui'
 
-export default function TalentNotificationsPage() {
+export default function StoreNotificationsPage() {
   const [items, setItems] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -34,7 +34,7 @@ export default function TalentNotificationsPage() {
             <li key={n.id}>
               <NotificationItem
                 notification={n}
-                href={n.offer_id ? `/talent/offers/${n.offer_id}` : undefined}
+                href={n.offer_id ? `/store/offers/${n.offer_id}` : undefined}
                 onClick={() => handleRead(n.id)}
               />
             </li>

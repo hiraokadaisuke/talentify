@@ -48,6 +48,66 @@ export async function PUT(
     return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
   }
 
+  const { data: offerRow } = await supabase
+    .from('offers')
+    .select('store_id, talent_id')
+    .eq('id', id)
+    .single()
+
+  if (status === 'accepted' && offerRow?.store_id) {
+    await supabase.from('notifications').insert({
+      user_id: offerRow.store_id,
+      offer_id: id,
+      type: 'offer_accepted',
+      title: 'オファーが承諾されました',
+    })
+  }
+
+  if (fixed_date && offerRow?.talent_id) {
+    await supabase.from('notifications').insert({
+      user_id: offerRow.talent_id,
+      offer_id: id,
+      type: 'schedule_fixed',
+      title: '出演日程が確定しました',
+    })
+  }
+
+  if (contract_url && offerRow?.talent_id) {
+    await supabase.from('notifications').insert({
+      user_id: offerRow.talent_id,
+      offer_id: id,
+      type: 'contract_uploaded',
+      title: '契約書がアップロードされました',
+    })
+  }
+
+  if (agreed === true && offerRow?.store_id) {
+    await supabase.from('notifications').insert({
+      user_id: offerRow.store_id,
+      offer_id: id,
+      type: 'contract_checked',
+      title: 'タレントが契約書を確認しました',
+    })
+  }
+
+  if (invoice_submitted === true && offerRow?.store_id) {
+    await supabase.from('notifications').insert({
+      user_id: offerRow.store_id,
+      offer_id: id,
+      type: 'invoice_submitted',
+      title: '請求書が提出されました',
+    })
+  }
+
+  if (paid === true && offerRow?.talent_id) {
+    await supabase.from('notifications').insert({
+      user_id: offerRow.talent_id,
+      offer_id: id,
+      type: 'payment_completed',
+      title: 'お支払いが完了しました',
+    })
+  }
+
   // Notify performer or store about status change via webhook if configured
   const webhook = process.env.NOTIFICATION_WEBHOOK_URL
   if (webhook) {

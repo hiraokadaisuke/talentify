@@ -74,7 +74,7 @@ export default function StoreDashboard() {
           <div className='sm:col-span-2'>
             <MessageAlertCard count={unread} link='/store/messages' />
           </div>
-        <NotificationListCard className='sm:col-span-2' />
+        <NotificationListCard role='store' className='sm:col-span-2' />
       </div>
       )}
       {toast && (

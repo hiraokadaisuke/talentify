@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Menu, Search } from 'lucide-react'
+import { Menu, Search, Bell } from 'lucide-react'
 import Sidebar from './Sidebar'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
@@ -14,6 +14,7 @@ const supabase = createClient()
 export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'store' }) {
   const [userName, setUserName] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [unread, setUnread] = useState(0)
 
   useEffect(() => {
     const fetchSessionAndProfile = async () => {
@@ -28,6 +29,12 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
       const { name } = await getUserRoleInfo(supabase, user.id)
       setUserName(name ?? 'ユーザー')
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+      setUnread(count ?? 0)
       setIsLoading(false)
     }
 
@@ -120,6 +127,16 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                     <span className="text-base">{userName}</span>
                     <span className="ml-1 text-sm text-muted-foreground align-top">様</span>
                   </span>
+                  {sidebarRole && (
+                    <Link href={`/${sidebarRole}/notifications`} className="relative ml-2">
+                      <Bell className="h-5 w-5" />
+                      {unread > 0 && (
+                        <span className="absolute -top-1 -right-2 rounded-full bg-red-600 text-white text-xs px-1">
+                          {unread}
+                        </span>
+                      )}
+                    </Link>
+                  )}
                 </>
               )}
             </div>

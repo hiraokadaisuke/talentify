@@ -5,18 +5,19 @@ import { DashboardCard } from '@/components/ui/dashboard-card'
 import { NotificationItem } from '@/components/ui/notification-item'
 import { cn } from '@/lib/utils'
 import type { Notification } from '@/types/ui'
-import { getRecentNotifications } from '@/utils/getRecentNotifications'
+import { getNotifications } from '@/utils/getNotifications'
 
 interface Props {
   title?: string
   className?: string
+  role: 'talent' | 'store'
 }
 
-export default function NotificationListCard({ title = '通知', className }: Props) {
+export default function NotificationListCard({ title = '通知', className, role }: Props) {
   const [items, setItems] = useState<Notification[] | null>(null)
 
   useEffect(() => {
-    getRecentNotifications().then(setItems)
+    getNotifications(5).then(setItems)
   }, [])
 
   return (
@@ -30,7 +31,11 @@ export default function NotificationListCard({ title = '通知', className }: Pr
       {items && items.length > 0 && (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {items.map((n) => (
-            <NotificationItem key={n.id} notification={n} />
+            <NotificationItem
+              key={n.id}
+              notification={n}
+              href={n.offer_id ? `/${role}/offers/${n.offer_id}` : undefined}
+            />
           ))}
         </div>
       )}
