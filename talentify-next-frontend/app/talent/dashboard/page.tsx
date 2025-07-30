@@ -8,19 +8,27 @@ import NotificationListCard from '@/components/NotificationListCard'
 import { CardSkeleton } from '@/components/ui/skeleton'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { getTalentSchedule } from '@/utils/getTalentSchedule'
 
 export default function TalentDashboard() {
   const pending = 2
-  const schedule: ScheduleItem[] = [
-    { date: '7/20', performer: 'パチンコ店A', status: 'confirmed' },
-  ]
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([])
   const unread = 5
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState<string | null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 500)
+    getTalentSchedule().then((data) => {
+      const items: ScheduleItem[] = data.map((d) => ({
+        date: d.fixed_date,
+        performer: d.store_name ?? '',
+        status: 'confirmed',
+        href: `/talent/offers/${d.id}`,
+      }))
+      setSchedule(items)
+      setLoading(false)
+    })
   }, [])
 
   useEffect(() => {
