@@ -343,6 +343,7 @@ export type Database = {
           third_date: string | null
           time_range: string | null
           fixed_date: string | null
+          contract_url: string | null
           notes: string | null
           agreed: boolean | null
           created_at: string | null
@@ -359,6 +360,7 @@ export type Database = {
           third_date?: string | null
           time_range?: string | null
           fixed_date?: string | null
+          contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
           created_at?: string | null
@@ -375,6 +377,7 @@ export type Database = {
           third_date?: string | null
           time_range?: string | null
           fixed_date?: string | null
+          contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
           created_at?: string | null

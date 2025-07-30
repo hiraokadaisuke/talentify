@@ -14,6 +14,8 @@ interface Offer {
   second_date?: string | null
   third_date?: string | null
   fixed_date?: string | null
+  contract_url?: string | null
+  agreed?: boolean | null
   message: string
   status: string | null
   created_at?: string | null
@@ -25,12 +27,13 @@ export default function StoreOfferDetailPage() {
   const supabase = createClient()
   const [offer, setOffer] = useState<Offer | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [file, setFile] = useState<File | null>(null)
 
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,date,second_date,third_date,fixed_date,message,status,created_at,talents(stage_name)')
+        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,talents(stage_name)')
         .eq('id', params.id)
         .single()
 
@@ -59,6 +62,36 @@ export default function StoreOfferDetailPage() {
       setToast('更新に失敗しました')
       setTimeout(() => setToast(null), 3000)
     }
+  }
+
+  const uploadContract = async () => {
+    if (!offer || !file) return
+    const path = `${offer.id}/${Date.now()}-${file.name}`
+    const { error } = await supabase.storage
+      .from('contracts')
+      .upload(path, file, { upsert: true })
+    if (error) {
+      setToast('アップロードに失敗しました')
+      setTimeout(() => setToast(null), 3000)
+      return
+    }
+    const { data } = await supabase.storage
+      .from('contracts')
+      .getPublicUrl(path)
+    const url = data.publicUrl
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contract_url: url })
+    })
+    if (res.ok) {
+      setOffer({ ...offer, contract_url: url })
+      setFile(null)
+      setToast('契約書をアップロードしました')
+    } else {
+      setToast('更新に失敗しました')
+    }
+    setTimeout(() => setToast(null), 3000)
   }
 
   if (!offer) return <p className='p-4'>Loading...</p>
@@ -95,6 +128,18 @@ export default function StoreOfferDetailPage() {
       </div>
       {offer.fixed_date && (
         <div className='text-green-600'>確定日: {format(parseISO(offer.fixed_date), 'yyyy-MM-dd')}</div>
+      )}
+      {offer.contract_url && (
+        <div className='space-y-1'>
+          <a href={offer.contract_url} target='_blank' className='text-blue-600 underline'>契約書を開く</a>
+          {offer.agreed && <Badge className='ml-2'>確認済</Badge>}
+        </div>
+      )}
+      {offer.status === 'confirmed' && (
+        <div className='space-y-2'>
+          <input type='file' accept='application/pdf,image/*' onChange={e => setFile(e.target.files?.[0] || null)} />
+          <Button onClick={uploadContract} disabled={!file}>アップロード</Button>
+        </div>
       )}
       {toast && (
         <div className='fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow'>

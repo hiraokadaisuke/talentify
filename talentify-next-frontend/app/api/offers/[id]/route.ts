@@ -7,11 +7,13 @@ export async function PUT(
 ) {
   const supabase = await createClient()
   const { id } = params
-  const { status, fixed_date } = await req.json()
+  const { status, fixed_date, contract_url, agreed } = await req.json()
 
   const updates: Record<string, any> = {}
   if (status) updates.status = status
   if (fixed_date) updates.fixed_date = fixed_date
+  if (contract_url) updates.contract_url = contract_url
+  if (typeof agreed === 'boolean') updates.agreed = agreed
 
   const { error } = await supabase
     .from('offers')
@@ -29,7 +31,7 @@ export async function PUT(
       await fetch(webhook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerId: id, status }),
+        body: JSON.stringify({ offerId: id, status, contract_url, agreed }),
       })
     } catch (err) {
       console.error('Failed to send notification:', err)
