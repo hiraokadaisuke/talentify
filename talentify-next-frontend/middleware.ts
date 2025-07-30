@@ -1,40 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import type { Database } from './types/supabase'
-import { createMiddlewareClient } from './lib/supabase/server'
-import { getUserRoleInfo } from './lib/getUserRole'
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient(req, res)
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  const isLoggedIn = !!session
+export function middleware(req: NextRequest) {
+  const isLoggedIn = Boolean(req.cookies.get('sb-access-token')?.value)
   const { pathname } = req.nextUrl
 
   if (pathname === '/' && !isLoggedIn) {
-    return res
+    return NextResponse.next()
   }
 
-  if (isLoggedIn) {
-    const { role, isSetupComplete } = await getUserRoleInfo(
-      supabase,
-      session!.user.id
-    )
-    const editPath = role ? `/${role}/edit` : null
-
-    if (editPath && pathname.startsWith(editPath)) {
-      return res
-    }
-
-    if (role && isSetupComplete === false && !pathname.startsWith(editPath || '')) {
-      const url = req.nextUrl.clone()
-      url.pathname = editPath!
-      return NextResponse.redirect(url)
-    }
-  }
 
   if (
     !isLoggedIn &&
@@ -48,7 +21,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  return res
+  return NextResponse.next()
 }
 
 export const config = {
