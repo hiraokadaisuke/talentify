@@ -55,7 +55,7 @@ export default function TalentInvoiceDetail() {
         <TableBody>
           <TableRow>
             <TableCell className='font-medium'>報酬</TableCell>
-            <TableCell>¥{invoice.amount.toLocaleString()}</TableCell>
+            <TableCell>￥{invoice.amount.toLocaleString()}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell className='font-medium'>請求書番号</TableCell>
@@ -67,7 +67,7 @@ export default function TalentInvoiceDetail() {
           </TableRow>
           <TableRow>
             <TableCell className='font-medium'>合計金額</TableCell>
-            <TableCell>¥{total.toLocaleString()}</TableCell>
+            <TableCell>￥{total.toLocaleString()}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell className='font-medium'>ステータス</TableCell>

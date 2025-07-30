@@ -144,7 +144,7 @@ function Payments() {
           className="border rounded p-2 flex items-center justify-between"
         >
           <div>
-            {p.label} ¥{p.amount?.toLocaleString?.()}
+            {p.label} ￥{p.amount?.toLocaleString?.()}
           </div>
           <div className="flex items-center space-x-2 text-sm">
             <span>{p.status}</span>

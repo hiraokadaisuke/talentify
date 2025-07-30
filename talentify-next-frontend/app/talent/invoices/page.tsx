@@ -48,7 +48,7 @@ export default function TalentInvoicesPage() {
             {invoices.map(inv => (
               <TableRow key={inv.id}>
                 <TableCell>{inv.created_at?.slice(0,10)}</TableCell>
-                <TableCell>¥{inv.amount.toLocaleString()}</TableCell>
+                <TableCell>￥{inv.amount.toLocaleString()}</TableCell>
                 <TableCell>{statusLabels[inv.status]}</TableCell>
                 <TableCell>
                   <Button size='sm' asChild>

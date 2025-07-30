@@ -25,7 +25,7 @@ export default async function StoreContractsPage() {
                 <td className="p-2">{c.offer_id}</td>
                 <td className="p-2">{c.talent_name}</td>
                 <td className="p-2">{c.performance_date}</td>
-                <td className="p-2">{c.amount != null ? `¥${c.amount.toLocaleString()}` : '-'}</td>
+                <td className="p-2">{c.amount != null ? `￥${c.amount.toLocaleString()}` : '-'}</td>
                 <td className="p-2">
                   {c.pdf_url ? (
                     <a href={c.pdf_url} target="_blank" className="text-blue-600 underline">ダウンロード</a>
