@@ -54,6 +54,15 @@ export async function getRecentNotifications(): Promise<Notification[]> {
     .gte('date', new Date().toISOString())
     .lte('date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
 
+  // Confirmed offers (upcoming schedules)
+  const { data: confirmed } = await supabase
+    .from('offers')
+    .select('id, fixed_date, time_range, stores(store_name)')
+    .eq('talent_id', user.id)
+    .eq('status', 'confirmed')
+    .not('fixed_date', 'is', null)
+    .gte('fixed_date', new Date().toISOString())
+
   const notifications: Notification[] = []
 
   messages?.forEach((m) =>
@@ -97,6 +106,17 @@ export async function getRecentNotifications(): Promise<Notification[]> {
       body: s.description ?? '',
       created_at: s.date ?? '',
       is_read: true,
+    }),
+  )
+
+  confirmed?.forEach((c) =>
+    notifications.push({
+      id: (c as any).id,
+      type: 'schedule',
+      title: '出演日確定',
+      body: `[${(c as any).stores?.store_name ?? ''}] ${(c as any).fixed_date} ${(c as any).time_range ?? ''}`.trim(),
+      created_at: (c as any).fixed_date ?? '',
+      is_read: false,
     }),
   )
 
