@@ -13,7 +13,9 @@ describe('getRedirectUrl', () => {
     const env = { ...process.env } as NodeJS.ProcessEnv
     env.NODE_ENV = 'development'
     process.env = env
-    expect(getRedirectUrl('store')).toBe('http://localhost:3000/auth/callback')
+    expect(getRedirectUrl('store')).toBe(
+      'http://localhost:3000/auth/callback?role=store'
+    )
   })
 
   test('returns NEXT_PUBLIC_SITE_URL callback in production', () => {
@@ -21,7 +23,9 @@ describe('getRedirectUrl', () => {
     env.NODE_ENV = 'production'
     env.NEXT_PUBLIC_SITE_URL = 'https://example.com'
     process.env = env
-    expect(getRedirectUrl('talent')).toBe('https://example.com/auth/callback')
+    expect(getRedirectUrl('talent')).toBe(
+      'https://example.com/auth/callback?role=talent'
+    )
   })
 
   test('still returns callback for unknown role', () => {
@@ -29,6 +33,8 @@ describe('getRedirectUrl', () => {
     env.NODE_ENV = 'production'
     env.NEXT_PUBLIC_SITE_URL = 'https://example.com'
     process.env = env
-    expect(getRedirectUrl('unknown')).toBe('https://example.com/auth/callback')
+    expect(getRedirectUrl('unknown')).toBe(
+      'https://example.com/auth/callback?role=unknown'
+    )
   })
 })

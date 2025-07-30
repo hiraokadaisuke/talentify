@@ -65,14 +65,13 @@ export default function RegisterForm() {
 
     if (hasError) return
 
-// 🔽 ロールを保存（AuthCallback で使う）
-  localStorage.setItem('pending_role', role)
-
     try {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          // The role is passed via query parameter so the callback can
+          // create the appropriate profile on the server.
           emailRedirectTo: getRedirectUrl(role),
         },
       })

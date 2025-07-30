@@ -30,3 +30,4 @@ export function useUserRole() {
 
   return { role, isSetupComplete, loading }
 }
+
