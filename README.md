@@ -37,6 +37,7 @@ talentify-next-frontend 目に `.env.local` を作成し、下記を記述:
 
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SITE_URL=https://example.com
 NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
 
 `NOTIFICATION_WEBHOOK_URL` はオファーのステータス更新後に通知を送るWebフックのURLです。
@@ -45,11 +46,11 @@ NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
 
 3. ビルド / デプロイ
 
-`NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_ANON_KEY` は
-`npm run build` などのビルド時にも必須です。環境変数として設定した上で実行してください。
-Vercel などのホスティング環境にデプロイする際は、同じ名前で環境変数を
-プロジェクト設定にも登録する必要があります。設定されていない場合、
-ミドルウェアで Supabase クライアントの初期化に失敗し、`500` エラーとなります。
+`NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_ANON_KEY`、
+そして `NEXT_PUBLIC_SITE_URL` は `npm run build` などのビルド時にも必須です。
+Vercel などにデプロイする際は同じ名前で環境変数を設定してください。
+設定されていない場合、ミドルウェアでリダイレクト先 URL が生成できず
+`500` エラーとなる可能性があります。
 
 4. 開発サーバーの起動
 
