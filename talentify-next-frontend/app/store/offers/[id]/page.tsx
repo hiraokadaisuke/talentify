@@ -28,6 +28,8 @@ interface Offer {
   bank_account_number?: string | null
   bank_account_holder?: string | null
   invoice_submitted?: boolean | null
+  paid?: boolean | null
+  paid_at?: string | null
 }
 
 export default function StoreOfferDetailPage() {
@@ -41,7 +43,7 @@ export default function StoreOfferDetailPage() {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,talents(stage_name)')
+        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,paid,paid_at,talents(stage_name)')
         .eq('id', params.id)
         .single()
 
@@ -121,6 +123,23 @@ export default function StoreOfferDetailPage() {
     doc.save(`invoice-${offer.id}.pdf`)
   }
 
+  const handlePaid = async () => {
+    if (!offer) return
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paid: true, paid_at: new Date().toISOString() })
+    })
+    if (res.ok) {
+      const now = new Date().toISOString()
+      setOffer({ ...offer, paid: true, paid_at: now })
+      setToast('支払い完了を登録しました')
+    } else {
+      setToast('更新に失敗しました')
+    }
+    setTimeout(() => setToast(null), 3000)
+  }
+
   if (!offer) return <p className='p-4'>Loading...</p>
 
   const dateItems = [
@@ -172,6 +191,11 @@ export default function StoreOfferDetailPage() {
             {offer.bank_account_holder}
           </div>
           <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
+          {offer.paid ? (
+            <Badge className='ml-2'>支払い済</Badge>
+          ) : (
+            <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
+          )}
         </div>
       ) : (
         <div className='text-sm'>まだ請求書が提出されていません</div>

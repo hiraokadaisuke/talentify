@@ -19,6 +19,8 @@ export async function PUT(
     bank_account_number,
     bank_account_holder,
     invoice_submitted,
+    paid,
+    paid_at,
   } = await req.json()
 
   const updates: Record<string, any> = {}
@@ -34,6 +36,8 @@ export async function PUT(
   if (bank_account_holder) updates.bank_account_holder = bank_account_holder
   if (typeof invoice_submitted === 'boolean')
     updates.invoice_submitted = invoice_submitted
+  if (typeof paid === 'boolean') updates.paid = paid
+  if (paid_at) updates.paid_at = paid_at
 
   const { error } = await supabase
     .from('offers')
