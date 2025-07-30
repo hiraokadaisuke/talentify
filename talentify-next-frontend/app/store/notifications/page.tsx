@@ -6,7 +6,7 @@ import { createClient } from '@/utils/supabase/client'
 import { NotificationItem } from '@/components/ui/notification-item'
 import type { Notification } from '@/types/ui'
 
-export default function TalentNotificationsPage() {
+export default function StoreNotificationsPage() {
   const supabase = createClient()
   const [items, setItems] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,7 +38,7 @@ export default function TalentNotificationsPage() {
 
   const linkFor = (n: Notification) => {
     if (n.type === 'message') return '/messages'
-    if (n.offer_id) return `/talent/offers/${n.offer_id}`
+    if (n.offer_id) return `/store/offers/${n.offer_id}`
     return undefined
   }
 

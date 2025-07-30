@@ -7,12 +7,14 @@ import Sidebar from './Sidebar'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
 import { createClient } from '@/utils/supabase/client'
-import { getUserRoleInfo } from '@/lib/getUserRole'
+import { getUserRoleInfo, type UserRole } from '@/lib/getUserRole'
+import NotificationBell from './NotificationBell'
 
 const supabase = createClient()
 
 export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'store' }) {
   const [userName, setUserName] = useState<string | null>(null)
+  const [role, setRole] = useState<UserRole | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -26,7 +28,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
         return
       }
 
-      const { name } = await getUserRoleInfo(supabase, user.id)
+      const { name, role } = await getUserRoleInfo(supabase, user.id)
+      setRole(role)
       setUserName(name ?? 'ユーザー')
       setIsLoading(false)
     }
@@ -38,6 +41,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
       if (session?.user) fetchSessionAndProfile()
       else {
         setUserName(null)
+        setRole(null)
         setIsLoading(false)
       }
     })
@@ -116,7 +120,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 </>
               ) : (
                 <>
-                  <span className="flex items-baseline font-semibold">
+                  <NotificationBell role={role ?? 'talent'} />
+                  <span className="flex items-baseline font-semibold ml-2">
                     <span className="text-base">{userName}</span>
                     <span className="ml-1 text-sm text-muted-foreground align-top">様</span>
                   </span>

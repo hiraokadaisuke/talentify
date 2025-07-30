@@ -11,12 +11,18 @@ interface NotificationItemProps extends React.HTMLAttributes<HTMLDivElement> {
 const typeIcon = {
   message: Mail,
   offer: Bell,
+  offer_accepted: Bell,
+  schedule_fixed: CalendarIcon,
+  contract_uploaded: Info,
+  contract_checked: Info,
+  invoice_submitted: Info,
+  payment_completed: Info,
   schedule: CalendarIcon,
   system: Info,
-}
+} as const
 
 export function NotificationItem({ notification, className, ...props }: NotificationItemProps) {
-  const Icon = typeIcon[notification.type]
+  const Icon = typeIcon[notification.type as keyof typeof typeIcon] ?? Bell
 
   return (
     <div
@@ -29,7 +35,10 @@ export function NotificationItem({ notification, className, ...props }: Notifica
     >
       <Icon className="h-4 w-4 mt-0.5" />
       <div className="text-sm flex-1">
-        <div>{notification.body}</div>
+        <div>{notification.title}</div>
+        {notification.body && (
+          <div className="text-xs text-muted-foreground whitespace-pre-wrap">{notification.body}</div>
+        )}
         <div className="text-xs text-muted-foreground">{notification.created_at}</div>
       </div>
       {!notification.is_read && <Badge className="self-start" variant="destructive">NEW</Badge>}
