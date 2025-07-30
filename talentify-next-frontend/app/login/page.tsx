@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const [email, setEmail] = useState('')
@@ -35,7 +36,7 @@ export default function LoginPage() {
       // TODO: explicit role selection page can be implemented here
     }
 
-    router.push('/dashboard')
+    router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
   }
 
   return (
