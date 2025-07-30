@@ -72,8 +72,14 @@
 - approved
 - rejected
 - completed
+- offer_created
 
 ### public.visit_status
 - scheduled
 - confirmed
 - visited
+
+### public.your_enum_type
+- value1
+- value2
+- value3
