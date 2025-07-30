@@ -30,7 +30,11 @@ export function NotificationItem({ notification, className, ...props }: Notifica
       <Icon className="h-4 w-4 mt-0.5" />
       <div className="text-sm flex-1">
         <div>{notification.body}</div>
-        <div className="text-xs text-muted-foreground">{notification.created_at}</div>
+        <div className="text-xs text-muted-foreground">
+          {typeof notification.created_at === 'string'
+            ? notification.created_at.slice(0, 10)
+            : String(notification.created_at)}
+        </div>
       </div>
       {!notification.is_read && <Badge className="self-start" variant="destructive">NEW</Badge>}
     </div>
