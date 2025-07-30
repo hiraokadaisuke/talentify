@@ -98,6 +98,7 @@ talentify-next-frontend/
 PostgreSQL を使用したスキーマベースのデータ構造
 
 Row Level Security (RLS) による安全なデータアクセス
+RLSポリシーの詳細は [docs/rls-policies.md](docs/rls-policies.md) を参照してください。
 
 Supabase Auth による認証管理 (メール/パスワード)
 
