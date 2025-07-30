@@ -54,6 +54,14 @@ export async function getRecentNotifications(): Promise<Notification[]> {
     .gte('date', new Date().toISOString())
     .lte('date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
 
+  // notifications table
+  const { data: notifs } = await supabase
+    .from('notifications' as any)
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(5)
+
   const notifications: Notification[] = []
 
   messages?.forEach((m) =>
@@ -99,6 +107,21 @@ export async function getRecentNotifications(): Promise<Notification[]> {
       is_read: true,
     }),
   )
+
+  notifs?.forEach((n) => {
+    const body =
+      n.type === 'offer_updated'
+        ? `出演スケジュールが確定しました (${(n as any).data?.fixed_date ?? ''})`
+        : (n as any).data?.message ?? ''
+    notifications.push({
+      id: n.id,
+      type: 'system',
+      title: '通知',
+      body,
+      created_at: (n as any).created_at ?? '',
+      is_read: n.is_read ?? false,
+    })
+  })
 
   // Sort by created_at desc
   return notifications.sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
