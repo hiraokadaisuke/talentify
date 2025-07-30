@@ -354,6 +354,8 @@ export type Database = {
           bank_account_number: string | null
           bank_account_holder: string | null
           invoice_submitted: boolean | null
+          paid: boolean | null
+          paid_at: string | null
           created_at: string | null
           status: string | null
         }
@@ -379,6 +381,8 @@ export type Database = {
           bank_account_number?: string | null
           bank_account_holder?: string | null
           invoice_submitted?: boolean | null
+          paid?: boolean | null
+          paid_at?: string | null
           created_at?: string | null
           status?: string | null
         }
@@ -404,6 +408,8 @@ export type Database = {
           bank_account_number?: string | null
           bank_account_holder?: string | null
           invoice_submitted?: boolean | null
+          paid?: boolean | null
+          paid_at?: string | null
           created_at?: string | null
           status?: string | null
         }

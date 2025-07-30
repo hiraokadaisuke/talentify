@@ -63,6 +63,12 @@ export async function getRecentNotifications(): Promise<Notification[]> {
     .not('fixed_date', 'is', null)
     .gte('fixed_date', new Date().toISOString())
 
+  const { data: paidOffers } = await supabase
+    .from('offers')
+    .select('id, paid_at, invoice_amount')
+    .eq('talent_id', user.id)
+    .eq('paid', true)
+
   const notifications: Notification[] = []
 
   messages?.forEach((m) =>
@@ -116,6 +122,17 @@ export async function getRecentNotifications(): Promise<Notification[]> {
       title: '出演日確定',
       body: `[${(c as any).stores?.store_name ?? ''}] ${(c as any).fixed_date} ${(c as any).time_range ?? ''}`.trim(),
       created_at: (c as any).fixed_date ?? '',
+      is_read: false,
+    }),
+  )
+
+  paidOffers?.forEach((p) =>
+    notifications.push({
+      id: (p as any).id,
+      type: 'system',
+      title: '支払い完了',
+      body: `お支払いが完了しました。ご確認ください。\n支払い日：${(p as any).paid_at?.slice(0,10)}\n金額：¥${((p as any).invoice_amount || 0).toLocaleString()}`,
+      created_at: (p as any).paid_at ?? '',
       is_read: false,
     }),
   )

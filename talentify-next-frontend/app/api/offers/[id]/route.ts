@@ -19,6 +19,8 @@ export async function PUT(
     bank_account_number,
     bank_account_holder,
     invoice_submitted,
+    paid,
+    paid_at,
   } = await req.json()
 
   const updates: Record<string, any> = {}
@@ -34,6 +36,8 @@ export async function PUT(
   if (bank_account_holder) updates.bank_account_holder = bank_account_holder
   if (typeof invoice_submitted === 'boolean')
     updates.invoice_submitted = invoice_submitted
+  if (typeof paid === 'boolean') updates.paid = paid
+  if (paid_at) updates.paid_at = paid_at
 
   const { error } = await supabase
     .from('offers')
@@ -42,6 +46,25 @@ export async function PUT(
 
   if (error) {
     return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
+  }
+
+  if (paid) {
+    const { data: offerData } = await supabase
+      .from('offers')
+      .select('talent_id, invoice_amount')
+      .eq('id', id)
+      .single()
+    if (offerData?.talent_id) {
+      await supabase.from('notifications').insert({
+        user_id: offerData.talent_id,
+        type: 'payment_created',
+        data: {
+          offer_id: id,
+          amount: offerData.invoice_amount,
+          paid_at,
+        },
+      })
+    }
   }
 
   // Notify performer or store about status change via webhook if configured

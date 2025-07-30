@@ -28,6 +28,8 @@ interface Offer {
   bank_account_number?: string | null
   bank_account_holder?: string | null
   invoice_submitted?: boolean | null
+  paid?: boolean | null
+  paid_at?: string | null
 }
 
 export default function StoreOfferDetailPage() {
@@ -41,7 +43,7 @@ export default function StoreOfferDetailPage() {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,talents(stage_name)')
+        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,paid,paid_at,talents(stage_name)')
         .eq('id', params.id)
         .single()
 
@@ -121,6 +123,22 @@ export default function StoreOfferDetailPage() {
     doc.save(`invoice-${offer.id}.pdf`)
   }
 
+  const markPaid = async () => {
+    if (!offer) return
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paid: true, paid_at: new Date().toISOString() })
+    })
+    if (res.ok) {
+      setOffer({ ...offer, paid: true, paid_at: new Date().toISOString() })
+      setToast('支払い完了を登録しました')
+    } else {
+      setToast('更新に失敗しました')
+    }
+    setTimeout(() => setToast(null), 3000)
+  }
+
   if (!offer) return <p className='p-4'>Loading...</p>
 
   const dateItems = [
@@ -137,6 +155,9 @@ export default function StoreOfferDetailPage() {
         {offer.talent_stage_name && <div>演者: {offer.talent_stage_name}</div>}
         {offer.created_at && <div>作成日: {offer.created_at.slice(0,10)}</div>}
         <div className='whitespace-pre-wrap'>{offer.message}</div>
+        {offer.paid && offer.paid_at && (
+          <Badge variant='secondary'>支払い済 {offer.paid_at.slice(0,10)}</Badge>
+        )}
       </div>
       <div className='space-y-2'>
         {dateItems.map((item, i) => (
@@ -171,7 +192,14 @@ export default function StoreOfferDetailPage() {
             振込先: {offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
             {offer.bank_account_holder}
           </div>
-          <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
+          <div className='flex items-center gap-2'>
+            <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
+            {offer.paid ? (
+              <Badge>支払い済</Badge>
+            ) : (
+              <Button size='sm' onClick={markPaid}>支払い完了を登録する</Button>
+            )}
+          </div>
         </div>
       ) : (
         <div className='text-sm'>まだ請求書が提出されていません</div>

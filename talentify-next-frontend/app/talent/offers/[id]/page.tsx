@@ -41,6 +41,8 @@ interface Offer {
   bank_account_number?: string | null
   bank_account_holder?: string | null
   invoice_submitted?: boolean | null
+  paid?: boolean | null
+  paid_at?: string | null
 }
 
 export default function TalentOfferDetailPage() {
@@ -130,8 +132,8 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, user_id, store:store_id(store_name,store_address,avatar_url)`
-)
+  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
+  )
         .eq('id', params.id)
         .single()
 
@@ -221,6 +223,11 @@ export default function TalentOfferDetailPage() {
               振込先：{offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
               {offer.bank_account_holder}
             </div>
+            {offer.paid && offer.paid_at ? (
+              <div className='text-green-600 mt-2'>✅ お支払いが完了しました（{offer.paid_at.slice(0,10)}）</div>
+            ) : (
+              <div className='text-yellow-600 mt-2'>請求済み - 入金待ち</div>
+            )}
           </CardContent>
         </Card>
       ) : offer.status === 'confirmed' && offer.agreed ? (

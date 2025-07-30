@@ -13,6 +13,7 @@ export type Offer = {
   created_at: string | null
   status: string | null
   fixed_date?: string | null
+  paid?: boolean | null
 }
 
 export async function getOffersForStore() {
