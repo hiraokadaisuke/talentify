@@ -47,7 +47,9 @@
 
 ### stores
 - 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`
-- 認証済みユーザーはストアを登録可能 (`INSERT`): CHECK `(auth.uid() = user_id)`
+- 認証済みユーザーはストアを登録可能 (`INSERT`): USING `true`, CHECK `true`
+- ストアオーナーのみストアを登録可能 (`INSERT`): CHECK `(auth.uid() = user_id)`
+- 認証済みユーザーは自分のストアを更新可能 (`UPDATE`): USING `(auth.uid() = user_id)`
 - ストアオーナーは自分のストアを閲覧可能 (`SELECT`): USING `(auth.uid() = user_id)`
 - ストアオーナーは自分のストアを更新可能 (`UPDATE`): USING `(auth.uid() = user_id)`, CHECK `(auth.uid() = user_id)`
 
