@@ -20,6 +20,7 @@ interface Offer {
   created_at?: string | null
   message: string
   status: string | null
+  contract_url?: string | null
   respond_deadline: string | null
   event_name?: string | null
   start_time?: string | null
@@ -58,13 +59,29 @@ export default function TalentOfferDetailPage() {
     }
   }
 
+  const confirmContract = async () => {
+    if (!offer) return
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agreed: true })
+    })
+    if (res.ok) {
+      setOffer({ ...offer, agreed: true })
+      setToast('契約書を確認しました')
+    } else {
+      setToast('更新に失敗しました')
+    }
+    setTimeout(() => setToast(null), 3000)
+  }
+
   useEffect(() => {
     const load = async () => {
       setErrorMessage(null)
       const { data, error } = await supabase
         .from('offers')
         .select(
-  `id, date, second_date, third_date, time_range, created_at, message, status, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, user_id, store:store_id(store_name,store_address,avatar_url)`
+  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, user_id, store:store_id(store_name,store_address,avatar_url)`
 )
         .eq('id', params.id)
         .single()
@@ -170,6 +187,12 @@ export default function TalentOfferDetailPage() {
               {offer.notes}
             </div>
           )}
+          {offer.contract_url && (
+            <div className="space-x-2">
+              <a href={offer.contract_url} target="_blank" className="text-blue-600 underline">契約書を開く</a>
+              {offer.agreed && <Badge>確認済</Badge>}
+            </div>
+          )}
           {offer.agreed !== undefined && (
             <div>同意: {offer.agreed ? '済' : '未'}</div>
           )}
@@ -179,6 +202,12 @@ export default function TalentOfferDetailPage() {
       {offer.question_allowed && (
         <div className="text-right text-sm">
           <Button variant="link" onClick={() => alert('質問機能は未実装です')}>質問する</Button>
+        </div>
+      )}
+
+      {offer.contract_url && !offer.agreed && (
+        <div className="text-center">
+          <Button onClick={confirmContract}>内容を確認しました</Button>
         </div>
       )}
 

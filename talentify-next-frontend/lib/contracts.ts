@@ -24,7 +24,7 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
 
   const { data: offers } = await supabase
     .from('offers')
-    .select('id, talent_id, date')
+    .select('id, talent_id, date, contract_url')
     .eq('store_id', store.id)
 
   if (!offers) return []
@@ -44,16 +44,14 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
       .eq('offer_id', offer.id)
       .maybeSingle()
 
-    const { data } = supabase.storage
-      .from('contracts')
-      .getPublicUrl(`${offer.id}.pdf`)
+    const url = (offer as any).contract_url || null
 
     results.push({
       offer_id: offer.id,
       talent_name: talent?.stage_name || '',
       performance_date: offer.date,
       amount: payment?.amount ?? null,
-      pdf_url: data.publicUrl || null,
+      pdf_url: url,
     })
   }
 
