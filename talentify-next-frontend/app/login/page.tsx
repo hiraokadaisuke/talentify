@@ -46,6 +46,9 @@ export default function LoginPage() {
       const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
         credentials: 'include',
       })
+      if (!csrfRes.ok) {
+        throw new Error('csrf')
+      }
       const { csrfToken } = await csrfRes.json()
       const res = await fetch(`${API_BASE}/api/login`, {
         method: 'POST',
@@ -62,7 +65,11 @@ export default function LoginPage() {
       }
       router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
     } catch (err) {
-      setError('ログインに失敗しました')
+      const message =
+        err instanceof Error && err.message === 'csrf'
+          ? 'CSRFトークンの取得に失敗しました。CORS またはセッションエラーの可能性があります'
+          : 'ログインに失敗しました'
+      setError(message)
     }
   }
 

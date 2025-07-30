@@ -41,9 +41,7 @@ NEXT_PUBLIC_API_BASE=
 NEXT_PUBLIC_SITE_URL=https://example.com
 NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
 
-`NEXT_PUBLIC_API_BASE` を空にしておくと、フロントエンドと同じオリジンの API ルー
-トを使用します。別ドメインを指定すると認証リクエストが CORS でブロックされる
-ため注意してください。
+`NEXT_PUBLIC_API_BASE` を空にしておくと、フロントエンドと同じオリジンの API ルートを使用します。別ドメインを指定すると認証リクエストが CORS でブロックされるため注意してください。特に本番環境ではこの値を設定せず、フロントと API を同一ドメインでホスティングする構成を推奨します。
 
 `NOTIFICATION_WEBHOOK_URL` はオファーのステータス更新後に通知を送るWebフックのURLです。
 
