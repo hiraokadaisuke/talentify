@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { createClient as createServerClient } from '@/lib/supabase/server'
 import { getUserRoleInfo, UserRole } from '@/lib/getUserRole'
 
 const supabase = createClient()
@@ -32,14 +31,3 @@ export function useUserRole() {
   return { role, isSetupComplete, loading }
 }
 
-export async function getServerUserRole() {
-  const supabase = await createServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    return { role: null, isSetupComplete: null }
-  }
-  const { role, isSetupComplete } = await getUserRoleInfo(supabase, user.id)
-  return { role, isSetupComplete }
-}
