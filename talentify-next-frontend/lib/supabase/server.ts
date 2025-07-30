@@ -2,10 +2,11 @@ export const runtime = 'nodejs'
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 import type { Database } from '@/types/supabase'
 
-export async function createClient() {
-  const cookieStore = await cookies()
+export const createClient = cache(async () => {
+  const cookieStore = cookies()
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -23,6 +24,6 @@ export async function createClient() {
       },
     }
   )
-}
+})
 
 export type { Database }
