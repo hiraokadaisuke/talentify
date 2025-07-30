@@ -346,6 +346,8 @@ export type Database = {
           contract_url: string | null
           notes: string | null
           agreed: boolean | null
+          paid: boolean | null
+          paid_at: string | null
           reward: number | null
           invoice_date: string | null
           invoice_amount: number | null
@@ -371,6 +373,8 @@ export type Database = {
           contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
+          paid?: boolean | null
+          paid_at?: string | null
           reward?: number | null
           invoice_date?: string | null
           invoice_amount?: number | null
@@ -396,6 +400,8 @@ export type Database = {
           contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
+          paid?: boolean | null
+          paid_at?: string | null
           reward?: number | null
           invoice_date?: string | null
           invoice_amount?: number | null

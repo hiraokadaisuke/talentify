@@ -100,6 +100,7 @@ export default function StoreOffersPage() {
                   <TableRow>
                     <TableHead>作成日</TableHead>
                     <TableHead>メッセージ</TableHead>
+                    <TableHead>支払い状況</TableHead>
                     <TableHead>操作</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -108,6 +109,9 @@ export default function StoreOffersPage() {
                     <TableRow key={o.id}>
                       <TableCell>{o.created_at?.slice(0, 10)}</TableCell>
                       <TableCell className="truncate max-w-xs">{o.message}</TableCell>
+                      <TableCell className="whitespace-nowrap text-sm">
+                        {o.paid ? '済' : o.agreed ? '請求済だが未入金' : '未払い'}
+                      </TableCell>
                       <TableCell>
                         <Modal onOpenChange={open => !open && setSelected(null)}>
                           <ModalTrigger asChild>
