@@ -28,6 +28,16 @@ describe('getRedirectUrl', () => {
     )
   })
 
+  test('falls back to default domain when NEXT_PUBLIC_SITE_URL is not set in production', () => {
+    const env = { ...process.env } as NodeJS.ProcessEnv
+    env.NODE_ENV = 'production'
+    delete env.NEXT_PUBLIC_SITE_URL
+    process.env = env
+    expect(getRedirectUrl('store')).toBe(
+      'https://talentify-xi.vercel.app/auth/callback?role=store'
+    )
+  })
+
   test('still returns callback for unknown role', () => {
     const env = { ...process.env } as NodeJS.ProcessEnv
     env.NODE_ENV = 'production'
