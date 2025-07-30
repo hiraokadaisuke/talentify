@@ -19,7 +19,8 @@ import {
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
-  approved: '承認済み',
+  accepted: '承諾済み',
+  confirmed: '確定済',
   rejected: '拒否',
   expired: '期限切れ',
 }
@@ -49,7 +50,8 @@ export default function StoreOffersPage() {
 
   const groups: Record<string, Offer[]> = {
     pending: [],
-    approved: [],
+    accepted: [],
+    confirmed: [],
     rejected: [],
     expired: [],
   }
@@ -70,7 +72,8 @@ export default function StoreOffersPage() {
         >
           <option value="all">すべて</option>
           <option value="pending">保留中</option>
-          <option value="approved">承認済み</option>
+          <option value="accepted">承諾済み</option>
+          <option value="confirmed">確定済</option>
           <option value="rejected">拒否</option>
           <option value="expired">期限切れ</option>
         </select>
@@ -88,7 +91,7 @@ export default function StoreOffersPage() {
       ) : offers.length === 0 ? (
         <EmptyState title='まだオファーがありません' actionHref='/talent-search' actionLabel='オファーを送ってみましょう' />
       ) : (
-        (['pending', 'approved', 'rejected', 'expired'] as const).map(status => (
+        (['pending', 'accepted', 'confirmed', 'rejected', 'expired'] as const).map(status => (
           groups[status].length > 0 && (
             <div key={status} className="space-y-2">
               <h2 className="font-semibold">{statusLabels[status]}</h2>

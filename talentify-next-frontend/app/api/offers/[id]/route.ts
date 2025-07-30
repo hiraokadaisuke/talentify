@@ -7,11 +7,15 @@ export async function PUT(
 ) {
   const supabase = await createClient()
   const { id } = params
-  const { status } = await req.json()
+  const { status, fixed_date } = await req.json()
+
+  const updates: Record<string, any> = {}
+  if (status) updates.status = status
+  if (fixed_date) updates.fixed_date = fixed_date
 
   const { error } = await supabase
     .from('offers')
-    .update({ status })
+    .update(updates)
     .eq('id', id)
 
   if (error) {
