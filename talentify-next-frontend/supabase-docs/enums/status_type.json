@@ -1,0 +1,13 @@
+{
+  "schema": "public",
+  "name": "status_type",
+  "values": [
+    "draft",
+    "pending",
+    "approved",
+    "rejected",
+    "completed",
+    "offer_created",
+    "confirmed"
+  ]
+}
