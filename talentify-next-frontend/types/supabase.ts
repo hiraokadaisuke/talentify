@@ -346,6 +346,14 @@ export type Database = {
           contract_url: string | null
           notes: string | null
           agreed: boolean | null
+          reward: number | null
+          invoice_date: string | null
+          invoice_amount: number | null
+          bank_name: string | null
+          bank_branch: string | null
+          bank_account_number: string | null
+          bank_account_holder: string | null
+          invoice_submitted: boolean | null
           created_at: string | null
           status: string | null
         }
@@ -363,6 +371,14 @@ export type Database = {
           contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
+          reward?: number | null
+          invoice_date?: string | null
+          invoice_amount?: number | null
+          bank_name?: string | null
+          bank_branch?: string | null
+          bank_account_number?: string | null
+          bank_account_holder?: string | null
+          invoice_submitted?: boolean | null
           created_at?: string | null
           status?: string | null
         }
@@ -380,6 +396,14 @@ export type Database = {
           contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
+          reward?: number | null
+          invoice_date?: string | null
+          invoice_amount?: number | null
+          bank_name?: string | null
+          bank_branch?: string | null
+          bank_account_number?: string | null
+          bank_account_holder?: string | null
+          invoice_submitted?: boolean | null
           created_at?: string | null
           status?: string | null
         }
