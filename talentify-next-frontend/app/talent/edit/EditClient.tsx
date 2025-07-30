@@ -1,7 +1,7 @@
 'use client'
 
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
@@ -92,7 +92,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     }
 
     loadProfile()
-  }, [supabase, code])
+  }, [code])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

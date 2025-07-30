@@ -1,6 +1,7 @@
 export const dynamic = 'auto'
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/server';
@@ -54,7 +55,7 @@ export default async function HomePage() {
         className="w-full min-h-screen flex flex-col justify-center items-center bg-cover bg-center text-white text-center px-6"
         style={{ backgroundImage: "url('/images/hero-bg.png')" }}
       >
-        <div className="max-w-4xl mt-40 sm:mt-60 md:mt-[300px]">
+        <div className="max-w-4xl mt-32 sm:mt-48 md:mt-[300px]">
           <p className="text-2xl md:text-3xl font-semibold text-white mb-10 drop-shadow-md">
             パチンコ店と演者をマッチングする、全く新しいサービス。
           </p>
@@ -75,11 +76,11 @@ export default async function HomePage() {
 
 {/* 特徴セクション（POINT 1・2） */}
 <section className="w-full bg-white py-20 px-6">
-  <div className="max-w-6xl mx-auto space-y-24">
+  <div className="max-w-6xl mx-auto space-y-16 md:space-y-24">
 
     {/* POINT 1 */}
     <div className="flex flex-col md:flex-row items-center gap-10">
-      <img src="/images/point1.png" alt="POINT 1" className="w-full md:w-1/2 rounded-xl shadow-md" />
+      <Image src="/images/point1.png" alt="POINT 1" width={1536} height={1024} className="w-full md:w-1/2 rounded-xl shadow-md" priority/>
       <div className="md:w-1/2">
         <div className="text-green-600 font-bold text-xl mb-2">POINT 1</div>
         <h3 className="text-2xl md:text-3xl font-bold leading-snug mb-4">
@@ -93,7 +94,7 @@ export default async function HomePage() {
 
     {/* POINT 2 */}
     <div className="flex flex-col md:flex-row-reverse items-center gap-10">
-      <img src="/images/point2.png" alt="POINT 2" className="w-full md:w-1/2 rounded-xl shadow-md" />
+      <Image src="/images/point2.png" alt="POINT 2" width={1536} height={1024} className="w-full md:w-1/2 rounded-xl shadow-md" priority/>
       <div className="md:w-1/2">
         <div className="text-green-600 font-bold text-xl mb-2">POINT 2</div>
         <h3 className="text-2xl md:text-3xl font-bold leading-snug mb-4">
@@ -107,7 +108,7 @@ export default async function HomePage() {
 
     {/* POINT 3 */}
     <div className="flex flex-col md:flex-row items-center gap-10">
-      <img src="/images/point3.png" alt="POINT 3" className="w-full md:w-1/2 rounded-xl shadow-md" />
+      <Image src="/images/point3.png" alt="POINT 3" width={1536} height={1024} className="w-full md:w-1/2 rounded-xl shadow-md" priority/>
       <div className="md:w-1/2">
         <div className="text-green-600 font-bold text-xl mb-2">POINT 3</div>
         <h3 className="text-2xl md:text-3xl font-bold leading-snug mb-4">

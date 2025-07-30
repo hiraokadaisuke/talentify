@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Calendar as BigCalendar,
@@ -34,7 +34,7 @@ const localizer = dateFnsLocalizer({
 
 export default function StoreSchedulePage() {
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [events, setEvents] = useState<OfferEvent[]>([])
   const [view, setView] = useState<View>(Views.MONTH)
   const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
