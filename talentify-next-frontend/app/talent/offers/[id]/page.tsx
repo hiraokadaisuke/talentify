@@ -41,6 +41,8 @@ interface Offer {
   bank_account_number?: string | null
   bank_account_holder?: string | null
   invoice_submitted?: boolean | null
+  paid?: boolean | null
+  paid_at?: string | null
 }
 
 export default function TalentOfferDetailPage() {
@@ -130,7 +132,7 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, user_id, store:store_id(store_name,store_address,avatar_url)`
+  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
 )
         .eq('id', params.id)
         .single()
@@ -210,19 +212,24 @@ export default function TalentOfferDetailPage() {
       </Card>
 
       {offer.invoice_submitted ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>請求情報</CardTitle>
-          </CardHeader>
-          <CardContent className='space-y-1 text-sm'>
-            <div>請求日：{offer.invoice_date}</div>
-            <div>金額：¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
-            <div>
-              振込先：{offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
-              {offer.bank_account_holder}
-            </div>
-          </CardContent>
-        </Card>
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>請求情報</CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-1 text-sm'>
+              <div>請求日：{offer.invoice_date}</div>
+              <div>金額：¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
+              <div>
+                振込先：{offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
+                {offer.bank_account_holder}
+              </div>
+            </CardContent>
+          </Card>
+          {offer.paid && (
+            <div className='text-green-600 text-sm'>✅ お支払いが完了しました（{format(parseISO(offer.paid_at || ''), 'yyyy年M月d日', { locale: ja })}）</div>
+          )}
+        </>
       ) : offer.status === 'confirmed' && offer.agreed ? (
         <Card>
           <CardHeader>

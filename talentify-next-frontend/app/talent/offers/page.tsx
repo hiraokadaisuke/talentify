@@ -16,6 +16,7 @@ type Offer = {
   message: string
   status: string | null
   respond_deadline: string | null
+  paid?: boolean | null
 }
 
 export default function TalentOffersPage() {
@@ -35,7 +36,7 @@ export default function TalentOffersPage() {
 
       const { data, error } = await supabase
         .from('offers' as any)
-        .select('id, date, message, status, respond_deadline')
+        .select('id, date, message, status, respond_deadline, paid, paid_at')
         .eq('talent_id', user.id) // ログイン中タレント宛のみに限定
 
       if (error) {
@@ -82,6 +83,7 @@ export default function TalentOffersPage() {
                       </span>
                     </div>
                     <div className="text-base font-medium">{offer.message}</div>
+                    <div className="text-sm">支払い状況：{offer.paid ? '済' : '未'}</div>
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="secondary" disabled={offer.status !== 'pending'}>
                         辞退
