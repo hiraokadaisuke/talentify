@@ -1,10 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { getNotifications, markNotificationRead, NotificationRow } from '@/utils/notifications'
 
-export default function TalentNotificationsPage() {
+export default function StoreNotificationsPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
 
   useEffect(() => {
@@ -20,8 +19,8 @@ export default function TalentNotificationsPage() {
   }
 
   const linkFor = (n: NotificationRow) => {
-    if (n.type === 'message') return '/talent/messages'
-    return n.offer_id ? `/talent/offers/${n.offer_id}` : '#'
+    if (n.type === 'message') return '/store/messages'
+    return n.offer_id ? `/store/offers/${n.offer_id}` : '#'
   }
 
   return (

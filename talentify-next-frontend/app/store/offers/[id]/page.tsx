@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
+import { addNotification } from '@/utils/notifications'
 
 interface Offer {
   id: string
@@ -21,6 +22,8 @@ interface Offer {
   status: string | null
   created_at?: string | null
   talent_stage_name?: string | null
+  talent_id?: string
+  user_id?: string
   invoice_date?: string | null
   invoice_amount?: number | null
   bank_name?: string | null
@@ -43,7 +46,7 @@ export default function StoreOfferDetailPage() {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,paid,paid_at,talents(stage_name)')
+        .select('id,date,second_date,third_date,fixed_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,paid,paid_at,user_id,talent_id,talents(stage_name)')
         .eq('id', params.id)
         .single()
 
@@ -66,6 +69,14 @@ export default function StoreOfferDetailPage() {
     })
     if (res.ok) {
       setOffer({ ...offer, status: 'confirmed', fixed_date: d })
+      if (offer.talent_id) {
+        await addNotification({
+          user_id: offer.talent_id,
+          offer_id: offer.id,
+          type: 'schedule_fixed',
+          title: '出演日程が確定しました'
+        })
+      }
       setToast('スケジュールを確定しました')
       setTimeout(() => setToast(null), 3000)
     } else {
@@ -97,6 +108,14 @@ export default function StoreOfferDetailPage() {
     if (res.ok) {
       setOffer({ ...offer, contract_url: url })
       setFile(null)
+      if (offer.talent_id) {
+        await addNotification({
+          user_id: offer.talent_id,
+          offer_id: offer.id,
+          type: 'contract_uploaded',
+          title: '契約書がアップロードされました'
+        })
+      }
       setToast('契約書をアップロードしました')
     } else {
       setToast('更新に失敗しました')
@@ -133,6 +152,14 @@ export default function StoreOfferDetailPage() {
     if (res.ok) {
       const now = new Date().toISOString()
       setOffer({ ...offer, paid: true, paid_at: now })
+      if (offer.talent_id) {
+        await addNotification({
+          user_id: offer.talent_id,
+          offer_id: offer.id,
+          type: 'payment_completed',
+          title: 'お支払いが完了しました'
+        })
+      }
       setToast('支払い完了を登録しました')
     } else {
       setToast('更新に失敗しました')

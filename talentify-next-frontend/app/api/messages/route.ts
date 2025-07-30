@@ -48,5 +48,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error?.message ?? 'not found' }, { status: 500 })
   }
 
+  if (topic) {
+    await supabase.from('notifications').insert({
+      user_id: topic,
+      offer_id: null,
+      type: 'message',
+      title: '新着メッセージがあります',
+      body: content ?? null
+    })
+  }
+
   return NextResponse.json(data, { status: 201 })
 }
