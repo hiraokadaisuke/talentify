@@ -47,6 +47,9 @@ NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
 
 `NEXT_PUBLIC_SUPABASE_URL` と `NEXT_PUBLIC_SUPABASE_ANON_KEY` は
 `npm run build` などのビルド時にも必須です。環境変数として設定した上で実行してください。
+Vercel などのホスティング環境にデプロイする際は、同じ名前で環境変数を
+プロジェクト設定にも登録する必要があります。設定されていない場合、
+ミドルウェアで Supabase クライアントの初期化に失敗し、`500` エラーとなります。
 
 4. 開発サーバーの起動
 
