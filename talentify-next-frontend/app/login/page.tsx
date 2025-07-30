@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { API_BASE } from '@/lib/api'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -41,21 +42,28 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
 
-    const {
-      data: { session },
-      error: loginError,
-    } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (loginError || !session) {
-      setError('メールアドレスまたはパスワードが間違っています')
-      return
+    try {
+      const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
+        credentials: 'include',
+      })
+      const { csrfToken } = await csrfRes.json()
+      const res = await fetch(`${API_BASE}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      })
+      if (!res.ok) {
+        setError('メールアドレスまたはパスワードが間違っています')
+        return
+      }
+      router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
+    } catch (err) {
+      setError('ログインに失敗しました')
     }
-
-    await supabase.auth.getSession()
-    router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
   }
 
   return (
