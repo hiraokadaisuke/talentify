@@ -73,6 +73,7 @@
 - rejected
 - completed
 - offer_created
+- confirmed
 
 ### public.visit_status
 - scheduled

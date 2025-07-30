@@ -20,7 +20,7 @@ export default function TalentNotificationsPage() {
   }
 
   const linkFor = (n: NotificationRow) => {
-    if (n.type === 'message') return '/talent/messages'
+    if (n.type === 'message') return '/messages'
     return n.offer_id ? `/talent/offers/${n.offer_id}` : '#'
   }
 

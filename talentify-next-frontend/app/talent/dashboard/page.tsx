@@ -52,7 +52,7 @@ export default function TalentDashboard() {
         <>
           <ScheduleCard items={schedule} />
           <OfferSummaryCard pending={pending} accepted={schedule.length} link='/talent/offers' />
-          <MessageAlertCard count={unread} link='/talent/messages' />
+          <MessageAlertCard count={unread} link='/messages' />
           <NotificationListCard className='sm:col-span-2 lg:col-span-3' />
           <div className='sm:col-span-2 lg:col-span-3'>
             <ProfileProgressCard />
