@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -15,11 +14,37 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (session) {
+        router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
+      }
+    }
+
+    checkSession()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
+      if (session) {
+        router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
+      }
+    })
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [router, searchParams, supabase])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
 
-    const { data: { session }, error: loginError } = await supabase.auth.signInWithPassword({
+    const {
+      data: { session },
+      error: loginError,
+    } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -29,13 +54,7 @@ export default function LoginPage() {
       return
     }
 
-    const userId = session.user.id
-    const { role } = await getUserRoleInfo(supabase, userId)
-
-    if (!role) {
-      // TODO: explicit role selection page can be implemented here
-    }
-
+    await supabase.auth.getSession()
     router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
   }
 

@@ -13,10 +13,13 @@ export function useUserRole() {
   useEffect(() => {
     const fetchRole = async () => {
       const {
-        data: { user },
-      } = await supabase.auth.getUser()
+        data: { session },
+      } = await supabase.auth.getSession()
+      const user = session?.user
       if (!user) {
         setLoading(false)
+        setRole(null)
+        setIsSetupComplete(null)
         return
       }
       const { role: r, isSetupComplete } = await getUserRoleInfo(supabase, user.id)
@@ -26,6 +29,24 @@ export function useUserRole() {
     }
 
     fetchRole()
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        getUserRoleInfo(supabase, session.user.id).then(({ role: r, isSetupComplete }) => {
+          setRole(r)
+          setIsSetupComplete(isSetupComplete)
+          setLoading(false)
+        })
+      } else {
+        setRole(null)
+        setIsSetupComplete(null)
+        setLoading(false)
+      }
+    })
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
   }, [])
 
   return { role, isSetupComplete, loading }
