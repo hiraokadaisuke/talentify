@@ -2,11 +2,10 @@ export const runtime = 'nodejs'
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { cache } from 'react'
 import type { Database } from '@/types/supabase'
 import type { NextRequest, NextResponse } from 'next/server'
 
-export const createClient = cache(async () => {
+export function createClient() {
   const cookieStore = cookies()
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -28,7 +27,7 @@ export const createClient = cache(async () => {
       },
     },
   })
-})
+}
 
 export const createMiddlewareClient = (
   req: NextRequest,
