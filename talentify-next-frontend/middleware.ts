@@ -1,16 +1,22 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { createMiddlewareClient } from '@/lib/supabase/server'
 
-export function middleware(req: NextRequest) {
-  const isLoggedIn = Boolean(req.cookies.get('sb-access-token')?.value)
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next()
+
+  const supabase = createMiddlewareClient(req, res)
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
   const { pathname } = req.nextUrl
 
-  if (pathname === '/' && !isLoggedIn) {
-    return NextResponse.next()
+  if (pathname === '/' && !session) {
+    return res
   }
 
-
   if (
-    !isLoggedIn &&
+    !session &&
     ['/dashboard', '/store', '/talent', '/profile', '/messages', '/manage'].some(
       (p) => pathname.startsWith(p)
     )
@@ -21,7 +27,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  return NextResponse.next()
+  return res  // ← ここが重要。resを返すことでCookieが保存される
 }
 
 export const config = {
