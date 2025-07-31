@@ -42,15 +42,23 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
 
+    console.log('🟦 ログイン開始')
+    console.log('API_BASE:', API_BASE)
+
     try {
-      const csrfRes = await fetch(`${API_BASE}/api/csrf-token`, {
+      const csrfRes = await fetch(`${API_BASE ?? ''}/api/csrf-token`, {
         credentials: 'include',
       })
+      console.log('🟨 /api/csrf-token レスポンスステータス:', csrfRes.status)
+
       if (!csrfRes.ok) {
         throw new Error('csrf')
       }
+
       const { csrfToken } = await csrfRes.json()
-      const res = await fetch(`${API_BASE}/api/login`, {
+      console.log('🟩 CSRFトークン取得成功:', csrfToken)
+
+      const res = await fetch(`${API_BASE ?? ''}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,12 +67,20 @@ export default function LoginPage() {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
+
+      console.log('🟨 /api/login レスポンスステータス:', res.status)
+
       if (!res.ok) {
+        const errorText = await res.text()
+        console.error('❌ ログインAPI失敗:', errorText)
         setError('メールアドレスまたはパスワードが間違っています')
         return
       }
+
+      console.log('✅ ログイン成功 → ダッシュボードへ遷移')
       router.replace(searchParams.get('redirectedFrom') ?? '/dashboard')
     } catch (err) {
+      console.error('🔥 ログイン処理エラー:', err)
       const message =
         err instanceof Error && err.message === 'csrf'
           ? 'CSRFトークンの取得に失敗しました。CORS またはセッションエラーの可能性があります'
