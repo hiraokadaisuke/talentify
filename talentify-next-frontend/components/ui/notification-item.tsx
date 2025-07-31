@@ -16,7 +16,7 @@ const typeIcon = {
 }
 
 export function NotificationItem({ notification, className, ...props }: NotificationItemProps) {
-  const Icon = typeIcon[notification.type]
+  const Icon = typeIcon[notification.type] || Info
 
   return (
     <div
