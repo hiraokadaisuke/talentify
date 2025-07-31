@@ -43,6 +43,8 @@ NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
 
 `NEXT_PUBLIC_API_BASE` を空にしておくと、フロントエンドと同じオリジンの API ルートを使用します。別ドメインを指定すると認証リクエストが CORS でブロックされるため注意してください。特に本番環境ではこの値を設定せず、フロントと API を同一ドメインでホスティングする構成を推奨します。
 
+例えば Vercel にデプロイする場合、`https://your-app.vercel.app` をフロントエンド兼 API のドメインとして利用し、`/api/csrf-token` などの API 呼び出しは相対パスで行います。別のサブドメインを `NEXT_PUBLIC_API_BASE` に指定すると `Access-Control-Allow-Origin` ヘッダーがないため CORS エラーとなります。
+
 `NOTIFICATION_WEBHOOK_URL` はオファーのステータス更新後に通知を送るWebフックのURLです。
 
 ※ `.env.local` は `.gitignore` に含まれています。
