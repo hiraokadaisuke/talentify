@@ -100,6 +100,7 @@
 - status: USER-DEFINED, NOT NULL
 - created_at: timestamp with time zone, DEFAULT now()
 - updated_at: timestamp with time zone, DEFAULT now()
+- invoice_url: text
 
 ### public_talent_profiles
 - display_name: text
@@ -188,6 +189,14 @@
 - transportation: text
 - min_hours: text
 - updated_at: timestamp with time zone, DEFAULT now()
+- bio_hobby: text
+- bio_certifications: text
+- birthdate: date
+- birthplace: text
+- height_cm: integer
+- agency_name: text
+- social_tiktok: text
+- gender: USER-DEFINED
 
 ### visits
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
