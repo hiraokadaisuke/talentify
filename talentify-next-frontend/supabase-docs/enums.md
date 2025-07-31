@@ -34,6 +34,11 @@
 - webauthn
 - phone
 
+### public.gender_type
+- male
+- female
+- other
+
 ### public.invoice_status
 - draft
 - submitted
@@ -46,6 +51,8 @@
 - payment_created
 - invoice_submitted
 - review_received
+- message
+- offer
 
 ### public.offer_status
 - pending
