@@ -28,7 +28,7 @@ export async function PUT(
 
   let allowedFields: string[] = []
   if (user.id === offer.store_id) {
-    allowedFields = ['status', 'fixed_date', 'contract_url', 'paid', 'paid_at']
+    allowedFields = ['status', 'contract_url', 'paid', 'paid_at']
   } else if (user.id === offer.talent_id) {
     allowedFields = [
       'status',

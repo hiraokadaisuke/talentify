@@ -15,9 +15,7 @@ import { addNotification } from '@/utils/notifications'
 
 interface Offer {
   id: string
-  date: string
-  second_date?: string | null
-  third_date?: string | null
+  visit_date: string
   time_range?: string | null
   created_at?: string | null
   message: string
@@ -157,7 +155,7 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-  `id, date, second_date, third_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
+  `id, visit_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
 )
         .eq('id', params.id)
         .single()
@@ -255,7 +253,7 @@ export default function TalentOfferDetailPage() {
             <div className='text-green-600 text-sm'>✅ お支払いが完了しました（{format(parseISO(offer.paid_at || ''), 'yyyy年M月d日', { locale: ja })}）</div>
           )}
         </>
-      ) : offer.status === 'confirmed' && offer.agreed ? (
+      ) : offer.status === 'accepted' && offer.agreed ? (
         <Card>
           <CardHeader>
             <CardTitle>請求書作成</CardTitle>
@@ -320,13 +318,7 @@ export default function TalentOfferDetailPage() {
             </div>
           )}
           {offer.event_name && <div>イベント名: {offer.event_name}</div>}
-          <div>候補日1: {format(parseISO(offer.date), 'yyyy-MM-dd')}</div>
-          {offer.second_date && (
-            <div>候補日2: {format(parseISO(offer.second_date), 'yyyy-MM-dd')}</div>
-          )}
-          {offer.third_date && (
-            <div>候補日3: {format(parseISO(offer.third_date), 'yyyy-MM-dd')}</div>
-          )}
+          <div>訪問日: {format(parseISO(offer.visit_date), 'yyyy-MM-dd')}</div>
           {timeRange && <div>時間帯: {timeRange}</div>}
           {typeof offer.reward === 'number' && (
             <div>報酬: {offer.reward.toLocaleString()}円</div>
@@ -370,12 +362,6 @@ export default function TalentOfferDetailPage() {
             見送る
           </Button>
           <Button onClick={() => handleStatusChange('accepted')}>承諾する</Button>
-        </div>
-      )}
-
-      {offer.status === 'accepted' && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 text-center text-sm">
-          確定待ちです
         </div>
       )}
 

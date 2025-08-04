@@ -49,9 +49,9 @@ export default function StoreSchedulePage() {
 
       const { data, error } = await supabase
         .from('offers')
-        .select('id, talent_id, date, status, talents(stage_name)')
+        .select('id, talent_id, visit_date, status, talents(stage_name)')
         .eq('user_id', user.id)
-        .in('status', ['accepted', 'confirmed'])
+        .eq('status', 'accepted')
 
       if (error) {
         console.error('Failed to fetch offers', error)
@@ -60,8 +60,8 @@ export default function StoreSchedulePage() {
 
       const mapped = (data || []).map((o: any) => ({
         title: o.talents?.stage_name || '出演',
-        start: new Date(o.date),
-        end: new Date(o.date),
+        start: new Date(o.visit_date),
+        end: new Date(o.visit_date),
         talentId: o.talent_id,
         offerId: o.id,
       })) as OfferEvent[]

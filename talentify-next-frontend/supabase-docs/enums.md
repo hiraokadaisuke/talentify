@@ -58,7 +58,6 @@
 - pending
 - accepted
 - rejected
-- confirmed
 
 ### auth.one_time_token_type
 - confirmation_token

@@ -391,11 +391,8 @@ export type Database = {
           store_id: string | null
           talent_id: string
           message: string
-          date: string
-          second_date: string | null
-          third_date: string | null
+          visit_date: string
           time_range: string | null
-          fixed_date: string | null
           contract_url: string | null
           notes: string | null
           agreed: boolean | null
@@ -416,11 +413,8 @@ export type Database = {
           store_id?: string | null
           talent_id: string
           message: string
-          date: string
-          second_date?: string | null
-          third_date?: string | null
+          visit_date: string
           time_range?: string | null
-          fixed_date?: string | null
           contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
@@ -441,11 +435,8 @@ export type Database = {
           store_id?: string | null
           talent_id?: string
           message?: string
-          date?: string
-          second_date?: string | null
-          third_date?: string | null
+          visit_date?: string
           time_range?: string | null
-          fixed_date?: string | null
           contract_url?: string | null
           notes?: string | null
           agreed?: boolean | null
@@ -480,7 +471,7 @@ export type Database = {
         | 'invoice_submitted'
         | 'payment_completed'
         | 'message'
-      offer_status: 'pending' | 'accepted' | 'rejected' | 'confirmed'
+      offer_status: 'pending' | 'accepted' | 'rejected'
       payment_status: 'pending' | 'paid' | 'cancelled'
       status_type: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed'
       visit_status: 'scheduled' | 'confirmed' | 'visited'
@@ -610,7 +601,7 @@ export const Constants = {
         'payment_completed',
         'message'
       ],
-      offer_status: ['pending', 'accepted', 'rejected', 'confirmed'],
+      offer_status: ['pending', 'accepted', 'rejected'],
       payment_status: ['pending', 'paid', 'cancelled'],
       status_type: ['draft', 'pending', 'approved', 'rejected', 'completed'],
       visit_status: ['scheduled', 'confirmed', 'visited']
