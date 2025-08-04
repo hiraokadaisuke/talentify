@@ -13,7 +13,7 @@ This document lists the planned dashboard sections for each role and notes which
 Sections displayed:
 
 1. **Offer Stats** – summary of offers received recently.
-2. **Next Event** – upcoming confirmed schedule.
+2. **Next Event** – upcoming accepted schedule.
 3. **Unread Messages** – badge showing unread message count.
 
 These can all be presented using `DashboardCard` with specific content.

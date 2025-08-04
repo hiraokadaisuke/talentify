@@ -63,7 +63,7 @@
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
 - talent_id: uuid
 - user_id: uuid
-- date: date, NOT NULL
+- visit_date: timestamp with time zone
 - message: text
 - created_at: timestamp with time zone, DEFAULT timezone('utc'::text, now())
 - status: USER-DEFINED
@@ -78,10 +78,7 @@
 - notes: text
 - store_id: uuid
 - agreed: boolean
-- second_date: date
-- third_date: date
 - time_range: text
-- fixed_date: date
 - paid: boolean, DEFAULT false
 - paid_at: timestamp with time zone
 - invoice_date: date

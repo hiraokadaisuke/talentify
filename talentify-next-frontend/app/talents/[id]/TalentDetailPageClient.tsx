@@ -48,9 +48,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [userId, setUserId] = useState<string | null>(null)
   const { role, loading: roleLoading } = useUserRole()
   const [showForm, setShowForm] = useState(false)
-  const [visitDate1, setVisitDate1] = useState('')
-  const [visitDate2, setVisitDate2] = useState('')
-  const [visitDate3, setVisitDate3] = useState('')
+  const [visitDate, setVisitDate] = useState('')
   const [timeRange, setTimeRange] = useState('')
   const [note, setNote] = useState('')
   const [isAgreed, setIsAgreed] = useState(false)
@@ -104,15 +102,13 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       return
     }
 
-    const message = `第1希望:${visitDate1}\n第2希望:${visitDate2}\n第3希望:${visitDate3}\n希望時間帯:${timeRange}\n備考:${note}`
+    const message = `来店希望日:${visitDate}\n希望時間帯:${timeRange}\n備考:${note}`
     const payload = {
       user_id: user.id,
       store_id: store.id,
       talent_id: id,
       message,
-      date: visitDate1,
-      second_date: visitDate2 || null,
-      third_date: visitDate3 || null,
+      visit_date: visitDate,
       time_range: timeRange || null,
       notes: note || null,
       agreed: isAgreed,
@@ -284,16 +280,8 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                 {showForm && (
                   <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded">
                     <div>
-                      <label className="block text-sm font-medium mb-1">来店希望日(第1希望)</label>
-                      <Input type="date" value={visitDate1} onChange={e => setVisitDate1(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">来店希望日(第2希望)</label>
-                      <Input type="date" value={visitDate2} onChange={e => setVisitDate2(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">来店希望日(第3希望)</label>
-                      <Input type="date" value={visitDate3} onChange={e => setVisitDate3(e.target.value)} />
+                      <label className="block text-sm font-medium mb-1">来店希望日</label>
+                      <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} required />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-1">希望時間帯</label>

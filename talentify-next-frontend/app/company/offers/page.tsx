@@ -14,8 +14,8 @@ export default function CompanyOffersPage() {
 
   const [status, setStatus] = useState('all')
   const [keyword, setKeyword] = useState('')
-  const [fixedFrom, setFixedFrom] = useState('')
-  const [fixedTo, setFixedTo] = useState('')
+  const [visitFrom, setVisitFrom] = useState('')
+  const [visitTo, setVisitTo] = useState('')
   const [invoiceFrom, setInvoiceFrom] = useState('')
   const [invoiceTo, setInvoiceTo] = useState('')
   const [paidFrom, setPaidFrom] = useState('')
@@ -36,8 +36,8 @@ export default function CompanyOffersPage() {
       const sn = o.store_name?.toLowerCase() ?? ''
       if (!tn.includes(kw) && !sn.includes(kw)) return false
     }
-    if (fixedFrom && (!o.fixed_date || o.fixed_date < fixedFrom)) return false
-    if (fixedTo && (!o.fixed_date || o.fixed_date > fixedTo)) return false
+    if (visitFrom && (!o.visit_date || o.visit_date < visitFrom)) return false
+    if (visitTo && (!o.visit_date || o.visit_date > visitTo)) return false
     if (invoiceFrom && (!o.invoice_date || o.invoice_date < invoiceFrom)) return false
     if (invoiceTo && (!o.invoice_date || o.invoice_date > invoiceTo)) return false
     if (paidFrom && (!o.paid_at || o.paid_at < paidFrom)) return false
@@ -46,11 +46,11 @@ export default function CompanyOffersPage() {
   })
 
   const downloadCsv = () => {
-    const headers = ['タレント名','店舗名','確定日','報酬金額','請求日','支払日','契約確認済み','備考']
+    const headers = ['タレント名','店舗名','来店日','報酬金額','請求日','支払日','契約確認済み','備考']
     const rows = filtered.map(o => [
       o.talent_name ?? '',
       o.store_name ?? '',
-      o.fixed_date ?? '',
+      o.visit_date ?? '',
       String(o.invoice_amount ?? o.reward ?? ''),
       o.invoice_date ?? '',
       o.paid_at ?? '',
@@ -71,7 +71,6 @@ export default function CompanyOffersPage() {
   const statusLabels: Record<string, string> = {
     pending: '保留中',
     accepted: '承諾済み',
-    confirmed: '確定済',
     rejected: '拒否',
     expired: '期限切れ',
   }
@@ -86,7 +85,6 @@ export default function CompanyOffersPage() {
             <option value='all'>すべて</option>
             <option value='pending'>保留中</option>
             <option value='accepted'>承諾済み</option>
-            <option value='confirmed'>確定済</option>
             <option value='rejected'>拒否</option>
             <option value='expired'>期限切れ</option>
           </select>
@@ -96,12 +94,12 @@ export default function CompanyOffersPage() {
           <input type='text' value={keyword} onChange={e=>setKeyword(e.target.value)} className='border rounded p-1'/>
         </div>
         <div>
-          <label className='block'>確定日From</label>
-          <input type='date' value={fixedFrom} onChange={e=>setFixedFrom(e.target.value)} className='border rounded p-1'/>
+          <label className='block'>来店日From</label>
+          <input type='date' value={visitFrom} onChange={e=>setVisitFrom(e.target.value)} className='border rounded p-1'/>
         </div>
         <div>
-          <label className='block'>確定日To</label>
-          <input type='date' value={fixedTo} onChange={e=>setFixedTo(e.target.value)} className='border rounded p-1'/>
+          <label className='block'>来店日To</label>
+          <input type='date' value={visitTo} onChange={e=>setVisitTo(e.target.value)} className='border rounded p-1'/>
         </div>
         <div>
           <label className='block'>請求日From</label>
@@ -136,7 +134,7 @@ export default function CompanyOffersPage() {
               <TableHead>タレント名</TableHead>
               <TableHead>店舗名</TableHead>
               <TableHead>ステータス</TableHead>
-              <TableHead>確定日</TableHead>
+              <TableHead>来店日</TableHead>
               <TableHead>報酬金額</TableHead>
               <TableHead>契約確認</TableHead>
               <TableHead>請求済</TableHead>
@@ -151,7 +149,7 @@ export default function CompanyOffersPage() {
                 <TableCell>{o.talent_name}</TableCell>
                 <TableCell>{o.store_name}</TableCell>
                 <TableCell>{statusLabels[o.status ?? 'pending']}</TableCell>
-                <TableCell>{o.fixed_date ?? ''}</TableCell>
+                <TableCell>{o.visit_date ?? ''}</TableCell>
                 <TableCell>¥{(o.invoice_amount ?? o.reward ?? 0).toLocaleString()}</TableCell>
                 <TableCell>
                   {o.agreed ? <Badge>確認済</Badge> : <Badge variant='destructive'>未確認</Badge>}
