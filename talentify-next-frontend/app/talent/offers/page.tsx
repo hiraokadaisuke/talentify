@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ListSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
-import { format, isBefore, parseISO, addDays } from 'date-fns'
+import { format, isBefore, parseISO, addDays, isValid } from 'date-fns'
 
 type Offer = {
   id: string
@@ -34,21 +34,22 @@ export default function TalentOffersPage() {
         return
       }
 
-      const { data: talentRecord } = await supabase
-        .from('talents')
+      const { data: talentRows, error: talentError } = (await supabase
+        .from('talents' as any)
         .select('id')
-        .eq('user_id', user.id)
-        .single()
+        .eq('user_id', user.id)) as any
 
-      if (!talentRecord) {
+      if (talentError || !talentRows || talentRows.length === 0) {
+        setOffers([])
         setLoading(false)
         return
       }
+      const talentId = (talentRows[0] as { id: string }).id
 
       const { data, error } = await supabase
-        .from('offers')
+        .from('offers' as any)
         .select('id, visit_date, message, status, respond_deadline, paid, paid_at')
-        .eq('talent_id', talentRecord.id)
+        .eq('talent_id', talentId)
 
       if (error) {
         console.error('Error fetching offers:', error)
@@ -79,12 +80,16 @@ export default function TalentOffersPage() {
           {offers.map(offer => {
             let deadline: string | null = offer.respond_deadline
             const baseDate = offer.visit_date ? parseISO(offer.visit_date) : null
-            if (!deadline && baseDate) {
+            if (!deadline && baseDate && isValid(baseDate)) {
               deadline = format(addDays(baseDate, 3), 'yyyy-MM-dd')
             }
-            const isExpired = deadline
-              ? isBefore(parseISO(deadline), new Date())
-              : false
+            let isExpired = false
+            if (deadline) {
+              const parsedDeadline = parseISO(deadline)
+              if (isValid(parsedDeadline)) {
+                isExpired = isBefore(parsedDeadline, new Date())
+              }
+            }
             const statusInfo = statusMap[offer.status ?? 'pending']
 
             return (
