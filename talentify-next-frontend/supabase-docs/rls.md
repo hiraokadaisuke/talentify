@@ -25,7 +25,7 @@
 - ストアはオファーを登録可能 (`INSERT`): CHECK `(auth.uid() = store_id)`
 - ストアは自分のオファーを削除可能 (`DELETE`): USING `(auth.uid() = store_id)`
 - ストアまたはタレントは自分のオファーを閲覧可能 (`SELECT`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
-- ストアは自分のオファーを更新可能 (`UPDATE`): USING `(auth.uid() = store_id)`
+- ストアとタレントが自分のオファーを更新可能 (`UPDATE`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
 
 ### payments
 - 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`

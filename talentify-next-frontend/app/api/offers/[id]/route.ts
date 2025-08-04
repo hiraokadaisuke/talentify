@@ -7,42 +7,54 @@ export async function PUT(
 ) {
   const supabase = await createClient()
   const { id } = params
+  const body = await req.json()
+
   const {
-    status,
-    fixed_date,
-    contract_url,
-    agreed,
-    invoice_date,
-    invoice_amount,
-    bank_name,
-    bank_branch,
-    bank_account_number,
-    bank_account_holder,
-    invoice_submitted,
-    paid,
-    paid_at,
-  } = await req.json()
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+  if (userError || !user) {
+    return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
+  }
+
+  const { data: offer, error: offerError } = await supabase
+    .from('offers')
+    .select('store_id, talent_id')
+    .eq('id', id)
+    .single()
+  if (offerError || !offer) {
+    return NextResponse.json<{ error: string }>({ error: 'オファーが見つかりません' }, { status: 404 })
+  }
+
+  let allowedFields: string[] = []
+  if (user.id === offer.store_id) {
+    allowedFields = ['status', 'fixed_date', 'contract_url', 'paid', 'paid_at']
+  } else if (user.id === offer.talent_id) {
+    allowedFields = [
+      'status',
+      'agreed',
+      'invoice_date',
+      'invoice_amount',
+      'bank_name',
+      'bank_branch',
+      'bank_account_number',
+      'bank_account_holder',
+      'invoice_submitted',
+    ]
+  } else {
+    return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+  }
 
   const updates: Record<string, any> = {}
-  if (status) updates.status = status
-  if (fixed_date) updates.fixed_date = fixed_date
-  if (contract_url) updates.contract_url = contract_url
-  if (typeof agreed === 'boolean') updates.agreed = agreed
-  if (invoice_date) updates.invoice_date = invoice_date
-  if (invoice_amount) updates.invoice_amount = invoice_amount
-  if (bank_name) updates.bank_name = bank_name
-  if (bank_branch) updates.bank_branch = bank_branch
-  if (bank_account_number) updates.bank_account_number = bank_account_number
-  if (bank_account_holder) updates.bank_account_holder = bank_account_holder
-  if (typeof invoice_submitted === 'boolean')
-    updates.invoice_submitted = invoice_submitted
-  if (typeof paid === 'boolean') updates.paid = paid
-  if (paid_at) updates.paid_at = paid_at
+  for (const field of allowedFields) {
+    if (body[field] !== undefined) updates[field] = body[field]
+  }
 
-  const { error } = await supabase
-    .from('offers')
-    .update(updates)
-    .eq('id', id)
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json<{ error: string }>({ error: '更新可能な項目がありません' }, { status: 400 })
+  }
+
+  const { error } = await supabase.from('offers').update(updates).eq('id', id)
 
   if (error) {
     return NextResponse.json<{ error: string }>({ error: error.message }, { status: 500 })
@@ -55,7 +67,12 @@ export async function PUT(
       await fetch(webhook, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ offerId: id, status, contract_url, agreed }),
+        body: JSON.stringify({
+          offerId: id,
+          status: updates.status,
+          contract_url: updates.contract_url,
+          agreed: updates.agreed,
+        }),
       })
     } catch (err) {
       console.error('Failed to send notification:', err)
