@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ListSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
-import { format, isBefore, parseISO, addDays } from 'date-fns'
+import { format, isBefore, parseISO, addDays, isValid } from 'date-fns'
 
 type Offer = {
   id: string
@@ -34,10 +34,22 @@ export default function TalentOffersPage() {
         return
       }
 
+      const { data: talentRows, error: talentError } = (await supabase
+        .from('talents' as any)
+        .select('id')
+        .eq('user_id', user.id)) as any
+
+      if (talentError || !talentRows || talentRows.length === 0) {
+        setOffers([])
+        setLoading(false)
+        return
+      }
+      const talentId = (talentRows[0] as { id: string }).id
+
       const { data, error } = await supabase
         .from('offers' as any)
         .select('id, visit_date, message, status, respond_deadline, paid, paid_at')
-        .eq('talent_id', user.id) // ログイン中タレント宛のみに限定
+        .eq('talent_id', talentId)
 
       if (error) {
         console.error('Error fetching offers:', error)
@@ -66,10 +78,18 @@ export default function TalentOffersPage() {
       ) : (
         <ul className="space-y-2">
           {offers.map(offer => {
-            const deadline =
-              offer.respond_deadline ||
-              format(addDays(parseISO(offer.visit_date), 3), 'yyyy-MM-dd')
-            const isExpired = isBefore(parseISO(deadline), new Date())
+            let deadline: string | null = offer.respond_deadline
+            const baseDate = offer.visit_date ? parseISO(offer.visit_date) : null
+            if (!deadline && baseDate && isValid(baseDate)) {
+              deadline = format(addDays(baseDate, 3), 'yyyy-MM-dd')
+            }
+            let isExpired = false
+            if (deadline) {
+              const parsedDeadline = parseISO(deadline)
+              if (isValid(parsedDeadline)) {
+                isExpired = isBefore(parsedDeadline, new Date())
+              }
+            }
             const statusInfo = statusMap[offer.status ?? 'pending']
 
             return (
@@ -79,7 +99,7 @@ export default function TalentOffersPage() {
                     <div className="flex items-center justify-between">
                       <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
                       <span className={isExpired ? 'text-red-600 text-sm' : 'text-sm'}>
-                        期限: {deadline}
+                        期限: {deadline ?? '-'}
                       </span>
                     </div>
                     <div className="text-base font-medium">{offer.message}</div>
