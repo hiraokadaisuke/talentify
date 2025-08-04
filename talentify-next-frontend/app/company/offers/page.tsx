@@ -36,8 +36,8 @@ export default function CompanyOffersPage() {
       const sn = o.store_name?.toLowerCase() ?? ''
       if (!tn.includes(kw) && !sn.includes(kw)) return false
     }
-    if (visitFrom && (!o.visit_date || o.visit_date < visitFrom)) return false
-    if (visitTo && (!o.visit_date || o.visit_date > visitTo)) return false
+    if (visitFrom && (!o.date || o.date < visitFrom)) return false
+    if (visitTo && (!o.date || o.date > visitTo)) return false
     if (invoiceFrom && (!o.invoice_date || o.invoice_date < invoiceFrom)) return false
     if (invoiceTo && (!o.invoice_date || o.invoice_date > invoiceTo)) return false
     if (paidFrom && (!o.paid_at || o.paid_at < paidFrom)) return false
@@ -50,7 +50,7 @@ export default function CompanyOffersPage() {
     const rows = filtered.map(o => [
       o.talent_name ?? '',
       o.store_name ?? '',
-      o.visit_date ?? '',
+      o.date ?? '',
       String(o.invoice_amount ?? o.reward ?? ''),
       o.invoice_date ?? '',
       o.paid_at ?? '',
@@ -149,7 +149,7 @@ export default function CompanyOffersPage() {
                 <TableCell>{o.talent_name}</TableCell>
                 <TableCell>{o.store_name}</TableCell>
                 <TableCell>{statusLabels[o.status ?? 'pending']}</TableCell>
-                <TableCell>{o.visit_date ?? ''}</TableCell>
+                <TableCell>{o.date ?? ''}</TableCell>
                 <TableCell>¥{(o.invoice_amount ?? o.reward ?? 0).toLocaleString()}</TableCell>
                 <TableCell>
                   {o.agreed ? <Badge>確認済</Badge> : <Badge variant='destructive'>未確認</Badge>}

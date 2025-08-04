@@ -63,7 +63,7 @@
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
 - talent_id: uuid
 - user_id: uuid
-- visit_date: timestamp with time zone
+- date: timestamp with time zone
 - message: text
 - created_at: timestamp with time zone, DEFAULT timezone('utc'::text, now())
 - status: USER-DEFINED
@@ -90,7 +90,7 @@
 - invoice_submitted: boolean, DEFAULT false
 - contract_url: text
 
-`visit_date` は `timestamp with time zone` 型で、`YYYY-MM-DD` もしくは ISO 8601 形式で送信する必要があります。`status` では `draft` / `pending` / `approved` / `rejected` / `completed` の値を使用でき、オファー作成時のデフォルトは `pending` です。
+`date` は `timestamp with time zone` 型で、`YYYY-MM-DD` もしくは ISO 8601 形式で送信する必要があります。`status` では `draft` / `pending` / `approved` / `rejected` / `completed` の値を使用でき、オファー作成時のデフォルトは `pending` です。
 
 ### payments
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()

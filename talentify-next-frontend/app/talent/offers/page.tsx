@@ -12,7 +12,7 @@ import { format, isBefore, parseISO, addDays, isValid } from 'date-fns'
 
 type Offer = {
   id: string
-  visit_date: string
+  date: string
   message: string
   status: string | null
   respond_deadline: string | null
@@ -48,7 +48,7 @@ export default function TalentOffersPage() {
 
       const { data, error } = await supabase
         .from('offers' as any)
-        .select('id, visit_date, message, status, respond_deadline, paid, paid_at')
+        .select('id, date, message, status, respond_deadline, paid, paid_at')
         .eq('talent_id', talentId)
 
       if (error) {
@@ -79,7 +79,7 @@ export default function TalentOffersPage() {
         <ul className="space-y-2">
           {offers.map(offer => {
             let deadline: string | null = offer.respond_deadline
-            const baseDate = offer.visit_date ? parseISO(offer.visit_date) : null
+            const baseDate = offer.date ? parseISO(offer.date) : null
             if (!deadline && baseDate && isValid(baseDate)) {
               deadline = format(addDays(baseDate, 3), 'yyyy-MM-dd')
             }

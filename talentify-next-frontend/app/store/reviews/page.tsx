@@ -39,7 +39,7 @@ export default function StoreReviewsPage() {
           <TableBody>
             {offers.map(o => (
               <TableRow key={o.id}>
-                <TableCell>{o.visit_date}</TableCell>
+                <TableCell>{o.date}</TableCell>
                 <TableCell>{o.talent_name || o.talent_id}</TableCell>
                 <TableCell>
                   {o.reviewed ? (

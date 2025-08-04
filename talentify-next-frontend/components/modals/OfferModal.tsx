@@ -102,7 +102,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
         store_id: store.id,
         talent_id: talentId,
         message,
-        visit_date: visitDate,
+        date: visitDate,
         status: 'pending', // "offer_created" is not a valid status_type. Use pending.
       },
     ])

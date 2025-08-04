@@ -1,7 +1,7 @@
 export type TalentSchedule = {
   id: string
   store_name: string | null
-  visit_date: string
+  date: string
   time_range: string | null
 }
 
@@ -20,10 +20,10 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
 
   const { data, error } = await supabase
     .from('offers')
-    .select('id, visit_date, time_range, stores(store_name)')
+    .select('id, date, time_range, stores(store_name)')
     .eq('talent_id', user.id)
     .eq('status', 'accepted')
-    .order('visit_date', { ascending: true })
+    .order('date', { ascending: true })
 
   if (error) {
     console.error('failed to fetch schedules', error)
@@ -34,7 +34,7 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
     data ?? []
   ).map((o: any) => ({
     id: o.id,
-    visit_date: o.visit_date,
+    date: o.date,
     time_range: o.time_range,
     store_name: o.stores?.store_name ?? null,
   }))

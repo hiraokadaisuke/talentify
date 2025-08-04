@@ -21,7 +21,7 @@ export default function TalentDashboard() {
   useEffect(() => {
     getTalentSchedule().then((data) => {
       const items: ScheduleItem[] = data.map((d) => ({
-        date: d.visit_date,
+        date: d.date,
         performer: d.store_name ?? '',
         status: 'confirmed',
         href: `/talent/offers/${d.id}`,

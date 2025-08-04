@@ -12,7 +12,7 @@ import { addNotification } from '@/utils/notifications'
 
 interface Offer {
   id: string
-  visit_date: string
+  date: string
   contract_url?: string | null
   agreed?: boolean | null
   message: string
@@ -43,7 +43,7 @@ export default function StoreOfferDetailPage() {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,visit_date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,paid,paid_at,user_id,talent_id,talents(stage_name)')
+        .select('id,date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,paid,paid_at,user_id,talent_id,talents(stage_name)')
         .eq('id', params.id)
         .single()
 
@@ -152,7 +152,7 @@ export default function StoreOfferDetailPage() {
         <div className='whitespace-pre-wrap'>{offer.message}</div>
       </div>
       <div className='space-y-2'>
-        <div>訪問日: {format(parseISO(offer.visit_date), 'yyyy-MM-dd')}</div>
+        <div>訪問日: {format(parseISO(offer.date), 'yyyy-MM-dd')}</div>
       </div>
       {offer.contract_url && (
         <div className='space-y-1'>
