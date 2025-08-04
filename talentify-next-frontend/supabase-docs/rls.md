@@ -22,9 +22,9 @@
 
 ### offers
 - 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`
-- ストアはオファーを登録可能 (`INSERT`): CHECK `(auth.uid() = store_id)`
+- オファーはユーザー自身またはストアオーナーのみ登録可能 (`INSERT`): CHECK `auth.uid() = user_id OR EXISTS (SELECT 1 FROM stores s WHERE s.id = offers.store_id AND s.user_id = auth.uid())`
 - ストアは自分のオファーを削除可能 (`DELETE`): USING `(auth.uid() = store_id)`
-- ストアまたはタレントは自分のオファーを閲覧可能 (`SELECT`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
+- ユーザー自身、自分のストア、または自分のタレントに紐づくオファーを閲覧可能 (`SELECT`): USING `auth.uid() = user_id OR EXISTS (SELECT 1 FROM stores s WHERE s.id = offers.store_id AND s.user_id = auth.uid()) OR EXISTS (SELECT 1 FROM talents t WHERE t.id = offers.talent_id AND t.user_id = auth.uid())`
 - ストアとタレントが自分のオファーを更新可能 (`UPDATE`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
 
 ### payments

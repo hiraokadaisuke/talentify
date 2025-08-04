@@ -34,10 +34,21 @@ export default function TalentOffersPage() {
         return
       }
 
+      const { data: talentRecord } = await supabase
+        .from('talents')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (!talentRecord) {
+        setLoading(false)
+        return
+      }
+
       const { data, error } = await supabase
-        .from('offers' as any)
+        .from('offers')
         .select('id, visit_date, message, status, respond_deadline, paid, paid_at')
-        .eq('talent_id', user.id) // ログイン中タレント宛のみに限定
+        .eq('talent_id', talentRecord.id)
 
       if (error) {
         console.error('Error fetching offers:', error)
@@ -66,10 +77,14 @@ export default function TalentOffersPage() {
       ) : (
         <ul className="space-y-2">
           {offers.map(offer => {
-            const deadline =
-              offer.respond_deadline ||
-              format(addDays(parseISO(offer.visit_date), 3), 'yyyy-MM-dd')
-            const isExpired = isBefore(parseISO(deadline), new Date())
+            let deadline: string | null = offer.respond_deadline
+            const baseDate = offer.visit_date ? parseISO(offer.visit_date) : null
+            if (!deadline && baseDate) {
+              deadline = format(addDays(baseDate, 3), 'yyyy-MM-dd')
+            }
+            const isExpired = deadline
+              ? isBefore(parseISO(deadline), new Date())
+              : false
             const statusInfo = statusMap[offer.status ?? 'pending']
 
             return (
@@ -79,7 +94,7 @@ export default function TalentOffersPage() {
                     <div className="flex items-center justify-between">
                       <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
                       <span className={isExpired ? 'text-red-600 text-sm' : 'text-sm'}>
-                        期限: {deadline}
+                        期限: {deadline ?? '-'}
                       </span>
                     </div>
                     <div className="text-base font-medium">{offer.message}</div>
