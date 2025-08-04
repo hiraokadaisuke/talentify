@@ -15,7 +15,7 @@ import { addNotification } from '@/utils/notifications'
 
 interface Offer {
   id: string
-  visit_date: string
+  date: string
   time_range?: string | null
   created_at?: string | null
   message: string
@@ -155,7 +155,7 @@ export default function TalentOfferDetailPage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-  `id, visit_date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
+  `id, date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
 )
         .eq('id', params.id)
         .single()
@@ -318,7 +318,7 @@ export default function TalentOfferDetailPage() {
             </div>
           )}
           {offer.event_name && <div>イベント名: {offer.event_name}</div>}
-          <div>訪問日: {format(parseISO(offer.visit_date), 'yyyy-MM-dd')}</div>
+        <div>訪問日: {format(parseISO(offer.date), 'yyyy-MM-dd')}</div>
           {timeRange && <div>時間帯: {timeRange}</div>}
           {typeof offer.reward === 'number' && (
             <div>報酬: {offer.reward.toLocaleString()}円</div>

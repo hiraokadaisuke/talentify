@@ -108,7 +108,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       store_id: store.id,
       talent_id: id,
       message,
-      visit_date: visitDate,
+      date: visitDate,
       time_range: timeRange || null,
       notes: note || null,
       agreed: isAgreed,

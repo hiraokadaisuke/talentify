@@ -44,7 +44,7 @@ export default function OfferPage() {
         store_id: store.id,
         talent_id: talentId,
         message: message,
-        visit_date: visitDate,
+        date: visitDate,
         status: 'pending', // "offer_created" is not allowed
       },
     ])

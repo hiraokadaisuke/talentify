@@ -31,7 +31,7 @@ export default function TalentReviewPage() {
           <Card key={review.id}>
             <CardHeader>
               <CardTitle className="text-base">
-                {review.store_name ?? '店舗不明'}（{review.visit_date ?? '---'}）
+                {review.store_name ?? '店舗不明'}（{review.date ?? '---'}）
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">

@@ -391,7 +391,7 @@ export type Database = {
           store_id: string | null
           talent_id: string
           message: string
-          visit_date: string
+          date: string
           time_range: string | null
           contract_url: string | null
           notes: string | null
@@ -413,7 +413,7 @@ export type Database = {
           store_id?: string | null
           talent_id: string
           message: string
-          visit_date: string
+          date: string
           time_range?: string | null
           contract_url?: string | null
           notes?: string | null
@@ -435,7 +435,7 @@ export type Database = {
           store_id?: string | null
           talent_id?: string
           message?: string
-          visit_date?: string
+          date?: string
           time_range?: string | null
           contract_url?: string | null
           notes?: string | null

@@ -49,7 +49,7 @@ export default function SchedulePage() {
               className='flex justify-between items-center border rounded px-4 py-2'
             >
               <div>
-                <p className='font-medium'>{item.visit_date}</p>
+                <p className='font-medium'>{item.date}</p>
                 {item.store_name && (
                   <p className='text-xs text-gray-500'>店舗: {item.store_name}</p>
                 )}

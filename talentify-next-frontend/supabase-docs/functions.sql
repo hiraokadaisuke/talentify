@@ -20,7 +20,7 @@ BEGIN
       'offer_id', NEW.id,
       'store_id', NEW.store_id,
       'event_name', NEW.event_name,
-      'visit_date', NEW.visit_date
+      'date', NEW.date
     ),
     false,
     now()
