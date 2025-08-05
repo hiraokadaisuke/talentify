@@ -26,21 +26,25 @@ export async function getVisitedOffersForStore() {
   if (!store) return [] as VisitedOffer[]
 
   const { data, error } = await supabase
-    .from('offers')
-    .select('id, talent_id, store_id, date, message, reviews(id), talents(stage_name)')
+    .from('visits')
+    .select(
+      'offer_id, talent_id, store_id, offers(id, date, message, reviews(id), talents(stage_name))'
+    )
     .eq('store_id', store.id)
     .eq('status', 'visited')
+
   if (error) {
     console.error('failed to fetch visited offers', error)
     return []
   }
-  return (data || []).map(o => ({
-    id: o.id,
-    talent_id: o.talent_id,
-    store_id: o.store_id,
-    date: o.date,
-    message: o.message,
-    reviewed: !!(o as any).reviews?.length,
-    talent_name: (o as any).talents?.stage_name || null,
+
+  return (data || []).map(v => ({
+    id: (v as any).offer_id,
+    talent_id: v.talent_id,
+    store_id: v.store_id,
+    date: (v as any).offers?.date as string,
+    message: (v as any).offers?.message as string,
+    reviewed: !!(v as any).offers?.reviews?.length,
+    talent_name: (v as any).offers?.talents?.stage_name || null,
   })) as VisitedOffer[]
 }
