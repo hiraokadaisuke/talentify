@@ -53,11 +53,14 @@
 - review_received
 - message
 - offer
+- offer_accepted
+- schedule_fixed
 
 ### public.offer_status
 - pending
 - accepted
 - rejected
+- confirmed
 
 ### auth.one_time_token_type
 - confirmation_token
