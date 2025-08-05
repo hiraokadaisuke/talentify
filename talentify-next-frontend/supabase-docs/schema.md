@@ -66,7 +66,7 @@
 - date: timestamp with time zone
 - message: text
 - created_at: timestamp with time zone, DEFAULT timezone('utc'::text, now())
-- status: USER-DEFINED
+- status: USER-DEFINED, DEFAULT 'pending'
 - respond_deadline: timestamp with time zone
 - is_read_by_talent: boolean, DEFAULT false
 - updated_at: timestamp with time zone, DEFAULT now()
@@ -90,7 +90,7 @@
 - invoice_submitted: boolean, DEFAULT false
 - contract_url: text
 
-`date` は `timestamp with time zone` 型で、`YYYY-MM-DD` もしくは ISO 8601 形式で送信する必要があります。`status` では `draft` / `pending` / `approved` / `rejected` / `completed` の値を使用でき、オファー作成時のデフォルトは `pending` です。
+`date` は `timestamp with time zone` 型で、`YYYY-MM-DD` もしくは ISO 8601 形式で送信する必要があります。`status` では `draft` / `pending` / `approved` / `rejected` / `completed` / `offer_created` / `confirmed` の値を使用でき、オファー作成時のデフォルトは `pending` です。
 
 ### payments
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
@@ -195,7 +195,8 @@
 - height_cm: integer
 - agency_name: text
 - social_tiktok: text
-- gender: USER-DEFINED
+- gender: USER-DEFINED, DEFAULT 'other'
+- bio_others: text
 
 ### visits
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
