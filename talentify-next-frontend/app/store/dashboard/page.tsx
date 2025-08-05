@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 export default function StoreDashboard() {
-  const offerStats = { pending: 1, accepted: 2 }
+  const offerStats = { pending: 1, confirmed: 2 }
   const schedule: ScheduleItem[] = [
     { date: '7/22', performer: 'タレントA', status: 'confirmed', href: '#' },
   ]
@@ -23,7 +23,7 @@ export default function StoreDashboard() {
   const [toast, setToast] = useState<string | null>(null)
   const searchParams = useSearchParams()
 
-  const hasData = offerStats.pending + offerStats.accepted > 0
+  const hasData = offerStats.pending + offerStats.confirmed > 0
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 500)
@@ -70,7 +70,7 @@ export default function StoreDashboard() {
             </CardFooter>
           </Card>
           <ScheduleCard items={schedule} />
-          <OfferSummaryCard pending={offerStats.pending} accepted={offerStats.accepted} link='/store/offers' />
+          <OfferSummaryCard pending={offerStats.pending} confirmed={offerStats.confirmed} link='/store/offers' />
           <div className='sm:col-span-2'>
             <MessageAlertCard count={unread} link='/store/messages' />
           </div>

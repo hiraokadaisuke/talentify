@@ -51,7 +51,7 @@ export default function StoreSchedulePage() {
         .from('offers')
         .select('id, talent_id, date, status, talents(stage_name)')
         .eq('user_id', user.id)
-        .eq('status', 'accepted')
+        .eq('status', 'confirmed')
 
       if (error) {
         console.error('Failed to fetch offers', error)

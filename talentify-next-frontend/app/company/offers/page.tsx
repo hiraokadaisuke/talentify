@@ -70,7 +70,7 @@ export default function CompanyOffersPage() {
 
   const statusLabels: Record<string, string> = {
     pending: '保留中',
-    accepted: '承諾済み',
+    confirmed: '承諾済み',
     rejected: '拒否',
     expired: '期限切れ',
   }
@@ -84,7 +84,7 @@ export default function CompanyOffersPage() {
           <select value={status} onChange={e=>setStatus(e.target.value)} className='border rounded p-1'>
             <option value='all'>すべて</option>
             <option value='pending'>保留中</option>
-            <option value='accepted'>承諾済み</option>
+            <option value='confirmed'>承諾済み</option>
             <option value='rejected'>拒否</option>
             <option value='expired'>期限切れ</option>
           </select>

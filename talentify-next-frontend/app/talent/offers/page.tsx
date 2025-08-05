@@ -64,7 +64,7 @@ export default function TalentOffersPage() {
 
   const statusMap: Record<string, { label: string; className?: string }> = {
     pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
-    accepted: { label: '承諾済み', className: 'bg-gray-400 text-white' },
+    confirmed: { label: '承諾済み', className: 'bg-gray-400 text-white' },
     rejected: { label: '辞退済み', className: 'bg-gray-400 text-white' },
   }
 
