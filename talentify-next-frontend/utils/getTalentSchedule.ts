@@ -22,7 +22,7 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
     .from('offers')
     .select('id, date, time_range, stores(store_name)')
     .eq('talent_id', user.id)
-    .eq('status', 'accepted')
+    .eq('status', 'confirmed')
     .order('date', { ascending: true })
 
   if (error) {

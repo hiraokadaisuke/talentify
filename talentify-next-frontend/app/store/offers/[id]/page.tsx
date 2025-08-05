@@ -179,7 +179,7 @@ export default function StoreOfferDetailPage() {
       ) : (
         <div className='text-sm'>まだ請求書が提出されていません</div>
       )}
-      {offer.status === 'accepted' && (
+      {offer.status === 'confirmed' && (
         <div className='space-y-2'>
           <input type='file' accept='application/pdf,image/*' onChange={e => setFile(e.target.files?.[0] || null)} />
           <Button onClick={uploadContract} disabled={!file}>アップロード</Button>

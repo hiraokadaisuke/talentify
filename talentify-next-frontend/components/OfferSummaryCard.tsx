@@ -6,14 +6,14 @@ import { Badge } from './ui/badge'
 interface OfferSummaryCardProps {
   title?: string
   pending: number
-  accepted: number
+  confirmed: number
   link?: string
 }
 
 export default function OfferSummaryCard({
   title = '進行中のオファー',
   pending,
-  accepted,
+  confirmed,
   link,
 }: OfferSummaryCardProps) {
   return (
@@ -27,7 +27,7 @@ export default function OfferSummaryCard({
           保留中: <Badge variant="secondary">{pending}</Badge>
         </div>
         <div>
-          承認済み: <Badge>{accepted}</Badge>
+          承認済み: <Badge>{confirmed}</Badge>
         </div>
       </div>
     </DashboardCard>

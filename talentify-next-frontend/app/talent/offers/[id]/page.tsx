@@ -58,7 +58,7 @@ export default function TalentOfferDetailPage() {
   const [bankAccountNumber, setBankAccountNumber] = useState('')
   const [bankAccountHolder, setBankAccountHolder] = useState('')
 
-  const handleStatusChange = async (status: 'accepted' | 'rejected') => {
+  const handleStatusChange = async (status: 'confirmed' | 'rejected') => {
     if (!offer) return
     const res = await fetch(`/api/offers/${offer.id}`, {
       method: 'PUT',
@@ -67,7 +67,7 @@ export default function TalentOfferDetailPage() {
     })
     if (res.ok) {
       setOffer({ ...offer, status })
-      if (status === 'accepted' && offer.user_id) {
+      if (status === 'confirmed' && offer.user_id) {
         await addNotification({
           user_id: offer.user_id,
           offer_id: offer.id,
@@ -75,7 +75,7 @@ export default function TalentOfferDetailPage() {
           title: 'オファーが承諾されました'
         })
       }
-      setToast(status === 'accepted' ? 'オファーを承諾しました' : 'オファーを辞退しました')
+      setToast(status === 'confirmed' ? 'オファーを承諾しました' : 'オファーを辞退しました')
       setTimeout(() => setToast(null), 3000)
     } else {
       setToast('処理に失敗しました。もう一度お試しください')
@@ -199,7 +199,7 @@ export default function TalentOfferDetailPage() {
 
   const statusMap: Record<string, { label: string; className?: string }> = {
     pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
-    accepted: { label: '承諾済', className: 'bg-green-600 text-white' },
+    confirmed: { label: '承諾済', className: 'bg-green-600 text-white' },
     rejected: { label: '辞退済み', className: 'bg-gray-400 text-white' },
   }
 
@@ -253,7 +253,7 @@ export default function TalentOfferDetailPage() {
             <div className='text-green-600 text-sm'>✅ お支払いが完了しました（{format(parseISO(offer.paid_at || ''), 'yyyy年M月d日', { locale: ja })}）</div>
           )}
         </>
-      ) : offer.status === 'accepted' && offer.agreed ? (
+      ) : offer.status === 'confirmed' && offer.agreed ? (
         <Card>
           <CardHeader>
             <CardTitle>請求書作成</CardTitle>
@@ -361,7 +361,7 @@ export default function TalentOfferDetailPage() {
           >
             見送る
           </Button>
-          <Button onClick={() => handleStatusChange('accepted')}>承諾する</Button>
+          <Button onClick={() => handleStatusChange('confirmed')}>承諾する</Button>
         </div>
       )}
 

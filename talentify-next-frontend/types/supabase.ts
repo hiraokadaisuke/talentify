@@ -471,7 +471,7 @@ export type Database = {
         | 'invoice_submitted'
         | 'payment_completed'
         | 'message'
-      offer_status: 'pending' | 'accepted' | 'rejected'
+      offer_status: 'pending' | 'confirmed' | 'rejected'
       payment_status: 'pending' | 'paid' | 'cancelled'
       status_type: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed'
       visit_status: 'scheduled' | 'confirmed' | 'visited'
@@ -601,7 +601,7 @@ export const Constants = {
         'payment_completed',
         'message'
       ],
-      offer_status: ['pending', 'accepted', 'rejected'],
+      offer_status: ['pending', 'confirmed', 'rejected'],
       payment_status: ['pending', 'paid', 'cancelled'],
       status_type: ['draft', 'pending', 'approved', 'rejected', 'completed'],
       visit_status: ['scheduled', 'confirmed', 'visited']
