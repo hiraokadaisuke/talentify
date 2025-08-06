@@ -133,14 +133,6 @@ export default function StoreOfferDetailPage() {
     })
     if (res.ok) {
       setOffer({ ...offer, status: 'completed' })
-      if (offer.talent_id) {
-        await addNotification({
-          user_id: offer.talent_id,
-          offer_id: offer.id,
-          type: 'visit_completed',
-          title: '来店が完了しました',
-        })
-      }
       setToast('来店完了として登録しました')
     } else {
       setToast('更新に失敗しました')
