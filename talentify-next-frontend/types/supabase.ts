@@ -395,16 +395,26 @@ export type Database = {
       offers: {
         Row: {
           id: string
-          user_id: string
-          store_id: string | null
           talent_id: string
-          message: string
+          user_id: string
           date: string
-          time_range: string | null
-          contract_url: string | null
-          notes: string | null
-          agreed: boolean | null
+          message: string
+          created_at: string | null
+          status: string | null
+          respond_deadline: string | null
+          is_read_by_talent: boolean | null
+          updated_at: string | null
+          event_name: string | null
+          start_time: string | null
+          end_time: string | null
           reward: number | null
+          question_allowed: boolean | null
+          notes: string | null
+          store_id: string | null
+          agreed: boolean | null
+          time_range: string | null
+          paid: boolean | null
+          paid_at: string | null
           invoice_date: string | null
           invoice_amount: number | null
           bank_name: string | null
@@ -412,21 +422,31 @@ export type Database = {
           bank_account_number: string | null
           bank_account_holder: string | null
           invoice_submitted: boolean | null
-          created_at: string | null
-          status: string | null
+          invoice_url: string | null
+          contract_url: string | null
         }
         Insert: {
           id?: string
-          user_id: string
-          store_id?: string | null
           talent_id: string
-          message: string
+          user_id: string
           date: string
-          time_range?: string | null
-          contract_url?: string | null
-          notes?: string | null
-          agreed?: boolean | null
+          message: string
+          created_at?: string | null
+          status?: string | null
+          respond_deadline?: string | null
+          is_read_by_talent?: boolean | null
+          updated_at?: string | null
+          event_name?: string | null
+          start_time?: string | null
+          end_time?: string | null
           reward?: number | null
+          question_allowed?: boolean | null
+          notes?: string | null
+          store_id?: string | null
+          agreed?: boolean | null
+          time_range?: string | null
+          paid?: boolean | null
+          paid_at?: string | null
           invoice_date?: string | null
           invoice_amount?: number | null
           bank_name?: string | null
@@ -434,21 +454,31 @@ export type Database = {
           bank_account_number?: string | null
           bank_account_holder?: string | null
           invoice_submitted?: boolean | null
-          created_at?: string | null
-          status?: string | null
+          invoice_url?: string | null
+          contract_url?: string | null
         }
         Update: {
           id?: string
-          user_id?: string
-          store_id?: string | null
           talent_id?: string
-          message?: string
+          user_id?: string
           date?: string
-          time_range?: string | null
-          contract_url?: string | null
-          notes?: string | null
-          agreed?: boolean | null
+          message?: string
+          created_at?: string | null
+          status?: string | null
+          respond_deadline?: string | null
+          is_read_by_talent?: boolean | null
+          updated_at?: string | null
+          event_name?: string | null
+          start_time?: string | null
+          end_time?: string | null
           reward?: number | null
+          question_allowed?: boolean | null
+          notes?: string | null
+          store_id?: string | null
+          agreed?: boolean | null
+          time_range?: string | null
+          paid?: boolean | null
+          paid_at?: string | null
           invoice_date?: string | null
           invoice_amount?: number | null
           bank_name?: string | null
@@ -456,8 +486,8 @@ export type Database = {
           bank_account_number?: string | null
           bank_account_holder?: string | null
           invoice_submitted?: boolean | null
-          created_at?: string | null
-          status?: string | null
+          invoice_url?: string | null
+          contract_url?: string | null
         }
         Relationships: []
       }

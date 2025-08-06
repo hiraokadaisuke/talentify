@@ -88,6 +88,7 @@
 - bank_account_number: text
 - bank_account_holder: text
 - invoice_submitted: boolean, DEFAULT false
+- invoice_url: text
 - contract_url: text
 
 `date` は `timestamp with time zone` 型で、`YYYY-MM-DD` もしくは ISO 8601 形式で送信する必要があります。`status` では `draft` / `pending` / `approved` / `rejected` / `completed` / `offer_created` / `confirmed` の値を使用でき、オファー作成時のデフォルトは `pending` です。
