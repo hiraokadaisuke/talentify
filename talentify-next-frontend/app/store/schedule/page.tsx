@@ -82,7 +82,7 @@ export default function StoreSchedulePage() {
   }
 
   const handleSelectEvent = (event: OfferEvent) => {
-    router.push(`/talents/${event.talentId}`)
+    router.push(`/store/offers/${event.offerId}`)
   }
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {

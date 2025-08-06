@@ -337,15 +337,19 @@ export type Database = {
           id: string
           user_id: string
           offer_id: string | null
-          type:
-            | 'offer'
-            | 'offer_accepted'
-            | 'schedule_fixed'
-            | 'contract_uploaded'
-            | 'contract_checked'
-            | 'invoice_submitted'
-            | 'payment_completed'
-            | 'message'
+            type:
+              | 'offer'
+              | 'offer_created'
+              | 'offer_updated'
+              | 'offer_accepted'
+              | 'schedule_fixed'
+              | 'contract_uploaded'
+              | 'contract_checked'
+              | 'payment_created'
+              | 'invoice_submitted'
+              | 'payment_completed'
+              | 'review_received'
+              | 'message'
           title: string
           body: string | null
           is_read: boolean
@@ -356,15 +360,19 @@ export type Database = {
           id?: string
           user_id: string
           offer_id?: string | null
-          type:
-            | 'offer'
-            | 'offer_accepted'
-            | 'schedule_fixed'
-            | 'contract_uploaded'
-            | 'contract_checked'
-            | 'invoice_submitted'
-            | 'payment_completed'
-            | 'message'
+            type:
+              | 'offer'
+              | 'offer_created'
+              | 'offer_updated'
+              | 'offer_accepted'
+              | 'schedule_fixed'
+              | 'contract_uploaded'
+              | 'contract_checked'
+              | 'payment_created'
+              | 'invoice_submitted'
+              | 'payment_completed'
+              | 'review_received'
+              | 'message'
           title: string
           body?: string | null
           is_read?: boolean
@@ -464,12 +472,16 @@ export type Database = {
       invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected'
       notification_type:
         | 'offer'
+        | 'offer_created'
+        | 'offer_updated'
         | 'offer_accepted'
         | 'schedule_fixed'
         | 'contract_uploaded'
         | 'contract_checked'
+        | 'payment_created'
         | 'invoice_submitted'
         | 'payment_completed'
+        | 'review_received'
         | 'message'
       offer_status: 'pending' | 'confirmed' | 'rejected'
       payment_status: 'pending' | 'paid' | 'cancelled'
@@ -593,12 +605,16 @@ export const Constants = {
       invoice_status: ['draft', 'submitted', 'approved', 'rejected'],
       notification_type: [
         'offer',
+        'offer_created',
+        'offer_updated',
         'offer_accepted',
         'schedule_fixed',
         'contract_uploaded',
         'contract_checked',
+        'payment_created',
         'invoice_submitted',
         'payment_completed',
+        'review_received',
         'message'
       ],
       offer_status: ['pending', 'confirmed', 'rejected'],
