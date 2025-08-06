@@ -41,6 +41,7 @@ export async function PUT(
         'bank_account_number',
         'bank_account_holder',
         'invoice_submitted',
+        'invoice_url',
       ]
     } else {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })

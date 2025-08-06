@@ -9,6 +9,7 @@ import { format, parseISO } from 'date-fns'
 import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { addNotification } from '@/utils/notifications'
+import ReviewModal from '@/components/modals/ReviewModal'
 
 interface Offer {
   id: string
@@ -27,6 +28,7 @@ interface Offer {
   bank_branch?: string | null
   bank_account_number?: string | null
   bank_account_holder?: string | null
+  invoice_url?: string | null
   invoice_submitted?: boolean | null
   paid?: boolean | null
   paid_at?: string | null
@@ -38,12 +40,13 @@ export default function StoreOfferDetailPage() {
   const [offer, setOffer] = useState<Offer | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
+  const [reviewed, setReviewed] = useState(false)
 
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,paid,paid_at,user_id,talent_id,talents(stage_name)')
+        .select('id,date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,invoice_url,paid,paid_at,user_id,talent_id,talents(stage_name)')
         .eq('id', params.id)
         .single()
 
@@ -52,6 +55,12 @@ export default function StoreOfferDetailPage() {
         const o = { ...(data as any), talent_stage_name: talent.stage_name }
         delete o.talents
         setOffer(o as Offer)
+        const { data: rev } = await supabase
+          .from('reviews' as any)
+          .select('id')
+          .eq('offer_id', params.id)
+          .single()
+        if (rev) setReviewed(true)
       }
     }
     load()
@@ -115,6 +124,30 @@ export default function StoreOfferDetailPage() {
     doc.save(`invoice-${offer.id}.pdf`)
   }
 
+  const handleVisitComplete = async () => {
+    if (!offer) return
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'completed' }),
+    })
+    if (res.ok) {
+      setOffer({ ...offer, status: 'completed' })
+      if (offer.talent_id) {
+        await addNotification({
+          user_id: offer.talent_id,
+          offer_id: offer.id,
+          type: 'visit_completed',
+          title: '来店が完了しました',
+        })
+      }
+      setToast('来店完了として登録しました')
+    } else {
+      setToast('更新に失敗しました')
+    }
+    setTimeout(() => setToast(null), 3000)
+  }
+
   const handlePaid = async () => {
     if (!offer) return
     const res = await fetch(`/api/offers/${offer.id}`, {
@@ -161,29 +194,60 @@ export default function StoreOfferDetailPage() {
         </div>
       )}
       {offer.invoice_submitted ? (
-        <div className='space-y-1 text-sm'>
-          <h2 className='font-semibold'>請求情報</h2>
-          <div>請求日: {offer.invoice_date}</div>
-          <div>金額: ¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
-          <div>
-            振込先: {offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
-            {offer.bank_account_holder}
+        offer.invoice_url ? (
+          <div className='space-y-1 text-sm'>
+            <a href={offer.invoice_url} target='_blank' className='text-blue-600 underline'>請求書を開く</a>
+            {offer.paid ? (
+              <Badge className='ml-2'>支払い済</Badge>
+            ) : (
+              <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
+            )}
           </div>
-          <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
-          {offer.paid ? (
-            <Badge className='ml-2'>支払い済</Badge>
-          ) : (
-            <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
-          )}
-        </div>
+        ) : (
+          <div className='space-y-1 text-sm'>
+            <h2 className='font-semibold'>請求情報</h2>
+            <div>請求日: {offer.invoice_date}</div>
+            <div>金額: ¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
+            <div>
+              振込先: {offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
+              {offer.bank_account_holder}
+            </div>
+            <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
+            {offer.paid ? (
+              <Badge className='ml-2'>支払い済</Badge>
+            ) : (
+              <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
+            )}
+          </div>
+        )
       ) : (
         <div className='text-sm'>まだ請求書が提出されていません</div>
       )}
       {offer.status === 'confirmed' && (
-        <div className='space-y-2'>
-          <input type='file' accept='application/pdf,image/*' onChange={e => setFile(e.target.files?.[0] || null)} />
-          <Button onClick={uploadContract} disabled={!file}>アップロード</Button>
-        </div>
+        <>
+          <div className='space-y-2'>
+            <input type='file' accept='application/pdf,image/*' onChange={e => setFile(e.target.files?.[0] || null)} />
+            <Button onClick={uploadContract} disabled={!file}>アップロード</Button>
+          </div>
+          <Button onClick={handleVisitComplete}>来店完了</Button>
+        </>
+      )}
+      {offer.status === 'completed' && (
+        reviewed ? (
+          <div className='text-sm'>レビュー済</div>
+        ) : (
+          <ReviewModal
+            offerId={offer.id}
+            talentId={offer.talent_id || ''}
+            storeId={offer.user_id || ''}
+            trigger={<Button>レビューを投稿する</Button>}
+            onSubmitted={() => {
+              setReviewed(true)
+              setToast('レビューを投稿しました')
+              setTimeout(() => setToast(null), 3000)
+            }}
+          />
+        )
       )}
       {toast && (
         <div className='fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow'>

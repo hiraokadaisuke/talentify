@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
@@ -39,6 +39,7 @@ interface Offer {
   bank_branch?: string | null
   bank_account_number?: string | null
   bank_account_holder?: string | null
+  invoice_url?: string | null
   invoice_submitted?: boolean | null
   paid?: boolean | null
   paid_at?: string | null
@@ -57,6 +58,7 @@ export default function TalentOfferDetailPage() {
   const [bankBranch, setBankBranch] = useState('')
   const [bankAccountNumber, setBankAccountNumber] = useState('')
   const [bankAccountHolder, setBankAccountHolder] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleStatusChange = async (status: 'confirmed' | 'rejected') => {
     if (!offer) return
@@ -149,13 +151,51 @@ export default function TalentOfferDetailPage() {
     setTimeout(() => setToast(null), 3000)
   }
 
+  const handleInvoiceFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !offer) return
+    const path = `${offer.id}/${Date.now()}-${file.name}`
+    const { error } = await supabase.storage
+      .from('invoices')
+      .upload(path, file, { upsert: true })
+    if (error) {
+      setToast('アップロードに失敗しました')
+      setTimeout(() => setToast(null), 3000)
+      return
+    }
+    const { data } = await supabase.storage
+      .from('invoices')
+      .getPublicUrl(path)
+    const url = data.publicUrl
+    const res = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invoice_url: url, invoice_submitted: true }) // TODO: add invoice_url column in Supabase
+    })
+    if (res.ok) {
+      setOffer({ ...offer, invoice_url: url, invoice_submitted: true })
+      if (offer.user_id) {
+        await addNotification({
+          user_id: offer.user_id,
+          offer_id: offer.id,
+          type: 'invoice_submitted',
+          title: '請求書が提出されました',
+        })
+      }
+      setToast('請求書をアップロードしました')
+    } else {
+      setToast('更新に失敗しました')
+    }
+    setTimeout(() => setToast(null), 3000)
+  }
+
   useEffect(() => {
     const load = async () => {
       setErrorMessage(null)
       const { data, error } = await supabase
         .from('offers')
         .select(
-  `id, date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
+  `id, date, time_range, created_at, message, status, contract_url, respond_deadline, event_name, start_time, end_time, reward, notes, question_allowed, agreed, invoice_date, invoice_amount, bank_name, bank_branch, bank_account_number, bank_account_holder, invoice_submitted, invoice_url, paid, paid_at, user_id, store:store_id(store_name,store_address,avatar_url)`
 )
         .eq('id', params.id)
         .single()
@@ -241,12 +281,18 @@ export default function TalentOfferDetailPage() {
               <CardTitle>請求情報</CardTitle>
             </CardHeader>
             <CardContent className='space-y-1 text-sm'>
-              <div>請求日：{offer.invoice_date}</div>
-              <div>金額：¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
-              <div>
-                振込先：{offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
-                {offer.bank_account_holder}
-              </div>
+              {offer.invoice_url ? (
+                <a href={offer.invoice_url} target='_blank' className='text-blue-600 underline'>請求書を開く</a>
+              ) : (
+                <>
+                  <div>請求日：{offer.invoice_date}</div>
+                  <div>金額：¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
+                  <div>
+                    振込先：{offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
+                    {offer.bank_account_holder}
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
           {offer.paid && (
@@ -256,7 +302,7 @@ export default function TalentOfferDetailPage() {
       ) : offer.status === 'confirmed' && offer.agreed ? (
         <Card>
           <CardHeader>
-            <CardTitle>請求書作成</CardTitle>
+            <CardTitle>請求書</CardTitle>
           </CardHeader>
           <CardContent className='space-y-2'>
             {editingInvoice ? (
@@ -294,7 +340,17 @@ export default function TalentOfferDetailPage() {
                 <Button onClick={submitInvoice}>請求書を提出する</Button>
               </div>
             ) : (
-              <Button onClick={() => setEditingInvoice(true)}>請求書を作成する</Button>
+              <div className='space-y-2'>
+                <input
+                  ref={fileInputRef}
+                  type='file'
+                  accept='application/pdf'
+                  className='hidden'
+                  onChange={handleInvoiceFileChange}
+                />
+                <Button onClick={() => fileInputRef.current?.click()}>請求書アップロード</Button>
+                <Button onClick={() => setEditingInvoice(true)}>請求書作成</Button>
+              </div>
             )}
           </CardContent>
         </Card>

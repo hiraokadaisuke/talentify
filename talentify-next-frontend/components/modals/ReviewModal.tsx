@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import StarRatingInput from '@/components/StarRatingInput'
+import { addNotification } from '@/utils/notifications'
 
 export default function ReviewModal({
   offerId,
@@ -55,6 +56,14 @@ export default function ReviewModal({
       } as any)
     setSubmitting(false)
     if (!error) {
+      if (talentId) {
+        await addNotification({
+          user_id: talentId,
+          offer_id: offerId,
+          type: 'review_received',
+          title: 'レビューが投稿されました',
+        })
+      }
       setOpen(false)
       onSubmitted?.()
     } else {
