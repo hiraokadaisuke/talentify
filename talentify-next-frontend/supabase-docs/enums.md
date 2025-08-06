@@ -46,15 +46,18 @@
 - rejected
 
 ### public.notification_type
+- offer
 - offer_created
 - offer_updated
-- payment_created
-- invoice_submitted
-- review_received
-- message
-- offer
 - offer_accepted
 - schedule_fixed
+- contract_uploaded
+- contract_checked
+- payment_created
+- invoice_submitted
+- payment_completed
+- review_received
+- message
 
 ### public.offer_status
 - pending
