@@ -170,7 +170,7 @@ export default function TalentOfferDetailPage() {
     const res = await fetch(`/api/offers/${offer.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ invoice_url: url, invoice_submitted: true }) // TODO: add invoice_url column in Supabase
+      body: JSON.stringify({ invoice_url: url, invoice_submitted: true })
     })
     if (res.ok) {
       setOffer({ ...offer, invoice_url: url, invoice_submitted: true })
