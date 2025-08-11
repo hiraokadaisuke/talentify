@@ -61,7 +61,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 </button>
               </SheetTrigger>
               <SheetContent side="left" className="p-4">
-                <Sidebar role={sidebarRole} />
+                <Sidebar role={sidebarRole} collapsible />
               </SheetContent>
             </Sheet>
           )}

@@ -27,13 +27,10 @@ export default async function TalentLayout({
 
           {/* ヘッダー高さ分の余白を考慮して下部を分割 */}
           <div className="flex h-[calc(100vh-64px)] pt-16">
-            {/* サイドバー（デスクトップのみ表示） */}
-            <aside className="hidden md:block w-[220px] shrink-0">
-              <Sidebar role="talent" collapsible />
-            </aside>
+            <Sidebar role="talent" collapsible />
 
             {/* メインコンテンツ */}
-            <main className="flex-1 overflow-y-auto p-6">{children}</main>
+            <main className="flex-1 overflow-y-auto p-6 transition-[margin,width]">{children}</main>
           </div>
         </SupabaseProvider>
       </body>
