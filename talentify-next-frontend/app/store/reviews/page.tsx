@@ -1,18 +1,18 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { getVisitedOffersForStore, VisitedOffer } from '@/utils/getVisitedOffersForStore'
+import { getCompletedOffersForStore, CompletedOffer } from '@/utils/getCompletedOffersForStore'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import ReviewModal from '@/components/modals/ReviewModal'
 
 export default function StoreReviewsPage() {
-  const [offers, setOffers] = useState<VisitedOffer[]>([])
+  const [offers, setOffers] = useState<CompletedOffer[]>([])
   const [loading, setLoading] = useState(true)
   const [storeId, setStoreId] = useState('')
 
   useEffect(() => {
     const load = async () => {
-      const data = await getVisitedOffersForStore()
+      const data = await getCompletedOffersForStore()
       setOffers(data)
       setLoading(false)
       if (data[0]) setStoreId(data[0].store_id)
@@ -22,11 +22,11 @@ export default function StoreReviewsPage() {
 
   return (
     <main className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">来店完了オファー一覧</h1>
+      <h1 className="text-2xl font-bold">レビュー投稿済みオファー一覧</h1>
       {loading ? (
         <p>読み込み中...</p>
       ) : offers.length === 0 ? (
-        <p>完了したオファーはありません。</p>
+        <p>該当するオファーはありません。</p>
       ) : (
         <Table>
           <TableHeader>
