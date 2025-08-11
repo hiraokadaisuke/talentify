@@ -66,6 +66,7 @@ export default function TalentOffersPage() {
     pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
     confirmed: { label: '承諾済み', className: 'bg-gray-400 text-white' },
     rejected: { label: '辞退済み', className: 'bg-gray-400 text-white' },
+    completed: { label: '来店完了（レビュー投稿済）', className: 'bg-green-600 text-white' },
   }
 
   return (

@@ -124,22 +124,6 @@ export default function StoreOfferDetailPage() {
     doc.save(`invoice-${offer.id}.pdf`)
   }
 
-  const handleVisitComplete = async () => {
-    if (!offer) return
-    const res = await fetch(`/api/offers/${offer.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'completed' }),
-    })
-    if (res.ok) {
-      setOffer({ ...offer, status: 'completed' })
-      setToast('来店完了として登録しました')
-    } else {
-      setToast('更新に失敗しました')
-    }
-    setTimeout(() => setToast(null), 3000)
-  }
-
   const handlePaid = async () => {
     if (!offer) return
     const res = await fetch(`/api/offers/${offer.id}`, {
@@ -216,29 +200,30 @@ export default function StoreOfferDetailPage() {
         <div className='text-sm'>まだ請求書が提出されていません</div>
       )}
       {offer.status === 'confirmed' && (
-        <>
-          <div className='space-y-2'>
-            <input type='file' accept='application/pdf,image/*' onChange={e => setFile(e.target.files?.[0] || null)} />
-            <Button onClick={uploadContract} disabled={!file}>アップロード</Button>
-          </div>
-          <Button onClick={handleVisitComplete}>来店完了</Button>
-        </>
+        <div className='space-y-2'>
+          <input type='file' accept='application/pdf,image/*' onChange={e => setFile(e.target.files?.[0] || null)} />
+          <Button onClick={uploadContract} disabled={!file}>アップロード</Button>
+        </div>
       )}
-      {offer.status === 'completed' && (
+      {(offer.status === 'confirmed' || offer.status === 'completed') && (
         reviewed ? (
-          <div className='text-sm'>レビュー済</div>
+          <Badge>レビュー投稿済（来店完了）</Badge>
         ) : (
-          <ReviewModal
-            offerId={offer.id}
-            talentId={offer.talent_id || ''}
-            storeId={offer.user_id || ''}
-            trigger={<Button>レビューを投稿する</Button>}
-            onSubmitted={() => {
-              setReviewed(true)
-              setToast('レビューを投稿しました')
-              setTimeout(() => setToast(null), 3000)
-            }}
-          />
+          <div className='space-y-2'>
+            <Badge variant='secondary'>レビュー未投稿</Badge>
+            <ReviewModal
+              offerId={offer.id}
+              talentId={offer.talent_id || ''}
+              storeId={offer.user_id || ''}
+              trigger={<Button>レビューを投稿する</Button>}
+              onSubmitted={() => {
+                setReviewed(true)
+                setOffer({ ...offer, status: 'completed' })
+                setToast('レビューを投稿しました')
+                setTimeout(() => setToast(null), 3000)
+              }}
+            />
+          </div>
         )
       )}
       {toast && (
