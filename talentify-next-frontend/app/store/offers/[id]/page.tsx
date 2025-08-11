@@ -211,12 +211,10 @@ export default function StoreOfferDetailPage() {
             <ReviewModal
               offerId={offer.id}
               talentId={offer.talent_id || ''}
-              storeId={offer.user_id || ''}
               trigger={<Button>レビューを投稿する</Button>}
               onSubmitted={() => {
                 setReviewed(true)
                 setOffer({ ...offer, status: 'completed' })
-                toast.success('レビューを投稿しました')
               }}
             />
           </div>

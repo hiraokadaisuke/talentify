@@ -121,7 +121,7 @@
 - rating: integer
 - comment: text
 - created_at: timestamp without time zone, DEFAULT now()
-- category_ratings: jsonb (カテゴリごとの評価。NULL可)
+- category_ratings: jsonb, DEFAULT '{}'::jsonb (カテゴリごとの評価。未指定時は空オブジェクト)
 - is_public: boolean, DEFAULT true (レビュー公開設定。デフォルトは公開（true）)
 
 ### schedules

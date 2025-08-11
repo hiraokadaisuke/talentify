@@ -15,17 +15,20 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import StarRatingInput from '@/components/StarRatingInput'
 import { addNotification } from '@/utils/notifications'
+import { toast } from 'sonner'
+
+function compact<T extends Record<string, any>>(obj: T): T {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as T
+}
 
 export default function ReviewModal({
   offerId,
   talentId,
-  storeId,
   trigger,
   onSubmitted,
 }: {
   offerId: string
   talentId: string
-  storeId: string
   trigger: React.ReactNode
   onSubmitted?: () => void
 }) {
@@ -42,34 +45,41 @@ export default function ReviewModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitting(true)
-    const { error } = await supabase
-      .from('reviews' as any)
-      .insert({
-        offer_id: offerId,
-        store_id: storeId,
-        talent_id: talentId,
-        rating,
-        category_ratings: { time, attitude, fan, play },
-        comment,
-        is_public: isPublic,
-      } as any)
-    setSubmitting(false)
-    if (!error) {
-      if (talentId) {
-        await addNotification({
-          user_id: talentId,
-          offer_id: offerId,
-          type: 'review_received',
-          title: 'レビューが投稿されました',
-        })
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        return toast.error('投稿にはログインが必要です')
       }
-      setOpen(false)
-      onSubmitted?.()
-    } else {
-      alert('投稿に失敗しました')
+      setSubmitting(true)
+      const categoryRatings = compact({ time, attitude, fan, play })
+      const payload = compact({
+        offer_id: offerId,
+        rating: Number(rating),
+        comment: comment || null,
+        is_public: isPublic ?? true,
+        category_ratings: Object.keys(categoryRatings).length ? categoryRatings : {},
+      })
+      const { error } = await supabase
+        .from('reviews')
+        .insert([payload])
+        .select('id')
+      setSubmitting(false)
+      if (!error) {
+        if (talentId) {
+          await addNotification({
+            user_id: talentId,
+            offer_id: offerId,
+            type: 'review_received',
+            title: 'レビューが投稿されました',
+          })
+        }
+        toast.success('レビューを投稿しました')
+        setOpen(false)
+        onSubmitted?.()
+      } else {
+        console.error('[reviews.insert] failed', { payload, error })
+        toast.error(`投稿に失敗しました: ${error.message}`)
+      }
     }
-  }
 
   return (
     <Modal open={open} onOpenChange={setOpen}>

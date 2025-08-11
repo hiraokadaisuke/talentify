@@ -35,9 +35,15 @@
 - ストアは支払いを更新可能 (`UPDATE`): USING `(auth.uid() = ( SELECT invoices.store_id FROM invoices WHERE (invoices.offer_id = payments.offer_id)))`
 
 ### reviews
-- ストア所有ユーザーのみ、自分のオファーに対してレビュー投稿可 (`INSERT`): CHECK `EXISTS (SELECT 1 FROM public.stores s WHERE s.id = reviews.store_id AND s.user_id = auth.uid()) AND EXISTS (SELECT 1 FROM public.offers o WHERE o.id = reviews.offer_id AND o.store_id = reviews.store_id AND (reviews.talent_id IS NULL OR o.talent_id = reviews.talent_id))`
-- 関連ユーザー（ストア所有ユーザー or タレント本人）のみレビュー閲覧可 (`SELECT`): USING `EXISTS (SELECT 1 FROM public.stores s WHERE s.id = reviews.store_id AND s.user_id = auth.uid()) OR EXISTS (SELECT 1 FROM public.talents t WHERE t.id = reviews.talent_id AND t.user_id = auth.uid())`
-- ※ `auth.uid()` と `store_id` は直接比較できないため、`stores.user_id` 経由で判定
+- `INSERT`: offer_id を基準に `offers → stores.user_id = auth.uid()` で判定
+- `SELECT`: `is_public = true` なら誰でも、それ以外は当事者（store/talent）のみ閲覧可
+- SQLエディタでのテスト例:
+  ```sql
+  set local role authenticated;
+  select set_config('request.jwt.claims', json_build_object('sub', '<ユーザーID>')::text, true);
+  ```
+- 推奨ペイロード例: `{ offer_id, rating, comment?, is_public?, category_ratings? }`
+- RLS違反時の代表的なエラー: `new row violates row-level security policy for table "reviews"`
 
 ### schedules
 - 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`
