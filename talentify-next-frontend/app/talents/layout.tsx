@@ -24,10 +24,8 @@ export default async function TalentsLayout({
         <SupabaseProvider session={session}>
           <Header sidebarRole="store" />
           <div className="flex h-[calc(100vh-64px)] pt-16">
-            <aside className="hidden md:block">
-              <Sidebar role="store" collapsible />
-            </aside>
-            <main className="flex-1 overflow-y-auto p-6">{children}</main>
+            <Sidebar role="store" collapsible />
+            <main className="flex-1 overflow-y-auto p-6 transition-[margin,width]">{children}</main>
           </div>
         </SupabaseProvider>
       </body>

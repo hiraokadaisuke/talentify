@@ -68,26 +68,15 @@ export default function Sidebar({
   const [collapsed, setCollapsed] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
 
-  // Load sidebar state from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('sidebarCollapsed');
-      if (stored !== null) {
-        setCollapsed(stored === 'true');
-      }
-    } catch (err) {
-      console.error('Failed to read sidebar state', err);
-    }
-  }, [supabase]);
+  const STORAGE_KEY = "sidebar:collapsed";
 
-  // Persist sidebar state
   useEffect(() => {
     try {
-      localStorage.setItem('sidebarCollapsed', String(collapsed));
-    } catch (err) {
-      console.error('Failed to save sidebar state', err);
-    }
-  }, [collapsed]);
+      const saved =
+        typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+      if (saved != null) setCollapsed(saved === "true");
+    } catch {}
+  }, []);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -116,11 +105,13 @@ export default function Sidebar({
   };
 
   const handleToggle = () => {
-    try {
-      setCollapsed((prev) => !prev);
-    } catch (err) {
-      console.error('Failed to toggle sidebar', err);
-    }
+    setCollapsed((v) => {
+      const next = !v;
+      try {
+        localStorage.setItem(STORAGE_KEY, String(next));
+      } catch {}
+      return next;
+    });
   };
 
   const items = role === "store" ? navItems.store : navItems.talent;
@@ -128,8 +119,8 @@ export default function Sidebar({
   return (
     <div
       className={cn(
-        "relative bg-background border-r shadow-sm flex flex-col justify-between h-full",
-        collapsible && collapsed ? "w-16 min-w-[64px]" : "min-w-[220px]",
+        "relative bg-background border-r shadow-sm flex flex-col justify-between h-full overflow-hidden transition-[width]",
+        collapsible ? (collapsed ? "w-16" : "w-64") : "w-64",
       )}
     >
       <TooltipProvider delayDuration={0}>
@@ -197,7 +188,7 @@ export default function Sidebar({
       {collapsible && (
         <button
           onClick={handleToggle}
-          className="absolute -right-3 top-2 hidden h-6 w-6 items-center justify-center rounded-full border bg-background shadow md:flex"
+          className="absolute z-50 -right-3 top-2 flex h-6 w-6 items-center justify-center rounded-full border bg-background shadow md:flex"
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" />
