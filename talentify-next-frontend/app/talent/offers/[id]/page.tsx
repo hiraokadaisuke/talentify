@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { format, isBefore, parseISO } from 'date-fns'
 import ja from 'date-fns/locale/ja'
 import { addNotification } from '@/utils/notifications'
+import { toast } from 'sonner'
 
 interface Offer {
   id: string
@@ -50,7 +51,6 @@ export default function TalentOfferDetailPage() {
   const supabase = createClient()
   const [offer, setOffer] = useState<Offer | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [toast, setToast] = useState<string | null>(null)
   const [editingInvoice, setEditingInvoice] = useState(false)
   const [invoiceDate, setInvoiceDate] = useState('')
   const [invoiceAmount, setInvoiceAmount] = useState(0)
@@ -77,11 +77,9 @@ export default function TalentOfferDetailPage() {
           title: 'オファーが承諾されました'
         })
       }
-      setToast(status === 'confirmed' ? 'オファーを承諾しました' : 'オファーを辞退しました')
-      setTimeout(() => setToast(null), 3000)
+      toast.success(status === 'confirmed' ? 'オファーを承諾しました' : 'オファーを辞退しました')
     } else {
-      setToast('処理に失敗しました。もう一度お試しください')
-      setTimeout(() => setToast(null), 3000)
+      toast.error('処理に失敗しました。もう一度お試しください')
     }
   }
 
@@ -102,11 +100,10 @@ export default function TalentOfferDetailPage() {
           title: 'タレントが契約書を確認しました'
         })
       }
-      setToast('契約書を確認しました')
+      toast.success('契約書を確認しました')
     } else {
-      setToast('更新に失敗しました')
+      toast.error('更新に失敗しました')
     }
-    setTimeout(() => setToast(null), 3000)
   }
 
   const submitInvoice = async () => {
@@ -144,11 +141,10 @@ export default function TalentOfferDetailPage() {
         })
       }
       setEditingInvoice(false)
-      setToast('請求書を提出しました')
+      toast.success('請求書を提出しました')
     } else {
-      setToast('更新に失敗しました')
+      toast.error('更新に失敗しました')
     }
-    setTimeout(() => setToast(null), 3000)
   }
 
   const handleInvoiceFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,8 +155,7 @@ export default function TalentOfferDetailPage() {
       .from('invoices')
       .upload(path, file, { upsert: true })
     if (error) {
-      setToast('アップロードに失敗しました')
-      setTimeout(() => setToast(null), 3000)
+      toast.error('アップロードに失敗しました')
       return
     }
     const { data } = await supabase.storage
@@ -182,11 +177,10 @@ export default function TalentOfferDetailPage() {
           title: '請求書が提出されました',
         })
       }
-      setToast('請求書をアップロードしました')
+      toast.success('請求書をアップロードしました')
     } else {
-      setToast('更新に失敗しました')
+      toast.error('更新に失敗しました')
     }
-    setTimeout(() => setToast(null), 3000)
   }
 
   useEffect(() => {
@@ -422,11 +416,7 @@ export default function TalentOfferDetailPage() {
         </div>
       )}
 
-      {toast && (
-        <div className="fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow">
-          {toast}
-        </div>
-      )}
+      {/* Toasts are handled globally */}
     </div>
   )
 }

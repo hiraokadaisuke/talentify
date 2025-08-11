@@ -9,13 +9,13 @@ import { CardSkeleton } from '@/components/ui/skeleton'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { getTalentSchedule } from '@/utils/getTalentSchedule'
+import { toast } from 'sonner'
 
 export default function TalentDashboard() {
   const pending = 2
   const [schedule, setSchedule] = useState<ScheduleItem[]>([])
   const unread = 5
   const [loading, setLoading] = useState(true)
-  const [toast, setToast] = useState<string | null>(null)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -33,9 +33,7 @@ export default function TalentDashboard() {
 
   useEffect(() => {
     if (searchParams.get('saved') === '1') {
-      setToast('保存しました')
-      const timer = setTimeout(() => setToast(null), 3000)
-      return () => clearTimeout(timer)
+      toast.success('保存しました')
     }
   }, [searchParams])
 
@@ -59,11 +57,7 @@ export default function TalentDashboard() {
           </div>
         </>
       )}
-      {toast && (
-        <div className='fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow'>
-          {toast}
-        </div>
-      )}
+      {/* Toasts are handled globally */}
     </div>
   )
 }

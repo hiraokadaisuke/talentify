@@ -4,6 +4,7 @@ import React from "react";
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata = {
   title: "Talentify",
@@ -22,6 +23,7 @@ export default async function RootLayout({
     <html lang="ja">
       <body className="font-sans antialiased bg-white text-black">
         <Header />
+        <Toaster />
         {children}
         <Footer />
       </body>

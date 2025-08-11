@@ -50,7 +50,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isLoggedIn = !!userName
 
   return (
-    <header className="fixed top-0 z-50 w-full h-16 bg-white shadow-sm">
+    <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
       <div className="mx-auto flex h-full max-w-5xl items-center justify-between p-4">
         <div className="flex items-center gap-2">
           {sidebarRole && (

@@ -7,6 +7,8 @@
   --background: #ffffff;
   --foreground: #171717;
   --font-inter: 'Inter', sans-serif;
+  --z-header: 50;
+  --z-toast: 9999;
 }
 
 /* ダークモード用（任意） */
@@ -23,4 +25,14 @@ body {
   color: var(--foreground);
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
   line-height: 1.75;
+}
+
+.toast-portal {
+  z-index: var(--z-toast);
+}
+
+@supports (padding: max(0px)) {
+  .toast-top {
+    padding-top: env(safe-area-inset-top);
+  }
 }

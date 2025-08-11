@@ -10,6 +10,7 @@ import Link from 'next/link'
 import jsPDF from 'jspdf'
 import { addNotification } from '@/utils/notifications'
 import ReviewModal from '@/components/modals/ReviewModal'
+import { toast } from 'sonner'
 
 interface Offer {
   id: string
@@ -38,7 +39,6 @@ export default function StoreOfferDetailPage() {
   const params = useParams<{ id: string }>()
   const supabase = createClient()
   const [offer, setOffer] = useState<Offer | null>(null)
-  const [toast, setToast] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [reviewed, setReviewed] = useState(false)
 
@@ -74,8 +74,7 @@ export default function StoreOfferDetailPage() {
       .from('contracts')
       .upload(path, file, { upsert: true })
     if (error) {
-      setToast('アップロードに失敗しました')
-      setTimeout(() => setToast(null), 3000)
+      toast.error('アップロードに失敗しました')
       return
     }
     const { data } = await supabase.storage
@@ -98,11 +97,10 @@ export default function StoreOfferDetailPage() {
           title: '契約書がアップロードされました'
         })
       }
-      setToast('契約書をアップロードしました')
+      toast.success('契約書をアップロードしました')
     } else {
-      setToast('更新に失敗しました')
+      toast.error('更新に失敗しました')
     }
-    setTimeout(() => setToast(null), 3000)
   }
 
   const downloadInvoice = () => {
@@ -142,11 +140,10 @@ export default function StoreOfferDetailPage() {
           title: 'お支払いが完了しました'
         })
       }
-      setToast('支払い完了を登録しました')
+      toast.success('支払い完了を登録しました')
     } else {
-      setToast('更新に失敗しました')
+      toast.error('更新に失敗しました')
     }
-    setTimeout(() => setToast(null), 3000)
   }
 
   if (!offer) return <p className='p-4'>Loading...</p>
@@ -219,18 +216,13 @@ export default function StoreOfferDetailPage() {
               onSubmitted={() => {
                 setReviewed(true)
                 setOffer({ ...offer, status: 'completed' })
-                setToast('レビューを投稿しました')
-                setTimeout(() => setToast(null), 3000)
+                toast.success('レビューを投稿しました')
               }}
             />
           </div>
         )
       )}
-      {toast && (
-        <div className='fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow'>
-          {toast}
-        </div>
-      )}
+      {/* Toasts are handled globally */}
     </div>
   )
 }
