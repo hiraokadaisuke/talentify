@@ -8,14 +8,12 @@ import ReviewModal from '@/components/modals/ReviewModal'
 export default function StoreReviewsPage() {
   const [offers, setOffers] = useState<CompletedOffer[]>([])
   const [loading, setLoading] = useState(true)
-  const [storeId, setStoreId] = useState('')
 
   useEffect(() => {
     const load = async () => {
       const data = await getCompletedOffersForStore()
       setOffers(data)
       setLoading(false)
-      if (data[0]) setStoreId(data[0].store_id)
     }
     load()
   }, [])
@@ -48,7 +46,6 @@ export default function StoreReviewsPage() {
                     <ReviewModal
                       offerId={o.id}
                       talentId={o.talent_id}
-                      storeId={o.store_id}
                       trigger={<Button size="sm">レビューする</Button>}
                       onSubmitted={() => {
                         setOffers(prev => prev.map(p => p.id === o.id ? { ...p, reviewed: true } : p))

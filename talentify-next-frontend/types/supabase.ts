@@ -247,8 +247,43 @@ export type Database = {
           created_at?: string | null
         }
         Relationships: []
-      }
-      ,
+      },
+      reviews: {
+        Row: {
+          id: string
+          offer_id: string | null
+          store_id: string | null
+          talent_id: string | null
+          rating: number | null
+          comment: string | null
+          created_at: string | null
+          category_ratings: Json | null
+          is_public: boolean | null
+        }
+        Insert: {
+          id?: string
+          offer_id?: string | null
+          store_id?: string | null
+          talent_id?: string | null
+          rating?: number | null
+          comment?: string | null
+          created_at?: string | null
+          category_ratings?: Json | null
+          is_public?: boolean | null
+        }
+        Update: {
+          id?: string
+          offer_id?: string | null
+          store_id?: string | null
+          talent_id?: string | null
+          rating?: number | null
+          comment?: string | null
+          created_at?: string | null
+          category_ratings?: Json | null
+          is_public?: boolean | null
+        }
+        Relationships: []
+      },
       invoices: {
         Row: {
           id: string
