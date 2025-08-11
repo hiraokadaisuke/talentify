@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata = {
   title: "Talentify",
@@ -22,10 +23,12 @@ export default async function RootLayout({
   return (
     <html lang="ja">
       <body className="font-sans antialiased bg-white text-black">
-        <Header />
-        <Toaster />
-        {children}
-        <Footer />
+        <TooltipProvider delayDuration={200} disableHoverableContent>
+          <Header />
+          <Toaster />
+          {children}
+          <Footer />
+        </TooltipProvider>
       </body>
     </html>
   );
