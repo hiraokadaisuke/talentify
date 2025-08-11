@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { Search as SearchIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
 
 export default function StoreDashboard() {
   const offerStats = { pending: 1, confirmed: 2 }
@@ -20,7 +21,6 @@ export default function StoreDashboard() {
   ]
   const unread = 3
   const [loading, setLoading] = useState(true)
-  const [toast, setToast] = useState<string | null>(null)
   const searchParams = useSearchParams()
 
   const hasData = offerStats.pending + offerStats.confirmed > 0
@@ -31,9 +31,7 @@ export default function StoreDashboard() {
 
   useEffect(() => {
     if (searchParams.get('saved') === '1') {
-      setToast('保存しました')
-      const timer = setTimeout(() => setToast(null), 3000)
-      return () => clearTimeout(timer)
+      toast.success('保存しました')
     }
   }, [searchParams])
 
@@ -77,11 +75,7 @@ export default function StoreDashboard() {
         <NotificationListCard className='sm:col-span-2' />
       </div>
       )}
-      {toast && (
-        <div className='fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow'>
-          {toast}
-        </div>
-      )}
+      {/* Toasts are handled globally */}
     </div>
   )
 }

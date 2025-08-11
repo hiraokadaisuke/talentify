@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 interface Settings {
   store_name: string
@@ -21,7 +22,6 @@ export default function StoreSettingsPage() {
     email: '',
     phone: '',
   })
-  const [toast, setToast] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -76,8 +76,7 @@ export default function StoreSettingsPage() {
         console.warn('RLS policy may prevent inserting/updating stores')
       }
     } else {
-      setToast('更新しました')
-      setTimeout(() => setToast(null), 3000)
+      toast.success('更新しました')
     }
   }
 
@@ -107,11 +106,7 @@ export default function StoreSettingsPage() {
         <Button onClick={handleSave} className="mt-2">保存</Button>
       </div>
 
-      {toast && (
-        <div className="fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow">
-          {toast}
-        </div>
-      )}
+      {/* Toasts are handled globally */}
     </main>
   )
 }
