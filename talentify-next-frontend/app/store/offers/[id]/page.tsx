@@ -92,7 +92,7 @@ export default function StoreOfferDetailPage() {
       if (offer.talent_id) {
         await addNotification({
           user_id: offer.talent_id,
-          offer_id: offer.id,
+          data: { offer_id: offer.id },
           type: 'contract_uploaded',
           title: '契約書がアップロードされました'
         })
@@ -135,7 +135,7 @@ export default function StoreOfferDetailPage() {
       if (offer.talent_id) {
         await addNotification({
           user_id: offer.talent_id,
-          offer_id: offer.id,
+          data: { offer_id: offer.id },
           type: 'payment_completed',
           title: 'お支払いが完了しました'
         })

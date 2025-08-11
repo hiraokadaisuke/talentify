@@ -20,7 +20,8 @@ export default function StoreNotificationsPage() {
 
   const linkFor = (n: NotificationRow) => {
     if (n.type === 'message') return '/store/messages'
-    return n.offer_id ? `/store/offers/${n.offer_id}` : '#'
+    const offerId = (n.data as any)?.offer_id
+    return offerId ? `/store/offers/${offerId}` : '#'
   }
 
   return (

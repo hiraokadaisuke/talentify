@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
     const { error } = await supabase.from('notifications').insert({
       user_id: recipientUserId,
       type: 'review_received',
+      title: 'レビューが届きました',
       data: { offer_id: offerId, review_id: reviewId },
     })
     if (error) return NextResponse.json({ error }, { status: 400 })

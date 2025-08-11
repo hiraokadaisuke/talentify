@@ -129,7 +129,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
     if (talent.user_id) {
       await addNotification({
         user_id: talent.user_id,
-        offer_id: inserted.id,
+        data: { offer_id: inserted.id },
         type: 'offer',
         title: 'オファー対応待ち'
       })

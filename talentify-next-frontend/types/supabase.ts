@@ -371,8 +371,8 @@ export type Database = {
         Row: {
           id: string
           user_id: string
-          offer_id: string | null
-            type:
+          data: Json | null
+          type:
               | 'offer'
               | 'offer_created'
               | 'offer_updated'
@@ -394,8 +394,8 @@ export type Database = {
         Insert: {
           id?: string
           user_id: string
-          offer_id?: string | null
-            type:
+          data?: Json | null
+          type:
               | 'offer'
               | 'offer_created'
               | 'offer_updated'
@@ -417,7 +417,7 @@ export type Database = {
         Update: {
           id?: string
           user_id?: string
-          offer_id?: string | null
+          data?: Json | null
           type?:
             | 'offer'
             | 'offer_created'
