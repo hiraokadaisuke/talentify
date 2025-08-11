@@ -418,7 +418,19 @@ export type Database = {
           id?: string
           user_id?: string
           offer_id?: string | null
-          type?: string
+          type?:
+            | 'offer'
+            | 'offer_created'
+            | 'offer_updated'
+            | 'offer_accepted'
+            | 'schedule_fixed'
+            | 'contract_uploaded'
+            | 'contract_checked'
+            | 'payment_created'
+            | 'invoice_submitted'
+            | 'payment_completed'
+            | 'review_received'
+            | 'message'
           title?: string
           body?: string | null
           is_read?: boolean
