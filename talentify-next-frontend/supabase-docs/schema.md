@@ -121,6 +121,8 @@
 - rating: integer
 - comment: text
 - created_at: timestamp without time zone, DEFAULT now()
+- category_ratings: jsonb <!-- カテゴリごとの評価。API・フロントエンドから利用可能 -->
+- is_public: boolean, DEFAULT true <!-- レビュー公開設定。API・フロントエンドから利用可能 -->
 
 ### schedules
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
