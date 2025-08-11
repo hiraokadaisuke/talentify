@@ -35,9 +35,9 @@
 - ストアは支払いを更新可能 (`UPDATE`): USING `(auth.uid() = ( SELECT invoices.store_id FROM invoices WHERE (invoices.offer_id = payments.offer_id)))`
 
 ### reviews
-- 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`
-- ストアは自分のオファーにレビューを追加可能 (`INSERT`): CHECK `((auth.uid() = store_id) AND (offer_id IN ( SELECT offers.id FROM offers WHERE (offers.store_id = auth.uid()))))`
-- 関連するユーザーのみレビューを閲覧可能 (`SELECT`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
+- ストアユーザーは自分のストアのオファーに対してのみレビューを登録可能 (`INSERT`): CHECK `EXISTS (SELECT 1 FROM stores s WHERE s.id = reviews.store_id AND s.user_id = auth.uid()) AND EXISTS (SELECT 1 FROM offers o WHERE o.id = reviews.offer_id AND o.store_id = reviews.store_id AND (reviews.talent_id IS NULL OR o.talent_id = reviews.talent_id))`
+- ストア所有ユーザーまたはタレント本人のみレビューを閲覧可能 (`SELECT`): USING `EXISTS (SELECT 1 FROM stores s WHERE s.id = reviews.store_id AND s.user_id = auth.uid()) OR EXISTS (SELECT 1 FROM talents t WHERE t.id = reviews.talent_id AND t.user_id = auth.uid())`
+- ※ `auth.uid()` はユーザーID、`store_id` はストアIDのため直接比較不可。`stores.user_id` と突合せる
 
 ### schedules
 - 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`
