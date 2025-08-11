@@ -15,3 +15,5 @@
 | set_updated_at | talents | BEFORE | UPDATE | update_updated_at_column |
 | set_updated_at_talents | talents | BEFORE | UPDATE | update_updated_at_column |
 | set_updated_at_visits | visits | BEFORE | UPDATE | update_updated_at_column |
+| trigger_set_offer_completed_on_review | reviews | AFTER | INSERT | handle_review_insert |
+| trigger_notify_talent_on_review_created | reviews | AFTER | INSERT | notify_talent_on_review_created |
