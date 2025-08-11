@@ -72,7 +72,7 @@ export default function TalentOfferDetailPage() {
       if (status === 'confirmed' && offer.user_id) {
         await addNotification({
           user_id: offer.user_id,
-          offer_id: offer.id,
+          data: { offer_id: offer.id },
           type: 'offer_accepted',
           title: 'オファーが承諾されました'
         })
@@ -95,7 +95,7 @@ export default function TalentOfferDetailPage() {
       if (offer.user_id) {
         await addNotification({
           user_id: offer.user_id,
-          offer_id: offer.id,
+          data: { offer_id: offer.id },
           type: 'contract_checked',
           title: 'タレントが契約書を確認しました'
         })
@@ -135,7 +135,7 @@ export default function TalentOfferDetailPage() {
       if (offer.user_id) {
         await addNotification({
           user_id: offer.user_id,
-          offer_id: offer.id,
+          data: { offer_id: offer.id },
           type: 'invoice_submitted',
           title: '請求書が提出されました'
         })
@@ -172,7 +172,7 @@ export default function TalentOfferDetailPage() {
       if (offer.user_id) {
         await addNotification({
           user_id: offer.user_id,
-          offer_id: offer.id,
+          data: { offer_id: offer.id },
           type: 'invoice_submitted',
           title: '請求書が提出されました',
         })

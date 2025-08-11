@@ -14,7 +14,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import StarRatingInput from '@/components/StarRatingInput'
-import { addNotification } from '@/utils/notifications'
 import { toast } from 'sonner'
 
 function compact<T extends Record<string, any>>(obj: T): T {
@@ -58,18 +57,22 @@ export default function ReviewModal({
         is_public: isPublic ?? true,
         category_ratings: Object.keys(categoryRatings).length ? categoryRatings : {},
       })
-      const { error } = await supabase
+      const { data: review, error } = await supabase
         .from('reviews')
-        .insert([payload])
+        .insert(payload)
         .select('id')
+        .single()
       setSubmitting(false)
-      if (!error) {
+      if (!error && review) {
         if (talentId) {
-          await addNotification({
-            user_id: talentId,
-            offer_id: offerId,
-            type: 'review_received',
-            title: 'レビューが投稿されました',
+          await fetch('/api/notifications/review-received', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              offerId,
+              reviewId: review.id,
+              recipientUserId: talentId,
+            }),
           })
         }
         toast.success('レビューを投稿しました')

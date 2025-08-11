@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
   if (topic) {
     await supabase.from('notifications').insert({
       user_id: topic,
-      offer_id: null,
       type: 'message',
       title: '新着メッセージがあります',
       body: content ?? null

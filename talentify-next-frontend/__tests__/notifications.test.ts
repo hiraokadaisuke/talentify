@@ -12,6 +12,7 @@ test('getNotifications fetches review and offer notifications without extra filt
       body: 'body',
       created_at: '2024-01-01',
       is_read: false,
+      data: null,
     },
     {
       id: '2',
