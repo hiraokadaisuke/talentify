@@ -1,20 +1,20 @@
-import TalentCard, { Talent } from './TalentCard'
+import TalentCard, { PublicTalent } from './TalentCard'
 
-export default function TalentList({ talents, error }: { talents: Talent[]; error?: boolean }) {
+export default function TalentList({ talents, error }: { talents: PublicTalent[]; error?: boolean }) {
   if (error) {
-    return <p className="p-4">キャストを取得できませんでした。</p>
+    return <p className="p-4">取得に失敗しました</p>
   }
 
   if (talents.length === 0) {
-    return <p className="p-4">該当するキャストが見つかりませんでした。</p>
+    return <p className="p-4">検索条件に一致するキャストがいません</p>
   }
 
   return (
     <>
       <p className="mb-4 text-sm text-gray-700">検索結果：{talents.length}件</p>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {talents.map(t => (
-          <TalentCard key={t.id} talent={t} />
+        {talents.map((t, idx) => (
+          <TalentCard key={t.stage_name ?? idx} talent={t} />
         ))}
       </div>
     </>

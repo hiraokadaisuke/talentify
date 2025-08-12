@@ -1,21 +1,18 @@
 import Image from 'next/image'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
-// Public talent information used on the search page
-export type Talent = {
-  id: string
-  stage_name: string
+export type PublicTalent = {
+  stage_name: string | null
   genre: string | null
-  gender: string | null
-  age_group: string | null
-  location: string | null
-  comment: string | null
+  area: string | null
   avatar_url: string | null
+  rating: number | null
+  rate: number | null
+  bio: string | null
+  display_name?: string | null
 }
 
-export default function TalentCard({ talent }: { talent: Talent }) {
+export default function TalentCard({ talent }: { talent: PublicTalent }) {
   return (
     <Card className="flex flex-col transition-transform hover:shadow-md hover:scale-[1.02]">
       <CardHeader className="flex items-center gap-3">
@@ -23,7 +20,7 @@ export default function TalentCard({ talent }: { talent: Talent }) {
           {talent.avatar_url && (
             <Image
               src={talent.avatar_url}
-              alt={talent.stage_name}
+              alt={talent.stage_name ?? ''}
               width={64}
               height={64}
               className="object-cover w-full h-full"
@@ -33,25 +30,21 @@ export default function TalentCard({ talent }: { talent: Talent }) {
         <div className="text-lg font-semibold">{talent.stage_name}</div>
       </CardHeader>
       <CardContent className="text-sm space-y-1">
-        {(talent.genre || talent.location) && (
+        {(talent.genre || talent.area) && (
           <p className="text-gray-600">
             {talent.genre}
-            {talent.genre && talent.location ? '・' : ''}
-            {talent.location}
+            {talent.genre && talent.area ? '・' : ''}
+            {talent.area}
           </p>
         )}
-        {(talent.gender || talent.age_group) && (
-          <p className="text-gray-600">
-            {[talent.gender, talent.age_group].filter(Boolean).join('・')}
-          </p>
+        {talent.rating != null && (
+          <p className="text-gray-600">評価: {talent.rating}</p>
         )}
-        {talent.comment && <p className="line-clamp-2">{talent.comment}</p>}
+        {talent.rate != null && (
+          <p className="text-gray-600">料金: {talent.rate}</p>
+        )}
+        {talent.bio && <p className="line-clamp-2">{talent.bio}</p>}
       </CardContent>
-      <CardFooter className="mt-auto">
-        <Button asChild variant="outline" className="w-full">
-          <Link href={`/talents/${talent.id}`}>詳細を見る</Link>
-        </Button>
-      </CardFooter>
     </Card>
   )
 }

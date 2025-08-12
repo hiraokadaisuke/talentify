@@ -1,27 +1,27 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/utils/supabase/client' // あなたのSupabaseラッパー
+import { createClient } from '@/utils/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import TalentSearchForm, { SearchFilters } from './TalentSearchForm'
 import TalentList from './TalentList'
 
-type TalentLite = {
-  id: string
-  stage_name: string
+type PublicTalent = {
+  stage_name: string | null
   genre: string | null
-  gender: string | null
-  age_group: string | null
-  location: string | null
-  comment: string | null
+  area: string | null
   avatar_url: string | null
+  rating: number | null
+  rate: number | null
+  bio: string | null
+  display_name?: string | null
 }
 
 const ITEMS_PER_PAGE = 6
 
 export default function TalentSearchPage() {
-  const [talents, setTalents] = useState<TalentLite[]>([])
-  const [results, setResults] = useState<TalentLite[]>([])
+  const [talents, setTalents] = useState<PublicTalent[]>([])
+  const [results, setResults] = useState<PublicTalent[]>([])
   const [page, setPage] = useState(1)
   const [fetchError, setFetchError] = useState(false)
 
@@ -29,10 +29,11 @@ export default function TalentSearchPage() {
     const fetchTalents = async () => {
       const supabase = createClient() as SupabaseClient<any>
       const { data, error } = await supabase
-        .from('talents')
-        .select('id, stage_name, genre, gender, age_group, location, comment, avatar_url')
-        .eq('is_public', true)
-        .returns<TalentLite[]>()
+        .from('public_talent_profiles')
+        .select(
+          'stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
+        )
+        .returns<PublicTalent[]>()
 
       if (error) {
         console.error('タレントの取得に失敗しました:', error)
@@ -53,12 +54,10 @@ export default function TalentSearchPage() {
     const keyword = f.keyword.toLowerCase()
     const filtered = talents.filter(t =>
       (!f.keyword ||
-        t.stage_name.toLowerCase().includes(keyword) ||
-        (t.comment ? t.comment.toLowerCase().includes(keyword) : false)) &&
+        t.stage_name?.toLowerCase().includes(keyword) ||
+        t.bio?.toLowerCase().includes(keyword)) &&
       (!f.genre || t.genre === f.genre) &&
-      (!f.gender || t.gender === f.gender) &&
-      (!f.age || t.age_group === f.age) &&
-      (!f.location || t.location === f.location)
+      (!f.area || t.area === f.area)
     )
     setResults(filtered)
     setPage(1)
