@@ -5,6 +5,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { isProfileComplete } from '@/utils/isProfileComplete'
+import { s, n, j } from '@/utils/nullSafe'
 
 const prefectures = [
   '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
@@ -53,32 +54,31 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
   const validate = (p: typeof profile) => {
     const err: Record<string, string> = {}
-    if (!p.stage_name.trim()) err.stage_name = 'ステージ名は必須です'
-    if (!p.genre.trim()) err.genre = 'ジャンルは必須です'
+    if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
+    if (!s(p.genre).trim()) err.genre = 'ジャンルは必須です'
     if (p.area.length === 0) err.area = 'エリアは1つ以上選択してください'
-    if (!p.rate || Number(p.rate) <= 0)
-      err.rate = '報酬は0より大きい数値を入力してください'
-    const bioLen = p.bio.trim().length
-    const profileLen = p.profile.trim().length
+    if (n(p.rate) <= 0) err.rate = '報酬は0より大きい数値を入力してください'
+    const bioLen = s(p.bio).trim().length
+    const profileLen = s(p.profile).trim().length
     if (bioLen < 20 && profileLen < 20) {
       err.bio = '自己紹介またはプロフィールを20文字以上入力してください'
       err.profile = '自己紹介またはプロフィールを20文字以上入力してください'
     }
-    if (!p.avatar_url && !avatarFile)
+    if (!s(p.avatar_url).trim() && !avatarFile)
       err.avatar_url = 'プロフィール画像は必須です'
     return err
   }
 
   const requirements = useMemo(() => {
     return {
-      stage_name: profile.stage_name.trim().length > 0,
-      genre: profile.genre.trim().length > 0,
+      stage_name: s(profile.stage_name).trim().length > 0,
+      genre: s(profile.genre).trim().length > 0,
       area: profile.area.length > 0,
-      rate: Number(profile.rate) > 0,
+      rate: n(profile.rate) > 0,
       bioOrProfile:
-        profile.bio.trim().length >= 20 ||
-        profile.profile.trim().length >= 20,
-      avatar: profile.avatar_url.trim().length > 0 || !!avatarFile,
+        s(profile.bio).trim().length >= 20 ||
+        s(profile.profile).trim().length >= 20,
+      avatar: s(profile.avatar_url).trim().length > 0 || !!avatarFile,
     }
   }, [profile, avatarFile])
 
@@ -113,17 +113,25 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
       if (data) {
         setProfile({
-          ...data,
-          area: (data.area as string[] | null) ?? [],
-          photos: (data.photos as string[] | null) ?? [],
-          genre: data.genre ?? '',
-          notes: data.notes ?? '',
-          achievements: data.achievements ?? '',
-          twitterUrl: data.twitterUrl ?? '',
-          instagramUrl: data.instagramUrl ?? '',
-          youtubeUrl: data.youtubeUrl ?? '',
-          bio: data.bio ?? '',
-          profile: data.profile ?? '',
+          name: s((data as any).name),
+          stage_name: s((data as any).stage_name),
+          bio: s((data as any).bio),
+          profile: s((data as any).profile),
+          residence: s((data as any).residence),
+          area: j<string[]>((data as any).area, []),
+          genre: s((data as any).genre),
+          availability: s((data as any).availability),
+          min_hours: s((data as any).min_hours),
+          transportation: s((data as any).transportation) || '込み',
+          rate: (data as any).rate != null ? String((data as any).rate) : '',
+          notes: s((data as any).notes),
+          achievements: s((data as any).achievements),
+          video_url: s((data as any).video_url),
+          avatar_url: s((data as any).avatar_url),
+          photos: j<string[]>((data as any).photos, []),
+          twitterUrl: s((data as any).twitterUrl),
+          instagramUrl: s((data as any).instagramUrl),
+          youtubeUrl: s((data as any).youtubeUrl),
         })
         setIsNew(false)
         setShowIncomplete(!isProfileComplete(data))
@@ -237,7 +245,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       stage_name: profile.stage_name,
       genre: profile.genre,
       area: profile.area,
-      rate: profile.rate === '' ? 0 : Number(profile.rate),
+      rate: n(profile.rate),
       bio: profile.bio,
       profile: profile.profile,
       avatar_url: profile.avatar_url,
@@ -254,7 +262,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       ...(profile.availability && { availability: profile.availability }),
       ...(profile.min_hours && { min_hours: profile.min_hours }),
       ...(profile.transportation && { transportation: profile.transportation }),
-      ...(profile.rate !== '' && { rate: Number(profile.rate) }),
+      ...(profile.rate !== '' && { rate: n(profile.rate) }),
       ...(profile.notes && { notes: profile.notes }),
       ...(profile.achievements && { media_appearance: profile.achievements }),
       ...(profile.video_url && { video_url: profile.video_url }),
@@ -351,7 +359,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="text"
             name="name"
-            value={profile.name}
+            value={profile.name ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             placeholder="例：山田花子"
@@ -362,7 +370,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="text"
             name="stage_name"
-            value={profile.stage_name}
+            value={profile.stage_name ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             placeholder="例：ハナコ"
@@ -375,7 +383,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <textarea
             name="bio"
             maxLength={300}
-            value={profile.bio}
+            value={profile.bio ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
@@ -388,7 +396,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <textarea
             name="profile"
             maxLength={500}
-            value={profile.profile}
+            value={profile.profile ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
@@ -400,7 +408,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">拠点地域</label>
           <select
             name="residence"
-            value={profile.residence}
+            value={profile.residence ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           >
@@ -441,7 +449,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">ジャンル<span className="text-red-500 ml-1">*</span></label>
           <select
             name="genre"
-            value={profile.genre}
+            value={profile.genre ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           >
@@ -464,7 +472,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="text"
             name="availability"
-            value={profile.availability}
+            value={profile.availability ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             placeholder="例: 10:00〜18:00"
@@ -474,7 +482,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">最低拘束時間</label>
           <select
             name="min_hours"
-            value={profile.min_hours}
+            value={profile.min_hours ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           >
@@ -516,7 +524,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="number"
             name="rate"
-            value={profile.rate}
+            value={profile.rate ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             placeholder="例：5000"
@@ -527,7 +535,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">NG事項・特記事項<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <textarea
             name="notes"
-            value={profile.notes}
+            value={profile.notes ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={3}
@@ -542,7 +550,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <label className="block font-semibold">来店実績<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
           <textarea
             name="achievements"
-            value={profile.achievements}
+            value={profile.achievements ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={3}
@@ -553,7 +561,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="url"
             name="video_url"
-            value={profile.video_url}
+            value={profile.video_url ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
@@ -584,7 +592,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="url"
             name="twitterUrl"
-            value={profile.twitterUrl}
+            value={profile.twitterUrl ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
@@ -594,7 +602,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="url"
             name="instagramUrl"
-            value={profile.instagramUrl}
+            value={profile.instagramUrl ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
@@ -604,7 +612,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <input
             type="url"
             name="youtubeUrl"
-            value={profile.youtubeUrl}
+            value={profile.youtubeUrl ?? ''}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
