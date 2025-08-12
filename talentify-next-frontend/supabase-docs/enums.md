@@ -41,6 +41,7 @@
 
 ### public.invoice_status
 - draft
+- pending
 - submitted
 - approved
 - rejected

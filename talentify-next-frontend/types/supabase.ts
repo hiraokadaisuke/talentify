@@ -552,7 +552,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected'
+      invoice_status: 'draft' | 'pending' | 'submitted' | 'approved' | 'rejected'
       notification_type:
         | 'offer'
         | 'offer_created'
@@ -685,7 +685,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      invoice_status: ['draft', 'submitted', 'approved', 'rejected'],
+      invoice_status: ['draft', 'pending', 'submitted', 'approved', 'rejected'],
       notification_type: [
         'offer',
         'offer_created',
