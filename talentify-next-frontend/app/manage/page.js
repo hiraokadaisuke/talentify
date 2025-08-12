@@ -45,10 +45,12 @@ function usePayments() {
     load()
   }, [])
 
-  const updateStatus = async (id, status) => {
+  const updateStatus = async (offerId) => {
     try {
-      const updated = await markPaymentCompleted(id)
-      setPayments(prev => prev.map(p => (p.id === id ? { ...p, ...updated } : p)))
+      const updated = await markPaymentCompleted(offerId)
+      setPayments(prev =>
+        prev.map(p => (p.offer_id === offerId ? { ...p, ...updated } : p))
+      )
     } catch (e) {
       console.error(e)
     }
@@ -148,7 +150,7 @@ function Payments() {
             )}
             {p.status !== '支払済' && (
               <button
-                onClick={() => updateStatus(p.id, '支払済')}
+                onClick={() => updateStatus(p.offer_id)}
                 className="px-2 py-1 border rounded"
               >
                 支払済にする
