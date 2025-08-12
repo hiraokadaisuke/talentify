@@ -58,7 +58,8 @@ export default function StoreOfferDetailPage() {
 
       if (!error && data) {
         const talent = (data as any).talents || {}
-        const pay = (data as any).payments || null
+        const payData = (data as any).payments
+        const pay = Array.isArray(payData) ? payData[0] : payData
         const o = { ...(data as any), talent_stage_name: talent.stage_name }
         delete o.talents
         delete o.payments
@@ -132,7 +133,7 @@ export default function StoreOfferDetailPage() {
   }
 
   const handlePaid = async () => {
-    if (!offer || !payment) return
+    if (!offer || !payment?.id) return
     try {
       const updated = await markPaymentCompleted(payment.id, {
         paid_at: new Date().toISOString(),
@@ -176,10 +177,12 @@ export default function StoreOfferDetailPage() {
         offer.invoice_url ? (
           <div className='space-y-1 text-sm'>
             <a href={offer.invoice_url} target='_blank' className='text-blue-600 underline'>請求書を開く</a>
-            {payment?.status === 'completed' ? (
-              <Badge className='ml-2'>支払い済</Badge>
-            ) : (
-              <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
+            {payment && (
+              payment.status === 'completed' ? (
+                <Badge className='ml-2'>支払い済</Badge>
+              ) : (
+                <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
+              )
             )}
           </div>
         ) : (
@@ -192,10 +195,12 @@ export default function StoreOfferDetailPage() {
               {offer.bank_account_holder}
             </div>
             <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
-            {payment?.status === 'completed' ? (
-              <Badge className='ml-2'>支払い済</Badge>
-            ) : (
-              <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
+            {payment && (
+              payment.status === 'completed' ? (
+                <Badge className='ml-2'>支払い済</Badge>
+              ) : (
+                <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
+              )
             )}
           </div>
         )
