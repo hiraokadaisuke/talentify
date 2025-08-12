@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { isProfileComplete } from '@/utils/isProfileComplete'
 
 export async function GET() {
   const supabase = await createClient()
@@ -35,7 +36,20 @@ export async function POST(req: Request) {
     location = '',
     rate = 0,
     availability = '',
+    stage_name,
+    genre,
+    bio = '',
   } = body
+
+  const isComplete = isProfileComplete({
+    stage_name,
+    genre,
+    area,
+    rate,
+    bio,
+    profile,
+    avatar_url,
+  })
 
   const { data, error } = await supabase
     .from('talents')
@@ -51,6 +65,10 @@ export async function POST(req: Request) {
         location,
         rate,
         availability,
+        stage_name,
+        genre,
+        bio,
+        is_profile_complete: isComplete,
       },
     ])
     .select()

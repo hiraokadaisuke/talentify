@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { isProfileComplete } from '@/utils/isProfileComplete'
 
 export async function GET(
   req: NextRequest,
@@ -79,7 +80,20 @@ export async function PUT(
     location,
     rate,
     availability,
+    stage_name,
+    genre,
+    bio,
   } = body
+
+  const isComplete = isProfileComplete({
+    stage_name,
+    genre,
+    area,
+    rate,
+    bio,
+    profile,
+    avatar_url,
+  })
 
   const { error } = await supabase
     .from('talents')
@@ -95,6 +109,10 @@ export async function PUT(
       location,
       rate,
       availability,
+      stage_name,
+      genre,
+      bio,
+      is_profile_complete: isComplete,
     })
     .eq('id', id)
 
