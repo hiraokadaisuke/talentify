@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
 const MAX_FILE_SIZE = 5 * 1024 * 1024
-const AVATAR_BUCKET = 'talent_photos'
+const AVATAR_BUCKET = 'talent-photos'
 
 const supabase = createClient()
 
