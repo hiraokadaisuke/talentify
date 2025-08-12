@@ -11,6 +11,7 @@ import jsPDF from 'jspdf'
 import { addNotification } from '@/utils/notifications'
 import ReviewModal from '@/components/modals/ReviewModal'
 import { toast } from 'sonner'
+import { markPaymentCompleted } from '@/lib/payments'
 
 interface Offer {
   id: string
@@ -31,7 +32,11 @@ interface Offer {
   bank_account_holder?: string | null
   invoice_url?: string | null
   invoice_submitted?: boolean | null
-  paid?: boolean | null
+}
+
+interface Payment {
+  id: string
+  status: string | null
   paid_at?: string | null
 }
 
@@ -41,20 +46,24 @@ export default function StoreOfferDetailPage() {
   const [offer, setOffer] = useState<Offer | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const [reviewed, setReviewed] = useState(false)
+  const [payment, setPayment] = useState<Payment | null>(null)
 
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
         .from('offers')
-        .select('id,date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,invoice_url,paid,paid_at,user_id,talent_id,talents(stage_name)')
+        .select('id,date,contract_url,agreed,message,status,created_at,invoice_date,invoice_amount,bank_name,bank_branch,bank_account_number,bank_account_holder,invoice_submitted,invoice_url,user_id,talent_id,talents(stage_name),payments(id,status,paid_at)')
         .eq('id', params.id)
         .single()
 
       if (!error && data) {
         const talent = (data as any).talents || {}
+        const pay = (data as any).payments || null
         const o = { ...(data as any), talent_stage_name: talent.stage_name }
         delete o.talents
+        delete o.payments
         setOffer(o as Offer)
+        if (pay) setPayment(pay as Payment)
         const { data: rev } = await supabase
           .from('reviews' as any)
           .select('id')
@@ -123,26 +132,23 @@ export default function StoreOfferDetailPage() {
   }
 
   const handlePaid = async () => {
-    if (!offer) return
-    const res = await fetch(`/api/offers/${offer.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ paid: true, paid_at: new Date().toISOString() })
-    })
-    if (res.ok) {
-      const now = new Date().toISOString()
-      setOffer({ ...offer, paid: true, paid_at: now })
+    if (!offer || !payment) return
+    try {
+      const updated = await markPaymentCompleted(payment.id, {
+        paid_at: new Date().toISOString(),
+      })
+      setPayment(updated)
       if (offer.talent_id) {
         await addNotification({
           user_id: offer.talent_id,
           data: { offer_id: offer.id },
           type: 'payment_completed',
-          title: 'お支払いが完了しました'
+          title: 'お支払いが完了しました',
         })
       }
       toast.success('支払い完了を登録しました')
-    } else {
-      toast.error('更新に失敗しました')
+    } catch (e) {
+      // markPaymentCompleted handles error toast
     }
   }
 
@@ -170,7 +176,7 @@ export default function StoreOfferDetailPage() {
         offer.invoice_url ? (
           <div className='space-y-1 text-sm'>
             <a href={offer.invoice_url} target='_blank' className='text-blue-600 underline'>請求書を開く</a>
-            {offer.paid ? (
+            {payment?.status === 'completed' ? (
               <Badge className='ml-2'>支払い済</Badge>
             ) : (
               <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>
@@ -186,7 +192,7 @@ export default function StoreOfferDetailPage() {
               {offer.bank_account_holder}
             </div>
             <Button size='sm' onClick={downloadInvoice}>請求書をダウンロードする</Button>
-            {offer.paid ? (
+            {payment?.status === 'completed' ? (
               <Badge className='ml-2'>支払い済</Badge>
             ) : (
               <Button size='sm' onClick={handlePaid}>支払い完了を登録する</Button>

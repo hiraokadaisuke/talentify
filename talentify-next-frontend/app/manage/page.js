@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import { API_BASE } from '@/lib/api'
+import { markPaymentCompleted } from '@/lib/payments'
 
 const TABS = ['進行中の契約', 'スケジュール', '履歴', '支払い']
 
@@ -46,16 +47,8 @@ function usePayments() {
 
   const updateStatus = async (id, status) => {
     try {
-      const res = await fetch(`${API_BASE}/api/payments`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status }),
-      })
-      if (!res.ok) throw new Error('failed')
-      const updated = await res.json()
-      setPayments((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, ...updated } : p))
-      )
+      const updated = await markPaymentCompleted(id)
+      setPayments(prev => prev.map(p => (p.id === id ? { ...p, ...updated } : p)))
     } catch (e) {
       console.error(e)
     }

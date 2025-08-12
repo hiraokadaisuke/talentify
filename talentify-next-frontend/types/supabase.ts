@@ -229,6 +229,8 @@ export type Database = {
           status: string | null
           invoice_url: string | null
           created_at: string | null
+          updated_at: string | null
+          paid_at: string | null
         }
         Insert: {
           id?: string
@@ -237,6 +239,8 @@ export type Database = {
           status?: string | null
           invoice_url?: string | null
           created_at?: string | null
+          updated_at?: string | null
+          paid_at?: string | null
         }
         Update: {
           id?: string
@@ -245,6 +249,8 @@ export type Database = {
           status?: string | null
           invoice_url?: string | null
           created_at?: string | null
+          updated_at?: string | null
+          paid_at?: string | null
         }
         Relationships: []
       },
