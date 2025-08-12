@@ -21,7 +21,7 @@ export default function TalentSearchPage() {
       const { data, error } = await supabase
         .from('public_talent_profiles')
         .select(
-          'id:talent_id, stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
+          'id:id, stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
         )
         .returns<PublicTalent[]>()
 

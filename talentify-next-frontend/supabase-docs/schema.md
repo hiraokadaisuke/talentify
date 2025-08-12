@@ -106,6 +106,7 @@
 status が 'completed' の場合に支払い完了とみなし、その日時を `paid_at` に保存する。
 
 ### public_talent_profiles
+- id: uuid (talents.id)
 - display_name: text
 - stage_name: text
 - genre: text
