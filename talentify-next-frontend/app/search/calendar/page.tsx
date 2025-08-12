@@ -10,7 +10,7 @@ const SAMPLE_TALENTS: Talent[] = [
   {
     id: '1',
     stage_name: '山田 花子',
-    genres: ['バラエティ'],
+    genre: 'バラエティ',
     gender: '女性',
     age_group: '20代',
     location: '東京',
@@ -20,7 +20,7 @@ const SAMPLE_TALENTS: Talent[] = [
   {
     id: '2',
     stage_name: '田中 太郎',
-    genres: ['スロット専門'],
+    genre: 'スロット専門',
     gender: '男性',
     age_group: '30代',
     location: '大阪',
@@ -40,7 +40,7 @@ export default function CalendarSearchPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const filtered = SAMPLE_TALENTS.filter(
-      t => (!area || t.location === area) && (!genre || t.genres.includes(genre))
+      t => (!area || t.location === area) && (!genre || t.genre === genre)
     )
     setResults(filtered)
   }

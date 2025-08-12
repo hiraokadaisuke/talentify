@@ -9,7 +9,7 @@ import TalentList from './TalentList'
 type TalentLite = {
   id: string
   stage_name: string
-  genres: string[] | null
+  genre: string | null
   gender: string | null
   age_group: string | null
   location: string | null
@@ -30,7 +30,7 @@ export default function TalentSearchPage() {
       const supabase = createClient() as SupabaseClient<any>
       const { data, error } = await supabase
         .from('talents')
-        .select('id, stage_name, genres, gender, age_group, location, comment, avatar_url')
+        .select('id, stage_name, genre, gender, age_group, location, comment, avatar_url')
         .eq('is_public', true)
         .returns<TalentLite[]>()
 
@@ -55,7 +55,7 @@ export default function TalentSearchPage() {
       (!f.keyword ||
         t.stage_name.toLowerCase().includes(keyword) ||
         (t.comment ? t.comment.toLowerCase().includes(keyword) : false)) &&
-      (!f.genre || (Array.isArray(t.genres) && t.genres.includes(f.genre))) &&
+      (!f.genre || t.genre === f.genre) &&
       (!f.gender || t.gender === f.gender) &&
       (!f.age || t.age_group === f.age) &&
       (!f.location || t.location === f.location)
