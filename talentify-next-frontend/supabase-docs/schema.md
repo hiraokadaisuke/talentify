@@ -169,7 +169,6 @@ status が 'completed' の場合に支払い完了とみなし、その日時を
 - created_at: timestamp with time zone, DEFAULT now()
 - profile: text
 - area: text
-- sns_links: json
 - video_url: text
 - rating: numeric
 - user_id: uuid

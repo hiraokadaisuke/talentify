@@ -28,7 +28,7 @@ export async function POST(req: Request) {
   const {
     name,
     profile,
-    sns_links,
+    social_links = [],
     area,
     skills = [],
     experience_years = 0,
@@ -51,26 +51,36 @@ export async function POST(req: Request) {
     avatar_url,
   })
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'unauthenticated' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   const { data, error } = await supabase
     .from('talents')
-    .insert([
-      {
-        name,
-        profile,
-        sns_links,
-        area,
-        skills,
-        experience_years,
-        avatar_url,
-        location,
-        rate,
-        availability,
-        stage_name,
-        genre,
-        bio,
-        is_profile_complete: isComplete,
-      },
-    ])
+    .insert({
+      user_id: user.id,
+      name,
+      profile,
+      social_links,
+      area,
+      skills,
+      experience_years,
+      avatar_url,
+      location,
+      rate,
+      availability,
+      stage_name,
+      genre,
+      bio,
+      is_profile_complete: isComplete,
+    })
     .select()
 
   if (error) {
