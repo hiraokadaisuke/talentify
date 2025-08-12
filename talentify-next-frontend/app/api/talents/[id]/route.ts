@@ -70,9 +70,8 @@ export async function PUT(
 
   const {
     name,
-    email,
     profile,
-    sns_links,
+    social_links,
     area,
     skills,
     experience_years,
@@ -99,10 +98,9 @@ export async function PUT(
     .from('talents')
     .update({
       name,
-      email,
       profile,
-      sns_links,
-    area,
+      social_links,
+      area,
       skills,
       experience_years,
       avatar_url,
