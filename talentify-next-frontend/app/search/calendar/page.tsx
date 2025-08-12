@@ -4,28 +4,26 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import TalentList from '@/components/talent-search/TalentList'
-import { Talent } from '@/components/talent-search/TalentCard'
+import type { PublicTalent } from '@/components/talent-search/TalentCard'
 
-const SAMPLE_TALENTS: Talent[] = [
+const SAMPLE_TALENTS: PublicTalent[] = [
   {
-    id: '1',
     stage_name: '山田 花子',
     genre: 'バラエティ',
-    gender: '女性',
-    age_group: '20代',
-    location: '東京',
-    comment: '元気いっぱいの女性演者です。',
+    area: '東京',
     avatar_url: '/avatar-default.svg',
+    rating: null,
+    rate: null,
+    bio: '元気いっぱいの女性演者です。',
   },
   {
-    id: '2',
     stage_name: '田中 太郎',
     genre: 'スロット専門',
-    gender: '男性',
-    age_group: '30代',
-    location: '大阪',
-    comment: 'スロットならお任せください。',
+    area: '大阪',
     avatar_url: '/avatar-default.svg',
+    rating: null,
+    rate: null,
+    bio: 'スロットならお任せください。',
   },
 ]
 
@@ -35,12 +33,12 @@ export default function CalendarSearchPage() {
   const [end, setEnd] = useState('')
   const [area, setArea] = useState('')
   const [genre, setGenre] = useState('')
-  const [results, setResults] = useState<Talent[]>(SAMPLE_TALENTS)
+  const [results, setResults] = useState<PublicTalent[]>(SAMPLE_TALENTS)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const filtered = SAMPLE_TALENTS.filter(
-      t => (!area || t.location === area) && (!genre || t.genre === genre)
+      t => (!area || t.area === area) && (!genre || t.genre === genre)
     )
     setResults(filtered)
   }
