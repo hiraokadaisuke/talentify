@@ -20,9 +20,7 @@ export default function TalentSearchPage() {
       const supabase = createClient() as SupabaseClient<any>
       const { data, error } = await supabase
         .from('public_talent_profiles')
-        .select(
-          'id:id, stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
-        )
+        .select('id, stage_name, genre, area, avatar_url, rate, rating, bio')
         .returns<PublicTalent[]>()
 
       if (error) {

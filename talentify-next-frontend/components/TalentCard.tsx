@@ -3,19 +3,31 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export default function TalentCard({ talent }) {
+  const isValidHttpUrl = (url: string) => {
+    try {
+      const parsed = new URL(url)
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }
+
+  const imageSrc =
+    talent.avatar_url && isValidHttpUrl(talent.avatar_url)
+      ? talent.avatar_url
+      : '/avatar-default.svg'
+
   return (
     <div className="border rounded p-4 flex flex-col">
       <div className="flex items-center mb-2">
         <div className="w-16 h-16 rounded-full overflow-hidden mr-3 bg-gray-100">
-          {talent.avatar_url ? (
-            <Image
-              src={talent.avatar_url}
-              alt={`${talent.name}の画像`}
-              width={64}
-              height={64}
-              className="object-cover w-full h-full"
-            />
-          ) : null}
+          <Image
+            src={imageSrc}
+            alt={`${talent.name}の画像`}
+            width={64}
+            height={64}
+            className="object-cover w-full h-full"
+          />
         </div>
         <h2 className="text-lg font-semibold">{talent.name}</h2>
       </div>
