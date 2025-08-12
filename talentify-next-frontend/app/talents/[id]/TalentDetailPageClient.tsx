@@ -2,7 +2,6 @@
 
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
@@ -13,6 +12,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
+import { toast } from 'sonner'
+import type { OfferInsert } from '@/types/offer'
 
 type Talent = {
   id: string
@@ -52,7 +53,6 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [timeRange, setTimeRange] = useState('')
   const [note, setNote] = useState('')
   const [isAgreed, setIsAgreed] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
 
   const isValidHttpUrl = (url: string) => {
     try {
@@ -102,41 +102,41 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
-      alert('ログインしてください')
+      toast.error('ログインしてください')
       return
     }
 
-    const { data: store } = await supabase
+    const { data: store, error: storeError } = await supabase
       .from('stores')
       .select('id')
       .eq('user_id', user.id)
-      .single()
-    if (!store) {
-      alert('店舗情報が見つかりません')
+      .maybeSingle()
+
+    if (storeError || !store) {
+      toast.error('店舗情報が見つかりません')
+      console.error('store lookup error', storeError)
       return
     }
 
-    const message = `来店希望日:${visitDate}\n希望時間帯:${timeRange}\n備考:${note}`
-    const payload = {
+    const payload: OfferInsert = {
       user_id: user.id,
       store_id: store.id,
       talent_id: id,
-      message,
       date: visitDate,
-      time_range: timeRange || null,
-      notes: note || null,
-      agreed: isAgreed,
-      status: 'pending', // ensure status_type is valid
+      time_range: timeRange,
+      agreed: true,
+      message: note || undefined,
     }
 
     const { data: inserted, error } = await supabase
       .from('offers')
-      .insert([payload])
+      .insert({ ...payload, message: payload.message ?? '' })
       .select('id')
       .single()
+
     if (error || !inserted) {
-      console.log('offer insert error', { payload, error })
-      alert('送信に失敗しました')
+      console.error('offer insert error', { payload, error })
+      toast.error(error?.code === '42501' ? '権限がありません' : '送信に失敗しました')
       return
     }
 
@@ -145,11 +145,12 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
         user_id: talent.user_id,
         data: { offer_id: inserted.id },
         type: 'offer',
-        title: 'オファー対応待ち'
+        title: 'オファー対応待ち',
       })
     }
 
-    setSubmitted(true)
+    toast.success('オファーを送信しました')
+    window.location.href = '/store/offers'
   }
 
   return (
@@ -286,43 +287,35 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       <div className="space-y-2">
         {role === 'store' && (
           <>
-            {!submitted ? (
-              <>
-                <Button onClick={() => setShowForm(v => !v)} className="w-full">
-                  {showForm ? 'フォームを閉じる' : 'オファーする'}
-                </Button>
-                {showForm && (
-                  <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">来店希望日</label>
-                      <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} required />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">希望時間帯</label>
-                      <Input value={timeRange} onChange={e => setTimeRange(e.target.value)} placeholder="例: 10:00〜18:00" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        id="is-agreed"
-                        type="checkbox"
-                        checked={isAgreed}
-                        onChange={e => setIsAgreed(e.target.checked)}
-                        required
-                      />
-                      <label htmlFor="is-agreed" className="text-sm">出演条件に同意します</label>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">備考（任意）</label>
-                      <Textarea value={note} onChange={e => setNote(e.target.value)} />
-                    </div>
-                    <Button type="submit" disabled={!isAgreed}>送信</Button>
-                  </form>
-                )}
-              </>
-            ) : (
-              <div className="p-4 border rounded text-sm">
-                <p>送信完了しました。オファーステータスはダッシュボードで確認できます。</p>
-              </div>
+            <Button onClick={() => setShowForm(v => !v)} className="w-full">
+              {showForm ? 'フォームを閉じる' : 'オファーする'}
+            </Button>
+            {showForm && (
+              <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded">
+                <div>
+                  <label className="block text-sm font-medium mb-1">来店希望日</label>
+                  <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">希望時間帯</label>
+                  <Input value={timeRange} onChange={e => setTimeRange(e.target.value)} placeholder="例: 10:00〜18:00" required />
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="is-agreed"
+                    type="checkbox"
+                    checked={isAgreed}
+                    onChange={e => setIsAgreed(e.target.checked)}
+                    required
+                  />
+                  <label htmlFor="is-agreed" className="text-sm">出演条件に同意します</label>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">備考（任意）</label>
+                  <Textarea value={note} onChange={e => setNote(e.target.value)} />
+                </div>
+                <Button type="submit" disabled={!isAgreed}>送信</Button>
+              </form>
             )}
           </>
         )}

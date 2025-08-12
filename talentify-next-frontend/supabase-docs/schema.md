@@ -93,6 +93,13 @@
 
 `date` は `timestamp with time zone` 型で、`YYYY-MM-DD` もしくは ISO 8601 形式で送信する必要があります。`status` では `draft` / `pending` / `approved` / `rejected` / `completed` / `offer_created` / `confirmed` の値を使用でき、オファー作成時のデフォルトは `pending` です。
 
+**RLSポリシー** (relrowsecurity = true)
+- offers_insert_by_store: auth.uid() = user_id または stores.user_id = auth.uid() の自店舗 `store_id` で挿入可
+- offers_update_by_store: 自店舗の `store_id` のみ更新可
+- talent_update_own_offer_status: タレントは自分宛のオファーに対して `status` を `pending` / `confirmed` / `rejected` に更新可
+- offers_delete_by_store: 自店舗の `store_id` のみ削除可
+旧ポリシー (auth.uid() = store_id などの誤った比較) は削除済み。
+
 ### payments
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
 - offer_id: uuid
@@ -116,6 +123,7 @@ status が 'completed' の場合に支払い完了とみなし、その日時を
 - rate: numeric
 - phone: text
 - bio: text
+- is_profile_complete = true のタレントのみを公開。talents.id を id として含む。
 
 ### reviews
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
