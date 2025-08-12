@@ -8,26 +8,24 @@ import { Talent } from '@/components/talent-search/TalentCard'
 
 const SAMPLE_TALENTS: Talent[] = [
   {
-    id: 1,
-    name: '山田 花子',
-    genre: 'バラエティ',
+    id: '1',
+    stage_name: '山田 花子',
+    genres: ['バラエティ'],
     gender: '女性',
-    ageGroup: '20代',
+    age_group: '20代',
     location: '東京',
-    profile: '元気いっぱいの女性演者です。',
-    avatar: '/avatar-default.svg',
-    agency: 'ABCプロダクション',
+    comment: '元気いっぱいの女性演者です。',
+    avatar_url: '/avatar-default.svg',
   },
   {
-    id: 2,
-    name: '田中 太郎',
-    genre: 'スロット専門',
+    id: '2',
+    stage_name: '田中 太郎',
+    genres: ['スロット専門'],
     gender: '男性',
-    ageGroup: '30代',
+    age_group: '30代',
     location: '大阪',
-    profile: 'スロットならお任せください。',
-    avatar: '/avatar-default.svg',
-    agency: 'フリー',
+    comment: 'スロットならお任せください。',
+    avatar_url: '/avatar-default.svg',
   },
 ]
 
@@ -42,7 +40,7 @@ export default function CalendarSearchPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     const filtered = SAMPLE_TALENTS.filter(
-      (t) => (!area || t.location === area) && (!genre || t.genre === genre),
+      t => (!area || t.location === area) && (!genre || t.genres.includes(genre))
     )
     setResults(filtered)
   }

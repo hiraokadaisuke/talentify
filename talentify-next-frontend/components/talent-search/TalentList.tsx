@@ -1,6 +1,10 @@
 import TalentCard, { Talent } from './TalentCard'
 
-export default function TalentList({ talents }: { talents: Talent[] }) {
+export default function TalentList({ talents, error }: { talents: Talent[]; error?: boolean }) {
+  if (error) {
+    return <p className="p-4">キャストを取得できませんでした。</p>
+  }
+
   if (talents.length === 0) {
     return <p className="p-4">該当するキャストが見つかりませんでした。</p>
   }

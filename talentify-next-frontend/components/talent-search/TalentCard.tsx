@@ -3,16 +3,16 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 
+// Public talent information used on the search page
 export type Talent = {
-  id: number
-  name: string
-  genre: string
-  gender: string
-  ageGroup: string
-  location: string
-  profile: string
-  agency?: string
-  avatar: string
+  id: string
+  stage_name: string
+  genres: string[] | null
+  gender: string | null
+  age_group: string | null
+  location: string | null
+  comment: string | null
+  avatar_url: string | null
 }
 
 export default function TalentCard({ talent }: { talent: Talent }) {
@@ -20,16 +20,32 @@ export default function TalentCard({ talent }: { talent: Talent }) {
     <Card className="flex flex-col transition-transform hover:shadow-md hover:scale-[1.02]">
       <CardHeader className="flex items-center gap-3">
         <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
-          <Image src={talent.avatar} alt={talent.name} width={64} height={64} className="object-cover w-full h-full" />
+          {talent.avatar_url && (
+            <Image
+              src={talent.avatar_url}
+              alt={talent.stage_name}
+              width={64}
+              height={64}
+              className="object-cover w-full h-full"
+            />
+          )}
         </div>
-        <div className="text-lg font-semibold">{talent.name}</div>
+        <div className="text-lg font-semibold">{talent.stage_name}</div>
       </CardHeader>
       <CardContent className="text-sm space-y-1">
-        <p className="text-gray-600">
-          {talent.genre}・{talent.location}
-        </p>
-        <p className="line-clamp-2">{talent.profile}</p>
-        {talent.agency && <p className="text-xs text-gray-500">所属: {talent.agency}</p>}
+        {(talent.genres?.length || talent.location) && (
+          <p className="text-gray-600">
+            {talent.genres?.join('・')}
+            {talent.genres?.length && talent.location ? '・' : ''}
+            {talent.location}
+          </p>
+        )}
+        {(talent.gender || talent.age_group) && (
+          <p className="text-gray-600">
+            {[talent.gender, talent.age_group].filter(Boolean).join('・')}
+          </p>
+        )}
+        {talent.comment && <p className="line-clamp-2">{talent.comment}</p>}
       </CardContent>
       <CardFooter className="mt-auto">
         <Button asChild variant="outline" className="w-full">
