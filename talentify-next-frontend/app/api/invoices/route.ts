@@ -35,7 +35,19 @@ export async function POST(req: NextRequest) {
       })
       .select()
       .single()
-    if (error) throw error
+
+    if (error) {
+      if (error.code === '23505') {
+        const { data: existing, error: existingError } = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('offer_id', offer_id)
+          .single()
+        if (existingError) throw existingError
+        return NextResponse.json(existing, { status: 200 })
+      }
+      throw error
+    }
 
     return NextResponse.json(data, { status: 200 })
   } catch (e) {
