@@ -11,3 +11,9 @@ Codexはコード生成や修正時にこれらを参照してください。
 - [rls.md](./rls.md): Row Level Securityポリシー
 - [triggers.md](./triggers.md): トリガー定義
 - [functions.sql](./functions.sql): PL/pgSQL関数定義
+
+## プロビジョニングフロー
+
+- `/talent/edit` と `/store/edit` ではアクセス時に `user_id = auth.uid()` の行を `select … maybeSingle` で確認し、存在しない場合は初期値で `insert` します。
+- 重複によるユニーク制約エラーは無視し、初回のみ `provisioned <role> profile` をログ出力します。
+- 以後の `SELECT/INSERT/UPDATE` は RLS 前提で常に `user_id` 条件を付与してください。

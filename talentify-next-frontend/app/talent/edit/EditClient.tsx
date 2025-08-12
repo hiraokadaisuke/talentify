@@ -15,11 +15,13 @@ const minHourOptions = ['1時間','2時間','3時間以上']
 
 const supabase = createClient()
 
-export default function TalentProfileEditPageClient({ code }: { code?: string | null }) {
+export default function TalentProfileEditPageClient({ code }: { code?: string | null } = {}) {
   const router = useRouter()
   const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isNew, setIsNew] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [showIncomplete, setShowIncomplete] = useState(false)
   const [profile, setProfile] = useState({
     name: '',
     stage_name: '',
@@ -95,19 +97,18 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       }
       setUserId(user.id)
 
-      const idToLoad = code ?? user.id
-
       const fields =
-        'name,stage_name,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url' as const
+        'name,stage_name,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url,is_profile_complete' as const
 
       const { data, error } = await supabase
         .from('talents' as any)
         .select(fields)
-        .eq('id', idToLoad)
+        .eq('user_id', user.id)
         .maybeSingle<any>()
 
       if (error) {
         console.error('プロフィールの取得に失敗:', error)
+        setErrorMessage('プロフィールの取得に失敗しました')
       }
 
       if (data) {
@@ -125,14 +126,16 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           profile: data.profile ?? '',
         })
         setIsNew(false)
+        setShowIncomplete(!isProfileComplete(data))
       } else {
         setIsNew(true)
+        setShowIncomplete(true)
       }
       setLoading(false)
     }
 
     loadProfile()
-  }, [code])
+  }, [])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -220,10 +223,13 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       profile.photos = urls
     }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) {
       console.error('ユーザー取得失敗:', authError)
-      alert('ユーザー情報の取得に失敗しました')
+      setErrorMessage('ユーザー情報の取得に失敗しました')
       return
     }
 
@@ -267,12 +273,13 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     const { error } = await supabase
       .from('talents' as any)
       .update(updateData)
-      .eq('id', user.id)
+      .eq('user_id', user.id)
 
     if (error) {
       console.error('talents の保存に失敗:', error)
-      alert('保存に失敗しました')
+      setErrorMessage('保存に失敗しました')
     } else {
+      setShowIncomplete(!isComplete)
       if (isNew) {
         router.push('/talent/edit/complete')
       } else {
@@ -285,6 +292,12 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
   return (
     <main className="max-w-2xl mx-auto p-6 space-y-6">
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+      {showIncomplete && !errorMessage && (
+        <div className="rounded bg-yellow-100 p-2 text-yellow-800">
+          プロフィールが未完成です
+        </div>
+      )}
       <h1 className="text-2xl font-bold">演者プロフィール編集</h1>
 
       {/* チェックリスト */}

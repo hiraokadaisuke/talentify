@@ -141,13 +141,14 @@ export type Database = {
           photos: string[] | null
           media_appearance: string | null
           id: string
+          user_id: string
           location: string | null
           name: string
           profile: string | null
           rate: number | null
           skills: string[] | null
           social_links: string[] | null
-          is_setup_complete: boolean | null
+          is_profile_complete: boolean | null
         }
         Insert: {
           area?: string | null
@@ -176,13 +177,14 @@ export type Database = {
           photos?: string[] | null
           media_appearance?: string | null
           id?: string
+          user_id: string
           location?: string | null
           name: string
           profile?: string | null
           rate?: number | null
           skills?: string[] | null
           social_links?: string[] | null
-          is_setup_complete?: boolean | null
+          is_profile_complete?: boolean | null
         }
         Update: {
           area?: string | null
@@ -211,13 +213,14 @@ export type Database = {
           photos?: string[] | null
           media_appearance?: string | null
           id?: string
+          user_id?: string
           location?: string | null
           name?: string
           profile?: string | null
           rate?: number | null
           skills?: string[] | null
           social_links?: string[] | null
-          is_setup_complete?: boolean | null
+          is_profile_complete?: boolean | null
         }
         Relationships: []
       },
