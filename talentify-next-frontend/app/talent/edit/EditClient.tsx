@@ -23,7 +23,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const [profile, setProfile] = useState({
     name: '',
     stage_name: '',
-    description: '',
+    bio: '',
+    profile: '',
     residence: '',
     area: [] as string[],
     genre: '',
@@ -42,6 +43,42 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [photoFiles, setPhotoFiles] = useState<File[]>([])
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const avatarPreview = useMemo(
+    () => (avatarFile ? URL.createObjectURL(avatarFile) : profile.avatar_url),
+    [avatarFile, profile.avatar_url]
+  )
+
+  const validate = (p: typeof profile) => {
+    const err: Record<string, string> = {}
+    if (!p.stage_name.trim()) err.stage_name = 'ステージ名は必須です'
+    if (!p.genre.trim()) err.genre = 'ジャンルは必須です'
+    if (p.area.length === 0) err.area = 'エリアは1つ以上選択してください'
+    if (!p.rate || Number(p.rate) <= 0)
+      err.rate = '報酬は0より大きい数値を入力してください'
+    const bioLen = p.bio.trim().length
+    const profileLen = p.profile.trim().length
+    if (bioLen < 20 && profileLen < 20) {
+      err.bio = '自己紹介またはプロフィールを20文字以上入力してください'
+      err.profile = '自己紹介またはプロフィールを20文字以上入力してください'
+    }
+    if (!p.avatar_url && !avatarFile)
+      err.avatar_url = 'プロフィール画像は必須です'
+    return err
+  }
+
+  const requirements = useMemo(() => {
+    return {
+      stage_name: profile.stage_name.trim().length > 0,
+      genre: profile.genre.trim().length > 0,
+      area: profile.area.length > 0,
+      rate: Number(profile.rate) > 0,
+      bioOrProfile:
+        profile.bio.trim().length >= 20 ||
+        profile.profile.trim().length >= 20,
+      avatar: profile.avatar_url.trim().length > 0 || !!avatarFile,
+    }
+  }, [profile, avatarFile])
 
   // プロフィール読み込み
 
@@ -61,7 +98,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       const idToLoad = code ?? user.id
 
       const fields =
-        'name,stage_name,description:profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url' as const
+        'name,stage_name,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url' as const
 
       const { data, error } = await supabase
         .from('talents' as any)
@@ -84,6 +121,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           twitterUrl: data.twitterUrl ?? '',
           instagramUrl: data.instagramUrl ?? '',
           youtubeUrl: data.youtubeUrl ?? '',
+          bio: data.bio ?? '',
+          profile: data.profile ?? '',
         })
         setIsNew(false)
       } else {
@@ -98,32 +137,57 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value, type } = e.target
-    if (type === 'checkbox') {
-      const { checked } = e.target as HTMLInputElement
-      if (checked) {
-        setProfile(prev => ({ ...prev, [name]: [...(prev as any)[name], value] }))
-      } else {
-        setProfile(prev => ({
-          ...prev,
-          [name]: (prev as any)[name].filter((v: string) => v !== value)
-        }))
-      }
-    } else {
-      setProfile({ ...profile, [name]: value })
-    }
+    const { name, value } = e.target
+    const updated = { ...profile, [name]: value }
+    setProfile(updated)
+    setErrors(validate(updated))
   }
 
   const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) setAvatarFile(e.target.files[0])
+    if (e.target.files?.[0]) {
+      setAvatarFile(e.target.files[0])
+      setErrors(validate(profile))
+    }
   }
 
   const handlePhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) setPhotoFiles(Array.from(e.target.files))
   }
 
+  const handleAddArea = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value
+    if (!value) return
+    const updated = { ...profile, area: [...profile.area, value] }
+    setProfile(updated)
+    setErrors(validate(updated))
+    e.target.value = ''
+  }
+
+  const removeArea = (index: number) => {
+    const newArea = profile.area.filter((_, i) => i !== index)
+    const updated = { ...profile, area: newArea }
+    setProfile(updated)
+    setErrors(validate(updated))
+  }
+
+  const moveArea = (from: number, to: number) => {
+    if (to < 0 || to >= profile.area.length) return
+    const newArea = [...profile.area]
+    const [item] = newArea.splice(from, 1)
+    newArea.splice(to, 0, item)
+    const updated = { ...profile, area: newArea }
+    setProfile(updated)
+    setErrors(validate(updated))
+  }
+
   const handleSave = async () => {
     if (!userId) return
+
+    const errs = validate(profile)
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
+      return
+    }
 
     // 画像アップロード
     if (avatarFile) {
@@ -168,14 +232,16 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       genre: profile.genre,
       area: profile.area,
       rate: profile.rate === '' ? 0 : Number(profile.rate),
-      profile: profile.description,
+      bio: profile.bio,
+      profile: profile.profile,
       avatar_url: profile.avatar_url,
     })
 
     const updateData = {
       name: profile.name,
       stage_name: profile.stage_name,
-      ...(profile.description && { profile: profile.description }),
+      ...(profile.bio && { bio: profile.bio }),
+      ...(profile.profile && { profile: profile.profile }),
       ...(profile.residence && { residence: profile.residence }),
       ...(profile.area.length > 0 && { area: profile.area }),
       ...(profile.genre && { genre: profile.genre }),
@@ -221,6 +287,49 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     <main className="max-w-2xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">演者プロフィール編集</h1>
 
+      {/* チェックリスト */}
+      <section className="p-4 bg-gray-100 rounded">
+        <h2 className="font-semibold mb-2">公開の最低条件（MVP）</h2>
+        <ul className="space-y-1 text-sm">
+          <li className="flex items-center">
+            <span className={`${requirements.stage_name ? 'text-green-500' : 'text-red-500'} mr-2`}>
+              {requirements.stage_name ? '✓' : '✕'}
+            </span>
+            ステージ名
+          </li>
+          <li className="flex items-center">
+            <span className={`${requirements.genre ? 'text-green-500' : 'text-red-500'} mr-2`}>
+              {requirements.genre ? '✓' : '✕'}
+            </span>
+            ジャンル
+          </li>
+          <li className="flex items-center">
+            <span className={`${requirements.area ? 'text-green-500' : 'text-red-500'} mr-2`}>
+              {requirements.area ? '✓' : '✕'}
+            </span>
+            エリア
+          </li>
+          <li className="flex items-center">
+            <span className={`${requirements.rate ? 'text-green-500' : 'text-red-500'} mr-2`}>
+              {requirements.rate ? '✓' : '✕'}
+            </span>
+            報酬
+          </li>
+          <li className="flex items-center">
+            <span className={`${requirements.bioOrProfile ? 'text-green-500' : 'text-red-500'} mr-2`}>
+              {requirements.bioOrProfile ? '✓' : '✕'}
+            </span>
+            自己紹介（20文字以上）
+          </li>
+          <li className="flex items-center">
+            <span className={`${requirements.avatar ? 'text-green-500' : 'text-red-500'} mr-2`}>
+              {requirements.avatar ? '✓' : '✕'}
+            </span>
+            プロフィール画像
+          </li>
+        </ul>
+      </section>
+
       {/* 基本情報 */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">基本情報</h2>
@@ -232,6 +341,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             value={profile.name}
             onChange={handleChange}
             className="w-full p-2 border rounded"
+            placeholder="例：山田花子"
           />
         </div>
         <div>
@@ -242,18 +352,36 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             value={profile.stage_name}
             onChange={handleChange}
             className="w-full p-2 border rounded"
+            placeholder="例：ハナコ"
           />
+          {errors.stage_name && <p className="text-red-500 text-sm">{errors.stage_name}</p>}
         </div>
+        <p className="text-sm text-gray-500">※自己紹介（bio）とプロフィールのどちらか一方を20文字以上入力してください。</p>
         <div>
-          <label className="block font-semibold">自己紹介<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
+          <label className="block font-semibold">自己紹介（bio）<span className="text-red-500 ml-1">*</span></label>
           <textarea
-            name="description"
+            name="bio"
             maxLength={300}
-            value={profile.description}
+            value={profile.bio}
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
+            placeholder="例：イベント出演経験があります..."
           />
+          {errors.bio && <p className="text-red-500 text-sm">{errors.bio}</p>}
+        </div>
+        <div>
+          <label className="block font-semibold">プロフィール詳細<span className="text-red-500 ml-1">*</span></label>
+          <textarea
+            name="profile"
+            maxLength={500}
+            value={profile.profile}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            rows={4}
+            placeholder="経歴や活動内容などを詳しく書いてください"
+          />
+          {errors.profile && <p className="text-red-500 text-sm">{errors.profile}</p>}
         </div>
         <div>
           <label className="block font-semibold">拠点地域</label>
@@ -272,25 +400,32 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </select>
         </div>
         <div>
-          <label className="block font-semibold mb-1">対応エリア</label>
-          <div className="flex flex-wrap gap-2">
-            {prefectures.map(p => (
-              <label key={p} className="text-sm">
-                <input
-                  type="checkbox"
-                  name="area"
-                  value={p}
-                  checked={profile.area.includes(p)}
-                  onChange={handleChange}
-                  className="mr-1"
-                />
-                {p}
-              </label>
+          <label className="block font-semibold mb-1">対応エリア<span className="text-red-500 ml-1">*</span></label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {profile.area.map((a, idx) => (
+              <span key={idx} className="flex items-center bg-blue-100 px-2 py-1 rounded">
+                {a}
+                <button type="button" onClick={() => removeArea(idx)} className="ml-1 text-red-500">×</button>
+                <button type="button" onClick={() => moveArea(idx, idx - 1)} className="ml-1 text-xs">↑</button>
+                <button type="button" onClick={() => moveArea(idx, idx + 1)} className="ml-1 text-xs">↓</button>
+              </span>
             ))}
           </div>
+          <select onChange={handleAddArea} className="p-2 border rounded">
+            <option value="">エリアを追加</option>
+            {prefectures
+              .filter(p => !profile.area.includes(p))
+              .map(p => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+          </select>
+          {errors.area && <p className="text-red-500 text-sm mt-1">{errors.area}</p>}
+          <p className="text-sm text-gray-500 mt-1">例：関東一円／東海 など</p>
         </div>
         <div>
-          <label className="block font-semibold">ジャンル<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
+          <label className="block font-semibold">ジャンル<span className="text-red-500 ml-1">*</span></label>
           <select
             name="genre"
             value={profile.genre}
@@ -304,6 +439,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
               </option>
             ))}
           </select>
+          {errors.genre && <p className="text-red-500 text-sm">{errors.genre}</p>}
         </div>
       </section>
 
@@ -363,15 +499,16 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </label>
         </div>
         <div>
-          <label className="block font-semibold">出演料金目安<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
+          <label className="block font-semibold">出演料金目安<span className="text-red-500 ml-1">*</span></label>
           <input
             type="number"
             name="rate"
             value={profile.rate}
             onChange={handleChange}
             className="w-full p-2 border rounded"
-            placeholder="円"
+            placeholder="例：5000"
           />
+          {errors.rate && <p className="text-red-500 text-sm">{errors.rate}</p>}
         </div>
         <div>
           <label className="block font-semibold">NG事項・特記事項<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
@@ -409,8 +546,16 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           />
         </div>
         <div>
-          <label className="block font-semibold">プロフィール画像</label>
+          <label className="block font-semibold">プロフィール画像<span className="text-red-500 ml-1">*</span></label>
+          {avatarPreview && (
+            <img
+              src={avatarPreview}
+              alt="avatar preview"
+              className="w-24 h-24 object-cover mb-2"
+            />
+          )}
           <input type="file" accept="image/*" onChange={handleAvatar} />
+          {errors.avatar_url && <p className="text-red-500 text-sm">{errors.avatar_url}</p>}
         </div>
         <div>
           <label className="block font-semibold">写真追加</label>
