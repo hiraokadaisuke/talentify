@@ -1,12 +1,6 @@
-export type NotificationType =
-  | 'offer_created'
-  | 'review_received'
-  | 'payment_completed'
-  | 'schedule_confirmed'
-  | 'message'
-  | 'offer'
-  | 'schedule'
-  | 'system'
+import type { NotificationType } from './notifications'
+
+export type { NotificationType }
 
 export type TaskType = 'respond_offer' | 'update_profile' | 'check_message'
 
