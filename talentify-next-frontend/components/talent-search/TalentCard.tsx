@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 export type Talent = {
   id: string
   stage_name: string
-  genres: string[] | null
+  genre: string | null
   gender: string | null
   age_group: string | null
   location: string | null
@@ -33,10 +33,10 @@ export default function TalentCard({ talent }: { talent: Talent }) {
         <div className="text-lg font-semibold">{talent.stage_name}</div>
       </CardHeader>
       <CardContent className="text-sm space-y-1">
-        {(talent.genres?.length || talent.location) && (
+        {(talent.genre || talent.location) && (
           <p className="text-gray-600">
-            {talent.genres?.join('・')}
-            {talent.genres?.length && talent.location ? '・' : ''}
+            {talent.genre}
+            {talent.genre && talent.location ? '・' : ''}
             {talent.location}
           </p>
         )}
