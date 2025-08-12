@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { toast } from 'sonner'
 import TalentSearchForm, { SearchFilters } from './TalentSearchForm'
 import TalentList from './TalentList'
 import type { PublicTalent } from '@/types/talent'
@@ -13,7 +14,6 @@ export default function TalentSearchPage() {
   const [talents, setTalents] = useState<PublicTalent[]>([])
   const [results, setResults] = useState<PublicTalent[]>([])
   const [page, setPage] = useState(1)
-  const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     const fetchTalents = async () => {
@@ -21,13 +21,13 @@ export default function TalentSearchPage() {
       const { data, error } = await supabase
         .from('public_talent_profiles')
         .select(
-          'id, stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
+          'id:talent_id, stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
         )
         .returns<PublicTalent[]>()
 
       if (error) {
         console.error('タレントの取得に失敗しました:', error)
-        setFetchError(true)
+        toast.error('タレントの取得に失敗しました')
         setTalents([])
         setResults([])
         return
@@ -59,7 +59,7 @@ export default function TalentSearchPage() {
   return (
     <main className="max-w-5xl mx-auto p-4 space-y-6">
       <TalentSearchForm onSearch={handleSearch} />
-      <TalentList talents={paginated} error={fetchError} />
+      <TalentList talents={paginated} />
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <nav className="flex space-x-2">
