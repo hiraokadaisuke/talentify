@@ -5,17 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import TalentSearchForm, { SearchFilters } from './TalentSearchForm'
 import TalentList from './TalentList'
-
-type PublicTalent = {
-  stage_name: string | null
-  genre: string | null
-  area: string | null
-  avatar_url: string | null
-  rating: number | null
-  rate: number | null
-  bio: string | null
-  display_name?: string | null
-}
+import type { PublicTalent } from '@/types/talent'
 
 const ITEMS_PER_PAGE = 6
 
@@ -31,7 +21,7 @@ export default function TalentSearchPage() {
       const { data, error } = await supabase
         .from('public_talent_profiles')
         .select(
-          'stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
+          'id, stage_name, genre, area, avatar_url, rating, rate, bio, display_name'
         )
         .returns<PublicTalent[]>()
 

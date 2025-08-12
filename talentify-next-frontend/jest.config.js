@@ -5,5 +5,12 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1',
     '^@utils/(.*)$': '<rootDir>/utils/$1',
     '^@types/(.*)$': '<rootDir>/types/$1'
+  },
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        jsx: 'react-jsx'
+      }
+    }
   }
 };
