@@ -22,7 +22,7 @@
 - invoice_url: text
 - created_at: timestamp without time zone, DEFAULT now()
 - updated_at: timestamp without time zone, DEFAULT now()
-- status: USER-DEFINED
+- status: USER-DEFINED, DEFAULT 'pending'
 - due_date: date
 - invoice_number: text
 

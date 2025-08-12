@@ -46,6 +46,14 @@ interface Offer {
   paid_at?: string | null
 }
 
+interface Invoice {
+  id: string
+  offer_id: string
+  invoice_url?: string | null
+  amount?: number | null
+}
+
+
 export default function TalentOfferDetailPage() {
   const params = useParams<{ id: string }>()
   const supabase = createClient()
@@ -58,6 +66,8 @@ export default function TalentOfferDetailPage() {
   const [bankBranch, setBankBranch] = useState('')
   const [bankAccountNumber, setBankAccountNumber] = useState('')
   const [bankAccountHolder, setBankAccountHolder] = useState('')
+  const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const [invoiceUrl, setInvoiceUrl] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleStatusChange = async (status: 'confirmed' | 'rejected') => {
@@ -108,7 +118,7 @@ export default function TalentOfferDetailPage() {
 
   const submitInvoice = async () => {
     if (!offer) return
-    const res = await fetch(`/api/offers/${offer.id}`, {
+    const resOffer = await fetch(`/api/offers/${offer.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -121,7 +131,17 @@ export default function TalentOfferDetailPage() {
         invoice_submitted: true,
       }),
     })
-    if (res.ok) {
+    const resInvoice = await fetch(`/api/invoices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        offer_id: offer.id,
+        amount: invoiceAmount,
+        invoice_url: invoiceUrl,
+      }),
+    })
+    if (resOffer.ok && resInvoice.ok) {
+      const newInvoice = await resInvoice.json()
       setOffer({
         ...offer,
         invoice_date: invoiceDate,
@@ -132,6 +152,7 @@ export default function TalentOfferDetailPage() {
         bank_account_holder: bankAccountHolder,
         invoice_submitted: true,
       })
+      setInvoice(newInvoice)
       if (offer.user_id) {
         await addNotification({
           user_id: offer.user_id,
@@ -149,8 +170,8 @@ export default function TalentOfferDetailPage() {
 
   const handleInvoiceFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !offer) return
-    const path = `${offer.id}/${Date.now()}-${file.name}`
+    if (!file) return
+    const path = `${offer?.id}/${Date.now()}-${file.name}`
     const { error } = await supabase.storage
       .from('invoices')
       .upload(path, file, { upsert: true })
@@ -162,24 +183,19 @@ export default function TalentOfferDetailPage() {
       .from('invoices')
       .getPublicUrl(path)
     const url = data.publicUrl
-    const res = await fetch(`/api/offers/${offer.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ invoice_url: url, invoice_submitted: true })
-    })
-    if (res.ok) {
-      setOffer({ ...offer, invoice_url: url, invoice_submitted: true })
-      if (offer.user_id) {
-        await addNotification({
-          user_id: offer.user_id,
-          data: { offer_id: offer.id },
-          type: 'invoice_submitted',
-          title: '請求書が提出されました',
-        })
+    setInvoiceUrl(url)
+    if (invoice) {
+      const res = await fetch(`/api/invoices/${invoice.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoice_url: url })
+      })
+      if (res.ok) {
+        setInvoice({ ...invoice, invoice_url: url })
+        toast.success('請求書をアップロードしました')
+      } else {
+        toast.error('更新に失敗しました')
       }
-      toast.success('請求書をアップロードしました')
-    } else {
-      toast.error('更新に失敗しました')
     }
   }
 
@@ -214,6 +230,15 @@ export default function TalentOfferDetailPage() {
         setBankBranch(offerData.bank_branch || '')
         setBankAccountNumber(offerData.bank_account_number || '')
         setBankAccountHolder(offerData.bank_account_holder || '')
+        const { data: invData } = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('offer_id', params.id)
+          .maybeSingle()
+        if (invData) {
+          setInvoice(invData as Invoice)
+          setInvoiceUrl(invData.invoice_url || '')
+        }
       } else {
         console.error('offer fetch error:', error)
         setOffer(null)
@@ -273,15 +298,15 @@ export default function TalentOfferDetailPage() {
         </CardContent>
       </Card>
 
-      {offer.invoice_submitted ? (
+      {invoice ? (
         <>
           <Card>
             <CardHeader>
               <CardTitle>請求情報</CardTitle>
             </CardHeader>
             <CardContent className='space-y-1 text-sm'>
-              {offer.invoice_url ? (
-                <a href={offer.invoice_url} target='_blank' className='text-blue-600 underline'>請求書を開く</a>
+              {invoice.invoice_url ? (
+                <a href={invoice.invoice_url} target='_blank' className='text-blue-600 underline'>請求書を開く</a>
               ) : (
                 <>
                   <div>請求日：{offer.invoice_date}</div>

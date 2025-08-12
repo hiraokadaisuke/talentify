@@ -8,9 +8,9 @@
 
 ### invoices
 - 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`
-- ストアは請求書を登録可能 (`INSERT`): CHECK `(auth.uid() = store_id)`
+- タレントは請求書を登録可能 (`INSERT`): CHECK `(auth.uid() = talent_id)`
 - ストアまたはタレントは自分の請求書を閲覧可能 (`SELECT`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
-- ストアは請求書を更新可能 (`UPDATE`): USING `(auth.uid() = store_id)`
+- ストアまたはタレントは自分の請求書を更新可能 (`UPDATE`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
 
 ### messages
 - ユーザーは自分宛てのメッセージを閲覧可能 (`SELECT`): USING `((auth.uid() = sender_id) OR (auth.uid() = receiver_id))`
