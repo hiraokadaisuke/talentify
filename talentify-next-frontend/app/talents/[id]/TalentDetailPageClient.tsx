@@ -54,6 +54,20 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [isAgreed, setIsAgreed] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  const isValidHttpUrl = (url: string) => {
+    try {
+      const parsed = new URL(url)
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }
+
+  const imageSrc =
+    talent?.avatar_url && isValidHttpUrl(talent.avatar_url)
+      ? talent.avatar_url
+      : '/avatar-default.svg'
+
   useEffect(() => {
     const fetchData = async () => {
       if (!initialTalent) {
@@ -143,9 +157,9 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       <Card>
         <CardContent className="flex flex-col sm:flex-row gap-4 items-start">
           <div className="w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-            {talent.avatar_url && (
+            {talent && (
               <Image
-                src={talent.avatar_url}
+                src={imageSrc}
                 alt={talent.stage_name}
                 width={192}
                 height={192}
