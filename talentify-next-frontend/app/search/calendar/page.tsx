@@ -4,10 +4,11 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import TalentList from '@/components/talent-search/TalentList'
-import type { PublicTalent } from '@/components/talent-search/TalentCard'
+import type { PublicTalent } from '@/types/talent'
 
 const SAMPLE_TALENTS: PublicTalent[] = [
   {
+    id: 'sample-1',
     stage_name: '山田 花子',
     genre: 'バラエティ',
     area: '東京',
@@ -17,6 +18,7 @@ const SAMPLE_TALENTS: PublicTalent[] = [
     bio: '元気いっぱいの女性演者です。',
   },
   {
+    id: 'sample-2',
     stage_name: '田中 太郎',
     genre: 'スロット専門',
     area: '大阪',

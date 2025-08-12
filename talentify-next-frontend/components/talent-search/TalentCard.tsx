@@ -1,18 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-
-export type PublicTalent = {
-  id: string
-  stage_name: string | null
-  genre: string | null
-  area: string | null
-  avatar_url: string | null
-  rating: number | null
-  rate: number | null
-  bio: string | null
-  display_name?: string | null
-}
+import type { PublicTalent } from '@/types/talent'
 
 export default function TalentCard({ talent }: { talent: PublicTalent }) {
   const isValidHttpUrl = (url: string) => {

@@ -1,4 +1,5 @@
-import TalentCard, { PublicTalent } from './TalentCard'
+import TalentCard from './TalentCard'
+import type { PublicTalent } from '@/types/talent'
 
 export default function TalentList({ talents, error }: { talents: PublicTalent[]; error?: boolean }) {
   if (error) {

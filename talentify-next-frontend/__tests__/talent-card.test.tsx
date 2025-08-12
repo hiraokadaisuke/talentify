@@ -1,6 +1,7 @@
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import TalentCard, { PublicTalent } from '@/components/talent-search/TalentCard'
+import TalentCard from '@/components/talent-search/TalentCard'
+import type { PublicTalent } from '@/types/talent'
 
 jest.mock('next/image', () => ({
   __esModule: true,

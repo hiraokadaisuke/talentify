@@ -5,7 +5,7 @@ import { createClient } from '@/utils/supabase/client'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import TalentSearchForm, { SearchFilters } from './TalentSearchForm'
 import TalentList from './TalentList'
-import type { PublicTalent } from './TalentCard'
+import type { PublicTalent } from '@/types/talent'
 
 const ITEMS_PER_PAGE = 6
 
