@@ -130,13 +130,13 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
 
     const { data: inserted, error } = await supabase
       .from('offers')
-      .insert(payload)
+      .insert({ ...payload, message: payload.message ?? '' })
       .select('id')
       .single()
 
     if (error || !inserted) {
       console.error('offer insert error', { payload, error })
-      toast.error(error?.status === 403 ? '権限がありません' : '送信に失敗しました')
+      toast.error(error?.code === '42501' ? '権限がありません' : '送信に失敗しました')
       return
     }
 
