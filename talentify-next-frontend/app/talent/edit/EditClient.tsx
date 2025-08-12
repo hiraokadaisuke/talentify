@@ -17,7 +17,7 @@ const minHourOptions = ['1時間','2時間','3時間以上']
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
 const MAX_FILE_SIZE = 5 * 1024 * 1024
-const AVATAR_BUCKET = 'talent_photos'
+const AVATAR_BUCKET = 'talent-photos'
 
 const supabase = createClient()
 
@@ -257,6 +257,10 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       let avatarUrl = profile.avatar_url
       if (avatarFile) {
         avatarUrl = await uploadImage(avatarFile, userId, 'avatar')
+        await supabase
+          .from('talents' as any)
+          .update({ avatar_url: avatarUrl })
+          .eq('user_id', userId);
         setProfile((p) => ({ ...p, avatar_url: avatarUrl }))
       }
 
@@ -301,7 +305,6 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         ...(profile.notes && { notes: profile.notes }),
         ...(profile.achievements && { media_appearance: profile.achievements }),
         ...(profile.video_url && { video_url: profile.video_url }),
-        ...(avatarUrl && { avatar_url: avatarUrl }),
         ...(photoUrls.length > 0 && { photos: photoUrls }),
         ...(profile.twitterUrl && { twitter_url: profile.twitterUrl }),
         ...(profile.instagramUrl && { instagram_url: profile.instagramUrl }),
