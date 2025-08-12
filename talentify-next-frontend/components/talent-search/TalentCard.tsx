@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 export type Talent = {
   id: string
   stage_name: string
-  genres: string[]
+  genres: string[] | null
   gender: string | null
   age_group: string | null
   location: string | null

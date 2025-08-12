@@ -2,34 +2,48 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client' // あなたのSupabaseラッパー
+import type { SupabaseClient } from '@supabase/supabase-js'
 import TalentSearchForm, { SearchFilters } from './TalentSearchForm'
 import TalentList from './TalentList'
-import { Talent } from './TalentCard'
+
+type TalentLite = {
+  id: string
+  stage_name: string
+  genres: string[] | null
+  gender: string | null
+  age_group: string | null
+  location: string | null
+  comment: string | null
+  avatar_url: string | null
+}
 
 const ITEMS_PER_PAGE = 6
 
 export default function TalentSearchPage() {
-  const [talents, setTalents] = useState<Talent[]>([])
-  const [results, setResults] = useState<Talent[]>([])
+  const [talents, setTalents] = useState<TalentLite[]>([])
+  const [results, setResults] = useState<TalentLite[]>([])
   const [page, setPage] = useState(1)
   const [fetchError, setFetchError] = useState(false)
 
   useEffect(() => {
     const fetchTalents = async () => {
-      const supabase = createClient()
+      const supabase = createClient() as SupabaseClient<any>
       const { data, error } = await supabase
         .from('talents')
         .select('id, stage_name, genres, gender, age_group, location, comment, avatar_url')
         .eq('is_public', true)
+        .returns<TalentLite[]>()
 
       if (error) {
         console.error('タレントの取得に失敗しました:', error)
         setFetchError(true)
+        setTalents([])
+        setResults([])
         return
       }
 
-      setTalents((data ?? []) as unknown as Talent[])
-      setResults((data ?? []) as unknown as Talent[])
+      setTalents(data ?? [])
+      setResults(data ?? [])
     }
 
     fetchTalents()
