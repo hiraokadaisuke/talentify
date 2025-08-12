@@ -1,11 +1,16 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { toast } from 'sonner'
+
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+const AVATAR_BUCKET = 'talent_photos'
 
 const supabase = createClient()
 
@@ -18,8 +23,44 @@ export default function StoreProfileEditPage() {
     bio: '',
     avatar_url: ''
   })
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showIncomplete, setShowIncomplete] = useState(false)
+  const [errors, setErrors] = useState<{ avatar?: string }>({})
+  const [saving, setSaving] = useState(false)
+  const avatarPreview = useMemo(
+    () => (avatarFile ? URL.createObjectURL(avatarFile) : profile.avatar_url),
+    [avatarFile, profile.avatar_url]
+  )
+
+  const getMimeAndExt = (file: File) => {
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    let type = file.type
+    if (!type && ext) {
+      if (ext === 'png') type = 'image/png'
+      else if (ext === 'jpg' || ext === 'jpeg') type = 'image/jpeg'
+      else if (ext === 'webp') type = 'image/webp'
+    }
+    if (!type || !ALLOWED_TYPES.includes(type as any)) {
+      throw new Error('対応形式は PNG・JPG・WEBP です。')
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error('ファイルサイズは 5MB までです。')
+    }
+    const extension = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg'
+    return { type, ext: extension }
+  }
+
+  const uploadAvatar = async (file: File, user: string) => {
+    const { type, ext } = getMimeAndExt(file)
+    const path = `avatars/${user}/avatar-${Date.now()}.${ext}`
+    const { error: upErr } = await supabase.storage
+      .from(AVATAR_BUCKET)
+      .upload(path, file, { upsert: true, contentType: type, cacheControl: '3600' })
+    if (upErr) throw upErr
+    const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path)
+    return data.publicUrl
+  }
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -71,6 +112,20 @@ export default function StoreProfileEditPage() {
     setProfile({ ...profile, [e.target.name]: e.target.value })
   }
 
+  const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      getMimeAndExt(file)
+      setAvatarFile(file)
+      setErrors({})
+    } catch (err: any) {
+      toast.error(err.message)
+      setErrors({ avatar: err.message })
+      e.target.value = ''
+    }
+  }
+
   const handleSave = async () => {
     const {
       data: { user },
@@ -87,24 +142,42 @@ export default function StoreProfileEditPage() {
       return
     }
 
-    console.log('📝 保存データ（送信前）:', {
-      ...profile,
-      user_id: user.id,
-    })
+    setSaving(true)
+    try {
+      let avatarUrl = profile.avatar_url
+      if (avatarFile) {
+        avatarUrl = await uploadAvatar(avatarFile, user.id)
+        setProfile((p) => ({ ...p, avatar_url: avatarUrl }))
+      }
 
-    const updateData = {
-      store_name: profile.store_name,
-      bio: profile.bio || null,
-      avatar_url: profile.avatar_url || null,
-      user_id: user.id,
-      is_setup_complete: true,
-    }
+      console.log('📝 保存データ（送信前）:', {
+        ...profile,
+        avatar_url: avatarUrl,
+        user_id: user.id,
+      })
 
-    const { error } = await supabase
-      .from('stores')
-      .upsert(updateData, { onConflict: 'user_id' })
+      const updateData = {
+        store_name: profile.store_name,
+        bio: profile.bio || null,
+        avatar_url: avatarUrl || null,
+        user_id: user.id,
+        is_setup_complete: true,
+      }
 
-    if (error) {
+      const { error } = await supabase
+        .from('stores')
+        .upsert(updateData, { onConflict: 'user_id' })
+
+      if (error) throw error
+
+      toast.success('保存しました')
+      setShowIncomplete(false)
+      if (isNew) {
+        router.push('/store/edit/complete')
+      } else {
+        router.push('/dashboard?saved=1')
+      }
+    } catch (error: any) {
       console.error('🔥 Supabase更新エラー:', {
         message: error.message,
         details: error.details,
@@ -112,20 +185,15 @@ export default function StoreProfileEditPage() {
         code: error.code,
       })
       setErrorMessage(`保存に失敗しました: ${error.message}`)
+      toast.error('保存に失敗しました')
       if (
-        error.message.toLowerCase().includes('row level security') ||
-        error.message.toLowerCase().includes('permission')
+        error.message?.toLowerCase().includes('row level security') ||
+        error.message?.toLowerCase().includes('permission')
       ) {
         console.warn('RLS policy may prevent inserting/updating stores')
       }
-    } else {
-      console.log('✅ プロフィール保存成功')
-      setShowIncomplete(false)
-      if (isNew) {
-        router.push('/store/edit/complete')
-      } else {
-        router.push('/dashboard?saved=1')
-      }
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -153,11 +221,26 @@ export default function StoreProfileEditPage() {
         </div>
 
         <div>
-          <label className="block font-medium">アバター画像URL</label>
-          <Input name="avatar_url" value={profile.avatar_url} onChange={handleChange} type="url" />
+          <label className="block font-medium">アバター画像</label>
+          {avatarPreview && (
+            <img
+              src={avatarPreview}
+              alt="avatar preview"
+              className="w-24 h-24 object-cover mb-2"
+            />
+          )}
+          <Input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleAvatar}
+          />
+          <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
+          {errors.avatar && <p className="text-red-500 text-sm">{errors.avatar}</p>}
         </div>
 
-        <Button onClick={handleSave} className="mt-4">保存する</Button>
+        <Button onClick={handleSave} className="mt-4" disabled={saving}>
+          {saving ? '保存中...' : '保存する'}
+        </Button>
       </div>
     </main>
   )

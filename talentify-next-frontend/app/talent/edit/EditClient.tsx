@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { isProfileComplete } from '@/utils/isProfileComplete'
 import { s, n, j } from '@/utils/nullSafe'
+import { toast } from 'sonner'
 
 const prefectures = [
   '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
@@ -13,6 +14,10 @@ const prefectures = [
 
 const GENRE_OPTIONS = ['ライター','アイドル','コスプレ','モデル','その他']
 const minHourOptions = ['1時間','2時間','3時間以上']
+
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+const AVATAR_BUCKET = 'talent_photos'
 
 const supabase = createClient()
 
@@ -47,10 +52,40 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [photoFiles, setPhotoFiles] = useState<File[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
   const avatarPreview = useMemo(
     () => (avatarFile ? URL.createObjectURL(avatarFile) : profile.avatar_url),
     [avatarFile, profile.avatar_url]
   )
+
+  const getMimeAndExt = (file: File) => {
+    const ext = file.name.split('.').pop()?.toLowerCase()
+    let type = file.type
+    if (!type && ext) {
+      if (ext === 'png') type = 'image/png'
+      else if (ext === 'jpg' || ext === 'jpeg') type = 'image/jpeg'
+      else if (ext === 'webp') type = 'image/webp'
+    }
+    if (!type || !ALLOWED_TYPES.includes(type as any)) {
+      throw new Error('対応形式は PNG・JPG・WEBP です。')
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error('ファイルサイズは 5MB までです。')
+    }
+    const extension = type === 'image/png' ? 'png' : type === 'image/webp' ? 'webp' : 'jpg'
+    return { type, ext: extension }
+  }
+
+  const uploadImage = async (file: File, user: string, kind: 'avatar' | 'photo') => {
+    const { type, ext } = getMimeAndExt(file)
+    const path = `avatars/${user}/${kind}-${Date.now()}.${ext}`
+    const { error: upErr } = await supabase.storage
+      .from(AVATAR_BUCKET)
+      .upload(path, file, { upsert: true, contentType: type, cacheControl: '3600' })
+    if (upErr) throw upErr
+    const { data } = supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path)
+    return data.publicUrl
+  }
 
   const validate = (p: typeof profile) => {
     const err: Record<string, string> = {}
@@ -155,14 +190,31 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   }
 
   const handleAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setAvatarFile(e.target.files[0])
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      getMimeAndExt(file)
+      setAvatarFile(file)
       setErrors(validate(profile))
+    } catch (err: any) {
+      toast.error(err.message)
+      setErrors({ ...errors, avatar_url: err.message })
+      e.target.value = ''
     }
   }
 
   const handlePhotos = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) setPhotoFiles(Array.from(e.target.files))
+    if (!e.target.files) return
+    const files: File[] = []
+    for (const f of Array.from(e.target.files)) {
+      try {
+        getMimeAndExt(f)
+        files.push(f)
+      } catch (err: any) {
+        toast.error(err.message)
+      }
+    }
+    setPhotoFiles(files)
   }
 
   const handleAddArea = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -200,99 +252,86 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       return
     }
 
-    // 画像アップロード
-    if (avatarFile) {
-      const filePath = `${userId}/avatar-${Date.now()}`
-      const { error } = await supabase.storage
-        .from('talent_photos')
-        .upload(filePath, avatarFile, { upsert: true })
-      if (!error) {
-        const { data } = await supabase.storage
-          .from('talent_photos')
-          .getPublicUrl(filePath)
-        profile.avatar_url = data.publicUrl
+    setSaving(true)
+    try {
+      let avatarUrl = profile.avatar_url
+      if (avatarFile) {
+        avatarUrl = await uploadImage(avatarFile, userId, 'avatar')
+        setProfile((p) => ({ ...p, avatar_url: avatarUrl }))
       }
-    }
 
-    if (photoFiles.length > 0) {
-      const urls: string[] = []
-      for (const f of photoFiles) {
-        const path = `${userId}/photo-${Date.now()}-${f.name}`
-        const { error } = await supabase.storage
-          .from('talent_photos')
-          .upload(path, f, { upsert: true })
-        if (!error) {
-          const { data } = await supabase.storage
-            .from('talent_photos')
-            .getPublicUrl(path)
-          urls.push(data.publicUrl)
+      let photoUrls: string[] = []
+      if (photoFiles.length > 0) {
+        for (const f of photoFiles) {
+          const url = await uploadImage(f, userId, 'photo')
+          photoUrls.push(url)
         }
       }
-      profile.photos = urls
-    }
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-    if (authError || !user) {
-      console.error('ユーザー取得失敗:', authError)
-      setErrorMessage('ユーザー情報の取得に失敗しました')
-      return
-    }
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+      if (authError || !user) {
+        throw new Error('ユーザー情報の取得に失敗しました')
+      }
 
-    const isComplete = isProfileComplete({
-      stage_name: profile.stage_name,
-      genre: profile.genre,
-      area: profile.area,
-      rate: n(profile.rate),
-      bio: profile.bio,
-      profile: profile.profile,
-      avatar_url: profile.avatar_url,
-    })
+      const isComplete = isProfileComplete({
+        stage_name: profile.stage_name,
+        genre: profile.genre,
+        area: profile.area,
+        rate: n(profile.rate),
+        bio: profile.bio,
+        profile: profile.profile,
+        avatar_url: avatarUrl,
+      })
 
-    const updateData = {
-      name: profile.name,
-      stage_name: profile.stage_name,
-      ...(profile.bio && { bio: profile.bio }),
-      ...(profile.profile && { profile: profile.profile }),
-      ...(profile.residence && { residence: profile.residence }),
-      ...(profile.area.length > 0 && { area: profile.area }),
-      ...(profile.genre && { genre: profile.genre }),
-      ...(profile.availability && { availability: profile.availability }),
-      ...(profile.min_hours && { min_hours: profile.min_hours }),
-      ...(profile.transportation && { transportation: profile.transportation }),
-      ...(profile.rate !== '' && { rate: n(profile.rate) }),
-      ...(profile.notes && { notes: profile.notes }),
-      ...(profile.achievements && { media_appearance: profile.achievements }),
-      ...(profile.video_url && { video_url: profile.video_url }),
-      ...(profile.avatar_url && { avatar_url: profile.avatar_url }),
-      ...(profile.photos.length > 0 && { photos: profile.photos }),
-      ...(profile.twitterUrl && { twitter_url: profile.twitterUrl }),
-      ...(profile.instagramUrl && { instagram_url: profile.instagramUrl }),
-      ...(profile.youtubeUrl && { youtube_url: profile.youtubeUrl }),
-      is_setup_complete: true,
-      is_profile_complete: isComplete,
-    }
+      const updateData = {
+        name: profile.name,
+        stage_name: profile.stage_name,
+        ...(profile.bio && { bio: profile.bio }),
+        ...(profile.profile && { profile: profile.profile }),
+        ...(profile.residence && { residence: profile.residence }),
+        ...(profile.area.length > 0 && { area: profile.area }),
+        ...(profile.genre && { genre: profile.genre }),
+        ...(profile.availability && { availability: profile.availability }),
+        ...(profile.min_hours && { min_hours: profile.min_hours }),
+        ...(profile.transportation && { transportation: profile.transportation }),
+        ...(profile.rate !== '' && { rate: n(profile.rate) }),
+        ...(profile.notes && { notes: profile.notes }),
+        ...(profile.achievements && { media_appearance: profile.achievements }),
+        ...(profile.video_url && { video_url: profile.video_url }),
+        ...(avatarUrl && { avatar_url: avatarUrl }),
+        ...(photoUrls.length > 0 && { photos: photoUrls }),
+        ...(profile.twitterUrl && { twitter_url: profile.twitterUrl }),
+        ...(profile.instagramUrl && { instagram_url: profile.instagramUrl }),
+        ...(profile.youtubeUrl && { youtube_url: profile.youtubeUrl }),
+        is_setup_complete: true,
+        is_profile_complete: isComplete,
+      }
 
-    // Debug log before sending
-    console.log('📝 updateData:', updateData)
+      console.log('📝 updateData:', updateData)
 
-    const { error } = await supabase
-      .from('talents' as any)
-      .update(updateData)
-      .eq('user_id', user.id)
+      const { error } = await supabase
+        .from('talents' as any)
+        .update(updateData)
+        .eq('user_id', user.id)
 
-    if (error) {
-      console.error('talents の保存に失敗:', error)
-      setErrorMessage('保存に失敗しました')
-    } else {
+      if (error) throw error
+
+      toast.success('保存しました')
       setShowIncomplete(!isComplete)
       if (isNew) {
         router.push('/talent/edit/complete')
       } else {
         router.push('/talent/dashboard?saved=1')
       }
+    } catch (err: any) {
+      console.error('talents の保存に失敗:', err)
+      setErrorMessage(err.message || '保存に失敗しました')
+      toast.error(err.message || '保存に失敗しました')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -575,12 +614,22 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
               className="w-24 h-24 object-cover mb-2"
             />
           )}
-          <input type="file" accept="image/*" onChange={handleAvatar} />
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleAvatar}
+          />
+          <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
           {errors.avatar_url && <p className="text-red-500 text-sm">{errors.avatar_url}</p>}
         </div>
         <div>
           <label className="block font-semibold">写真追加</label>
-          <input type="file" accept="image/*" multiple onChange={handlePhotos} />
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            multiple
+            onChange={handlePhotos}
+          />
         </div>
       </section>
 
@@ -621,9 +670,10 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
       <button
         onClick={handleSave}
-        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        disabled={saving}
+        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
       >
-        保存する
+        {saving ? '保存中...' : '保存する'}
       </button>
     </main>
   )
