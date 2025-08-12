@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { API_BASE } from '@/lib/api'
 
 export async function GET() {
   const supabase = await createClient()
@@ -49,12 +50,19 @@ export async function POST(req: NextRequest) {
   }
 
   if (topic) {
-    await supabase.from('notifications').insert({
-      user_id: topic,
-      type: 'message',
-      title: '新着メッセージがあります',
-      body: content ?? null
+    const res = await fetch(`${API_BASE}/api/notifications`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: topic,
+        type: 'message',
+        title: '新着メッセージがあります',
+        body: content ?? null,
+      }),
     })
+    if (!res.ok) {
+      console.error('failed to create notification', await res.text())
+    }
   }
 
   return NextResponse.json(data, { status: 201 })
