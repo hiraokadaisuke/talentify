@@ -1,23 +1,19 @@
 import TalentCard from './TalentCard'
 import type { PublicTalent } from '@/types/talent'
 
-export default function TalentList({ talents, error }: { talents: PublicTalent[]; error?: boolean }) {
-  if (error) {
-    return <p className="p-4">取得に失敗しました</p>
-  }
-
-  if (talents.length === 0) {
-    return <p className="p-4">検索条件に一致するキャストがいません</p>
-  }
-
+export default function TalentList({ talents }: { talents: PublicTalent[] }) {
   return (
     <>
       <p className="mb-4 text-sm text-gray-700">検索結果：{talents.length}件</p>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {talents.map(t => (
-          <TalentCard key={t.id} talent={t} />
-        ))}
-      </div>
+      {talents.length === 0 ? (
+        <p className="p-4">検索条件に一致するキャストがいません</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {talents.map(t => (
+            <TalentCard key={t.id} talent={t} />
+          ))}
+        </div>
+      )}
     </>
   )
 }
