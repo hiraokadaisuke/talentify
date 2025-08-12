@@ -28,11 +28,42 @@
 - ストアとタレントが自分のオファーを更新可能 (`UPDATE`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
 
 ### payments
-- 認証済みユーザーは読み書き可能 (`*`): USING `true`, CHECK `true`
-- ストアは支払いを登録可能 (`INSERT`): CHECK `(auth.uid() = ( SELECT invoices.store_id FROM invoices WHERE (invoices.offer_id = payments.offer_id)))`
-- ストアは自分の支払いを削除可能 (`DELETE`): USING `(auth.uid() = ( SELECT invoices.store_id FROM invoices WHERE (invoices.offer_id = payments.offer_id)))`
-- ストアは自分の支払いを閲覧可能 (`SELECT`): USING `(auth.uid() = ( SELECT invoices.store_id FROM invoices WHERE (invoices.offer_id = payments.offer_id)))`
-- ストアは支払いを更新可能 (`UPDATE`): USING `(auth.uid() = ( SELECT invoices.store_id FROM invoices WHERE (invoices.offer_id = payments.offer_id)))`
+支払いは自分のオファーに紐づくもののみ閲覧・更新可能。
+
+```sql
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS payments_select_self ON payments;
+CREATE POLICY payments_select_self
+ON payments FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM offers o
+    WHERE o.id = payments.offer_id
+      AND (o.store_id = auth.uid() OR o.talent_id = auth.uid())
+  )
+);
+
+DROP POLICY IF EXISTS payments_update_self ON payments;
+CREATE POLICY payments_update_self
+ON payments FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM offers o
+    WHERE o.id = payments.offer_id
+      AND o.store_id = auth.uid()
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM offers o
+    WHERE o.id = payments.offer_id
+      AND o.store_id = auth.uid()
+  )
+);
+```
+
+※支払い完了を操作できるのはホール（store）ユーザーのみです。
 
 ### reviews
 - `INSERT`: offer_id を基準に `offers → stores.user_id = auth.uid()` で判定

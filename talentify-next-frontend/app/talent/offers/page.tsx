@@ -48,13 +48,22 @@ export default function TalentOffersPage() {
 
       const { data, error } = await supabase
         .from('offers' as any)
-        .select('id, date, message, status, respond_deadline, paid, paid_at')
+        .select('id, date, message, status, respond_deadline, payments(status,paid_at)')
         .eq('talent_id', talentId)
 
       if (error) {
         console.error('Error fetching offers:', error)
       } else {
-        setOffers(data as any)
+        setOffers(
+          (data || []).map((o: any) => ({
+            id: o.id,
+            date: o.date,
+            message: o.message,
+            status: o.status,
+            respond_deadline: o.respond_deadline,
+            paid: o.payments?.status === 'completed',
+          }))
+        )
       }
       setLoading(false)
     }

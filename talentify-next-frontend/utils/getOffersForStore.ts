@@ -14,6 +14,7 @@ export type Offer = {
   status: string | null
   paid?: boolean | null
   paid_at?: string | null
+  payment_id?: string | null
 }
 
 export async function getOffersForStore() {
@@ -31,7 +32,9 @@ export async function getOffersForStore() {
 
   const { data, error } = await supabase
     .from('offers')
-    .select('*')
+    .select(
+      'id,user_id,store_id,talent_id,message,created_at,status,payments(id,status,paid_at)'
+    )
     .eq('store_id', store.id)
     .order('created_at', { ascending: false })
 
@@ -40,5 +43,16 @@ export async function getOffersForStore() {
     return [] as Offer[]
   }
 
-  return (data ?? []) as Offer[]
+  return (data ?? []).map((o: any) => ({
+    id: o.id,
+    user_id: o.user_id,
+    store_id: o.store_id,
+    talent_id: o.talent_id,
+    message: o.message,
+    created_at: o.created_at,
+    status: o.status,
+    paid: o.payments?.status === 'completed',
+    paid_at: o.payments?.paid_at ?? null,
+    payment_id: o.payments?.id ?? null,
+  })) as Offer[]
 }

@@ -23,7 +23,7 @@ export async function getOffersForCompany(): Promise<CompanyOffer[]> {
   const { data, error } = await supabase
     .from('offers')
     .select(
-      'id, status, date, reward, invoice_amount, invoice_date, agreed, invoice_submitted, paid, paid_at, talents(stage_name), stores(store_name)'
+      'id, status, date, reward, invoice_amount, invoice_date, agreed, invoice_submitted, payments(status,paid_at), talents(stage_name), stores(store_name)'
     )
     .order('created_at', { ascending: false })
 
@@ -41,8 +41,8 @@ export async function getOffersForCompany(): Promise<CompanyOffer[]> {
     invoice_date: o.invoice_date,
     agreed: o.agreed,
     invoice_submitted: o.invoice_submitted,
-    paid: o.paid,
-    paid_at: o.paid_at,
+    paid: o.payments?.status === 'completed',
+    paid_at: o.payments?.paid_at ?? null,
     talent_name: o.talents?.stage_name ?? null,
     store_name: o.stores?.store_name ?? null,
   }))
