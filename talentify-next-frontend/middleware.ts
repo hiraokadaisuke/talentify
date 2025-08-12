@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@/lib/supabase/server'
 
 export async function middleware(req: NextRequest) {
+  if (req.nextUrl.pathname.startsWith('/auth/callback')) {
+    return NextResponse.next()
+  }
+
   const res = NextResponse.next()
 
   const supabase = createMiddlewareClient(req, res)
