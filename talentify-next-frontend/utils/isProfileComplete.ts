@@ -1,3 +1,5 @@
+import { s, n, j } from './nullSafe'
+
 export interface TalentProfile {
   stage_name?: string | null
   genre?: string | null
@@ -9,21 +11,27 @@ export interface TalentProfile {
 }
 
 export function isProfileComplete(profile: TalentProfile): boolean {
-  const hasStageName = !!profile.stage_name && profile.stage_name.trim().length > 0
-  const hasGenre = !!profile.genre && profile.genre.trim().length > 0
+  const stageName = s(profile.stage_name).trim()
+  const genre = s(profile.genre).trim()
 
-  const area = profile.area
-  const hasArea = Array.isArray(area)
-    ? area.length > 0
-    : !!area && area.trim().length > 0 && area !== '[]'
+  const area = Array.isArray(profile.area)
+    ? profile.area
+    : j<string[]>(profile.area, [])
 
-  const hasRate = typeof profile.rate === 'number' && profile.rate > 0
+  const rate = n(profile.rate)
 
-  const bioLen = profile.bio ? profile.bio.trim().length : 0
-  const profileLen = profile.profile ? profile.profile.trim().length : 0
+  const bioLen = s(profile.bio).trim().length
+  const profileLen = s(profile.profile).trim().length
   const hasBioOrProfile = bioLen >= 20 || profileLen >= 20
 
-  const hasAvatar = !!profile.avatar_url && profile.avatar_url.trim().length > 0
+  const avatar = s(profile.avatar_url).trim()
 
-  return hasStageName && hasGenre && hasArea && hasRate && hasBioOrProfile && hasAvatar
+  return (
+    stageName.length > 0 &&
+    genre.length > 0 &&
+    area.length > 0 &&
+    rate > 0 &&
+    hasBioOrProfile &&
+    avatar.length > 0
+  )
 }
