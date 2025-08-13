@@ -33,6 +33,8 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
   const [talents, setTalents] = useState<{ id: string; stage_name: string | null }[]>([])
   const [visitDate, setVisitDate] = useState('')
   const [talentId, setTalentId] = useState('')
+  const [timeRange, setTimeRange] = useState('')
+  const [agreed, setAgreed] = useState(false)
   const [message, setMessage] = useState('')
   const [templates, setTemplates] = useState<Template[]>([])
 
@@ -96,18 +98,21 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
       return
     }
 
-    const { error } = await supabase.from('offers').insert([
-      {
-        user_id: user.id,
+    const res = await fetch('/api/offers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         store_id: store.id,
         talent_id: talentId,
-        message,
         date: visitDate,
-        status: 'pending', // "offer_created" is not a valid status_type. Use pending.
-      },
-    ])
-    if (error) {
-      alert('送信に失敗しました')
+        time_range: timeRange,
+        agreed,
+        message,
+      }),
+    })
+    const result = await res.json()
+    if (!res.ok || !result.ok) {
+      alert(result.reason ? String(result.reason) : '送信に失敗しました')
       return
     }
     onOpenChange(false)
@@ -123,6 +128,10 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
           <div>
             <label className="block text-sm font-medium mb-1">来店日</label>
             <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">希望時間帯</label>
+            <Input value={timeRange} onChange={e => setTimeRange(e.target.value)} placeholder="例: 10:00~" />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">演者</label>
@@ -156,6 +165,16 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
               </select>
             </div>
           )}
+          <div className="flex items-center gap-2">
+            <input
+              id="modal-agreed"
+              type="checkbox"
+              checked={agreed}
+              onChange={e => setAgreed(e.target.checked)}
+              required
+            />
+            <label htmlFor="modal-agreed" className="text-sm">出演条件に同意します</label>
+          </div>
           <div>
             <label className="block text-sm font-medium mb-1">メッセージ</label>
             <Textarea
