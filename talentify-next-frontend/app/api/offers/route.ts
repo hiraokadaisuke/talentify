@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { logger } from '@/lib/logger'
-import { createHash } from 'crypto'
 
 export const runtime = 'nodejs'
 
@@ -67,12 +66,33 @@ export async function POST(req: NextRequest) {
     .eq('id', body.talent_id)
     .single()
   if (talentError || !talent || !talent.user_id) {
-    return NextResponse.json({ ok: false, code: 'VALIDATION_ERROR', reason: 'talent not found' }, { status: 400 })
+    logger.error({
+      level: 'error',
+      message: 'notification.create.fail',
+      context: { reason: 'talent not found', talent_id: body.talent_id },
+    })
+    return NextResponse.json({ ok: false, code: 'RECIPIENT_NOT_FOUND', reason: 'talent not found' }, { status: 409 })
   }
 
-  const key = createHash('sha256')
-    .update(`${body.store_id}:${body.talent_id}:${body.date}:${body.time_range}`)
-    .digest('hex')
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(talent.user_id)) {
+    logger.error({
+      level: 'error',
+      message: 'notification.create.fail',
+      context: { reason: 'invalid user_id format', user_id: talent.user_id },
+    })
+    return NextResponse.json({ ok: false, code: 'RECIPIENT_NOT_FOUND', reason: 'invalid recipient id' }, { status: 409 })
+  }
+
+  const { data: authUser, error: authUserError } = await service.auth.admin.getUserById(talent.user_id)
+  if (authUserError || !authUser?.user) {
+    logger.error({
+      level: 'error',
+      message: 'notification.create.fail',
+      context: { reason: 'recipient user not found', user_id: talent.user_id },
+    })
+    return NextResponse.json({ ok: false, code: 'RECIPIENT_NOT_FOUND', reason: 'recipient not found' }, { status: 409 })
+  }
 
   // check existing offer for idempotency
   const { data: existing } = await service
@@ -109,15 +129,19 @@ export async function POST(req: NextRequest) {
   }
 
   logger.info({ level: 'info', message: 'offer.create.success', context: { offer_id: offer.id } })
-  logger.info({ level: 'info', message: 'notification.create.request', context: { offer_id: offer.id } })
+  logger.info({
+    level: 'info',
+    message: 'notification.create.request',
+    context: { offer_id: offer.id, user_id: talent.user_id, type: 'offer_created' },
+  })
 
-  // dedupe notifications with idempotency key
+  // dedupe notifications by offer_id + recipient + type
   const { data: existingNotification } = await service
     .from('notifications')
     .select('*')
     .eq('user_id', talent.user_id)
     .eq('type', 'offer_created')
-    .contains('data', { idempotency_key: key })
+    .eq('data->>offer_id', offer.id)
     .maybeSingle()
 
   if (existingNotification) {
@@ -131,7 +155,6 @@ export async function POST(req: NextRequest) {
     date: body.date,
     time_range: body.time_range,
     message: body.message ?? '',
-    idempotency_key: key,
   }
 
   const { data: notification, error: notificationError } = await service
@@ -146,12 +169,30 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (notificationError || !notification) {
-    logger.error({ level: 'error', message: 'notification.create.fail', context: { reason: notificationError?.message } })
+    logger.error({
+      level: 'error',
+      message: 'notification.create.fail',
+      context: {
+        reason: notificationError?.message,
+        offer_id: offer.id,
+        user_id: talent.user_id,
+        type: 'offer_created',
+      },
+    })
     await service.from('offers').delete().eq('id', offer.id)
     return NextResponse.json({ ok: false, code: 'INSERT_FAILED', reason: notificationError?.message ?? 'insert failed' }, { status: 500 })
   }
 
-  logger.info({ level: 'info', message: 'notification.create.success', context: { notification_id: notification.id } })
+  logger.info({
+    level: 'info',
+    message: 'notification.create.success',
+    context: {
+      notification_id: notification.id,
+      offer_id: offer.id,
+      user_id: talent.user_id,
+      type: 'offer_created',
+    },
+  })
 
   return NextResponse.json({ ok: true, offer, notifications: [notification] })
 }
