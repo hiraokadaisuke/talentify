@@ -6,14 +6,12 @@ import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
 import { Card, CardContent } from '@/components/ui/card'
-import { addNotification } from '@/utils/notifications'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
 import { toast } from 'sonner'
-import type { OfferInsert } from '@/types/offer'
 
 type Talent = {
   id: string
@@ -118,35 +116,26 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
       return
     }
 
-    const payload: OfferInsert = {
-      user_id: user.id,
+    const payload = {
       store_id: store.id,
       talent_id: id,
       date: visitDate,
       time_range: timeRange,
-      agreed: true,
-      message: note || undefined,
+      agreed: isAgreed,
+      message: note || '',
     }
 
-    const { data: inserted, error } = await supabase
-      .from('offers')
-      .insert({ ...payload, message: payload.message ?? '' })
-      .select('id')
-      .single()
+    const res = await fetch('/api/offers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
 
-    if (error || !inserted) {
-      console.error('offer insert error', { payload, error })
-      toast.error(error?.code === '42501' ? '権限がありません' : '送信に失敗しました')
+    const result = await res.json()
+    if (!res.ok || !result.ok) {
+      console.error('offer create error', result)
+      toast.error(result.reason ? String(result.reason) : '送信に失敗しました')
       return
-    }
-
-    if (talent.user_id) {
-      await addNotification({
-        user_id: talent.user_id,
-        data: { offer_id: inserted.id },
-        type: 'offer',
-        title: 'オファー対応待ち',
-      })
     }
 
     toast.success('オファーを送信しました')

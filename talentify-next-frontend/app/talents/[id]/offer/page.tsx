@@ -15,6 +15,8 @@ export default function OfferPage() {
   const talentId = Array.isArray(id) ? id[0] : id
   const [message, setMessage] = useState('')
   const [visitDate, setVisitDate] = useState('')
+  const [timeRange, setTimeRange] = useState('')
+  const [agreed, setAgreed] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,20 +40,23 @@ export default function OfferPage() {
       return
     }
 
-    const { error } = await supabase.from('offers').insert([
-      {
-        user_id: user.id,
+    const res = await fetch('/api/offers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         store_id: store.id,
         talent_id: talentId,
-        message: message,
         date: visitDate,
-        status: 'pending', // "offer_created" is not allowed
-      },
-    ])
+        time_range: timeRange,
+        agreed,
+        message,
+      }),
+    })
 
-    if (error) {
-      console.error('送信エラー:', error)
-      alert('送信に失敗しました')
+    const result = await res.json()
+    if (!res.ok || !result.ok) {
+      console.error('送信エラー:', result)
+      alert(result.reason ? String(result.reason) : '送信に失敗しました')
       return
     }
 
@@ -78,6 +83,24 @@ export default function OfferPage() {
             value={visitDate}
             onChange={e => setVisitDate(e.target.value)}
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">希望時間帯</label>
+          <Input
+            value={timeRange}
+            onChange={e => setTimeRange(e.target.value)}
+            placeholder="例: 10:00~"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            id="agree"
+            type="checkbox"
+            checked={agreed}
+            onChange={e => setAgreed(e.target.checked)}
+            required
+          />
+          <label htmlFor="agree" className="text-sm">出演条件に同意します</label>
         </div>
         <div>
           <label className="block text-sm font-medium mb-1">メッセージ</label>
