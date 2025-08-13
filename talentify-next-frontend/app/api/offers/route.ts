@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
-import { logger } from '@/lib/logger'
 
 export const runtime = 'nodejs'
 
@@ -59,41 +58,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, code: 'FORBIDDEN', reason: 'invalid store' }, { status: 403 })
   }
 
-  // fetch talent user id for notification
-  const { data: talent, error: talentError } = await service
-    .from('talents')
-    .select('user_id')
-    .eq('id', body.talent_id)
-    .single()
-  if (talentError || !talent || !talent.user_id) {
-    logger.error({
-      level: 'error',
-      message: 'notification.create.fail',
-      context: { reason: 'talent not found', talent_id: body.talent_id },
-    })
-    return NextResponse.json({ ok: false, code: 'RECIPIENT_NOT_FOUND', reason: 'talent not found' }, { status: 409 })
-  }
-
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-  if (!uuidRegex.test(talent.user_id)) {
-    logger.error({
-      level: 'error',
-      message: 'notification.create.fail',
-      context: { reason: 'invalid user_id format', user_id: talent.user_id },
-    })
-    return NextResponse.json({ ok: false, code: 'RECIPIENT_NOT_FOUND', reason: 'invalid recipient id' }, { status: 409 })
-  }
-
-  const { data: authUser, error: authUserError } = await service.auth.admin.getUserById(talent.user_id)
-  if (authUserError || !authUser?.user) {
-    logger.error({
-      level: 'error',
-      message: 'notification.create.fail',
-      context: { reason: 'recipient user not found', user_id: talent.user_id },
-    })
-    return NextResponse.json({ ok: false, code: 'RECIPIENT_NOT_FOUND', reason: 'recipient not found' }, { status: 409 })
-  }
-
   // check existing offer for idempotency
   const { data: existing } = await service
     .from('offers')
@@ -104,10 +68,8 @@ export async function POST(req: NextRequest) {
     .eq('time_range', body.time_range)
     .maybeSingle()
   if (existing) {
-    return NextResponse.json({ ok: true, offer: existing, notifications: [] })
+    return NextResponse.json({ ok: true, offer: existing })
   }
-
-  logger.info({ level: 'info', message: 'offer.create.request', context: { user_id: user.id, store_id: body.store_id, talent_id: body.talent_id } })
 
   const { data: offer, error: offerError } = await service
     .from('offers')
@@ -124,75 +86,39 @@ export async function POST(req: NextRequest) {
     .select()
     .single()
   if (offerError || !offer) {
-    logger.error({ level: 'error', message: 'offer.create.fail', context: { reason: offerError?.message } })
     return NextResponse.json({ ok: false, code: 'INSERT_FAILED', reason: offerError?.message ?? 'insert failed' }, { status: 500 })
   }
 
-  logger.info({ level: 'info', message: 'offer.create.success', context: { offer_id: offer.id } })
-  logger.info({
-    level: 'info',
-    message: 'notification.create.request',
-    context: { offer_id: offer.id, user_id: talent.user_id, type: 'offer_created' },
-  })
-
-  // dedupe notifications by offer_id + recipient + type
-  const { data: existingNotification } = await service
-    .from('notifications')
-    .select('*')
-    .eq('user_id', talent.user_id)
-    .eq('type', 'offer_created')
-    .eq('data->>offer_id', offer.id)
-    .maybeSingle()
-
-  if (existingNotification) {
-    return NextResponse.json({ ok: true, offer, notifications: [existingNotification] })
-  }
-
-  const payload = {
-    offer_id: offer.id,
-    store_id: body.store_id,
-    talent_id: body.talent_id,
-    date: body.date,
-    time_range: body.time_range,
-    message: body.message ?? '',
-  }
-
-  const { data: notification, error: notificationError } = await service
-    .from('notifications')
-    .insert({
-      user_id: talent.user_id,
-      type: 'offer_created',
-      title: '新しいオファーが届きました',
-      data: payload,
-    })
-    .select()
+  // resolve notification recipient
+  const { data: talent } = await service
+    .from('talents')
+    .select('user_id')
+    .eq('id', body.talent_id)
     .single()
+  const talentUserId = talent?.user_id
 
-  if (notificationError || !notification) {
-    logger.error({
-      level: 'error',
-      message: 'notification.create.fail',
-      context: {
-        reason: notificationError?.message,
-        offer_id: offer.id,
-        user_id: talent.user_id,
+  if (talentUserId) {
+    const payload = {
+      offer_id: offer.id,
+      store_id: body.store_id,
+      talent_id: body.talent_id,
+      date: body.date,
+      time_range: body.time_range,
+      message: body.message ?? '',
+    }
+    try {
+      await service.from('notifications').insert({
+        user_id: talentUserId,
         type: 'offer_created',
-      },
-    })
-    await service.from('offers').delete().eq('id', offer.id)
-    return NextResponse.json({ ok: false, code: 'INSERT_FAILED', reason: notificationError?.message ?? 'insert failed' }, { status: 500 })
+        title: '新しいオファーが届きました',
+        data: payload,
+      })
+    } catch (e) {
+      console.error('notify insert failed', e)
+    }
+  } else {
+    console.error('notify insert failed', { reason: 'talent user_id not found', talent_id: body.talent_id })
   }
 
-  logger.info({
-    level: 'info',
-    message: 'notification.create.success',
-    context: {
-      notification_id: notification.id,
-      offer_id: offer.id,
-      user_id: talent.user_id,
-      type: 'offer_created',
-    },
-  })
-
-  return NextResponse.json({ ok: true, offer, notifications: [notification] })
+  return NextResponse.json({ ok: true, offer })
 }
