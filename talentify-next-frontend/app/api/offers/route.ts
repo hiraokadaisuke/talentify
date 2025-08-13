@@ -111,36 +111,6 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // resolve notification recipient
-  const { data: talent } = await service
-    .from('talents')
-    .select('user_id')
-    .eq('id', body.talent_id)
-    .single()
-  const talentUserId = talent?.user_id
-
-  if (talentUserId) {
-    const payload = {
-      offer_id: offer.id,
-      store_id: body.store_id,
-      talent_id: body.talent_id,
-      date: body.date,
-      time_range: body.time_range,
-      message: body.message ?? '',
-    }
-    try {
-      await service.from('notifications').insert({
-        user_id: talentUserId,
-        type: 'offer_created',
-        title: '新しいオファーが届きました',
-        data: payload,
-      })
-    } catch (e) {
-      console.error('notify insert failed', e)
-    }
-  } else {
-    console.error('notify insert failed', { reason: 'talent user_id not found', talent_id: body.talent_id })
-  }
-
+  // Notification creation is handled by a database trigger
   return NextResponse.json({ ok: true, offer })
 }

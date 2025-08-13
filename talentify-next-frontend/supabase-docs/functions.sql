@@ -1,30 +1,34 @@
--- notify_talent_on_offer_created
 CREATE OR REPLACE FUNCTION public.notify_talent_on_offer_created()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$
+DECLARE
+  _user_id uuid;
 BEGIN
-  INSERT INTO notifications (
-    id,
-    user_id,
-    type,
-    data,
-    is_read,
-    created_at
-  )
-  VALUES (
-    gen_random_uuid(),
-    NEW.talent_id,
-    'offer_created',
-    jsonb_build_object(
-      'offer_id', NEW.id,
-      'store_id', NEW.store_id,
-      'event_name', NEW.event_name,
-      'date', NEW.date
-    ),
-    false,
-    now()
-  );
+  SELECT user_id INTO _user_id FROM public.talents WHERE id = NEW.talent_id;
+  IF _user_id IS NOT NULL THEN
+    INSERT INTO notifications (
+      id,
+      user_id,
+      type,
+      data,
+      is_read,
+      created_at
+    )
+    VALUES (
+      gen_random_uuid(),
+      _user_id,
+      'offer_created',
+      jsonb_build_object(
+        'offer_id', NEW.id,
+        'store_id', NEW.store_id,
+        'event_name', NEW.event_name,
+        'date', NEW.date
+      ),
+      false,
+      now()
+    );
+  END IF;
 
   RETURN NEW;
 END;
