@@ -59,19 +59,22 @@ export async function POST(req: NextRequest) {
   }
 
   // check existing offer for idempotency
-  const { data: existing } = await service
+  const { data: existingRows } = await service
     .from('offers')
     .select('*')
     .eq('store_id', body.store_id)
     .eq('talent_id', body.talent_id)
     .eq('date', body.date)
     .eq('time_range', body.time_range)
-    .maybeSingle()
+    .order('created_at', { ascending: false })
+    .limit(1)
+
+  const existing = existingRows?.[0] ?? null
   if (existing) {
     return NextResponse.json({ ok: true, offer: existing })
   }
 
-  const { data: offer, error: offerError } = await service
+  const { data: offer, error: offerError, status: insertStatus } = await service
     .from('offers')
     .insert({
       user_id: user.id,
@@ -86,7 +89,26 @@ export async function POST(req: NextRequest) {
     .select()
     .single()
   if (offerError || !offer) {
-    return NextResponse.json({ ok: false, code: 'INSERT_FAILED', reason: offerError?.message ?? 'insert failed' }, { status: 500 })
+    if (insertStatus === 409 || offerError?.code === '23505') {
+      // fallback to existing offer lookup
+      const { data: fallbackRows } = await service
+        .from('offers')
+        .select('*')
+        .eq('store_id', body.store_id)
+        .eq('talent_id', body.talent_id)
+        .eq('date', body.date)
+        .eq('time_range', body.time_range)
+        .order('created_at', { ascending: false })
+        .limit(1)
+      const fallback = fallbackRows?.[0] ?? null
+      if (fallback) {
+        return NextResponse.json({ ok: true, offer: fallback })
+      }
+    }
+    return NextResponse.json(
+      { ok: false, code: 'INSERT_FAILED', reason: offerError?.message ?? 'insert failed' },
+      { status: 500 }
+    )
   }
 
   // resolve notification recipient
