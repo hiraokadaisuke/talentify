@@ -10,10 +10,21 @@ export async function getInvoicesForTalent() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return [] as Invoice[]
 
+  const { data: talent, error: talentError } = await supabase
+    .from('talents')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (talentError || !talent) {
+    console.error('failed to fetch talent', talentError)
+    return [] as Invoice[]
+  }
+
   const { data, error } = await supabase
     .from('invoices')
     .select('*')
-    .eq('talent_id', user.id)
+    .eq('talent_id', talent.id)
     .order('created_at', { ascending: false })
 
   if (error) {

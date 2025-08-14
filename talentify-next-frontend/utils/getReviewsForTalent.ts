@@ -17,10 +17,21 @@ export async function getReviewsForTalent() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return [] as TalentReview[]
 
+  const { data: talent, error: talentError } = await supabase
+    .from('talents')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (talentError || !talent) {
+    console.error('failed to fetch talent:', talentError)
+    return [] as TalentReview[]
+  }
+
   const { data, error } = await supabase
     .from('reviews' as any)
     .select('id, rating, category_ratings, comment, created_at, store:store_id(store_name), offers(date)')
-    .eq('talent_id', user.id)
+    .eq('talent_id', talent.id)
     .order('created_at', { ascending: false })
 
   if (error) {
