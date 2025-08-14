@@ -552,7 +552,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      talent_update_offer_status: {
+        Args: {
+          p_offer_id: string
+          p_status: string
+          p_message?: string | null
+        }
+        Returns: Database['public']['Tables']['offers']['Row']
+      }
+      talent_accept_offer: {
+        Args: {
+          p_offer_id: string
+        }
+        Returns: Database['public']['Tables']['offers']['Row']
+      }
+      talent_reject_offer: {
+        Args: {
+          p_offer_id: string
+          p_message?: string | null
+        }
+        Returns: Database['public']['Tables']['offers']['Row']
+      }
     }
     Enums: {
       invoice_status: 'draft' | 'pending' | 'submitted' | 'approved' | 'rejected'

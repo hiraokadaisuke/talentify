@@ -72,12 +72,11 @@ export default function TalentOfferDetailPage() {
 
   const handleStatusChange = async (status: 'confirmed' | 'rejected') => {
     if (!offer) return
-    const res = await fetch(`/api/offers/${offer.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
-    if (res.ok) {
+    const { error } =
+      status === 'confirmed'
+        ? await supabase.rpc('talent_accept_offer', { p_offer_id: offer.id })
+        : await supabase.rpc('talent_reject_offer', { p_offer_id: offer.id, p_message: null })
+    if (!error) {
       setOffer({ ...offer, status })
       if (status === 'confirmed' && offer.user_id) {
         await addNotification({

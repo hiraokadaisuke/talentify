@@ -135,3 +135,78 @@ CREATE TRIGGER trigger_notify_talent_on_review_created
 AFTER INSERT ON reviews
 FOR EACH ROW
 EXECUTE FUNCTION public.notify_talent_on_review_created();
+-- talent_update_offer_status
+CREATE OR REPLACE FUNCTION public.talent_update_offer_status(
+    p_offer_id uuid,
+    p_status text,
+    p_message text DEFAULT NULL
+)
+RETURNS offers
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $function$
+DECLARE
+  _talent_id uuid;
+  _updated offers;
+BEGIN
+  SELECT id INTO _talent_id FROM public.talents WHERE user_id = auth.uid();
+  IF _talent_id IS NULL THEN
+    RAISE EXCEPTION 'not authorized';
+  END IF;
+
+  IF p_status NOT IN ('confirmed', 'rejected') THEN
+    RAISE EXCEPTION 'invalid status %', p_status;
+  END IF;
+
+  UPDATE public.offers
+  SET status = p_status,
+      message = CASE WHEN p_status = 'rejected' THEN p_message ELSE message END,
+      accepted_at = CASE WHEN p_status = 'confirmed' THEN now() ELSE accepted_at END,
+      updated_at = now()
+  WHERE id = p_offer_id
+    AND talent_id = _talent_id
+  RETURNING * INTO _updated;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'offer not found';
+  END IF;
+
+  RETURN _updated;
+END;
+$function$;
+
+ALTER FUNCTION public.talent_update_offer_status(uuid, text, text) OWNER TO postgres;
+GRANT EXECUTE ON FUNCTION public.talent_update_offer_status(uuid, text, text) TO authenticated;
+
+-- talent_accept_offer
+CREATE OR REPLACE FUNCTION public.talent_accept_offer(
+    p_offer_id uuid
+)
+RETURNS offers
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $function$
+BEGIN
+  RETURN public.talent_update_offer_status(p_offer_id, 'confirmed', NULL);
+END;
+$function$;
+
+ALTER FUNCTION public.talent_accept_offer(uuid) OWNER TO postgres;
+GRANT EXECUTE ON FUNCTION public.talent_accept_offer(uuid) TO authenticated;
+
+-- talent_reject_offer
+CREATE OR REPLACE FUNCTION public.talent_reject_offer(
+    p_offer_id uuid,
+    p_message text DEFAULT NULL
+)
+RETURNS offers
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $function$
+BEGIN
+  RETURN public.talent_update_offer_status(p_offer_id, 'rejected', p_message);
+END;
+$function$;
+
+ALTER FUNCTION public.talent_reject_offer(uuid, text) OWNER TO postgres;
+GRANT EXECUTE ON FUNCTION public.talent_reject_offer(uuid, text) TO authenticated;
