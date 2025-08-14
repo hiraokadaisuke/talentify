@@ -10,6 +10,7 @@ Codexはコード生成や修正時にこれらを参照してください。
 - [enums.md](./enums.md): ENUM型一覧
 - [rls.md](./rls.md): Row Level Securityポリシー
 - [triggers.md](./triggers.md): トリガー定義
+- [sequences.md](./sequences.md): シーケンス定義
 - [functions.sql](./functions.sql): PL/pgSQL関数定義
 
 ## プロビジョニングフロー
