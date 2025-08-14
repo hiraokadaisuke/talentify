@@ -24,3 +24,9 @@ Codexはコード生成や修正時にこれらを参照してください。
 - 通知は service role (`createServiceClient`) でのみ作成します。
 - 通知の宛先は関連するタレントの `talents.user_id` を `notifications.user_id` にそのままセットします。
 - `talents.user_id` を取得できない場合は通知を作成せず、理由をサーバーログに記録します。
+
+## API仕様: スケジュール取得
+
+`GET /api/store/schedule?from=&to=&statuses=&includeCompleted=`
+
+- `includeCompleted` (boolean, default: `true`): `false` の場合、完了済みの予定を除外
