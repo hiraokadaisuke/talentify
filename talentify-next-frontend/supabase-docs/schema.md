@@ -54,6 +54,8 @@
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
 - user_id: uuid, NOT NULL
 - type: USER-DEFINED, NOT NULL
+- title: text
+- body: text
 - data: jsonb
 - is_read: boolean, DEFAULT false
 - created_at: timestamp without time zone, DEFAULT now()

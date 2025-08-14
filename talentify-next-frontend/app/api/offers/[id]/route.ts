@@ -20,7 +20,7 @@ export async function PUT(
 
     const { data: offer, error: offerError } = await supabase
       .from('offers')
-      .select('store_id, talent_id')
+      .select('store:store_id(user_id), talent:talent_id(user_id)')
       .eq('id', id)
       .single()
     if (offerError || !offer) {
@@ -28,9 +28,11 @@ export async function PUT(
     }
 
     let allowedFields: string[] = []
-    if (user.id === offer.store_id) {
+    const storeUserId = (offer as any).store?.user_id as string | undefined
+    const talentUserId = (offer as any).talent?.user_id as string | undefined
+    if (storeUserId && user.id === storeUserId) {
       allowedFields = ['status', 'contract_url']
-    } else if (user.id === offer.talent_id) {
+    } else if (talentUserId && user.id === talentUserId) {
       allowedFields = [
         'status',
         'agreed',
