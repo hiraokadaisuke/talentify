@@ -41,29 +41,27 @@
 
 ### public.invoice_status
 - draft
-- pending
 - submitted
 - approved
 - rejected
+- pending
 
 ### public.notification_type
-- offer
 - offer_created
 - offer_updated
-- offer_accepted
-- schedule_fixed
-- contract_uploaded
-- contract_checked
 - payment_created
 - invoice_submitted
-- payment_completed
 - review_received
 - message
+- offer
+- offer_accepted
+- schedule_fixed
 
 ### public.offer_status
 - pending
-- confirmed
+- accepted
 - rejected
+- confirmed
 
 ### auth.one_time_token_type
 - confirmation_token
