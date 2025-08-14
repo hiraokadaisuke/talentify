@@ -58,6 +58,7 @@
 - is_read: boolean, DEFAULT false
 - created_at: timestamp without time zone, DEFAULT now()
 - read_at: timestamp without time zone
+- updated_at: timestamp with time zone, NOT NULL, DEFAULT now()
 
 ### offers
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
@@ -78,7 +79,6 @@
 - notes: text
 - store_id: uuid
 - agreed: boolean
-- time_range: text
 - paid: boolean, DEFAULT false
 - paid_at: timestamp with time zone
 - invoice_date: date
@@ -88,8 +88,10 @@
 - bank_account_number: text
 - bank_account_holder: text
 - invoice_submitted: boolean, DEFAULT false
-- invoice_url: text
 - contract_url: text
+- time_range: text
+- invoice_url: text
+- accepted_at: timestamp with time zone
 
 `date` は `timestamp with time zone` 型で、`YYYY-MM-DD` もしくは ISO 8601 形式で送信する必要があります。`status` では `draft` / `pending` / `approved` / `rejected` / `completed` / `offer_created` / `confirmed` の値を使用でき、オファー作成時のデフォルトは `pending` です。
 
