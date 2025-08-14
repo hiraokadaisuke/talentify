@@ -13,3 +13,16 @@
 - visits.offer_id: FOREIGN KEY → offers.id
 - visits.store_id: FOREIGN KEY → stores.id
 - visits.talent_id: FOREIGN KEY → talents.id
+
+## 制約（ユニーク）
+
+- stores.user_id: UNIQUE
+
+## 制約（チェック）
+
+- reviews.rating: 1から5の範囲
+- reviews.category_ratings: JSONBオブジェクトであること
+- schedules.role: 'store' または 'talent'
+- talents.experience_years: 0以上
+- talents.rate: 0以上
+- talents.user_id または company_id のいずれかが必須
