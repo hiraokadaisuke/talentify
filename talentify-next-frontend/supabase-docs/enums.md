@@ -75,6 +75,7 @@
 - pending
 - paid
 - cancelled
+- completed
 
 ### public.status_type
 - draft

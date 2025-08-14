@@ -108,7 +108,7 @@
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
 - offer_id: uuid
 - amount: integer, NOT NULL
-- status: USER-DEFINED, NOT NULL
+ - status: payment_status, NOT NULL
 - created_at: timestamp with time zone, DEFAULT now()
 - updated_at: timestamp with time zone, DEFAULT now()
 - paid_at: timestamp with time zone
