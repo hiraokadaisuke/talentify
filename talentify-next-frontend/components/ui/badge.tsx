@@ -1,7 +1,12 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
 
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline'
+type BadgeVariant =
+  | 'default'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'success'
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   className?: string
@@ -15,6 +20,7 @@ export function Badge({ className, variant = 'default', ...props }: BadgeProps) 
     secondary: 'bg-gray-100 text-gray-800',
     destructive: 'bg-red-600 text-white',
     outline: 'border border-gray-300 text-gray-700',
+    success: 'bg-green-600 text-white',
   }
 
   return <span className={cn(base, variants[variant], className)} {...props} />
