@@ -96,7 +96,7 @@
 **RLSポリシー** (relrowsecurity = true)
 - offers_insert_by_store: auth.uid() = user_id または stores.user_id = auth.uid() の自店舗 `store_id` で挿入可
 - offers_update_by_store: 自店舗の `store_id` のみ更新可
-- talent_update_own_offer_status: タレントは自分宛のオファーに対して `status` を `pending` / `confirmed` / `rejected` に更新可
+ - talent_update_own_offer_status: タレントは自分宛のオファーに対して `status` を `pending` / `accepted` / `rejected` / `confirmed` に更新可
 - offers_delete_by_store: 自店舗の `store_id` のみ削除可
 旧ポリシー (auth.uid() = store_id などの誤った比較) は削除済み。
 

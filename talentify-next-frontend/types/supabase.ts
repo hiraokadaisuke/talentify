@@ -382,18 +382,15 @@ export type Database = {
           user_id: string
           data: Json | null
           type:
-              | 'offer'
-              | 'offer_created'
-              | 'offer_updated'
-              | 'offer_accepted'
-              | 'schedule_fixed'
-              | 'contract_uploaded'
-              | 'contract_checked'
-              | 'payment_created'
-              | 'invoice_submitted'
-              | 'payment_completed'
-              | 'review_received'
-              | 'message'
+            | 'offer_created'
+            | 'offer_updated'
+            | 'payment_created'
+            | 'invoice_submitted'
+            | 'review_received'
+            | 'message'
+            | 'offer'
+            | 'offer_accepted'
+            | 'schedule_fixed'
           title: string
           body: string | null
           is_read: boolean
@@ -405,18 +402,15 @@ export type Database = {
           user_id: string
           data?: Json | null
           type:
-              | 'offer'
-              | 'offer_created'
-              | 'offer_updated'
-              | 'offer_accepted'
-              | 'schedule_fixed'
-              | 'contract_uploaded'
-              | 'contract_checked'
-              | 'payment_created'
-              | 'invoice_submitted'
-              | 'payment_completed'
-              | 'review_received'
-              | 'message'
+            | 'offer_created'
+            | 'offer_updated'
+            | 'payment_created'
+            | 'invoice_submitted'
+            | 'review_received'
+            | 'message'
+            | 'offer'
+            | 'offer_accepted'
+            | 'schedule_fixed'
           title: string
           body?: string | null
           is_read?: boolean
@@ -428,18 +422,15 @@ export type Database = {
           user_id?: string
           data?: Json | null
           type?:
-            | 'offer'
             | 'offer_created'
             | 'offer_updated'
-            | 'offer_accepted'
-            | 'schedule_fixed'
-            | 'contract_uploaded'
-            | 'contract_checked'
             | 'payment_created'
             | 'invoice_submitted'
-            | 'payment_completed'
             | 'review_received'
             | 'message'
+            | 'offer'
+            | 'offer_accepted'
+            | 'schedule_fixed'
           title?: string
           body?: string | null
           is_read?: boolean
@@ -575,23 +566,27 @@ export type Database = {
       }
     }
     Enums: {
-      invoice_status: 'draft' | 'pending' | 'submitted' | 'approved' | 'rejected'
+      invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'pending'
       notification_type:
-        | 'offer'
         | 'offer_created'
         | 'offer_updated'
-        | 'offer_accepted'
-        | 'schedule_fixed'
-        | 'contract_uploaded'
-        | 'contract_checked'
         | 'payment_created'
         | 'invoice_submitted'
-        | 'payment_completed'
         | 'review_received'
         | 'message'
-      offer_status: 'pending' | 'confirmed' | 'rejected'
+        | 'offer'
+        | 'offer_accepted'
+        | 'schedule_fixed'
+      offer_status: 'pending' | 'accepted' | 'rejected' | 'confirmed'
       payment_status: 'pending' | 'paid' | 'cancelled'
-      status_type: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed'
+      status_type:
+        | 'draft'
+        | 'pending'
+        | 'approved'
+        | 'rejected'
+        | 'completed'
+        | 'offer_created'
+        | 'confirmed'
       visit_status: 'scheduled' | 'confirmed' | 'visited'
     }
     CompositeTypes: {
@@ -708,24 +703,21 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      invoice_status: ['draft', 'pending', 'submitted', 'approved', 'rejected'],
+      invoice_status: ['draft', 'submitted', 'approved', 'rejected', 'pending'],
       notification_type: [
-        'offer',
         'offer_created',
         'offer_updated',
-        'offer_accepted',
-        'schedule_fixed',
-        'contract_uploaded',
-        'contract_checked',
         'payment_created',
         'invoice_submitted',
-        'payment_completed',
         'review_received',
-        'message'
+        'message',
+        'offer',
+        'offer_accepted',
+        'schedule_fixed'
       ],
-      offer_status: ['pending', 'confirmed', 'rejected'],
+      offer_status: ['pending', 'accepted', 'rejected', 'confirmed'],
       payment_status: ['pending', 'paid', 'cancelled'],
-      status_type: ['draft', 'pending', 'approved', 'rejected', 'completed'],
+      status_type: ['draft', 'pending', 'approved', 'rejected', 'completed', 'offer_created', 'confirmed'],
       visit_status: ['scheduled', 'confirmed', 'visited']
     },
   },

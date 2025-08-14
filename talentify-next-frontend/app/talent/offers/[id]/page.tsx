@@ -105,7 +105,7 @@ export default function TalentOfferDetailPage() {
         await addNotification({
           user_id: offer.user_id,
           data: { offer_id: offer.id },
-          type: 'contract_checked',
+          type: 'offer_updated',
           title: 'タレントが契約書を確認しました'
         })
       }
