@@ -17,6 +17,12 @@
 ## 制約（ユニーク）
 
 - stores.user_id: UNIQUE
+- payments.offer_id: UNIQUE
+
+```sql
+create unique index if not exists payments_offer_id_key
+on public.payments (offer_id);
+```
 
 ## 制約（チェック）
 

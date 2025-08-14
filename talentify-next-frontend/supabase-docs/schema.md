@@ -111,7 +111,7 @@
  - status: payment_status, NOT NULL
 - created_at: timestamp with time zone, DEFAULT now()
 - updated_at: timestamp with time zone, DEFAULT now()
-- paid_at: timestamp with time zone
+- paid_at: timestamp with time zone, NULL
 - invoice_url: text
 
 status が 'completed' の場合に支払い完了とみなし、その日時を `paid_at` に保存する。
