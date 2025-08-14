@@ -9,6 +9,7 @@
 | set_updated_at_offers | offers | BEFORE | UPDATE | update_updated_at_column |
 | trg_notify_talent_on_offer_created | offers | AFTER | INSERT | notify_talent_on_offer_created |
 | trigger_notify_talent_on_offer_created | offers | AFTER | INSERT | notify_talent_on_offer_created |
+| trg_create_payment_on_offer_confirmed | offers | AFTER | UPDATE OF status | create_payment_on_offer_confirmed |
 | set_updated_at_payments | payments | BEFORE | UPDATE | update_updated_at_column |
 | trigger_notify_talent_on_payment_created | payments | AFTER | INSERT | notify_talent_on_payment_created |
 | set_updated_at_reviews | reviews | BEFORE | UPDATE | update_updated_at_column |
@@ -24,3 +25,12 @@
 | set_updated_at_visits | visits | BEFORE | UPDATE | update_updated_at_column |
 | tr_check_filters | realtime.subscription | BEFORE | INSERT OR UPDATE | realtime.subscription_check_filters |
 | update_objects_updated_at | storage.objects | BEFORE | UPDATE | storage.update_updated_at_column |
+
+```
+drop trigger if exists trg_create_payment_on_offer_confirmed on public.offers;
+create trigger trg_create_payment_on_offer_confirmed
+after update of status on public.offers
+for each row
+when (old.status is distinct from new.status)
+execute function public.create_payment_on_offer_confirmed();
+```

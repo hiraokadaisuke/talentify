@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
   let json: any
   try {
     json = await req.json()
@@ -30,14 +30,47 @@ export async function POST(req: NextRequest) {
       }
 
       if (!data || data.length === 0) {
-        return NextResponse.json({ error: 'payment not found' }, { status: 400 })
-      }
+        const { data: offer, error: offerError } = await supabase
+          .from('offers')
+          .select('invoice_amount')
+          .eq('id', offer_id)
+          .single()
 
-      if (data.length > 1) {
-        return NextResponse.json({ error: 'multiple payments found' }, { status: 400 })
-      }
+        if (offerError) {
+          console.error('[POST /payments/complete] offer lookup failed', offerError)
+          return NextResponse.json(
+            { error: offerError.message },
+            { status: 400 }
+          )
+        }
 
-      paymentId = data[0].id
+        const amount = offer?.invoice_amount ?? 0
+
+        const { data: inserted, error: insertError } = await supabase
+          .from('payments')
+          .insert({
+            offer_id,
+            amount,
+            status: 'pending',
+          })
+          .select('id')
+          .single()
+
+        if (insertError) {
+          console.error('[POST /payments/complete] insert failed', insertError)
+          return NextResponse.json(
+            { error: insertError.message },
+            { status: 400 }
+          )
+        }
+
+        paymentId = inserted.id
+      } else {
+        if (data.length > 1) {
+          return NextResponse.json({ error: 'multiple payments found' }, { status: 400 })
+        }
+        paymentId = data[0].id
+      }
     }
 
     if (!paymentId) {

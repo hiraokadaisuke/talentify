@@ -208,6 +208,25 @@ begin
 end;
 $function$;
 
+-- create_payment_on_offer_confirmed
+CREATE OR REPLACE FUNCTION public.create_payment_on_offer_confirmed()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+begin
+  if exists (select 1 from public.payments p where p.offer_id = new.id) then
+    return new;
+  end if;
+
+  if new.status = 'confirmed' then
+    insert into public.payments (offer_id, amount, status, created_at, updated_at)
+    values (new.id, new.invoice_amount, 'pending', now(), now());
+  end if;
+
+  return new;
+end;
+$$;
+
 -- set_review_store_id
 CREATE OR REPLACE FUNCTION public.set_review_store_id()
  RETURNS trigger

@@ -47,25 +47,24 @@ USING (
   )
 );
 
-DROP POLICY IF EXISTS payments_update_self ON payments;
-CREATE POLICY payments_update_self
-ON payments FOR UPDATE
+CREATE POLICY IF NOT EXISTS "stores can update own payments"
+ON public.payments
+FOR UPDATE
+TO authenticated
 USING (
-  EXISTS (
-    SELECT 1
-      FROM offers o
-      JOIN stores s ON s.id = o.store_id
-     WHERE o.id = payments.offer_id
-       AND s.user_id = auth.uid()
+  exists (
+    select 1 from public.offers o
+    join public.stores s on s.id = o.store_id
+    where o.id = payments.offer_id
+      and s.user_id = auth.uid()
   )
 )
 WITH CHECK (
-  EXISTS (
-    SELECT 1
-      FROM offers o
-      JOIN stores s ON s.id = o.store_id
-     WHERE o.id = payments.offer_id
-       AND s.user_id = auth.uid()
+  exists (
+    select 1 from public.offers o
+    join public.stores s on s.id = o.store_id
+    where o.id = payments.offer_id
+      and s.user_id = auth.uid()
   )
 );
 ```
