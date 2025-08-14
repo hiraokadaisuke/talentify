@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Calendar as BigCalendar,
   dateFnsLocalizer,
@@ -21,6 +21,7 @@ import OfferModal from '@/components/modals/OfferModal'
 interface OfferEvent extends BigCalendarEvent {
   talentId: string
   offerId: string
+  status: string
 }
 
 const locales = { ja }
@@ -35,6 +36,11 @@ const localizer = dateFnsLocalizer({
 export default function StoreSchedulePage() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
+  const searchParams = useSearchParams()
+  const includeCompletedParam = searchParams.get('includeCompleted')
+  const [includeCompleted, setIncludeCompleted] = useState(
+    includeCompletedParam !== 'false'
+  )
   const [events, setEvents] = useState<OfferEvent[]>([])
   const [view, setView] = useState<View>(Views.MONTH)
   const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
@@ -47,11 +53,14 @@ export default function StoreSchedulePage() {
       } = await supabase.auth.getUser()
       if (!user) return
 
+      const statuses = includeCompleted
+        ? ['confirmed', 'completed']
+        : ['confirmed']
       const { data, error } = await supabase
         .from('offers')
         .select('id, talent_id, date, status, talents(stage_name)')
         .eq('user_id', user.id)
-        .eq('status', 'confirmed')
+        .in('status', statuses)
 
       if (error) {
         console.error('Failed to fetch offers', error)
@@ -64,20 +73,24 @@ export default function StoreSchedulePage() {
         end: new Date(o.date),
         talentId: o.talent_id,
         offerId: o.id,
+        status: o.status,
       })) as OfferEvent[]
 
       setEvents(mapped)
     }
 
     loadOffers()
-  }, [supabase])
+  }, [supabase, includeCompleted])
 
   const eventStyleGetter = (event: OfferEvent) => {
-    const isPast = event.end < new Date()
-    return {
-      className: isPast
-        ? 'bg-gray-300 text-gray-600 rounded p-1'
-        : 'bg-blue-500 text-white rounded p-1',
+    const base = 'rounded p-1'
+    switch (event.status) {
+      case 'completed':
+        return { className: `bg-green-500 text-white ${base}` }
+      case 'confirmed':
+        return { className: `bg-blue-500 text-white ${base}` }
+      default:
+        return { className: `bg-gray-300 text-gray-600 ${base}` }
     }
   }
 
@@ -106,6 +119,26 @@ export default function StoreSchedulePage() {
         >
           月表示
         </button>
+        <label className="ml-4 text-sm">
+          <input
+            type="checkbox"
+            className="mr-1"
+            checked={includeCompleted}
+            onChange={(e) => {
+              const checked = e.target.checked
+              setIncludeCompleted(checked)
+              const params = new URLSearchParams(searchParams.toString())
+              if (checked) {
+                params.delete('includeCompleted')
+              } else {
+                params.set('includeCompleted', 'false')
+              }
+              const query = params.toString()
+              router.replace(query ? `/store/schedule?${query}` : '/store/schedule')
+            }}
+          />
+          完了を表示
+        </label>
       </div>
       <BigCalendar
         localizer={localizer}

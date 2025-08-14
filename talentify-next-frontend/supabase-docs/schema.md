@@ -225,6 +225,7 @@ status が 'completed' の場合に支払い完了とみなし、その日時を
 - created_at: timestamp without time zone, DEFAULT now()
 - updated_at: timestamp without time zone, DEFAULT now()
 - status: USER-DEFINED
+- note: text
 
 ### pg_stat_statements (extensions schema)
 - userid: oid
