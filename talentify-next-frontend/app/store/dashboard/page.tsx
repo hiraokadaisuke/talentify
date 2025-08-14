@@ -11,7 +11,8 @@ import { getStoreDashboardData } from '@/lib/queries/dashboard'
 
 export default async function StoreDashboard() {
   const { offerStats, schedule, unreadCount } = await getStoreDashboardData()
-  const hasData = Object.values(offerStats).reduce((acc, v) => acc + v, 0) > 0
+  const hasData =
+    (Object.values(offerStats) as number[]).reduce((acc, v) => acc + v, 0) > 0
 
   return (
     <div className='space-y-4'>

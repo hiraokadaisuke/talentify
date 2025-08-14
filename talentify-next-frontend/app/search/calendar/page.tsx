@@ -20,12 +20,17 @@ export default function CalendarSearchPage() {
     const supabase = createClient()
     let query = supabase
       .from('talents')
-      .select('id, stage_name, genre, area, avatar_url, rate, bio')
+      .select('id, stage_name, genre, area, avatar_url, rate, bio, rating')
       .limit(20)
     if (area) query = query.eq('area', area)
     if (genre) query = query.eq('genre', genre)
     const { data } = await query
-    setResults(data ?? [])
+    setResults(
+      (data ?? []).map((t: any) => ({
+        rating: t.rating ?? null,
+        ...t,
+      }))
+    )
   }
 
   return (
