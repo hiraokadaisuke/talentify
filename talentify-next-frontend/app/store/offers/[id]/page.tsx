@@ -139,8 +139,7 @@ export default function StoreOfferDetailPage() {
   const handlePaid = async () => {
     if (!offer) return
     try {
-      const updated = await markPaymentCompleted(offer.id)
-      setPayment(updated)
+      await markPaymentCompleted(payment?.id, offer.id)
       if (offer.talent_id) {
         await addNotification({
           user_id: offer.talent_id,

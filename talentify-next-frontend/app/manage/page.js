@@ -46,10 +46,15 @@ function usePayments() {
   }, [])
 
   const updateStatus = async (offerId) => {
+    const payment = payments.find(p => p.offer_id === offerId)
     try {
-      const updated = await markPaymentCompleted(offerId)
+      await markPaymentCompleted(payment?.id, offerId)
       setPayments(prev =>
-        prev.map(p => (p.offer_id === offerId ? { ...p, ...updated } : p))
+        prev.map(p =>
+          p.offer_id === offerId
+            ? { ...p, status: 'completed', paid_at: new Date().toISOString() }
+            : p
+        )
       )
     } catch (e) {
       console.error(e)
