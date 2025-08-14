@@ -18,10 +18,21 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
 
   if (!user) return []
 
+  const { data: talent, error: talentError } = await supabase
+    .from('talents')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
+  if (talentError || !talent) {
+    console.error('failed to fetch talent', talentError)
+    return []
+  }
+
   const { data, error } = await supabase
     .from('offers')
     .select('id, date, time_range, stores(store_name)')
-    .eq('talent_id', user.id)
+    .eq('talent_id', talent.id)
     .eq('status', 'confirmed')
     .order('date', { ascending: true })
 
