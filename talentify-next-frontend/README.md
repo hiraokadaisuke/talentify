@@ -44,3 +44,18 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Message Box
 
 A simple message interface is available at `/messages` for testing chat UI.
+
+## Dashboard Data
+
+The dashboards use Supabase to show real information:
+
+- **Talent dashboard**: reads from `talents`, `offers`, and `notifications` (type `message`).
+- **Store dashboard**: reads from `stores`, `offers`, and `notifications`.
+- **Profile progress card**: checks required fields on the `talents` table.
+
+To verify locally:
+
+1. Set up Supabase URL and anon key in `.env.local`.
+2. Run `npm run dev` and sign in as a talent or store user.
+3. Create offers or send messages in Supabase and confirm the dashboard counts update.
+
