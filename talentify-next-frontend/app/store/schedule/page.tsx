@@ -1,28 +1,51 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Calendar as BigCalendar,
   dateFnsLocalizer,
   Views,
   View,
-  type Event as BigCalendarEvent,
 } from 'react-big-calendar'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
 import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import ja from 'date-fns/locale/ja'
+import isSameDay from 'date-fns/isSameDay'
+import addMonths from 'date-fns/addMonths'
+import subMonths from 'date-fns/subMonths'
+import addWeeks from 'date-fns/addWeeks'
+import subWeeks from 'date-fns/subWeeks'
 import { createClient } from '@/utils/supabase/client'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import OfferModal from '@/components/modals/OfferModal'
-
-interface OfferEvent extends BigCalendarEvent {
-  talentId: string
-  offerId: string
-  status: string
-}
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu'
+import {
+  mapOfferStatus,
+  parseStatusesParam,
+  stringifyStatuses,
+  filterEvents,
+  DEFAULT_STATUSES,
+  type StoreScheduleEvent,
+} from '@/utils/storeSchedule'
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalFooter,
+} from '@/components/ui/modal'
 
 const locales = { ja }
 const localizer = dateFnsLocalizer({
@@ -33,18 +56,56 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
+const STATUS_LABEL: Record<string, string> = {
+  scheduled: '予定',
+  completed: '完了',
+  cancelled: 'キャンセル',
+  no_show: '欠席',
+}
+
+const STATUS_BADGE: Record<
+  keyof typeof STATUS_LABEL,
+  'default' | 'success' | 'destructive' | 'secondary'
+> = {
+  scheduled: 'default',
+  completed: 'success',
+  cancelled: 'destructive',
+  no_show: 'secondary',
+}
+
 export default function StoreSchedulePage() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
   const searchParams = useSearchParams()
+
   const includeCompletedParam = searchParams.get('includeCompleted')
+  const statusParam = searchParams.get('statuses')
+  const qParam = searchParams.get('q') || ''
+
   const [includeCompleted, setIncludeCompleted] = useState(
     includeCompletedParam !== 'false'
   )
-  const [events, setEvents] = useState<OfferEvent[]>([])
-  const [view, setView] = useState<View>(Views.MONTH)
+  const [statuses, setStatuses] = useState(() =>
+    parseStatusesParam(statusParam)
+  )
+  const [q, setQ] = useState(qParam)
+  const [debouncedQ, setDebouncedQ] = useState(qParam)
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q), 300)
+    return () => clearTimeout(t)
+  }, [q])
+
+  const [events, setEvents] = useState<StoreScheduleEvent[]>([])
+  const [view, setView] = useState<View>(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768
+      ? Views.WEEK
+      : Views.MONTH
+  )
+  const [date, setDate] = useState(new Date())
   const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
+  const [offerModalOpen, setOfferModalOpen] = useState(false)
+  const [selected, setSelected] = useState<StoreScheduleEvent | null>(null)
 
   useEffect(() => {
     const loadOffers = async () => {
@@ -53,14 +114,16 @@ export default function StoreSchedulePage() {
       } = await supabase.auth.getUser()
       if (!user) return
 
-      const statuses = includeCompleted
-        ? ['confirmed', 'completed']
-        : ['confirmed']
+      const statusesQuery = ['confirmed', 'cancelled', 'no_show']
+      if (includeCompleted) statusesQuery.push('completed')
+
       const { data, error } = await supabase
         .from('offers')
-        .select('id, talent_id, date, status, talents(stage_name)')
+        .select(
+          'id, talent_id, date, status, start_time, notes, talents(stage_name)'
+        )
         .eq('user_id', user.id)
-        .in('status', statuses)
+        .in('status', statusesQuery)
 
       if (error) {
         console.error('Failed to fetch offers', error)
@@ -69,12 +132,19 @@ export default function StoreSchedulePage() {
 
       const mapped = (data || []).map((o: any) => ({
         title: o.talents?.stage_name || '出演',
-        start: new Date(o.date),
-        end: new Date(o.date),
+        start: new Date(
+          o.start_time ? `${o.date}T${o.start_time}` : `${o.date}`
+        ),
+        end: new Date(
+          o.start_time ? `${o.date}T${o.start_time}` : `${o.date}`
+        ),
         talentId: o.talent_id,
         offerId: o.id,
-        status: o.status,
-      })) as OfferEvent[]
+        talentName: o.talents?.stage_name || '出演',
+        status: mapOfferStatus(o.status),
+        startTime: o.start_time,
+        notes: o.notes,
+      })) as StoreScheduleEvent[]
 
       setEvents(mapped)
     }
@@ -82,84 +152,237 @@ export default function StoreSchedulePage() {
     loadOffers()
   }, [supabase, includeCompleted])
 
-  const eventStyleGetter = (event: OfferEvent) => {
-    const base = 'rounded p-1'
-    switch (event.status) {
-      case 'completed':
-        return { className: `bg-green-500 text-white ${base}` }
-      case 'confirmed':
-        return { className: `bg-blue-500 text-white ${base}` }
-      default:
-        return { className: `bg-gray-300 text-gray-600 ${base}` }
-    }
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (!includeCompleted) params.set('includeCompleted', 'false')
+    const statusStr = stringifyStatuses(statuses)
+    if (statusStr) params.set('statuses', statusStr)
+    if (debouncedQ) params.set('q', debouncedQ)
+    const query = params.toString()
+    router.replace(query ? `/store/schedule?${query}` : '/store/schedule')
+  }, [includeCompleted, statuses, debouncedQ, router])
+
+  const filtered = useMemo(
+    () => filterEvents(events, statuses, debouncedQ),
+    [events, statuses, debouncedQ]
+  )
+
+  const dayPropGetter = (date: Date) => {
+    const isToday = isSameDay(date, new Date())
+    const dow = date.getDay()
+    if (isToday) return { className: 'bg-blue-50' }
+    if (dow === 0 || dow === 6) return { className: 'bg-gray-50' }
+    return {}
   }
 
-  const handleSelectEvent = (event: OfferEvent) => {
-    router.push(`/store/offers/${event.offerId}`)
-  }
-
-  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-    setSlot({ start, end })
-    setModalOpen(true)
-  }
+  const EventComponent = ({ event }: { event: StoreScheduleEvent }) => (
+    <div className="bg-white shadow-sm rounded p-1 text-xs space-y-1 min-h-[44px]">
+      <Badge variant={STATUS_BADGE[event.status]} className="mb-1">
+        {STATUS_LABEL[event.status]}
+      </Badge>
+      <div>{event.talentName}</div>
+      {event.startTime && <div>{event.startTime}</div>}
+      {event.notes && (
+        <div className="truncate text-[10px] text-gray-500">{event.notes}</div>
+      )}
+    </div>
+  )
 
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">スケジュール</h1>
-      <div className="space-x-2 mb-2">
-        <button
-          onClick={() => setView(Views.WEEK)}
-          className={`px-3 py-1 border rounded ${view === Views.WEEK ? 'bg-blue-600 text-white' : ''}`}
-        >
-          週表示
-        </button>
-        <button
-          onClick={() => setView(Views.MONTH)}
-          className={`px-3 py-1 border rounded ${view === Views.MONTH ? 'bg-blue-600 text-white' : ''}`}
-        >
-          月表示
-        </button>
-        <label className="ml-4 text-sm">
-          <input
-            type="checkbox"
-            className="mr-1"
-            checked={includeCompleted}
-            onChange={(e) => {
-              const checked = e.target.checked
-              setIncludeCompleted(checked)
-              const params = new URLSearchParams(searchParams.toString())
-              if (checked) {
-                params.delete('includeCompleted')
-              } else {
-                params.set('includeCompleted', 'false')
-              }
-              const query = params.toString()
-              router.replace(query ? `/store/schedule?${query}` : '/store/schedule')
-            }}
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            className="min-h-[44px]"
+            onClick={() => setDate(new Date())}
+            aria-label="今日"
+          >
+            今日
+          </Button>
+          <Button
+            size="sm"
+            className="min-h-[44px]"
+            onClick={() =>
+              setDate(
+                view === Views.MONTH
+                  ? subMonths(date, 1)
+                  : subWeeks(date, 1)
+              )
+            }
+            aria-label="戻る"
+          >
+            戻る
+          </Button>
+          <Button
+            size="sm"
+            className="min-h-[44px]"
+            onClick={() =>
+              setDate(
+                view === Views.MONTH
+                  ? addMonths(date, 1)
+                  : addWeeks(date, 1)
+              )
+            }
+            aria-label="次へ"
+          >
+            次へ
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant={view === Views.WEEK ? 'default' : 'outline'}
+            className="min-h-[44px]"
+            onClick={() => setView(Views.WEEK)}
+            aria-label="週表示"
+          >
+            週
+          </Button>
+          <Button
+            size="sm"
+            variant={view === Views.MONTH ? 'default' : 'outline'}
+            className="min-h-[44px]"
+            onClick={() => setView(Views.MONTH)}
+            aria-label="月表示"
+          >
+            月
+          </Button>
+          <span className="text-sm font-medium">
+            {format(date, 'yyyy年M月')}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            type="search"
+            placeholder="演者名検索"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="h-11 w-32 sm:w-48"
+            aria-label="演者名検索"
           />
-          完了を表示
-        </label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-[44px]"
+                aria-label="ステータスフィルタ"
+              >
+                ステータス
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40">
+              {DEFAULT_STATUSES.map((s) => (
+                <DropdownMenuCheckboxItem
+                  key={s}
+                  checked={statuses.includes(s)}
+                  onCheckedChange={(checked) =>
+                    setStatuses((prev) =>
+                      checked
+                        ? [...prev, s]
+                        : prev.filter((p) => p !== s)
+                    )
+                  }
+                >
+                  {STATUS_LABEL[s]}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <label className="flex items-center gap-1 text-sm">
+            <input
+              type="checkbox"
+              checked={includeCompleted}
+              onChange={(e) => setIncludeCompleted(e.target.checked)}
+              className="h-4 w-4"
+              aria-label="完了を表示"
+            />
+            完了
+          </label>
+        </div>
+      </div>
+      <div className="flex justify-end gap-4 mb-2 text-xs">
+        {DEFAULT_STATUSES.map((s) => (
+          <div key={s} className="flex items-center gap-1">
+            <Badge variant={STATUS_BADGE[s]} className="px-1"></Badge>
+            {STATUS_LABEL[s]}
+          </div>
+        ))}
       </div>
       <BigCalendar
         localizer={localizer}
-        events={events}
+        events={filtered}
         startAccessor="start"
         endAccessor="end"
         views={[Views.WEEK, Views.MONTH]}
         view={view}
         onView={(v) => setView(v)}
+        date={date}
+        onNavigate={(d) => setDate(d)}
         style={{ height: 600 }}
-        eventPropGetter={eventStyleGetter}
-        onSelectEvent={handleSelectEvent}
+        components={{ event: EventComponent }}
+        dayPropGetter={dayPropGetter}
+        eventPropGetter={() => ({ className: 'cursor-pointer' })}
+        onSelectEvent={(e) => setSelected(e as StoreScheduleEvent)}
         selectable
-        onSelectSlot={handleSelectSlot}
+        onSelectSlot={(s) => {
+          setSlot(s)
+          setOfferModalOpen(true)
+        }}
       />
       <OfferModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
+        open={offerModalOpen}
+        onOpenChange={setOfferModalOpen}
         initialDate={slot ? slot.start : null}
       />
+      <Modal open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <ModalContent className="max-w-sm">
+          {selected && (
+            <>
+              <ModalHeader>
+                <ModalTitle>{selected.talentName}</ModalTitle>
+              </ModalHeader>
+              <div className="space-y-2 text-sm">
+                <div>
+                  <Badge variant={STATUS_BADGE[selected.status]}>
+                    {STATUS_LABEL[selected.status]}
+                  </Badge>
+                </div>
+                <div>開始: {format(selected.start, 'yyyy-MM-dd HH:mm')}</div>
+                {selected.notes && (
+                  <div className="whitespace-pre-wrap">{selected.notes}</div>
+                )}
+              </div>
+              <ModalFooter>
+                <Link
+                  href={`/talents/${selected.talentId}`}
+                  className="text-blue-600 underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  プロフィール
+                </Link>
+                <Link
+                  href={`/store/offers/${selected.offerId}`}
+                  className="text-blue-600 underline"
+                >
+                  詳細
+                </Link>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <style jsx global>{`
+        .rbc-header {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background: white;
+        }
+      `}</style>
     </main>
   )
 }
-
