@@ -82,18 +82,6 @@ WITH CHECK (
 - 推奨ペイロード例: `{ offer_id, rating, comment?, is_public?, category_ratings? }`
 - RLS違反時の代表的なエラー: `new row violates row-level security policy for table "reviews"`
 
-```sql
-create policy "talent_can_select_own_reviews" on public.reviews
-for select to authenticated
-using (
-  exists (
-    select 1 from public.talents t
-    where t.user_id = auth.uid()
-      and t.id = reviews.talent_id
-  )
-);
-```
-
 ### schedules
 - ユーザーは自分のスケジュールを登録可能 (`INSERT`): CHECK `(auth.uid() = user_id)`
 - ユーザーは自分のスケジュールを閲覧可能 (`SELECT`): USING `(auth.uid() = user_id)`
@@ -132,12 +120,6 @@ using (
     )
   );
   ```
-
-```sql
-create policy "store_can_select_own_store" on public.stores
-for select to authenticated
-using (user_id = auth.uid());
-```
 
 ### talents
 - タレント本人のみ登録可能 (`INSERT`): CHECK `(auth.uid() = user_id)`

@@ -35,7 +35,7 @@ const [loading, setLoading] = useState(true);
       }
 
       const userId = session.user.id;
-      const table = role === 'talent' ? 'talents' : 'stores';
+      const table = role === 'talent' ? 'talents' : role === 'company' ? 'companies' : 'stores';
       const { data, error } = await supabase
         .from(table as any)
         .select('*')
