@@ -3,7 +3,6 @@
 ## 目的
 
 - 店舗オーナー（`auth.uid() = stores.user_id`）のみが自身の店舗を CRUD できる
-- タレントは `offers` / `reviews` 経由で関連店舗のみ `SELECT` できる
 - 匿名（public ロール）はアクセス不可
 
 ## 適用テーブル
@@ -44,37 +43,6 @@ ON public.stores
 FOR DELETE
 TO authenticated
 USING (auth.uid() = user_id);
-
--- タレント向け（関連する店舗のみ閲覧可）
--- offers 経由
-CREATE POLICY "talent_can_select_related_store_via_offers"
-ON public.stores
-FOR SELECT
-TO authenticated
-USING (
-  EXISTS (
-    SELECT 1
-    FROM talents t
-    JOIN offers o ON o.talent_id = t.id
-    WHERE t.user_id = auth.uid()
-      AND o.store_id = stores.id
-  )
-);
-
--- reviews 経由
-CREATE POLICY "talent_can_select_related_store_via_reviews"
-ON public.stores
-FOR SELECT
-TO authenticated
-USING (
-  EXISTS (
-    SELECT 1
-    FROM talents t
-    JOIN reviews r ON r.talent_id = t.id
-    WHERE t.user_id = auth.uid()
-      AND r.store_id = stores.id
-  )
-);
 ```
 
 ## 注記
@@ -89,6 +57,13 @@ USING (
 - Allow store owner insert / Allow store owner read / Allow store owner update
 - store owners can insert/read/update/delete own stores
   （重複・役割曖昧・public ロール混在回避のため整理）
+
+## RLS policy changes (2025-08-15)
+
+- public.stores: removed `talent_can_select_related_store_via_offers`, `talent_can_select_related_store_via_reviews`
+- Kept only owner-scoped policies (auth.uid() = user_id) for SELECT/INSERT/UPDATE/DELETE
+- Frontend rule: talents MUST NOT query `stores` directly. Always fetch via joins from `offers`/`reviews`/`payments`.
+- Motivation: prevent circular dependency causing Postgres error 42P17 "infinite recursion".
 
 ## 動作確認クエリ
 

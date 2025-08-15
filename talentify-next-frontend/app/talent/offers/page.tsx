@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
+import { toast } from 'sonner'
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
@@ -35,9 +36,15 @@ export default function TalentOffersPage() {
 
   useEffect(() => {
     const load = async () => {
-      const data = await getOffersForTalent()
-      setOffers(data)
-      setLoading(false)
+      try {
+        const data = await getOffersForTalent()
+        setOffers(data)
+      } catch (e) {
+        console.error('failed to load offers', e)
+        toast.error('オファーの取得に失敗しました')
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [])
