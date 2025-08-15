@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
 
-export type UserRole = 'store' | 'talent' | 'company'
+export type UserRole = 'store' | 'talent'
 
 export async function getUserRoleInfo(
   supabase: SupabaseClient<Database>,
@@ -10,7 +10,6 @@ export async function getUserRoleInfo(
   const [
     { data: store },
     { data: talent },
-    { data: company },
   ] = await Promise.all([
     supabase
       .from('stores' as any)
@@ -20,11 +19,6 @@ export async function getUserRoleInfo(
     supabase
       .from('talents' as any)
       .select('stage_name, is_setup_complete')
-      .eq('id', userId)
-      .maybeSingle(),
-    supabase
-      .from('companies' as any)
-      .select('display_name, is_setup_complete')
       .eq('user_id', userId)
       .maybeSingle(),
   ])
@@ -42,14 +36,6 @@ export async function getUserRoleInfo(
       role: 'talent',
       name: (talent as any).stage_name ?? 'タレント',
       isSetupComplete: (talent as any).is_setup_complete ?? false,
-    }
-  }
-
-  if (company) {
-    return {
-      role: 'company',
-      name: (company as any).display_name ?? '会社ユーザー',
-      isSetupComplete: (company as any).is_setup_complete ?? false,
     }
   }
 
