@@ -11,6 +11,7 @@ import { addNotification } from '@/utils/notifications'
 import ReviewModal from '@/components/modals/ReviewModal'
 import { toast } from 'sonner'
 import { markPaymentCompleted } from '@/lib/payments'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
 interface Offer {
   id: string
@@ -166,11 +167,11 @@ export default function StoreOfferDetailPage() {
       <h1 className='text-xl font-bold'>オファー詳細</h1>
       <div className='space-y-2 text-sm'>
         {offer.talent_stage_name && <div>演者: {offer.talent_stage_name}</div>}
-        {offer.created_at && <div>作成日: {offer.created_at.slice(0, 10)}</div>}
+        {offer.created_at && <div>作成日: {formatJaDateTimeWithWeekday(offer.created_at)}</div>}
         <div className='whitespace-pre-wrap'>{offer.message}</div>
       </div>
       <div className='space-y-2'>
-        <div>訪問日: {offer.date.slice(0, 10)}</div>
+        <div>訪問日: {formatJaDateTimeWithWeekday(offer.date)}</div>
       </div>
       {offer.contract_url && (
         <div className='space-y-1'>
@@ -193,7 +194,7 @@ export default function StoreOfferDetailPage() {
         ) : (
           <div className='space-y-1 text-sm'>
             <h2 className='font-semibold'>請求情報</h2>
-            <div>請求日: {offer.invoice_date}</div>
+            <div>請求日: {formatJaDateTimeWithWeekday(offer.invoice_date ?? '')}</div>
             <div>
               金額: ¥{new Intl.NumberFormat('ja-JP').format(offer.invoice_amount || 0)}（税込）
             </div>

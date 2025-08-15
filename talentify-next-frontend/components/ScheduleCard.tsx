@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { CalendarCheck, Clock, AlertCircle } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { DashboardCard } from './ui/dashboard-card'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
 export type ScheduleStatus = 'confirmed' | 'pending' | 'cancelled'
 export interface ScheduleItem {
@@ -27,7 +28,7 @@ export default function ScheduleCard({ title = '今週の予定', items }: Sched
         {items.map((ev, i) => (
           <div key={i} className="flex justify-between items-center rounded border p-2">
             <div>
-              <div>{ev.date}</div>
+              <div>{formatJaDateTimeWithWeekday(ev.date)}</div>
               <div className="text-xs text-muted-foreground">{ev.performer}</div>
             </div>
             {ev.status === 'confirmed' && (

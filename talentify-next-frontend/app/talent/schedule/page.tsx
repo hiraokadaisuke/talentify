@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { getTalentSchedule, type TalentSchedule } from '@/utils/getTalentSchedule'
 import { toast } from 'sonner'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
 export default function SchedulePage() {
   const [items, setItems] = useState<TalentSchedule[]>([])
@@ -43,7 +44,7 @@ export default function SchedulePage() {
               className='flex justify-between items-center border rounded px-4 py-2'
             >
               <div>
-                <p className='font-medium'>{item.date}</p>
+                <p className='font-medium'>{formatJaDateTimeWithWeekday(item.date)}</p>
                 {item.store_name && (
                   <p className='text-xs text-gray-500'>店舗: {item.store_name}</p>
                 )}
