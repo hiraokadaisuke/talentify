@@ -290,7 +290,7 @@ export default function TalentOfferDetailPage() {
               />
             </div>
           )}
-          <div className="text-lg font-bold">{offer.store_name ?? '店舗名不明'}</div>
+          {offer.store_name && <div className="text-lg font-bold">{offer.store_name}</div>}
           {offer.store_address && (
             <div className="text-sm text-muted-foreground">{offer.store_address}</div>
           )}

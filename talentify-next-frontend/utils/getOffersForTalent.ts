@@ -29,7 +29,7 @@ export async function getOffersForTalent() {
 
   const { data, error } = await supabase
     .from('offers')
-    .select('id, store_id, created_at, date, status, payments(status,paid_at), store:store_id(store_name)')
+    .select('id, store_id, created_at, date, status, payments(status,paid_at), stores(store_name)')
     .eq('talent_id', talent.id)
     .order('created_at', { ascending: false })
 
@@ -41,7 +41,7 @@ export async function getOffersForTalent() {
   return (data ?? []).map((o: any) => ({
     id: o.id,
     store_id: o.store_id,
-    store_name: o.store?.store_name ?? null,
+    store_name: o.stores?.store_name ?? null,
     created_at: o.created_at,
     date: o.date,
     status: o.status,

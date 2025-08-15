@@ -37,7 +37,7 @@ export async function getTalentDashboardData() {
   const { data: scheduleData } = talentId
     ? await supabase
         .from('offers')
-        .select('id, date, time_range, store:store_id(store_name)')
+        .select('id, date, time_range, stores(store_name)')
         .eq('talent_id', talentId)
         .eq('status', 'confirmed')
         .order('date', { ascending: true })
@@ -45,7 +45,7 @@ export async function getTalentDashboardData() {
 
   const schedule: ScheduleItem[] = (scheduleData ?? []).map((d: any) => ({
     date: d.date,
-    performer: d.store?.store_name ?? '',
+    performer: d.stores?.store_name ?? '',
     status: 'confirmed',
     href: `/talent/offers/${d.id}`,
   }))
