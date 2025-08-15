@@ -31,7 +31,7 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
 
   const { data, error } = await supabase
     .from('offers')
-    .select('id, date, time_range, store:store_id(store_name)')
+    .select('id, date, time_range, stores(store_name)')
     .eq('talent_id', talent.id)
     .eq('status', 'confirmed')
     .order('date', { ascending: true })
@@ -47,6 +47,6 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
     id: o.id,
     date: o.date,
     time_range: o.time_range,
-    store_name: o.store?.store_name ?? null,
+    store_name: o.stores?.store_name ?? null,
   }))
 }
