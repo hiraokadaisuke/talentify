@@ -9,8 +9,9 @@ export type Offer = {
   user_id: string
   store_id: string
   talent_id: string
-  message: string
+  talent_name: string | null
   created_at: string | null
+  date: string | null
   status: string | null
   paid?: boolean | null
   paid_at?: string | null
@@ -33,7 +34,7 @@ export async function getOffersForStore() {
   const { data, error } = await supabase
     .from('offers')
     .select(
-      'id,user_id,store_id,talent_id,message,created_at,status,payments(id,status,paid_at)'
+      'id,user_id,store_id,talent_id,date,created_at,status,payments(id,status,paid_at),talents(stage_name)'
     )
     .eq('store_id', store.id)
     .order('created_at', { ascending: false })
@@ -48,8 +49,9 @@ export async function getOffersForStore() {
     user_id: o.user_id,
     store_id: o.store_id,
     talent_id: o.talent_id,
-    message: o.message,
+    talent_name: o.talents?.stage_name ?? null,
     created_at: o.created_at,
+    date: o.date,
     status: o.status,
     paid: o.payments?.status === 'completed',
     paid_at: o.payments?.paid_at ?? null,

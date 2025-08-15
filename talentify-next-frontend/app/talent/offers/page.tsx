@@ -1,137 +1,153 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useEffect, useState, useMemo } from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { getOffersForTalent, TalentOffer } from '@/utils/getOffersForTalent'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { ListSkeleton } from '@/components/ui/skeleton'
+import { Input } from '@/components/ui/input'
+import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
-import { format, isBefore, parseISO, addDays, isValid } from 'date-fns'
+import { formatJaWeekday } from '@/utils/formatJaWeekday'
 
-type Offer = {
-  id: string
-  date: string
-  message: string
-  status: string | null
-  respond_deadline: string | null
-  paid?: boolean | null
+const statusLabels: Record<string, string> = {
+  pending: '保留中',
+  confirmed: '承諾済',
+  rejected: '拒否',
+  completed: '来店完',
+  expired: '期限切れ',
+}
+
+const statusVariants: Record<string, Parameters<typeof Badge>[0]['variant']> = {
+  pending: 'secondary',
+  confirmed: 'default',
+  rejected: 'destructive',
+  completed: 'success',
+  expired: 'secondary',
 }
 
 export default function TalentOffersPage() {
-  const supabase = useMemo(() => createClient(), [])
-  const [offers, setOffers] = useState<Offer[]>([])
+  const [offers, setOffers] = useState<TalentOffer[]>([])
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [sortKey, setSortKey] = useState<'created_at' | 'date'>('created_at')
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
-    const fetchOffers = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) {
-        setLoading(false)
-        return
-      }
-
-      const { data: talentRows, error: talentError } = (await supabase
-        .from('talents' as any)
-        .select('id')
-        .eq('user_id', user.id)) as any
-
-      if (talentError || !talentRows || talentRows.length === 0) {
-        setOffers([])
-        setLoading(false)
-        return
-      }
-      const talentId = (talentRows[0] as { id: string }).id
-
-      const { data, error } = await supabase
-        .from('offers' as any)
-        .select('id, date, message, status, respond_deadline, payments(status,paid_at)')
-        .eq('talent_id', talentId)
-
-      if (error) {
-        console.error('Error fetching offers:', error)
-      } else {
-        setOffers(
-          (data || []).map((o: any) => ({
-            id: o.id,
-            date: o.date,
-            message: o.message,
-            status: o.status,
-            respond_deadline: o.respond_deadline,
-            paid: o.payments?.status === 'completed',
-          }))
-        )
-      }
+    const load = async () => {
+      const data = await getOffersForTalent()
+      setOffers(data)
       setLoading(false)
     }
+    load()
+  }, [])
 
-    fetchOffers()
-  }, [supabase])
+  const filtered = offers
+    .filter(o => (statusFilter === 'all' ? true : o.status === statusFilter))
+    .filter(o => (o.store_name ?? '').toLowerCase().includes(search.toLowerCase()))
 
-  const statusMap: Record<string, { label: string; className?: string }> = {
-    pending: { label: '対応待ち', className: 'bg-yellow-500 text-white' },
-    confirmed: { label: '承諾済み', className: 'bg-gray-400 text-white' },
-    rejected: { label: '辞退済み', className: 'bg-gray-400 text-white' },
-    completed: { label: '来店完了（レビュー投稿済）', className: 'bg-green-600 text-white' },
-  }
+  const sorted = [...filtered].sort((a, b) => {
+    const aVal = a[sortKey] ? new Date(a[sortKey]!).getTime() : 0
+    const bVal = b[sortKey] ? new Date(b[sortKey]!).getTime() : 0
+    return bVal - aVal
+  })
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-xl font-bold">受信したオファー一覧</h1>
-      {loading ? (
-        <ListSkeleton count={3} />
-      ) : offers.length === 0 ? (
-        <EmptyState title="まだオファーがありません" />
-      ) : (
-        <ul className="space-y-2">
-          {offers.map(offer => {
-            let deadline: string | null = offer.respond_deadline
-            const baseDate = offer.date ? parseISO(offer.date) : null
-            if (!deadline && baseDate && isValid(baseDate)) {
-              deadline = format(addDays(baseDate, 3), 'yyyy-MM-dd')
-            }
-            let isExpired = false
-            if (deadline) {
-              const parsedDeadline = parseISO(deadline)
-              if (isValid(parsedDeadline)) {
-                isExpired = isBefore(parsedDeadline, new Date())
-              }
-            }
-            const statusInfo = statusMap[offer.status ?? 'pending']
+    <main className="p-4 md:p-6 space-y-4">
+      <h1 className="text-xl font-bold">受信オファー一覧</h1>
+      <div className="flex flex-wrap gap-2 text-sm items-center">
+        <select
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          className="border rounded p-1"
+        >
+          <option value="all">すべて</option>
+          <option value="pending">保留中</option>
+          <option value="confirmed">承諾済</option>
+          <option value="rejected">拒否</option>
+          <option value="completed">来店完</option>
+        </select>
+        <select
+          value={sortKey}
+          onChange={e => setSortKey(e.target.value as 'created_at' | 'date')}
+          className="border rounded p-1"
+        >
+          <option value="created_at">送信日</option>
+          <option value="date">来店日</option>
+        </select>
+        <Input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="検索"
+          className="w-40"
+        />
+      </div>
 
-            return (
-              <li key={offer.id}>
-                <Card>
-                  <CardContent className="space-y-2 p-4">
-                    <div className="flex items-center justify-between">
-                      <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
-                      <span className={isExpired ? 'text-red-600 text-sm' : 'text-sm'}>
-                        期限: {deadline ?? '-'}
-                      </span>
-                    </div>
-                    <div className="text-base font-medium">{offer.message}</div>
-                    <div className="text-sm">支払い状況：{offer.paid ? '済' : '未'}</div>
-                    <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="secondary" disabled={offer.status !== 'pending'}>
-                        辞退
-                      </Button>
-                      <Button size="sm" disabled={offer.status !== 'pending'}>
-                        承諾
-                      </Button>
-                      <Link href={`/talent/offers/${offer.id}`} className="text-sm underline ml-2">
+      {loading ? (
+        <TableSkeleton rows={3} />
+      ) : sorted.length === 0 ? (
+        <EmptyState title="対象のオファーがありません" />
+      ) : (
+        <>
+          <div className="hidden md:block overflow-x-auto">
+            <Table>
+              <TableHeader className="sticky top-0 bg-white">
+                <TableRow className="text-sm">
+                  <TableHead className="w-1/4">店舗名</TableHead>
+                  <TableHead className="w-1/6">オファー送信日</TableHead>
+                  <TableHead className="w-1/6">来店日</TableHead>
+                  <TableHead className="w-1/6">支払い状況</TableHead>
+                  <TableHead className="w-1/6">状態</TableHead>
+                  <TableHead className="w-1/12">操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sorted.map(o => (
+                  <TableRow key={o.id} className="h-10">
+                    <TableCell className="truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</TableCell>
+                    <TableCell>{formatJaWeekday(o.created_at ?? '')}</TableCell>
+                    <TableCell>{o.date ? formatJaWeekday(o.date) : '未定'}</TableCell>
+                    <TableCell>{o.paid ? '済' : '未'}</TableCell>
+                    <TableCell>
+                      <Badge variant={statusVariants[o.status ?? 'pending']}>
+                        {statusLabels[o.status ?? 'pending']}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Link href={`/talent/offers/${o.id}`} className="text-blue-600 underline">
                         詳細
                       </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              </li>
-            )
-          })}
-        </ul>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="md:hidden space-y-2">
+            {sorted.map(o => (
+              <div key={o.id} className="border rounded p-2 space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</span>
+                  <Badge variant={statusVariants[o.status ?? 'pending']}>
+                    {statusLabels[o.status ?? 'pending']}
+                  </Badge>
+                </div>
+                <div className="text-sm space-y-0.5">
+                  <div>オファー送信日: {formatJaWeekday(o.created_at ?? '')}</div>
+                  <div>来店日: {o.date ? formatJaWeekday(o.date) : '未定'}</div>
+                  <div>支払い状況: {o.paid ? '済' : '未'}</div>
+                </div>
+                <div className="flex justify-end">
+                  <Link href={`/talent/offers/${o.id}`} className="text-blue-600 underline text-sm">
+                    詳細
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
-    </div>
+    </main>
   )
 }
