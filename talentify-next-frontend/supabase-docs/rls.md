@@ -92,6 +92,11 @@ WITH CHECK (
 - ストアオーナーのみ閲覧可能 (`SELECT`): USING `(auth.uid() = user_id)`
 - ストアオーナーのみ更新可能 (`UPDATE`): USING `(auth.uid() = user_id)`, CHECK `(auth.uid() = user_id)`
 
+### store_profiles
+- ストアオーナーのみ登録可能 (`INSERT`): CHECK `EXISTS (SELECT 1 FROM stores s WHERE s.id = store_id AND s.user_id = auth.uid())`
+- ストアオーナーのみ閲覧可能 (`SELECT`): USING `EXISTS (SELECT 1 FROM stores s WHERE s.id = store_profiles.store_id AND s.user_id = auth.uid())`
+- ストアオーナーのみ更新可能 (`UPDATE`): USING `EXISTS (SELECT 1 FROM stores s WHERE s.id = store_profiles.store_id AND s.user_id = auth.uid())`, CHECK `EXISTS (SELECT 1 FROM stores s WHERE s.id = store_profiles.store_id AND s.user_id = auth.uid())`
+
 ### talents
 - タレント本人のみ登録可能 (`INSERT`): CHECK `(auth.uid() = user_id)`
 - ストアは公開済みでプロフィールが完成したタレントを閲覧可能 (`SELECT`): USING `(is_profile_complete = true)`
