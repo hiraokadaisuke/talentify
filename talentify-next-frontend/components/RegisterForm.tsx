@@ -15,7 +15,7 @@ export default function RegisterForm() {
   const searchParams = useSearchParams()
   const roleParam = searchParams.get('role')
   const initialRole =
-    roleParam === 'talent' || roleParam === 'store' || roleParam === 'company'
+    roleParam === 'talent' || roleParam === 'store'
       ? roleParam
       : null
 
