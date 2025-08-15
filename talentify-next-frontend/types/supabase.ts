@@ -536,7 +536,14 @@ export type Database = {
           invoice_url?: string | null
           contract_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'offers_store_id_fkey',
+            columns: ['store_id'],
+            referencedRelation: 'stores',
+            referencedColumns: ['id'],
+          },
+        ]
       }
     }
     Views: {
