@@ -20,6 +20,7 @@ import {
   Star,
   Wallet,
   Bell,
+  Settings,
   Search,
   LogOut,
   ChevronLeft,
@@ -39,7 +40,8 @@ const navItems = {
     { href: "/talent/reviews", label: "評価・レビュー", icon: Star },
     { href: "/talent/payments", label: "ギャラ管理", icon: Wallet },
     { href: "/talent/invoices", label: "請求管理", icon: Mail },
-    { href: "/talent/notifications", label: "通知・設定", icon: Bell },
+    { href: "/talent/notifications", label: "通知", icon: Bell },
+    { href: "/talent/settings", label: "設定", icon: Settings },
   ],
   store: [
     { href: "/search", label: "演者を探す", icon: Search },
