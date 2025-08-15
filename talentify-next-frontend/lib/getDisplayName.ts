@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 
 export async function getDisplayName(role: 'talent' | 'store') {
-  const supabase = await createClient()
+  const supabase = createClient()
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -10,27 +10,27 @@ export async function getDisplayName(role: 'talent' | 'store') {
 
   if (role === 'talent') {
     const { data: talent } = await supabase
-      .from('talents' as any)
+      .from('talents')
       .select('stage_name')
       .eq('user_id', user.id)
-      .maybeSingle()
-    if (talent?.stage_name) return talent.stage_name as string
+      .maybeSingle<{ stage_name: string | null }>()
+    if (talent?.stage_name) return talent.stage_name
   } else if (role === 'store') {
     const { data: store } = await supabase
-      .from('stores' as any)
+      .from('stores')
       .select('store_name')
       .eq('user_id', user.id)
-      .maybeSingle()
-    if (store?.store_name) return store.store_name as string
+      .maybeSingle<{ store_name: string | null }>()
+    if (store?.store_name) return store.store_name
   }
 
   const { data: profile } = await supabase
     .from('profiles' as any)
     .select('display_name')
     .eq('id', user.id)
-    .maybeSingle()
+    .maybeSingle<{ display_name: string | null }>()
 
-  if (profile?.display_name) return profile.display_name as string
+  if (profile?.display_name) return profile.display_name
   return user.email
 }
 
