@@ -1,4 +1,5 @@
-// DO NOT fetch names/ids on the client. Use resolveActorContext() in layouts.
+'use client'
+
 import Link from 'next/link'
 import { Menu } from 'lucide-react'
 import Sidebar from './Sidebar'

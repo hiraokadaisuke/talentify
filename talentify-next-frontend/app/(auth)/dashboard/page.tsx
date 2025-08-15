@@ -14,6 +14,8 @@ export default function DashboardRedirectPage() {
       router.replace(isSetupComplete ? '/store/dashboard' : '/store/edit')
     } else if (role === 'talent') {
       router.replace(isSetupComplete ? '/talent/dashboard' : '/talent/edit')
+    } else if (role === 'company') {
+      router.replace(isSetupComplete ? '/company/dashboard' : '/company/edit')
     } else {
       router.replace('/')
     }

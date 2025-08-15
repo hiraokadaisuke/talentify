@@ -3,7 +3,7 @@ import Header from "@/components/Header"
 import Sidebar from "@/components/Sidebar"
 import { createClient } from "@/lib/supabase/server"
 import { SupabaseProvider } from "@/lib/supabase/provider"
-import { resolveActorContext } from "@/lib/resolveActorContext"
+import { getDisplayName } from "@/lib/getDisplayName"
 
 export const metadata = {
   title: "Talentify | タレント",
@@ -14,9 +14,9 @@ export default async function TalentLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createClient()
   let session = null
   try {
+    const supabase = createClient()
     const {
       data: { session: s },
     } = await supabase.auth.getSession()
@@ -25,14 +25,14 @@ export default async function TalentLayout({
     console.error("TalentLayout session error", e)
   }
 
-  const ctx = await resolveActorContext()
+  const displayName = await getDisplayName("talent")
 
   return (
     <html lang="ja">
       <body className="font-sans antialiased bg-white text-black">
         <SupabaseProvider session={session}>
           {/* 上部固定ヘッダー */}
-          <Header sidebarRole="talent" displayName={ctx.displayName} />
+          <Header sidebarRole="talent" displayName={displayName || "ユーザー"} />
 
           {/* ヘッダー高さ分の余白を考慮して下部を分割 */}
           <div className="flex h-[calc(100vh-64px)] pt-16">
