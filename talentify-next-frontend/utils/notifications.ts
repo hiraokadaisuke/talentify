@@ -47,6 +47,21 @@ export async function markNotificationRead(id: string) {
     .eq('id', id)
 }
 
+export async function markNotificationUnread(id: string) {
+  await supabase
+    .from('notifications')
+    .update({ is_read: false, read_at: null })
+    .eq('id', id)
+}
+
+export async function markAllNotificationsRead(ids: string[]) {
+  if (ids.length === 0) return
+  await supabase
+    .from('notifications')
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .in('id', ids)
+}
+
 export async function addNotification(payload: AddNotificationPayload) {
   try {
     const res = await fetch(`${API_BASE}/api/notifications`, {
