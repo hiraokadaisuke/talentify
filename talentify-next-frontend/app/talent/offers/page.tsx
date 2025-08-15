@@ -104,7 +104,7 @@ export default function TalentOffersPage() {
               <TableBody>
                 {sorted.map(o => (
                   <TableRow key={o.id} className="h-10">
-                    <TableCell className="truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</TableCell>
+                    <TableCell className="truncate" title={o.store_name ?? ''}>{o.store_name ?? '店舗不明'}</TableCell>
                     <TableCell>{formatJaDateTimeWithWeekday(o.created_at ?? '')}</TableCell>
                     <TableCell>{o.date ? formatJaDateTimeWithWeekday(o.date) : '未定'}</TableCell>
                     <TableCell>{o.paid ? '済' : '未'}</TableCell>
@@ -128,7 +128,7 @@ export default function TalentOffersPage() {
             {sorted.map(o => (
               <div key={o.id} className="border rounded p-2 space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</span>
+                  <span className="font-medium truncate" title={o.store_name ?? ''}>{o.store_name ?? '店舗不明'}</span>
                   <Badge variant={statusVariants[o.status ?? 'pending']}>
                     {statusLabels[o.status ?? 'pending']}
                   </Badge>
