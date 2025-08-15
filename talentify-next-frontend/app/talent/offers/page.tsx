@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
-import { formatJaWeekday } from '@/utils/formatJaWeekday'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
@@ -105,8 +105,8 @@ export default function TalentOffersPage() {
                 {sorted.map(o => (
                   <TableRow key={o.id} className="h-10">
                     <TableCell className="truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</TableCell>
-                    <TableCell>{formatJaWeekday(o.created_at ?? '')}</TableCell>
-                    <TableCell>{o.date ? formatJaWeekday(o.date) : '未定'}</TableCell>
+                    <TableCell>{formatJaDateTimeWithWeekday(o.created_at ?? '')}</TableCell>
+                    <TableCell>{o.date ? formatJaDateTimeWithWeekday(o.date) : '未定'}</TableCell>
                     <TableCell>{o.paid ? '済' : '未'}</TableCell>
                     <TableCell>
                       <Badge variant={statusVariants[o.status ?? 'pending']}>
@@ -134,8 +134,8 @@ export default function TalentOffersPage() {
                   </Badge>
                 </div>
                 <div className="text-sm space-y-0.5">
-                  <div>オファー送信日: {formatJaWeekday(o.created_at ?? '')}</div>
-                  <div>来店日: {o.date ? formatJaWeekday(o.date) : '未定'}</div>
+                  <div>オファー送信日: {formatJaDateTimeWithWeekday(o.created_at ?? '')}</div>
+                  <div>来店日: {o.date ? formatJaDateTimeWithWeekday(o.date) : '未定'}</div>
                   <div>支払い状況: {o.paid ? '済' : '未'}</div>
                 </div>
                 <div className="flex justify-end">

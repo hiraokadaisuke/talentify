@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { format, isBefore, parseISO } from 'date-fns'
-import ja from 'date-fns/locale/ja'
+import { isBefore, parseISO } from 'date-fns'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 import { addNotification } from '@/utils/notifications'
 import { toast } from 'sonner'
 
@@ -297,7 +297,7 @@ export default function TalentOfferDetailPage() {
         </CardContent>
       </Card>
 
-      {invoice ? (
+          {invoice ? (
         <>
           <Card>
             <CardHeader>
@@ -308,7 +308,7 @@ export default function TalentOfferDetailPage() {
                 <a href={invoice.invoice_url} target='_blank' className='text-blue-600 underline'>請求書を開く</a>
               ) : (
                 <>
-                  <div>請求日：{offer.invoice_date}</div>
+                  <div>請求日：{formatJaDateTimeWithWeekday(offer.invoice_date ?? '')}</div>
                   <div>金額：¥{(offer.invoice_amount || 0).toLocaleString()}（税込）</div>
                   <div>
                     振込先：{offer.bank_name} {offer.bank_branch} {offer.bank_account_number}{' '}
@@ -319,7 +319,7 @@ export default function TalentOfferDetailPage() {
             </CardContent>
           </Card>
           {offer.paid && (
-            <div className='text-green-600 text-sm'>✅ お支払いが完了しました（{format(parseISO(offer.paid_at || ''), 'yyyy年M月d日', { locale: ja })}）</div>
+            <div className='text-green-600 text-sm'>✅ お支払いが完了しました（{formatJaDateTimeWithWeekday(offer.paid_at || '')}）</div>
           )}
         </>
       ) : offer.status === 'confirmed' && offer.agreed ? (
@@ -388,16 +388,16 @@ export default function TalentOfferDetailPage() {
         <CardContent className="space-y-2 text-sm">
           <div>オファーID: {offer.id}</div>
           {offer.created_at && (
-            <div>作成日: {format(parseISO(offer.created_at), 'yyyy-MM-dd')}</div>
+            <div>作成日: {formatJaDateTimeWithWeekday(offer.created_at)}</div>
           )}
           <Badge className={statusInfo.className}>{statusInfo.label}</Badge>
           {deadline && (
             <div className={deadlinePassed ? 'text-red-600' : ''}>
-              要返信: {format(parseISO(deadline), 'yyyy-MM-dd')}
+              要返信: {formatJaDateTimeWithWeekday(deadline)}
             </div>
           )}
           {offer.event_name && <div>イベント名: {offer.event_name}</div>}
-        <div>訪問日: {format(parseISO(offer.date), 'yyyy-MM-dd')}</div>
+        <div>訪問日: {formatJaDateTimeWithWeekday(offer.date)}</div>
           {timeRange && <div>時間帯: {timeRange}</div>}
           {typeof offer.reward === 'number' && (
             <div>報酬: {offer.reward.toLocaleString()}円</div>

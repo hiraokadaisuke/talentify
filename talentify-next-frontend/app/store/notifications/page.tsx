@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { getNotifications, markNotificationRead, NotificationRow } from '@/utils/notifications'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
 export default function StoreNotificationsPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
@@ -31,7 +32,7 @@ export default function StoreNotificationsPage() {
         {items.map((n) => (
           <li key={n.id} className={`p-3 border rounded hover:bg-gray-50 cursor-pointer ${!n.is_read ? 'font-semibold' : ''}`}
               onClick={() => handleClick(n, linkFor(n))}>
-            <span>[{n.title}]（{n.created_at.slice(0,10)}）→</span>
+            <span>[{n.title}]（{formatJaDateTimeWithWeekday(n.created_at)}）→</span>
           </li>
         ))}
       </ul>

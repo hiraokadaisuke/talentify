@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
 const statusLabels: Record<string, string> = {
   draft: '下書き',
@@ -47,7 +48,7 @@ export default function StoreInvoicesPage() {
           <TableBody>
             {invoices.map(inv => (
               <TableRow key={inv.id}>
-                <TableCell>{inv.created_at?.slice(0,10)}</TableCell>
+                <TableCell>{formatJaDateTimeWithWeekday(inv.created_at ?? '')}</TableCell>
                 <TableCell>¥{inv.amount.toLocaleString()}</TableCell>
                 <TableCell>{statusLabels[inv.status]}</TableCell>
                 <TableCell>

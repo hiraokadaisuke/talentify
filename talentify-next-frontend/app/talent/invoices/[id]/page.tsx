@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
+import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
 const supabase = createClient()
 
@@ -63,7 +64,7 @@ export default function TalentInvoiceDetail() {
           </TableRow>
           <TableRow>
             <TableCell className='font-medium'>支払期限</TableCell>
-            <TableCell>{invoice.due_date}</TableCell>
+            <TableCell>{formatJaDateTimeWithWeekday(invoice.due_date)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell className='font-medium'>合計金額</TableCell>
