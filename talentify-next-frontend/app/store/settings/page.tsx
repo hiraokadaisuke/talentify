@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, type ReactNode } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from '@/components/ui/input'
@@ -238,7 +238,7 @@ export default function StoreSettingsPage() {
     </SectionCard>
   )
 
-  let content: JSX.Element
+  let content: ReactNode
   if (tab === 'account') {
     content = <AccountSection />
   } else if (tab === 'notifications') {
