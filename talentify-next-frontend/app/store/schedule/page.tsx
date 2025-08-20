@@ -113,7 +113,7 @@ export default function StoreSchedulePage() {
       } = await supabase.auth.getUser()
       if (!user) return
 
-      const statusesQuery = ['confirmed', 'cancelled', 'no_show']
+      const statusesQuery = ['confirmed', 'canceled', 'no_show']
       if (includeCompleted) statusesQuery.push('completed')
 
       const { data: store } = await supabase

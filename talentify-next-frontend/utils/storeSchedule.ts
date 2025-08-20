@@ -27,6 +27,7 @@ const RAW_STATUS_MAP: Record<string, DisplayStatus> = {
   pending: 'scheduled',
   completed: 'completed',
   cancelled: 'cancelled',
+  canceled: 'cancelled',
   no_show: 'no_show',
 }
 
