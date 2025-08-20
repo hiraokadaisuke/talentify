@@ -30,7 +30,9 @@ export async function getReviewsForTalent() {
 
   const { data, error } = await supabase
     .from('reviews' as any)
-    .select('id, rating, category_ratings, comment, created_at, store:store_id(store_name), offers(date)')
+    .select(
+      'id, rating, category_ratings, comment, created_at, store:stores(store_name), offers(date)'
+    )
     .eq('talent_id', talent.id)
     .order('created_at', { ascending: false })
 
