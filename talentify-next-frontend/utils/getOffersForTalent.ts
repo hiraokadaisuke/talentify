@@ -22,7 +22,9 @@ const offerRowSchema = z.object({
   date: z.string().nullable(),
   status: z.string().nullable(),
   payments: z
-    .object({ status: z.string().nullable(), paid_at: z.string().nullable() })
+    .array(
+      z.object({ status: z.string().nullable(), paid_at: z.string().nullable() })
+    )
     .nullable(),
   stores: z
     .object({
@@ -72,6 +74,6 @@ export async function getOffersForTalent() {
     created_at: o.created_at,
     date: o.date,
     status: o.status,
-    paid: o.payments?.status === 'completed',
+    paid: o.payments?.[0]?.status === 'completed',
   })) as TalentOffer[]
 }
