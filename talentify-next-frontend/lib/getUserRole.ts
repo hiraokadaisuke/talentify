@@ -20,7 +20,7 @@ export async function getUserRoleInfo(
     supabase
       .from('talents' as any)
       .select('stage_name, is_setup_complete')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .maybeSingle(),
     supabase
       .from('companies' as any)
@@ -40,7 +40,7 @@ export async function getUserRoleInfo(
   if (talent) {
     return {
       role: 'talent',
-      name: (talent as any).stage_name ?? 'タレント',
+      name: (talent as any).stage_name ?? null,
       isSetupComplete: (talent as any).is_setup_complete ?? false,
     }
   }

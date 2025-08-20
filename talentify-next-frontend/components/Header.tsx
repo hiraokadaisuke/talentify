@@ -27,7 +27,22 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
       }
 
       const { name } = await getUserRoleInfo(supabase, user.id)
-      setUserName(name ?? 'ユーザー')
+      let displayName = name
+
+      if (!displayName) {
+        const { data: profile } = await supabase
+          .from('profiles' as any)
+          .select('display_name')
+          .eq('id', user.id)
+          .maybeSingle()
+        displayName = (profile as any)?.display_name ?? null
+      }
+
+      if (!displayName) {
+        displayName = user.email?.split('@')[0] ?? 'ユーザー'
+      }
+
+      setUserName(displayName)
       setIsLoading(false)
     }
 
