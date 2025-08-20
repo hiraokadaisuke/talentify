@@ -550,6 +550,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_reviews_for_current_talent: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          review_id: string
+          created_at: string
+          rating: number
+          comment: string | null
+          category_ratings: Json | null
+          store_id: string
+          store_name: string | null
+        }[]
+      },
       talent_update_offer_status: {
         Args: {
           p_offer_id: string
