@@ -2,51 +2,33 @@
 
 import { createClient } from '@/utils/supabase/client'
 
-const supabase = createClient()
-
 export type TalentReview = {
   id: string
-  store_name: string | null
-  date: string | null
+  created_at: string
   rating: number
-  category_ratings: any | null
   comment: string | null
+  category_ratings: any | null
+  store: {
+    id: string
+    name: string | null
+  }
 }
 
-export async function getReviewsForTalent() {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return [] as TalentReview[]
+export async function getReviewsForTalent(): Promise<TalentReview[]> {
+  const supabase = createClient()
 
-  const { data: talent, error: talentError } = await supabase
-    .from('talents')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
+  const { data, error } = await supabase.rpc('get_reviews_for_current_talent')
+  if (error) throw error
 
-  if (talentError || !talent) {
-    console.error('failed to fetch talent:', talentError)
-    return [] as TalentReview[]
-  }
-
-  const { data, error } = await supabase
-    .from('reviews' as any)
-    .select(
-      'id, rating, category_ratings, comment, created_at, store:stores(store_name), offers(date)'
-    )
-    .eq('talent_id', talent.id)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('failed to fetch reviews:', error)
-    return [] as TalentReview[]
-  }
-
-  return (data || []).map((r: any) => ({
-    id: r.id as string,
-    store_name: r.store?.store_name ?? null,
-    date: r.offers?.date ?? null,
+  return (data ?? []).map((r: any) => ({
+    id: r.review_id as string,
+    created_at: r.created_at as string,
     rating: r.rating as number,
-    category_ratings: r.category_ratings,
-    comment: r.comment,
-  })) as TalentReview[]
+    comment: r.comment ?? null,
+    category_ratings: r.category_ratings ?? null,
+    store: {
+      id: r.store_id as string,
+      name: r.store_name ?? null,
+    },
+  }))
 }
