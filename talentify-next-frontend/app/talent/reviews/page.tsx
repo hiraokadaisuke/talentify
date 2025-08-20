@@ -31,7 +31,13 @@ export default function TalentReviewPage() {
           <Card key={review.id}>
             <CardHeader>
               <CardTitle className="text-base">
-                {review.store_name ?? '店舗不明'}（{review.date ?? '---'}）
+                {review.store.name ?? '店舗不明'}（
+                {new Date(review.created_at).toLocaleDateString('ja-JP', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                })}
+                ）
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
