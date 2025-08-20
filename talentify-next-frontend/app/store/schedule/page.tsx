@@ -70,6 +70,13 @@ const STATUS_BADGE: Record<
   no_show: 'secondary',
 }
 
+const STATUS_CLASS: Record<keyof typeof STATUS_LABEL, string> = {
+  scheduled: '!text-blue-600',
+  completed: '!text-green-600',
+  cancelled: '!text-red-600',
+  no_show: '!text-orange-600',
+}
+
 export default function StoreSchedulePage() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
@@ -158,27 +165,68 @@ export default function StoreSchedulePage() {
     () => filterEvents(events, statuses, debouncedQ),
     [events, statuses, debouncedQ]
   )
+  const eventsByDate = useMemo(() => {
+    const map: Record<string, StoreScheduleEvent[]> = {}
+    filtered.forEach((e) => {
+      const key = format(e.start, 'yyyy-MM-dd')
+      ;(map[key] ||= []).push(e)
+    })
+    Object.values(map).forEach((arr) =>
+      arr.sort((a, b) => a.start.getTime() - b.start.getTime())
+    )
+    return map
+  }, [filtered])
+
+  type CalendarEvent = StoreScheduleEvent & { isMore?: boolean }
+
+  const calendarEvents: CalendarEvent[] = useMemo(() => {
+    const result: CalendarEvent[] = []
+    Object.entries(eventsByDate).forEach(([dateStr, evs]) => {
+      const show = evs.slice(0, 2)
+      result.push(...show)
+      const more = evs.length - show.length
+      if (more > 0) {
+        const date = new Date(dateStr)
+        result.push({
+          title: `+${more}`,
+          start: date,
+          end: date,
+          talentId: '',
+          offerId: '',
+          talentName: '',
+          status: 'scheduled',
+          isMore: true,
+        })
+      }
+    })
+    return result
+  }, [eventsByDate])
 
   const dayPropGetter = (date: Date) => {
     const isToday = isSameDay(date, new Date())
     const dow = date.getDay()
-    if (isToday) return { className: 'bg-blue-50' }
-    if (dow === 0 || dow === 6) return { className: 'bg-gray-50' }
-    return {}
+    const key = format(date, 'yyyy-MM-dd')
+    const list = eventsByDate[key] || []
+    const title = list
+      .map((e) => `${e.talentName} (${STATUS_LABEL[e.status]})`)
+      .join('\n')
+    let className = ''
+    if (isToday) className = 'bg-blue-50'
+    else if (dow === 0 || dow === 6) className = 'bg-gray-50'
+    return { className, title: title || undefined }
   }
 
-  const EventComponent = ({ event }: { event: StoreScheduleEvent }) => (
-    <div className="bg-white shadow-sm rounded p-1 text-xs space-y-1 min-h-[44px]">
-      <Badge variant={STATUS_BADGE[event.status]} className="mb-1">
-        {STATUS_LABEL[event.status]}
-      </Badge>
-      <div>{event.talentName}</div>
-      {event.startTime && <div>{event.startTime}</div>}
-      {event.notes && (
-        <div className="truncate text-[10px] text-gray-500">{event.notes}</div>
-      )}
-    </div>
-  )
+  const EventComponent = ({ event }: { event: CalendarEvent }) => {
+    if (event.isMore) return <span className="truncate">{event.title}</span>
+    return (
+      <span
+        className="truncate"
+        title={`${event.talentName} (${STATUS_LABEL[event.status]})`}
+      >
+        {event.talentName} ({STATUS_LABEL[event.status]})
+      </span>
+    )
+  }
 
   return (
     <main className="p-4">
@@ -278,7 +326,7 @@ export default function StoreSchedulePage() {
         toolbar={false}
         className="mx-auto w-[80%]"
         localizer={localizer}
-        events={filtered}
+        events={calendarEvents}
         startAccessor="start"
         endAccessor="end"
         views={[Views.MONTH]}
@@ -287,11 +335,34 @@ export default function StoreSchedulePage() {
         style={{ height: 480 }}
         components={{ event: EventComponent }}
         dayPropGetter={dayPropGetter}
-        eventPropGetter={() => ({ className: 'cursor-pointer' })}
-        onSelectEvent={(e) => setSelected(e as StoreScheduleEvent)}
+        eventPropGetter={(e) => {
+          const event = e as CalendarEvent
+          if (event.isMore)
+            return {
+              style: {
+                backgroundColor: 'transparent',
+                border: 'none',
+                padding: 0,
+                color: '#4b5563',
+              },
+              className: 'text-xs truncate',
+            }
+          return {
+            style: {
+              backgroundColor: 'transparent',
+              border: 'none',
+              padding: 0,
+            },
+            className: `cursor-pointer text-xs truncate ${STATUS_CLASS[event.status]}`,
+          }
+        }}
+        onSelectEvent={(e) => {
+          const event = e as CalendarEvent
+          if (event.isMore) return
+          setSelected(event)
+        }}
         selectable
         formats={{ weekdayFormat: 'eeeeee' }}
-        messages={{ showMore: (total) => `+他${total}件` }}
         onSelectSlot={(s) => {
           setSlot(s)
           setOfferModalOpen(true)
