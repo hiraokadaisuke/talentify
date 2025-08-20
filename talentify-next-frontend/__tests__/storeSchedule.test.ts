@@ -12,6 +12,7 @@ describe('store schedule utils', () => {
     expect(mapOfferStatus('confirmed')).toBe('scheduled')
     expect(mapOfferStatus('completed')).toBe('completed')
     expect(mapOfferStatus('cancelled')).toBe('cancelled')
+    expect(mapOfferStatus('canceled')).toBe('cancelled')
     expect(mapOfferStatus('no_show')).toBe('no_show')
     expect(mapOfferStatus('unknown')).toBe('scheduled')
   })
