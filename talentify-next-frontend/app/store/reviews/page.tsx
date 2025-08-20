@@ -37,7 +37,13 @@ export default function StoreReviewsPage() {
           <TableBody>
             {offers.map(o => (
               <TableRow key={o.id}>
-                <TableCell>{o.date}</TableCell>
+                <TableCell>
+                  {new Date(o.date).toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  })}
+                </TableCell>
                 <TableCell>{o.talent_name || o.talent_id}</TableCell>
                 <TableCell>
                   {o.reviewed ? (
