@@ -116,12 +116,19 @@ export default function StoreSchedulePage() {
       const statusesQuery = ['confirmed', 'cancelled', 'no_show']
       if (includeCompleted) statusesQuery.push('completed')
 
+      const { data: store } = await supabase
+        .from('stores')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+      if (!store) return
+
       const { data, error } = await supabase
         .from('offers')
         .select(
           'id, talent_id, date, status, start_time, notes, talents(stage_name)'
         )
-        .eq('user_id', user.id)
+        .eq('store_id', store.id)
         .in('status', statusesQuery)
 
       if (error) {
