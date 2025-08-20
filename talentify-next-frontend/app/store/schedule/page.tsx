@@ -7,7 +7,6 @@ import {
   Calendar as BigCalendar,
   dateFnsLocalizer,
   Views,
-  View,
 } from 'react-big-calendar'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
@@ -17,8 +16,6 @@ import ja from 'date-fns/locale/ja'
 import isSameDay from 'date-fns/isSameDay'
 import addMonths from 'date-fns/addMonths'
 import subMonths from 'date-fns/subMonths'
-import addWeeks from 'date-fns/addWeeks'
-import subWeeks from 'date-fns/subWeeks'
 import { createClient } from '@/utils/supabase/client'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import OfferModal from '@/components/modals/OfferModal'
@@ -97,11 +94,6 @@ export default function StoreSchedulePage() {
   }, [q])
 
   const [events, setEvents] = useState<StoreScheduleEvent[]>([])
-  const [view, setView] = useState<View>(() =>
-    typeof window !== 'undefined' && window.innerWidth < 768
-      ? Views.WEEK
-      : Views.MONTH
-  )
   const [date, setDate] = useState(new Date())
   const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
@@ -191,7 +183,7 @@ export default function StoreSchedulePage() {
   return (
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">スケジュール</h1>
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+      <div className="flex flex-wrap items-center gap-2 mb-2">
         <div className="flex items-center gap-2">
           <Button
             size="sm"
@@ -201,59 +193,29 @@ export default function StoreSchedulePage() {
           >
             今日
           </Button>
-          <Button
-            size="sm"
-            className="min-h-[44px]"
-            onClick={() =>
-              setDate(
-                view === Views.MONTH
-                  ? subMonths(date, 1)
-                  : subWeeks(date, 1)
-              )
-            }
-            aria-label="戻る"
-          >
-            戻る
-          </Button>
-          <Button
-            size="sm"
-            className="min-h-[44px]"
-            onClick={() =>
-              setDate(
-                view === Views.MONTH
-                  ? addMonths(date, 1)
-                  : addWeeks(date, 1)
-              )
-            }
-            aria-label="次へ"
-          >
-            次へ
-          </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex-1 flex items-center justify-center gap-2">
           <Button
             size="sm"
-            variant={view === Views.WEEK ? 'default' : 'outline'}
             className="min-h-[44px]"
-            onClick={() => setView(Views.WEEK)}
-            aria-label="週表示"
+            onClick={() => setDate(subMonths(date, 1))}
+            aria-label="前の月"
           >
-            週
-          </Button>
-          <Button
-            size="sm"
-            variant={view === Views.MONTH ? 'default' : 'outline'}
-            className="min-h-[44px]"
-            onClick={() => setView(Views.MONTH)}
-            aria-label="月表示"
-          >
-            月
+            ◀
           </Button>
           <span className="text-sm font-medium">
             {format(date, 'yyyy年M月')}
           </span>
+          <Button
+            size="sm"
+            className="min-h-[44px]"
+            onClick={() => setDate(addMonths(date, 1))}
+            aria-label="次の月"
+          >
+            ▶
+          </Button>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-auto">
           <Input
             type="search"
             placeholder="演者名検索"
@@ -319,9 +281,7 @@ export default function StoreSchedulePage() {
         events={filtered}
         startAccessor="start"
         endAccessor="end"
-        views={[Views.WEEK, Views.MONTH]}
-        view={view}
-        onView={(v) => setView(v)}
+        views={[Views.MONTH]}
         date={date}
         onNavigate={(d) => setDate(d)}
         style={{ height: 480 }}
