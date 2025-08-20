@@ -312,6 +312,9 @@ export default function StoreSchedulePage() {
         ))}
       </div>
       <BigCalendar
+        culture="ja"
+        toolbar={false}
+        className="mx-auto w-[80%]"
         localizer={localizer}
         events={filtered}
         startAccessor="start"
@@ -321,12 +324,14 @@ export default function StoreSchedulePage() {
         onView={(v) => setView(v)}
         date={date}
         onNavigate={(d) => setDate(d)}
-        style={{ height: 600 }}
+        style={{ height: 480 }}
         components={{ event: EventComponent }}
         dayPropGetter={dayPropGetter}
         eventPropGetter={() => ({ className: 'cursor-pointer' })}
         onSelectEvent={(e) => setSelected(e as StoreScheduleEvent)}
         selectable
+        formats={{ weekdayFormat: 'eeeeee' }}
+        messages={{ showMore: (total) => `+他${total}件` }}
         onSelectSlot={(s) => {
           setSlot(s)
           setOfferModalOpen(true)
