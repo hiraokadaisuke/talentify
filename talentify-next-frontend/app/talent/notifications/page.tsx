@@ -11,6 +11,7 @@ import {
 } from '@/utils/notifications'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 import { Button } from '@/components/ui/button'
+import { fetchStoreNamesForOffers } from '@/utils/storeName'
 
 const typeMap: Record<string, 'offer' | 'payment' | 'schedule' | 'other'> = {
   offer_created: 'offer',
@@ -22,9 +23,19 @@ const typeMap: Record<string, 'offer' | 'payment' | 'schedule' | 'other'> = {
 export default function TalentNotificationsPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
   const [filter, setFilter] = useState<'all' | 'offer' | 'payment' | 'schedule'>('all')
+  const [storeNames, setStoreNames] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
-    getNotifications().then(setItems)
+    const load = async () => {
+      const data = await getNotifications()
+      setItems(data)
+      const ids = data
+        .map(n => (n.data as any)?.offer_id)
+        .filter((id): id is string => !!id)
+      const nameMap = await fetchStoreNamesForOffers(ids)
+      setStoreNames(nameMap)
+    }
+    load()
   }, [])
 
   const handleClick = async (n: NotificationRow, href: string) => {
@@ -92,6 +103,9 @@ export default function TalentNotificationsPage() {
             <div className="flex justify-between items-center pl-4">
               <div>
                 <p className="font-medium">{n.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {n.data?.offer_id ? storeNames.get((n.data as any).offer_id) ?? '-' : '-'}
+                </p>
                 <p className="text-sm text-muted-foreground line-clamp-1">{n.body || '—'}</p>
               </div>
               <span className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
