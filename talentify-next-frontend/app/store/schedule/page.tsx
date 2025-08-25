@@ -70,13 +70,6 @@ const STATUS_BADGE: Record<
   no_show: 'secondary',
 }
 
-const STATUS_CLASS: Record<keyof typeof STATUS_LABEL, string> = {
-  scheduled: '!text-blue-600',
-  completed: '!text-green-600',
-  cancelled: '!text-red-600',
-  no_show: '!text-orange-600',
-}
-
 export default function StoreSchedulePage() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
@@ -215,7 +208,7 @@ export default function StoreSchedulePage() {
     const key = format(date, 'yyyy-MM-dd')
     const list = eventsByDate[key] || []
     const title = list
-      .map((e) => `${e.talentName} (${STATUS_LABEL[e.status]})`)
+      .map((e) => `${e.talentName} ${STATUS_LABEL[e.status]}`)
       .join('\n')
     let className = ''
     if (isToday) className = 'bg-blue-50'
@@ -227,10 +220,13 @@ export default function StoreSchedulePage() {
     if (event.isMore) return <span className="truncate">{event.title}</span>
     return (
       <span
-        className="truncate"
-        title={`${event.talentName} (${STATUS_LABEL[event.status]})`}
+        className="truncate flex items-center gap-1"
+        title={`${event.talentName} ${STATUS_LABEL[event.status]}`}
       >
-        {event.talentName} ({STATUS_LABEL[event.status]})
+        <span className="text-black">{event.talentName}</span>
+        <Badge variant={STATUS_BADGE[event.status]} className="px-1">
+          {STATUS_LABEL[event.status]}
+        </Badge>
       </span>
     )
   }
@@ -339,7 +335,11 @@ export default function StoreSchedulePage() {
         views={[Views.MONTH]}
         date={date}
         onNavigate={(d) => setDate(d)}
-        style={{ height: 384 }}
+        style={{
+          height: 384,
+          transform: 'scale(0.9)',
+          transformOrigin: 'top center',
+        }}
         components={{ event: EventComponent }}
         dayPropGetter={dayPropGetter}
         eventPropGetter={(e) => {
@@ -360,7 +360,7 @@ export default function StoreSchedulePage() {
               border: 'none',
               padding: 0,
             },
-            className: `cursor-pointer text-xs truncate ${STATUS_CLASS[event.status]}`,
+            className: 'cursor-pointer text-xs truncate',
           }
         }}
         onSelectEvent={(e) => {
