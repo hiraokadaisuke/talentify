@@ -543,6 +543,12 @@ export type Database = {
             referencedRelation: 'stores',
             referencedColumns: ['id'],
           },
+          {
+            foreignKeyName: 'offers_talent_id_fkey',
+            columns: ['talent_id'],
+            referencedRelation: 'talents',
+            referencedColumns: ['id'],
+          },
         ]
       }
     }
