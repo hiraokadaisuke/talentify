@@ -324,57 +324,59 @@ export default function StoreSchedulePage() {
           </div>
         ))}
       </div>
-      <BigCalendar
-        culture="ja"
-        toolbar={false}
-        className="mx-auto w-[64%]"
-        localizer={localizer}
-        events={calendarEvents}
-        startAccessor="start"
-        endAccessor="end"
-        views={[Views.MONTH]}
-        date={date}
-        onNavigate={(d) => setDate(d)}
-        style={{
-          height: 384,
-          transform: 'scale(0.9)',
-          transformOrigin: 'top center',
-        }}
-        components={{ event: EventComponent }}
-        dayPropGetter={dayPropGetter}
-        eventPropGetter={(e) => {
-          const event = e as CalendarEvent
-          if (event.isMore)
+      <div className="overflow-hidden">
+        <BigCalendar
+          culture="ja"
+          toolbar={false}
+          className="mx-auto w-[64%]"
+          localizer={localizer}
+          events={calendarEvents}
+          startAccessor="start"
+          endAccessor="end"
+          views={[Views.MONTH]}
+          date={date}
+          onNavigate={(d) => setDate(d)}
+          style={{
+            height: 384,
+            transform: 'scale(1.12)',
+            transformOrigin: 'top center',
+          }}
+          components={{ event: EventComponent }}
+          dayPropGetter={dayPropGetter}
+          eventPropGetter={(e) => {
+            const event = e as CalendarEvent
+            if (event.isMore)
+              return {
+                style: {
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  padding: 0,
+                  color: '#4b5563',
+                },
+                className: 'text-xs truncate',
+              }
             return {
               style: {
                 backgroundColor: 'transparent',
                 border: 'none',
                 padding: 0,
-                color: '#4b5563',
               },
-              className: 'text-xs truncate',
+              className: 'cursor-pointer text-xs truncate',
             }
-          return {
-            style: {
-              backgroundColor: 'transparent',
-              border: 'none',
-              padding: 0,
-            },
-            className: 'cursor-pointer text-xs truncate',
-          }
-        }}
-        onSelectEvent={(e) => {
-          const event = e as CalendarEvent
-          if (event.isMore) return
-          setSelected(event)
-        }}
-        selectable
-        formats={{ weekdayFormat: 'eeeeee' }}
-        onSelectSlot={(s) => {
-          setSlot(s)
-          setOfferModalOpen(true)
-        }}
-      />
+          }}
+          onSelectEvent={(e) => {
+            const event = e as CalendarEvent
+            if (event.isMore) return
+            setSelected(event)
+          }}
+          selectable
+          formats={{ weekdayFormat: 'eeeeee' }}
+          onSelectSlot={(s) => {
+            setSlot(s)
+            setOfferModalOpen(true)
+          }}
+        />
+      </div>
       <OfferModal
         open={offerModalOpen}
         onOpenChange={setOfferModalOpen}
