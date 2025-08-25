@@ -23,9 +23,8 @@ import {
   Settings,
   Search,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
+import { useSidebar } from "@/components/SidebarProvider";
 
 const navItems = {
   talent: [
@@ -67,18 +66,8 @@ export default function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
-  const [collapsed, setCollapsed] = useState(false);
+  const { collapsed } = useSidebar();
   const [loggedIn, setLoggedIn] = useState(false);
-
-  const STORAGE_KEY = "sidebar:collapsed";
-
-  useEffect(() => {
-    try {
-      const saved =
-        typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
-      if (saved != null) setCollapsed(saved === "true");
-    } catch {}
-  }, []);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -104,16 +93,6 @@ export default function Sidebar({
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/login");
-  };
-
-  const handleToggle = () => {
-    setCollapsed((v) => {
-      const next = !v;
-      try {
-        localStorage.setItem(STORAGE_KEY, String(next));
-      } catch {}
-      return next;
-    });
   };
 
   const items = role === "store" ? navItems.store : navItems.talent;
@@ -186,18 +165,6 @@ export default function Sidebar({
             </Button>
           )}
         </div>
-      )}
-      {collapsible && (
-        <button
-          onClick={handleToggle}
-          className="absolute z-50 -right-3 top-2 flex h-6 w-6 items-center justify-center rounded-full border bg-background shadow md:flex"
-        >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </button>
       )}
     </div>
   );
