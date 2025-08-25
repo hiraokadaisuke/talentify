@@ -3,8 +3,7 @@
 import { useState, KeyboardEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { uploadAttachment } from '@/lib/supabase/storage'
-import { sendOfferMessage, Attachment } from '@/lib/supabase/offerMessages'
+import { sendOfferMessage } from '@/lib/supabase/offerMessages'
 import { createClient } from '@/utils/supabase/client'
 
 interface OfferChatInputProps {
@@ -16,26 +15,19 @@ interface OfferChatInputProps {
 export default function OfferChatInput({ offerId, senderRole, onSent }: OfferChatInputProps) {
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
-  const [files, setFiles] = useState<File[]>([])
   const supabase = createClient()
 
   const handleSend = async () => {
-    if (!body && files.length === 0) return
+    if (!body) return
     setSending(true)
-    let attachments: Attachment[] = []
     try {
-      for (const file of files) {
-        const uploaded = await uploadAttachment(supabase, file)
-        attachments.push(uploaded)
-      }
       const message = await sendOfferMessage(supabase, {
         offerId,
         senderRole,
         body: body.trim() || null,
-        attachments,
+        attachments: [],
       })
       setBody('')
-      setFiles([])
       onSent?.(message)
     } finally {
       setSending(false)
@@ -58,12 +50,7 @@ export default function OfferChatInput({ offerId, senderRole, onSent }: OfferCha
         placeholder="メッセージを入力"
         rows={1}
       />
-      <div className="flex items-center justify-between">
-        <input
-          type="file"
-          multiple
-          onChange={e => setFiles(Array.from(e.target.files || []))}
-        />
+      <div className="flex justify-end">
         <Button onClick={handleSend} disabled={sending}>
           送信
         </Button>
