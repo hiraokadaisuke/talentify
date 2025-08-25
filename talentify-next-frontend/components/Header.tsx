@@ -14,7 +14,7 @@ import {
 } from './ui/dropdown-menu'
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
-import NotificationBell from './notifications/NotificationBell'
+import HeaderBellLink from './notifications/HeaderBellLink'
 
 const supabase = createClient()
 
@@ -103,7 +103,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
         )}
         {!isLoading && isLoggedIn && (
           <div className="ml-auto flex items-center gap-2 md:hidden">
-            <NotificationBell />
+            <HeaderBellLink />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="text-sm font-semibold focus:outline-none">
@@ -158,7 +158,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 </>
               ) : (
                 <>
-                  <NotificationBell />
+                  <HeaderBellLink />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="flex items-baseline font-semibold focus:outline-none">
