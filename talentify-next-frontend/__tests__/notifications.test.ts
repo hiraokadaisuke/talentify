@@ -67,3 +67,12 @@ test('getUnreadNotificationCount returns unread count', async () => {
   expect(builder.eq).toHaveBeenCalledWith('is_read', false)
   expect(count).toBe(3)
 })
+
+test('formatUnreadCount formats values', () => {
+  const { formatUnreadCount } = require('@/utils/notifications')
+  expect(formatUnreadCount(0)).toBeNull()
+  expect(formatUnreadCount(1)).toBe('1')
+  expect(formatUnreadCount(98)).toBe('98')
+  expect(formatUnreadCount(120)).toBe('99+')
+})
+
