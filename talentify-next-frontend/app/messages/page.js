@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
+import { EmptyState } from '@/components/ui/empty-state'
 
 const supabase = createClient()
 
@@ -40,6 +41,7 @@ export default function MessageBoxPage() {
   const [userId, setUserId] = useState(null)
   const [activeId, setActiveId] = useState(null)
   const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(true)
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function MessageBoxPage() {
       } catch (e) {
         console.error(e)
       }
+      setLoading(false)
     }
     init()
   }, [])
@@ -87,6 +90,20 @@ export default function MessageBoxPage() {
   }, [activeId, messages])
 
   const activeThread = threads.find(t => t.id === activeId)
+
+  if (!loading && threads.length === 0) {
+    return (
+      <main className="flex justify-center">
+        <EmptyState
+          title="メッセージはまだありません"
+          description="店舗からの連絡やオファーのやり取りがここに届きます。"
+          actionHref="/profile"
+          actionLabel="プロフィールを充実させる"
+          className="py-20"
+        />
+      </main>
+    )
+  }
 
   const handleSend = async () => {
     if (!input || !activeId) return
