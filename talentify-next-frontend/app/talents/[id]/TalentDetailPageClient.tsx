@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
-import { MapPin, Clock3, Timer, Bus, Wallet, Share2, Heart, PaperPlane } from 'lucide-react'
+import { MapPin, Clock3, Timer, Bus, Wallet, Share2, Heart, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import NewMessageModal from '@/components/messages/NewMessageModal'
@@ -181,7 +181,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
           <div className="flex gap-2">
             {(role === 'store' || role === null) && (
               <Button variant="outline" className="flex-1" aria-label="メッセージを送る" onClick={handleMessage}>
-                <PaperPlane className="w-4 h-4 mr-1" />メッセージを送る
+                <MessageSquare className="w-4 h-4 mr-1" />メッセージを送る
               </Button>
             )}
             <Button variant="outline" className="flex-1" aria-label="シェア" onClick={handleShare}>
