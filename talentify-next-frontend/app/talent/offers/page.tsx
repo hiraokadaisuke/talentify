@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getOffersForTalent, TalentOffer } from '@/utils/getOffersForTalent'
+import { fetchStoreNamesForOffers } from '@/utils/storeName'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -33,12 +34,16 @@ export default function TalentOffersPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortKey, setSortKey] = useState<'created_at' | 'date'>('created_at')
   const [search, setSearch] = useState('')
+  const [storeNames, setStoreNames] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
     const load = async () => {
       try {
         const data = await getOffersForTalent()
         setOffers(data)
+        const ids = data.map(o => o.id)
+        const nameMap = await fetchStoreNamesForOffers(ids)
+        setStoreNames(nameMap)
       } catch (e) {
         console.error('failed to load offers', e)
         toast.error('オファーの取得に失敗しました')
@@ -51,7 +56,7 @@ export default function TalentOffersPage() {
 
   const filtered = offers
     .filter(o => (statusFilter === 'all' ? true : o.status === statusFilter))
-    .filter(o => (o.store_name ?? '').toLowerCase().includes(search.toLowerCase()))
+    .filter(o => (storeNames.get(o.id) ?? '').toLowerCase().includes(search.toLowerCase()))
 
   const sorted = [...filtered].sort((a, b) => {
     const aVal = a[sortKey] ? new Date(a[sortKey]!).getTime() : 0
@@ -111,7 +116,9 @@ export default function TalentOffersPage() {
               <TableBody>
                 {sorted.map(o => (
                   <TableRow key={o.id} className="h-10">
-                    <TableCell className="truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</TableCell>
+                    <TableCell className="truncate" title={storeNames.get(o.id) ?? ''}>{
+                      storeNames.get(o.id) ?? '-'
+                    }</TableCell>
                     <TableCell>{formatJaDateTimeWithWeekday(o.created_at ?? '')}</TableCell>
                     <TableCell>{o.date ? formatJaDateTimeWithWeekday(o.date) : '未定'}</TableCell>
                     <TableCell>{o.paid ? '済' : '未'}</TableCell>
@@ -135,7 +142,9 @@ export default function TalentOffersPage() {
             {sorted.map(o => (
               <div key={o.id} className="border rounded p-2 space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</span>
+                  <span className="font-medium truncate" title={storeNames.get(o.id) ?? ''}>{
+                    storeNames.get(o.id) ?? '-'
+                  }</span>
                   <Badge variant={statusVariants[o.status ?? 'pending']}>
                     {statusLabels[o.status ?? 'pending']}
                   </Badge>
