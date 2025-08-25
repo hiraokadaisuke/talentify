@@ -239,7 +239,7 @@ export default function StoreSchedulePage() {
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-4">スケジュール</h1>
       <div className="flex flex-wrap items-center gap-2 mb-2">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 hidden">
           <Button
             size="sm"
             className="min-h-[44px]"
@@ -270,7 +270,7 @@ export default function StoreSchedulePage() {
             ▶
           </Button>
         </div>
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2 ml-auto hidden">
           <Input
             type="search"
             placeholder="演者名検索"
@@ -320,7 +320,7 @@ export default function StoreSchedulePage() {
           </label>
         </div>
       </div>
-      <div className="flex justify-end gap-4 mb-2 text-xs">
+      <div className="flex justify-end gap-4 mb-2 text-xs hidden">
         {DEFAULT_STATUSES.map((s) => (
           <div key={s} className="flex items-center gap-1">
             <Badge variant={STATUS_BADGE[s]} className="px-1"></Badge>
@@ -331,7 +331,7 @@ export default function StoreSchedulePage() {
       <BigCalendar
         culture="ja"
         toolbar={false}
-        className="mx-auto w-[80%]"
+        className="mx-auto w-[64%]"
         localizer={localizer}
         events={calendarEvents}
         startAccessor="start"
@@ -339,7 +339,7 @@ export default function StoreSchedulePage() {
         views={[Views.MONTH]}
         date={date}
         onNavigate={(d) => setDate(d)}
-        style={{ height: 480 }}
+        style={{ height: 384 }}
         components={{ event: EventComponent }}
         dayPropGetter={dayPropGetter}
         eventPropGetter={(e) => {
