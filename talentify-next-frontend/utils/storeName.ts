@@ -1,9 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+"use client"
+
+import { createClient } from "@/utils/supabase/client";
 
 export async function fetchStoreNamesForOffers(offerIds: string[]) {
   if (!offerIds?.length) return new Map<string, string>();
   const supabase = createClient();
-  const { data, error } = await supabase.rpc("get_offer_store_names", { _offer_ids: offerIds });
+  const { data, error } = await (supabase as any).rpc("get_offer_store_names", { _offer_ids: offerIds });
   if (error) {
     console.error("get_offer_store_names error", error);
     return new Map<string, string>();

@@ -104,7 +104,7 @@ export default function TalentNotificationsPage() {
               <div>
                 <p className="font-medium">{n.title}</p>
                 <p className="text-xs text-muted-foreground">
-                  {n.data?.offer_id ? storeNames.get((n.data as any).offer_id) ?? '-' : '-'}
+                  {(n.data as any)?.offer_id ? storeNames.get((n.data as any).offer_id) ?? '-' : '-'}
                 </p>
                 <p className="text-sm text-muted-foreground line-clamp-1">{n.body || '—'}</p>
               </div>
