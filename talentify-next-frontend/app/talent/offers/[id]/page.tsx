@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { toast } from 'sonner'
 import { createClient } from '@/utils/supabase/client'
 import OfferHeaderCard from '@/components/offer/OfferHeaderCard'
 import OfferChatThread from '@/components/offer/OfferChatThread'
@@ -21,7 +22,7 @@ export default function TalentOfferPage() {
         .select('id,status,date,message,talent_id,user_id, talents(stage_name,avatar_url), stores(store_name)')
         .eq('id', params.id)
         .single()
-      if (data) {
+      if (data && userData.user) {
         setOffer({
           id: data.id,
           status: data.status,
@@ -31,6 +32,20 @@ export default function TalentOfferPage() {
           performerAvatarUrl: data.talents?.avatar_url || null,
           storeName: data.stores?.store_name || '',
         })
+        try {
+          await supabase
+            .from('offer_read_receipts')
+            .upsert(
+              {
+                offer_id: data.id,
+                user_id: userData.user.id,
+                read_at: new Date().toISOString(),
+              },
+              { onConflict: 'offer_id,user_id' },
+            )
+        } catch (e) {
+          console.debug(e)
+        }
       }
     }
     load()
@@ -41,19 +56,35 @@ export default function TalentOfferPage() {
   }
 
   const handleAccept = async () => {
-    const { error } = await supabase
-      .from('offers')
-      .update({ status: 'accepted' })
-      .eq('id', offer.id)
-    if (!error) setOffer({ ...offer, status: 'accepted' })
+    try {
+      const { error } = await supabase
+        .from('offers')
+        .update({
+          status: 'accepted',
+          accepted_at: new Date().toISOString(),
+        })
+        .eq('id', offer.id)
+      if (error) throw error
+      setOffer({ ...offer, status: 'accepted' })
+    } catch (err: any) {
+      toast.error(`承諾に失敗しました: ${err.message}`)
+    }
   }
 
   const handleDecline = async () => {
-    const { error } = await supabase
-      .from('offers')
-      .update({ status: 'declined' })
-      .eq('id', offer.id)
-    if (!error) setOffer({ ...offer, status: 'declined' })
+    try {
+      const { error } = await supabase
+        .from('offers')
+        .update({
+          status: 'declined',
+          declined_at: new Date().toISOString(),
+        })
+        .eq('id', offer.id)
+      if (error) throw error
+      setOffer({ ...offer, status: 'declined' })
+    } catch (err: any) {
+      toast.error(`辞退に失敗しました: ${err.message}`)
+    }
   }
 
   return (

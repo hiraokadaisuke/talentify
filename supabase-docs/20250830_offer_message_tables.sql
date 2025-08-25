@@ -16,14 +16,11 @@ create index on public.offer_messages(sender_user, created_at desc);
 
 -- offer_read_receipts keeps lightweight read state per user
 create table if not exists public.offer_read_receipts (
-  id         uuid primary key default gen_random_uuid(),
   offer_id   uuid not null references public.offers(id) on delete cascade,
   user_id    uuid not null,
-  last_read_at timestamptz not null default now(),
-  unique (offer_id, user_id)
+  read_at    timestamptz not null default now(),
+  primary key (offer_id, user_id)
 );
-
-create index on public.offer_read_receipts(offer_id, user_id);
 
 -- Enable RLS
 alter table public.offer_messages enable row level security;
