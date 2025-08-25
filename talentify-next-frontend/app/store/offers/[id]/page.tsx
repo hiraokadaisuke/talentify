@@ -18,7 +18,7 @@ export default function StoreOfferPage() {
       setUserId(userData.user?.id ?? null)
       const { data } = await supabase
         .from('offers')
-        .select('id,status,date,message,talent_id,user_id, talents(stage_name,avatar_url), stores(name)')
+        .select('id,status,date,message,talent_id,user_id, talents(stage_name,avatar_url), stores(store_name)')
         .eq('id', params.id)
         .single()
       if (data) {
@@ -29,12 +29,12 @@ export default function StoreOfferPage() {
           message: data.message,
           performerName: data.talents?.stage_name || '',
           performerAvatarUrl: data.talents?.avatar_url || null,
-          storeName: data.stores?.name || '',
+          storeName: data.stores?.store_name || '',
         })
       }
     }
     load()
-  }, [params.id])
+  }, [params.id, supabase])
 
   if (!offer || !userId) {
     return <p className="p-4">Loading...</p>
