@@ -27,8 +27,12 @@ export default async function StoreLayout({
           <Header sidebarRole="store" />
           <div className="flex h-[calc(100vh-64px)] pt-16">
             <SidebarProvider>
-              <Sidebar role="store" collapsible />
-              <SidebarToggle />
+              <div className="hidden md:block">
+                <Sidebar role="store" collapsible />
+              </div>
+              <div className="hidden md:block">
+                <SidebarToggle />
+              </div>
               <main className="flex-1 overflow-y-auto p-6 transition-[margin,width]">{children}</main>
             </SidebarProvider>
           </div>

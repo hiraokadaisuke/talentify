@@ -2,8 +2,10 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Menu, Search } from 'lucide-react'
 import Sidebar from './Sidebar'
+import { SidebarProvider } from './SidebarProvider'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
 import {
@@ -21,6 +23,8 @@ const supabase = createClient()
 export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'store' }) {
   const [userName, setUserName] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     const fetchSessionAndProfile = async () => {
@@ -69,6 +73,10 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
     }
   }, [])
 
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
   const isLoggedIn = !!userName
 
   return (
@@ -76,14 +84,27 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
       <div className="mx-auto flex h-full max-w-5xl items-center justify-between p-4">
         <div className="flex items-center gap-2">
           {sidebarRole && (
-            <Sheet>
+            <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <button className="md:hidden text-gray-800">
+                <button
+                  className="md:hidden text-gray-800"
+                  aria-label="メニュー"
+                  aria-controls="mobile-menu"
+                  aria-expanded={open}
+                >
                   <Menu size={24} />
                 </button>
               </SheetTrigger>
-              <SheetContent side="left" className="p-4">
-                <Sidebar role={sidebarRole} collapsible />
+              <SheetContent
+                id="mobile-menu"
+                side="left"
+                className="p-4 overflow-y-auto"
+                role="dialog"
+                aria-modal="true"
+              >
+                <SidebarProvider>
+                  <Sidebar role={sidebarRole} collapsible />
+                </SidebarProvider>
               </SheetContent>
             </Sheet>
           )}
@@ -91,35 +112,49 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             Talentify
           </Link>
         </div>
-        {!isLoading && !isLoggedIn && (
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="ml-auto md:hidden hover:bg-muted"
-          >
-            <Link href="/login">ログイン</Link>
-          </Button>
-        )}
-        {!isLoading && isLoggedIn && (
-          <div className="ml-auto flex items-center gap-2 md:hidden">
-            <HeaderBellLink />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="text-sm font-semibold focus:outline-none">
-                  {userName}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/terms">利用規約</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/privacy">プライバシーポリシー</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+        {!isLoading && (
+          <>
+            {sidebarRole ? (
+              isLoggedIn && (
+                <div className="ml-auto md:hidden">
+                  <HeaderBellLink />
+                </div>
+              )
+            ) : (
+              <>
+                {!isLoggedIn && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto md:hidden hover:bg-muted"
+                  >
+                    <Link href="/login">ログイン</Link>
+                  </Button>
+                )}
+                {isLoggedIn && (
+                  <div className="ml-auto flex items-center gap-2 md:hidden">
+                    <HeaderBellLink />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="text-sm font-semibold focus:outline-none">
+                          {userName}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href="/terms">利用規約</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/privacy">プライバシーポリシー</Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+              </>
+            )}
+          </>
         )}
         {!isLoading && (
           <nav className="hidden md:flex justify-between items-center w-full text-sm">
