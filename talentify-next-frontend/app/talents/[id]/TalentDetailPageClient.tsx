@@ -9,8 +9,11 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
-import { MapPin, Clock3, Timer, Bus, Wallet, Share2, Heart, Mail } from 'lucide-react'
+import { MapPin, Clock3, Timer, Bus, Wallet, Share2, Heart, PaperPlane } from 'lucide-react'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
+import NewMessageModal from '@/components/messages/NewMessageModal'
+import { findOrCreateConversation } from '@/lib/messages'
 
 type Talent = {
   id: string
@@ -48,6 +51,8 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [selectedPhoto, setSelectedPhoto] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
+  const router = useRouter()
+  const [messageOpen, setMessageOpen] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,6 +78,15 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
     }
   }, [id, supabase, initialTalent])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('message') === '1') {
+        setMessageOpen(true)
+      }
+    }
+  }, [])
+
   if (loadingTalent || roleLoading) return <div>読み込み中...</div>
   if (!talent) return <div>タレントが見つかりませんでした</div>
 
@@ -95,7 +109,24 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
     toast.success(isFavorite ? 'お気に入りを解除しました' : 'お気に入りに追加しました')
   }
 
+  const handleMessage = async () => {
+    if (!talent?.user_id) return
+    if (!userId) {
+      const redirect = `${window.location.pathname}?message=1`
+      window.location.href = `/login?redirect=${encodeURIComponent(redirect)}`
+      return
+    }
+    if (role !== 'store') return
+    const { conversationId, exists } = await findOrCreateConversation(userId, talent.user_id)
+    if (exists) {
+      router.push(`/messages/${conversationId}`)
+    } else {
+      setMessageOpen(true)
+    }
+  }
+
   return (
+    <>
     <main className="w-full max-w-[1333px] mx-auto p-4 mt-16 grid gap-8 md:grid-cols-[60%_40%]">
       {/* 左カラム: 画像ギャラリー */}
       <div className="w-full md:max-w-[800px]">
@@ -148,9 +179,11 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
             このキャストにオファーする
           </Button>
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1" aria-label="お問い合わせ" onClick={() => (window.location.href = '/contact')}>
-              <Mail className="w-4 h-4 mr-1" />お問い合わせ
-            </Button>
+            {(role === 'store' || role === null) && (
+              <Button variant="outline" className="flex-1" aria-label="メッセージを送る" onClick={handleMessage}>
+                <PaperPlane className="w-4 h-4 mr-1" />メッセージを送る
+              </Button>
+            )}
             <Button variant="outline" className="flex-1" aria-label="シェア" onClick={handleShare}>
               <Share2 className="w-4 h-4 mr-1" />シェア
             </Button>
@@ -245,6 +278,13 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
         )}
       </div>
     </main>
+    <NewMessageModal
+      open={messageOpen}
+      onOpenChange={setMessageOpen}
+      conversationId={talent.user_id ?? ''}
+      talentName={talent.stage_name}
+    />
+    </>
   )
 }
 
