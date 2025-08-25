@@ -105,7 +105,12 @@ export default function Sidebar({
       )}
     >
       <TooltipProvider delayDuration={0}>
-        <nav className="flex-1 space-y-2 px-2 py-4">
+        <nav
+          className={cn(
+            "flex-1 space-y-2 px-2 pb-4 pt-4",
+            collapsed && "pt-14",
+          )}
+        >
           {items.map(({ href, label, icon: Icon }) => {
             const content = (
               <div

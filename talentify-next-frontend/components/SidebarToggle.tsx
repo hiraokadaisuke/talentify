@@ -16,14 +16,18 @@ export default function SidebarToggle() {
             aria-label={label}
             title={label}
             onClick={toggle}
-            className="fixed top-[72px] z-[60] flex h-6 w-6 items-center justify-center rounded-full border bg-background shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="fixed top-[72px] z-[60] flex h-10 w-10 items-center justify-center rounded-2xl bg-background text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             style={{
               left: collapsed
                 ? "calc(12px + env(safe-area-inset-left))"
                 : "calc(238px + env(safe-area-inset-left))",
             }}
           >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {collapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
           </button>
         </TooltipTrigger>
         <TooltipContent side="right">{label}</TooltipContent>
