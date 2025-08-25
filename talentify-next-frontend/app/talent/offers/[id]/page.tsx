@@ -40,11 +40,29 @@ export default function TalentOfferPage() {
     return <p className="p-4">Loading...</p>
   }
 
+  const handleAccept = async () => {
+    const { error } = await supabase
+      .from('offers')
+      .update({ status: 'accepted' })
+      .eq('id', offer.id)
+    if (!error) setOffer({ ...offer, status: 'accepted' })
+  }
+
+  const handleDecline = async () => {
+    const { error } = await supabase
+      .from('offers')
+      .update({ status: 'declined' })
+      .eq('id', offer.id)
+    if (!error) setOffer({ ...offer, status: 'declined' })
+  }
+
   return (
     <div className="flex flex-col gap-4 h-full p-4">
       <OfferHeaderCard
         offer={offer}
         role="talent"
+        onAccept={handleAccept}
+        onDecline={handleDecline}
       />
       <div id="chat" className="flex-1 min-h-0">
         <OfferChatThread
