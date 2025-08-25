@@ -20,14 +20,12 @@ export async function getNotifications(limit?: number): Promise<NotificationRow[
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  console.log('session uid=', user?.id)
   if (!user) return []
 
   let query = supabase
     .from('notifications')
     .select('*')
     .eq('user_id', user.id)
-    .in('type', ['offer_created', 'review_received'])
     .order('created_at', { ascending: false })
 
   if (limit) query = query.limit(limit)
@@ -38,6 +36,25 @@ export async function getNotifications(limit?: number): Promise<NotificationRow[
     return []
   }
   return (data ?? []) as NotificationRow[]
+}
+
+export async function getUnreadNotificationCount(): Promise<number> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return 0
+
+  const { count, error } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('is_read', false)
+
+  if (error) {
+    console.error('failed to fetch unread notifications count', error)
+    return 0
+  }
+  return count ?? 0
 }
 
 export async function markNotificationRead(id: string) {
