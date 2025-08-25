@@ -26,7 +26,7 @@ const offerRowSchema = z.object({
       z.object({ status: z.string().nullable(), paid_at: z.string().nullable() })
     )
     .nullable(),
-  stores: z
+  store: z
     .object({
       id: z.string(),
       store_name: z.string().nullable(),
@@ -51,7 +51,7 @@ export async function getOffersForTalent() {
   const { data, error } = await supabase
     .from('offers')
     .select(
-      'id, store_id, created_at, date, status, payments(status,paid_at), stores(id, store_name, is_setup_complete)'
+      'id, store_id, created_at, date, status, payments(status,paid_at), store:store_id(id, store_name, is_setup_complete)'
     )
     .eq('talent_id', talent.id)
     .order('created_at', { ascending: false })
@@ -70,7 +70,7 @@ export async function getOffersForTalent() {
   return parsed.data.map(o => ({
     id: o.id,
     store_id: o.store_id,
-    store_name: o.stores?.store_name ?? null,
+    store_name: o.store?.store_name ?? null,
     created_at: o.created_at,
     date: o.date,
     status: o.status,
