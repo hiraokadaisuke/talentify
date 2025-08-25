@@ -324,7 +324,7 @@ export default function StoreSchedulePage() {
           </div>
         ))}
       </div>
-      <div className="overflow-hidden">
+      <div className="h-[430px]">
         <BigCalendar
           culture="ja"
           toolbar={false}
