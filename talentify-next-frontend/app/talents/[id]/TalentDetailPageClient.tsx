@@ -1,16 +1,15 @@
 'use client'
 
-
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import clsx from 'clsx'
 import { createClient } from '@/utils/supabase/client'
 import { useUserRole } from '@/utils/useRole'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
+import { MapPin, Clock3, Timer, Bus, Wallet, Share2, Heart, Mail } from 'lucide-react'
 import { toast } from 'sonner'
 
 type Talent = {
@@ -46,25 +45,9 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [loadingTalent, setLoadingTalent] = useState(!initialTalent)
   const [userId, setUserId] = useState<string | null>(null)
   const { role, loading: roleLoading } = useUserRole()
-  const [showForm, setShowForm] = useState(false)
-  const [visitDate, setVisitDate] = useState('')
-  const [timeRange, setTimeRange] = useState('')
-  const [note, setNote] = useState('')
-  const [isAgreed, setIsAgreed] = useState(false)
-
-  const isValidHttpUrl = (url: string) => {
-    try {
-      const parsed = new URL(url)
-      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
-    } catch {
-      return false
-    }
-  }
-
-  const imageSrc =
-    talent?.avatar_url && isValidHttpUrl(talent.avatar_url)
-      ? talent.avatar_url
-      : '/avatar-default.svg'
+  const [selectedPhoto, setSelectedPhoto] = useState(0)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,223 +76,167 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   if (loadingTalent || roleLoading) return <div>読み込み中...</div>
   if (!talent) return <div>タレントが見つかりませんでした</div>
 
+  const photos = [
+    ...(talent.avatar_url ? [talent.avatar_url] : []),
+    ...(Array.isArray(talent.photos) ? talent.photos : []),
+  ]
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) {
-      toast.error('ログインしてください')
-      return
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      toast.success('URLをコピーしました')
+    } catch {
+      toast.error('コピーに失敗しました')
     }
+  }
 
-    const { data: store, error: storeError } = await supabase
-      .from('stores')
-      .select('id')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    if (storeError || !store) {
-      toast.error('店舗情報が見つかりません')
-      console.error('store lookup error', storeError)
-      return
-    }
-
-    const payload = {
-      store_id: store.id,
-      talent_id: id,
-      date: visitDate,
-      time_range: timeRange,
-      agreed: isAgreed,
-      message: note || '',
-    }
-
-    const res = await fetch('/api/offers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    const result = await res.json()
-    if (!res.ok || !result.ok) {
-      console.error('offer create error', result)
-      toast.error(result.reason ? String(result.reason) : '送信に失敗しました')
-      return
-    }
-
-    toast.success('オファーを送信しました')
-    window.location.href = '/store/offers'
+  const handleFavorite = () => {
+    setIsFavorite(v => !v)
+    toast.success(isFavorite ? 'お気に入りを解除しました' : 'お気に入りに追加しました')
   }
 
   return (
-    <main className="max-w-3xl mx-auto p-4 space-y-6 mt-16 scroll-mt-16">
-      <Card>
-        <CardContent className="flex flex-col sm:flex-row gap-4 items-start">
-          <div className="w-full sm:w-48 h-48 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-            {talent && (
-              <Image
-                src={imageSrc}
-                alt={talent.stage_name}
-                width={192}
-                height={192}
-                className="object-cover w-full h-full"
-              />
-            )}
+    <main className="max-w-screen-xl mx-auto p-4 mt-16 grid gap-8 md:grid-cols-[60%_40%]">
+      {/* 左カラム: 画像ギャラリー */}
+      <div>
+        <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-gray-100">
+          {photos.length > 0 ? (
+            <Image
+              key={photos[selectedPhoto]}
+              src={photos[selectedPhoto]}
+              alt={`${talent.stage_name} ${selectedPhoto + 1}`}
+              fill
+              className={clsx('object-cover w-full h-full transition-opacity duration-300', imageLoaded ? 'opacity-100' : 'opacity-0')}
+              onLoad={() => setImageLoaded(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-500">No Image</div>
+          )}
+        </div>
+        {photos.length > 1 && (
+          <div className="grid grid-cols-4 gap-2 mt-2">
+            {photos.map((src, i) => (
+              <button
+                key={i}
+                aria-label={`サムネイル${i + 1}`}
+                onClick={() => {
+                  setSelectedPhoto(i)
+                  setImageLoaded(false)
+                }}
+                className={clsx('relative w-full pb-[100%] rounded-lg overflow-hidden border', i === selectedPhoto ? 'border-blue-500' : 'border-transparent hover:border-gray-300')}
+              >
+                <Image src={src} alt={talent.stage_name} fill className="object-cover" />
+              </button>
+            ))}
           </div>
-          <div className="flex-1 space-y-2 text-sm">
-            <h1 className="text-3xl font-bold">{talent.stage_name}</h1>
-            {talent.profile && <p className="whitespace-pre-line">{talent.profile}</p>}
-            <div className="flex gap-3 mt-2 text-lg">
-              {talent.twitter && (
-                <a href={talent.twitter} target="_blank" rel="noopener noreferrer">
-                  <FaTwitter />
-                </a>
-              )}
-              {talent.instagram && (
-                <a href={talent.instagram} target="_blank" rel="noopener noreferrer">
-                  <FaInstagram />
-                </a>
-              )}
-              {talent.youtube && (
-                <a href={talent.youtube} target="_blank" rel="noopener noreferrer">
-                  <FaYoutube />
-                </a>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
-      {(talent.residence || talent.area.length > 0 || talent.genre) && (
+      {/* 右カラム: 詳細情報 */}
+      <div className="space-y-6 md:sticky md:top-16 h-fit">
+        <div>
+          <h1 className="text-3xl font-bold">{talent.stage_name}</h1>
+          {talent.profile && <p className="mt-1 text-sm whitespace-pre-line">{talent.profile}</p>}
+        </div>
+
+        {/* CTA ボタン群 */}
+        <div className="space-y-2">
+          <Button className="w-full" aria-label="このキャストにオファーする" onClick={() => (window.location.href = `/talents/${id}/offer`)}>
+            このキャストにオファーする
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1" aria-label="お問い合わせ" onClick={() => (window.location.href = '/contact')}>
+              <Mail className="w-4 h-4 mr-1" />お問い合わせ
+            </Button>
+            <Button variant="outline" className="flex-1" aria-label="シェア" onClick={handleShare}>
+              <Share2 className="w-4 h-4 mr-1" />シェア
+            </Button>
+            <Button variant="outline" className="flex-1" aria-label="お気に入り" onClick={handleFavorite}>
+              <Heart className={clsx('w-4 h-4 mr-1', isFavorite ? 'fill-current text-red-500' : '')} />お気に入り
+            </Button>
+          </div>
+        </div>
+
+        {/* クイック情報 */}
         <Card>
           <CardContent className="space-y-2 text-sm">
-            {talent.residence && <p>拠点地域: {talent.residence}</p>}
+            {[
+              { icon: MapPin, label: '拠点地域', value: talent.residence || '要相談' },
+              { icon: Clock3, label: '出演可能時間', value: talent.availability || '要相談' },
+              { icon: Timer, label: '最低拘束時間', value: talent.min_hours || '要相談' },
+              { icon: Bus, label: '交通費', value: talent.transportation || '要相談' },
+              { icon: Wallet, label: '出演料金目安', value: talent.rate != null ? `${talent.rate.toLocaleString()}円〜` : '要相談' },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-center gap-2">
+                <Icon className="w-4 h-4" />
+                <span className="text-gray-600">{label}:</span>
+                <span>{value}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* タグ */}
+        {(talent.area.length > 0 || talent.genre) && (
+          <div className="space-y-2">
             {talent.area.length > 0 && (
               <div>
-                <p className="font-semibold">対応エリア</p>
-                <div className="flex flex-wrap gap-2 mt-1">
+                <p className="text-sm font-semibold mb-1">対応エリア</p>
+                <div className="flex flex-wrap gap-2">
                   {talent.area.map(p => (
-                    <Badge key={p} variant="secondary">
+                    <Badge key={p} variant="secondary" className="rounded-full">
                       {p}
                     </Badge>
                   ))}
                 </div>
               </div>
             )}
-            {talent.genre && <p>ジャンル: {talent.genre}</p>}
-          </CardContent>
-        </Card>
-      )}
-
-      {(talent.availability || talent.min_hours || talent.transportation || talent.rate || talent.notes) && (
-        <Card>
-          <CardContent className="space-y-2 text-sm">
-            {talent.availability && <p>出演可能時間帯: {talent.availability}</p>}
-            {talent.min_hours && <p>最低拘束時間: {talent.min_hours}</p>}
-            {talent.transportation && <p>交通費扱い: {talent.transportation}</p>}
-            {talent.rate != null && <p>出演料金目安: {talent.rate.toLocaleString()}円</p>}
-            {talent.notes && <p>NG事項・特記事項: {talent.notes}</p>}
-          </CardContent>
-        </Card>
-      )}
-
-      {(talent.media_appearance || talent.video_url) && (
-        <Card>
-          <CardContent className="space-y-2 text-sm">
-            {talent.media_appearance && (
+            {talent.genre && (
               <div>
-                <p className="font-semibold">来店実績／PR文</p>
-                <p className="whitespace-pre-line">{talent.media_appearance}</p>
+                <p className="text-sm font-semibold mb-1">ジャンル</p>
+                <Badge variant="secondary" className="rounded-full">
+                  {talent.genre}
+                </Badge>
               </div>
             )}
-            {talent.video_url && (
-              (() => {
-                const m = talent.video_url.match(/(?:youtu.be\/|youtube.com\/.+v=)([^&]+)/)
-                return m ? (
-                  <div className="aspect-video">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${m[1]}`}
-                      className="w-full h-full"
-                      allowFullScreen
-                    />
-                  </div>
-                ) : (
-                  <a
-                    href={talent.video_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    動画を見る
-                  </a>
-                )
-              })()
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {Array.isArray(talent.photos) && talent.photos.length > 0 && (
-        <Card>
-          <CardContent>
-            <div className="flex overflow-x-auto gap-3 pb-2">
-              {talent.photos.map((p, i) => (
-                <div
-                  key={i}
-                  className="flex-none w-40 h-40 rounded-lg overflow-hidden bg-gray-100"
-                >
-                  <Image
-                    src={p}
-                    alt={`${talent.stage_name} ${i + 1}`}
-                    width={160}
-                    height={160}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="space-y-2">
-        {role === 'store' && (
-          <>
-            <Button onClick={() => setShowForm(v => !v)} className="w-full">
-              {showForm ? 'フォームを閉じる' : 'オファーする'}
-            </Button>
-            {showForm && (
-              <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded">
-                <div>
-                  <label className="block text-sm font-medium mb-1">来店希望日</label>
-                  <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} required />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">希望時間帯</label>
-                  <Input value={timeRange} onChange={e => setTimeRange(e.target.value)} placeholder="例: 10:00〜18:00" required />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    id="is-agreed"
-                    type="checkbox"
-                    checked={isAgreed}
-                    onChange={e => setIsAgreed(e.target.checked)}
-                    required
-                  />
-                  <label htmlFor="is-agreed" className="text-sm">出演条件に同意します</label>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">備考（任意）</label>
-                  <Textarea value={note} onChange={e => setNote(e.target.value)} />
-                </div>
-                <Button type="submit" disabled={!isAgreed}>送信</Button>
-              </form>
-            )}
-          </>
+          </div>
         )}
+
+        {/* テキストセクション */}
+        <div className="space-y-4 text-sm">
+          <div>
+            <p className="font-semibold">NG事項 / 特記事項</p>
+            <p className="mt-1 whitespace-pre-line">{talent.notes ? talent.notes : '特にありません'}</p>
+          </div>
+          <div>
+            <p className="font-semibold">来店実績 / PR文</p>
+            <p className="mt-1 whitespace-pre-line">{talent.media_appearance ? talent.media_appearance : '準備中'}</p>
+          </div>
+        </div>
+
+        {/* SNSリンク */}
+        {(talent.twitter || talent.instagram || talent.youtube) && (
+          <div className="flex gap-3 text-lg">
+            {talent.twitter && (
+              <a href={talent.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                <FaTwitter />
+              </a>
+            )}
+            {talent.instagram && (
+              <a href={talent.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <FaInstagram />
+              </a>
+            )}
+            {talent.youtube && (
+              <a href={talent.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                <FaYoutube />
+              </a>
+            )}
+          </div>
+        )}
+
         {role === 'talent' && userId === talent.user_id && (
-          <Button onClick={() => (window.location.href = '/talent/edit')}>
+          <Button className="w-full" aria-label="プロフィールを編集する" onClick={() => (window.location.href = '/talent/edit')}>
             プロフィールを編集する
           </Button>
         )}
@@ -317,3 +244,4 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
     </main>
   )
 }
+
