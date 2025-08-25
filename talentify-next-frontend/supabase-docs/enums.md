@@ -85,6 +85,8 @@
 - completed
 - offer_created
 - confirmed
+- canceled
+- no_show
 
 ### public.visit_status
 - scheduled
