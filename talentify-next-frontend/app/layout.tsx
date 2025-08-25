@@ -6,6 +6,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { createClient } from "@/lib/supabase/server";
+import { SupabaseProvider } from "@/lib/supabase/provider";
 
 export const metadata = {
   title: "Talentify",
@@ -20,15 +22,24 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const showFooter = !session;
+
   return (
     <html lang="ja">
       <body className="font-sans antialiased bg-white text-black">
-        <TooltipProvider delayDuration={200} disableHoverableContent>
-          <Header />
-          <Toaster />
-          {children}
-          <Footer />
-        </TooltipProvider>
+        <SupabaseProvider session={session}>
+          <TooltipProvider delayDuration={200} disableHoverableContent>
+            <Header />
+            <Toaster />
+            {children}
+            {showFooter && <Footer />}
+          </TooltipProvider>
+        </SupabaseProvider>
       </body>
     </html>
   );

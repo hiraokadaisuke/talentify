@@ -6,6 +6,12 @@ import { Menu, Search } from 'lucide-react'
 import Sidebar from './Sidebar'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem
+} from './ui/dropdown-menu'
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
 
@@ -94,6 +100,23 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <Link href="/login">ログイン</Link>
           </Button>
         )}
+        {!isLoading && isLoggedIn && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="ml-auto md:hidden text-sm font-semibold focus:outline-none">
+                {userName}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href="/terms">利用規約</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/privacy">プライバシーポリシー</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         {!isLoading && (
           <nav className="hidden md:flex justify-between items-center w-full text-sm">
             {/* 左メニュー */}
@@ -130,12 +153,22 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   </Link>
                 </>
               ) : (
-                <>
-                  <span className="flex items-baseline font-semibold">
-                    <span className="text-base">{userName}</span>
-                    <span className="ml-1 text-sm text-muted-foreground align-top">様</span>
-                  </span>
-                </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-baseline font-semibold focus:outline-none">
+                      <span className="text-base">{userName}</span>
+                      <span className="ml-1 text-sm text-muted-foreground align-top">様</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href="/terms">利用規約</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/privacy">プライバシーポリシー</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
           </nav>

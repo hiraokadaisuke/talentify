@@ -5,7 +5,6 @@ export const dynamic = "auto";
 import React from "react";
 import "../globals.css";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { createClient } from "@/lib/supabase/server";
 import { SupabaseProvider } from "@/lib/supabase/provider";
 
@@ -33,7 +32,6 @@ export default async function AuthLayout({
         <SupabaseProvider session={session}>
           <Header />
           {children}
-          <Footer />
         </SupabaseProvider>
       </body>
     </html>
