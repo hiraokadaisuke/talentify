@@ -96,9 +96,9 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   }
 
   return (
-    <main className="max-w-screen-xl mx-auto p-4 mt-16 grid gap-8 md:grid-cols-[60%_40%]">
+    <main className="w-full max-w-[1333px] mx-auto p-4 mt-16 grid gap-8 md:grid-cols-[60%_40%]">
       {/* 左カラム: 画像ギャラリー */}
-      <div>
+      <div className="w-full md:max-w-[800px]">
         <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-gray-100">
           {photos.length > 0 ? (
             <Image
@@ -123,7 +123,10 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                   setSelectedPhoto(i)
                   setImageLoaded(false)
                 }}
-                className={clsx('relative w-full pb-[100%] rounded-lg overflow-hidden border', i === selectedPhoto ? 'border-blue-500' : 'border-transparent hover:border-gray-300')}
+                className={clsx(
+                  'relative w-full h-[100px] rounded-lg overflow-hidden border',
+                  i === selectedPhoto ? 'border-blue-500' : 'border-transparent hover:border-gray-300'
+                )}
               >
                 <Image src={src} alt={talent.stage_name} fill className="object-cover" />
               </button>
