@@ -23,6 +23,7 @@ interface OfferHeaderCardProps {
 const statusColor: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
   accepted: 'bg-green-100 text-green-800',
+  declined: 'bg-red-100 text-red-800',
   confirmed: 'bg-blue-100 text-blue-800',
   completed: 'bg-gray-100 text-gray-800',
   canceled: 'bg-red-100 text-red-800',
@@ -36,7 +37,12 @@ export default function OfferHeaderCard({
   onCancel,
 }: OfferHeaderCardProps) {
   const status = statusColor[offer.status] || 'bg-gray-100 text-gray-800'
-  const statusLabel = offer.status === 'pending' ? '返答待ち' : offer.status
+  const statusLabel =
+    offer.status === 'pending'
+      ? '返答待ち'
+      : offer.status === 'declined'
+        ? '辞退'
+        : offer.status
 
   return (
     <Card>
