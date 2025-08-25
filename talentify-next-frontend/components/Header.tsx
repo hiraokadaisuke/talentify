@@ -14,6 +14,7 @@ import {
 } from './ui/dropdown-menu'
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
+import NotificationBell from './notifications/NotificationBell'
 
 const supabase = createClient()
 
@@ -101,21 +102,24 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
           </Button>
         )}
         {!isLoading && isLoggedIn && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="ml-auto md:hidden text-sm font-semibold focus:outline-none">
-                {userName}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href="/terms">利用規約</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/privacy">プライバシーポリシー</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="ml-auto flex items-center gap-2 md:hidden">
+            <NotificationBell />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="text-sm font-semibold focus:outline-none">
+                  {userName}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/terms">利用規約</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/privacy">プライバシーポリシー</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )}
         {!isLoading && (
           <nav className="hidden md:flex justify-between items-center w-full text-sm">
@@ -153,22 +157,25 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   </Link>
                 </>
               ) : (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-baseline font-semibold focus:outline-none">
-                      <span className="text-base">{userName}</span>
-                      <span className="ml-1 text-sm text-muted-foreground align-top">様</span>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href="/terms">利用規約</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/privacy">プライバシーポリシー</Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                  <NotificationBell />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-baseline font-semibold focus:outline-none">
+                        <span className="text-base">{userName}</span>
+                        <span className="ml-1 text-sm text-muted-foreground align-top">様</span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href="/terms">利用規約</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/privacy">プライバシーポリシー</Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               )}
             </div>
           </nav>
