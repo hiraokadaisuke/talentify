@@ -35,7 +35,7 @@ export default function OfferChatThread({ offerId, currentUserId, currentRole }:
   const updatePeerRead = async () => {
     const receipts = await getReadReceipts(supabase, offerId)
     const other = receipts.find(r => r.user_id !== currentUserId)
-    setPeerLastReadAt(other?.last_read_at ?? null)
+    setPeerLastReadAt(other?.read_at ?? null)
   }
 
   const loadInitial = async () => {

@@ -1,11 +1,4 @@
-export type OfferStatus =
-  | 'draft'
-  | 'pending'
-  | 'approved'
-  | 'rejected'
-  | 'completed'
-  | 'offer_created'
-  | 'confirmed'
+export type OfferStatus = 'pending' | 'accepted' | 'declined' | 'canceled'
 
 export type OfferInsert = {
   user_id: string

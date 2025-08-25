@@ -60,8 +60,8 @@
 ### public.offer_status
 - pending
 - accepted
-- rejected
-- confirmed
+- declined
+- canceled
 
 ### auth.one_time_token_type
 - confirmation_token

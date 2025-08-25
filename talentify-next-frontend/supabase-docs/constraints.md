@@ -18,6 +18,7 @@
 
 - stores.user_id: UNIQUE
 - payments.offer_id: UNIQUE
+- offer_read_receipts (offer_id, user_id): PRIMARY KEY
 
 ```sql
 create unique index if not exists payments_offer_id_key

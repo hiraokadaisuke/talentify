@@ -602,7 +602,7 @@ export type Database = {
         | 'offer'
         | 'offer_accepted'
         | 'schedule_fixed'
-      offer_status: 'pending' | 'accepted' | 'rejected' | 'confirmed'
+      offer_status: 'pending' | 'accepted' | 'declined' | 'canceled'
       payment_status: 'pending' | 'paid' | 'cancelled'
       status_type:
         | 'draft'
@@ -740,7 +740,7 @@ export const Constants = {
         'offer_accepted',
         'schedule_fixed'
       ],
-      offer_status: ['pending', 'accepted', 'rejected', 'confirmed'],
+      offer_status: ['pending', 'accepted', 'declined', 'canceled'],
       payment_status: ['pending', 'paid', 'cancelled'],
       status_type: ['draft', 'pending', 'approved', 'rejected', 'completed', 'offer_created', 'confirmed'],
       visit_status: ['scheduled', 'confirmed', 'visited']
