@@ -42,9 +42,7 @@ export default function StoreOfferPage() {
 
   return (
     <div className="flex flex-col gap-4 h-full p-4">
-      <OfferHeaderCard offer={offer} role="store" onScrollToMessages={() => {
-        document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' })
-      }} />
+      <OfferHeaderCard offer={offer} role="store" />
       <div id="chat" className="flex-1 min-h-0">
         <OfferChatThread
           offerId={offer.id}

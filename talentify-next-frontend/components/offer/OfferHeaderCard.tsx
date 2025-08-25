@@ -15,7 +15,6 @@ interface OfferHeaderCardProps {
     invoiceStatus?: 'not_submitted' | 'submitted' | 'paid'
   }
   role: 'store' | 'talent'
-  onScrollToMessages?: () => void
   onAccept?: () => void
   onDecline?: () => void
   onCancel?: () => void
@@ -32,18 +31,18 @@ const statusColor: Record<string, string> = {
 export default function OfferHeaderCard({
   offer,
   role,
-  onScrollToMessages,
   onAccept,
   onDecline,
   onCancel,
 }: OfferHeaderCardProps) {
   const status = statusColor[offer.status] || 'bg-gray-100 text-gray-800'
+  const statusLabel = offer.status === 'pending' ? '返答待ち' : offer.status
 
   return (
     <Card>
-      <CardHeader className="flex items-center justify-between">
+      <CardHeader className="flex items-center">
         <CardTitle>オファー詳細</CardTitle>
-        <Badge className={status}>{offer.status}</Badge>
+        <Badge className={`${status} ml-auto mr-2`}>{statusLabel}</Badge>
       </CardHeader>
       <CardContent className="space-y-4">
         <OfferSummary
@@ -58,10 +57,7 @@ export default function OfferHeaderCard({
           {role === 'store' && (
             <>
               <Button variant="outline" size="sm" onClick={onCancel}>
-                キャンセル
-              </Button>
-              <Button variant="secondary" size="sm" onClick={onScrollToMessages}>
-                メッセージへ
+                オファーをキャンセル
               </Button>
             </>
           )}
@@ -72,9 +68,6 @@ export default function OfferHeaderCard({
               </Button>
               <Button variant="outline" size="sm" onClick={onDecline}>
                 辞退
-              </Button>
-              <Button variant="secondary" size="sm" onClick={onScrollToMessages}>
-                メッセージへ
               </Button>
             </>
           )}

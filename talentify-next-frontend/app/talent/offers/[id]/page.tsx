@@ -45,9 +45,6 @@ export default function TalentOfferPage() {
       <OfferHeaderCard
         offer={offer}
         role="talent"
-        onScrollToMessages={() => {
-          document.getElementById('chat')?.scrollIntoView({ behavior: 'smooth' })
-        }}
       />
       <div id="chat" className="flex-1 min-h-0">
         <OfferChatThread
