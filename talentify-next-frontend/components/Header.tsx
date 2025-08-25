@@ -3,9 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { Menu, Search } from 'lucide-react'
-import Sidebar from './Sidebar'
-import { SidebarProvider } from './SidebarProvider'
+import { Menu } from 'lucide-react'
 import { Sheet, SheetTrigger, SheetContent } from './ui/sheet'
 import { Button } from './ui/button'
 import {
@@ -17,6 +15,7 @@ import {
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
 import HeaderBellLink from './notifications/HeaderBellLink'
+import MobileDrawerNav from './MobileDrawerNav'
 
 const supabase = createClient()
 
@@ -98,13 +97,11 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               <SheetContent
                 id="mobile-menu"
                 side="left"
-                className="p-4 overflow-y-auto"
+                className="p-0"
                 role="dialog"
                 aria-modal="true"
               >
-                <SidebarProvider>
-                  <Sidebar role={sidebarRole} collapsible />
-                </SidebarProvider>
+                <MobileDrawerNav role={sidebarRole} onNavigate={() => setOpen(false)} />
               </SheetContent>
             </Sheet>
           )}

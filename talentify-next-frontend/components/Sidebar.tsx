@@ -12,49 +12,9 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { createClient } from "@/utils/supabase/client";
-import {
-  LayoutDashboard,
-  Mail,
-  Calendar,
-  User,
-  Star,
-  Wallet,
-  Bell,
-  Settings,
-  Search,
-  LogOut,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useSidebar } from "@/components/SidebarProvider";
-
-const navItems = {
-  talent: [
-    {
-      href: "/talent/dashboard",
-      label: "ダッシュボード",
-      icon: LayoutDashboard,
-    },
-    { href: "/talent/offers", label: "オファー一覧", icon: Mail },
-    { href: "/talent/schedule", label: "スケジュール管理", icon: Calendar },
-    { href: "/talent/edit", label: "プロフィール編集", icon: User },
-    { href: "/talent/reviews", label: "評価・レビュー", icon: Star },
-    { href: "/talent/payments", label: "ギャラ管理", icon: Wallet },
-    { href: "/talent/invoices", label: "請求管理", icon: Mail },
-    { href: "/talent/notifications", label: "通知", icon: Bell },
-    { href: "/talent/settings", label: "設定", icon: Settings },
-  ],
-  store: [
-    { href: "/search", label: "演者を探す", icon: Search },
-    { href: "/store/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
-    { href: "/store/offers", label: "オファー管理", icon: Mail },
-    { href: "/store/schedule", label: "スケジュール", icon: Calendar },
-    { href: "/store/reviews", label: "レビュー管理", icon: Star },
-    { href: "/store/messages", label: "メッセージ", icon: Bell },
-    { href: "/store/notifications", label: "通知", icon: Bell },
-    { href: "/store/invoices", label: "請求一覧", icon: Wallet },
-    { href: "/store/edit", label: "店舗情報", icon: User },
-    { href: "/store/settings", label: "設定", icon: Star },
-  ],
-} as const;
+import { navItems } from "@/components/nav-items";
 
 export default function Sidebar({
   role = "talent",
@@ -95,7 +55,7 @@ export default function Sidebar({
     router.push("/login");
   };
 
-  const items = role === "store" ? navItems.store : navItems.talent;
+  const items = navItems.filter((item) => item.roles.includes(role));
 
   return (
     <div
