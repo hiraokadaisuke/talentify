@@ -54,6 +54,7 @@ export async function getOffersForTalent() {
       'id, store_id, created_at, date, status, payments(status,paid_at), store:store_id(id, store_name, is_setup_complete)'
     )
     .eq('talent_id', talent.id)
+    .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
     .order('created_at', { ascending: false })
 
   if (error) {
