@@ -30,15 +30,19 @@ export async function POST(req: NextRequest) {
     senderRole = talent ? 'talent' : 'admin'
   }
 
+  const message: Record<string, unknown> = {
+    sender_user: user.id,
+    receiver_user: receiverUser,
+    sender_role: senderRole,
+    body,
+  }
+  if (offerId) {
+    message.offer_id = offerId
+  }
+
   const { data, error } = await supabase
     .from('offer_messages')
-    .insert({
-      offer_id: offerId ?? null,
-      sender_user: user.id,
-      receiver_user: receiverUser,
-      sender_role: senderRole,
-      body,
-    })
+    .insert(message)
     .select('*')
     .single()
 
