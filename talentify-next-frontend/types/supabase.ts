@@ -471,6 +471,7 @@ export type Database = {
           invoice_submitted: boolean | null
           invoice_url: string | null
           contract_url: string | null
+          accepted_at: string | null
         }
         Insert: {
           id?: string
@@ -503,6 +504,7 @@ export type Database = {
           invoice_submitted?: boolean | null
           invoice_url?: string | null
           contract_url?: string | null
+          accepted_at?: string | null
         }
         Update: {
           id?: string
@@ -535,6 +537,7 @@ export type Database = {
           invoice_submitted?: boolean | null
           invoice_url?: string | null
           contract_url?: string | null
+          accepted_at?: string | null
         }
         Relationships: [
           {
