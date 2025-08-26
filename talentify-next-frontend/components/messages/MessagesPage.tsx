@@ -11,9 +11,9 @@ export type UserRole = 'store' | 'talent'
 
 type MessageRow = {
   id: string
-  sender_id: string
-  topic: string | null
-  content: string | null
+  sender_user: string
+  receiver_user: string
+  body: string
   created_at: string | null
 }
 
@@ -37,13 +37,13 @@ interface Thread {
 function groupMessages(messages: MessageRow[], userId: string | null, role: UserRole): Thread[] {
   const map = new Map<string, Thread>()
   for (const m of messages) {
-    const otherId = m.sender_id === userId ? m.topic ?? '' : m.sender_id
+    const otherId = m.sender_user === userId ? m.receiver_user : m.sender_user
     if (!map.has(otherId)) {
       map.set(otherId, {
         id: otherId,
         name: `User ${otherId.slice(0, 8)}`,
         avatar: '/avatar-default.svg',
-        latest: m.content ?? '',
+        latest: m.body,
         unread: 0,
         updatedAt: m.created_at,
         messages: []
@@ -52,13 +52,13 @@ function groupMessages(messages: MessageRow[], userId: string | null, role: User
     const th = map.get(otherId)!
     th.messages.push({
       id: m.id,
-      from: m.sender_id === userId ? role : role === 'store' ? 'talent' : 'store',
-      text: m.content ?? '',
+      from: m.sender_user === userId ? role : role === 'store' ? 'talent' : 'store',
+      text: m.body,
       time: m.created_at
     })
     if (th.updatedAt && m.created_at && new Date(th.updatedAt) < new Date(m.created_at)) {
       th.updatedAt = m.created_at
-      th.latest = m.content ?? ''
+      th.latest = m.body
     }
   }
   return Array.from(map.values())
@@ -78,9 +78,9 @@ export default function MessagesPage({ role }: { role: UserRole }) {
       if (user) setUserId(user.id)
 
       try {
-        const res = await fetch('/api/messages')
+        const res = await fetch('/api/messages/inbox')
         if (res.ok) {
-          const data: MessageRow[] = await res.json()
+          const { data }: { data: MessageRow[] } = await res.json()
           setMessages(data)
         }
       } catch (e) {
@@ -94,10 +94,10 @@ export default function MessagesPage({ role }: { role: UserRole }) {
   useEffect(() => {
     if (!userId) return
     const channel = supabase
-      .channel('public:messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+      .channel('public:offer_messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'offer_messages' }, payload => {
         const m = payload.new as MessageRow
-        if (m.sender_id === userId || m.topic === userId) {
+        if (m.sender_user === userId || m.receiver_user === userId) {
           setMessages(prev => [...prev, m])
         }
       })
@@ -122,10 +122,10 @@ export default function MessagesPage({ role }: { role: UserRole }) {
   const handleSend = async () => {
     if (!input || !activeId) return
     try {
-      const res = await fetch('/api/messages', {
+      const res = await fetch('/api/messages/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: activeId, content: input })
+        body: JSON.stringify({ receiverUser: activeId, body: input })
       })
       if (!res.ok) throw new Error('failed')
       setInput('')
@@ -184,4 +184,3 @@ export default function MessagesPage({ role }: { role: UserRole }) {
     </main>
   )
 }
-

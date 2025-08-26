@@ -22,7 +22,7 @@ export const navItems: NavItem[] = [
   { href: "/talent/dashboard", label: "ダッシュボード", icon: LayoutDashboard, roles: ["talent"] },
   { href: "/talent/offers", label: "オファー一覧", icon: Mail, roles: ["talent"] },
   { href: "/talent/schedule", label: "スケジュール管理", icon: Calendar, roles: ["talent"] },
-  { href: "/talent/messages", label: "メッセージ", icon: MessageCircle, roles: ["talent"] },
+  { href: "/talents/messages", label: "メッセージ", icon: MessageCircle, roles: ["talent"] },
   { href: "/talent/edit", label: "プロフィール編集", icon: User, roles: ["talent"] },
   { href: "/talent/reviews", label: "評価・レビュー", icon: Star, roles: ["talent"] },
   { href: "/talent/payments", label: "ギャラ管理", icon: Wallet, roles: ["talent"] },

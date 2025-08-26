@@ -1,19 +1,13 @@
 'use client'
 
-import { createClient } from '@/utils/supabase/client'
-
-const supabase = createClient()
-
-export async function getUnreadMessageCount(role: 'store' | 'talent'): Promise<number> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return 0
-
-  const { data, error } = await supabase.rpc('unread_messages_count', { role } as any)
-  if (error) {
-    console.error('failed to fetch unread messages count', error)
+export async function getUnreadMessageCount(): Promise<number> {
+  try {
+    const res = await fetch('/api/messages/unread-count')
+    if (!res.ok) return 0
+    const data = await res.json()
+    return data.count ?? 0
+  } catch (e) {
+    console.error('failed to fetch unread messages count', e)
     return 0
   }
-  return (data as number) ?? 0
 }
