@@ -15,6 +15,7 @@ import {
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
 import HeaderBellLink from './notifications/HeaderBellLink'
+import HeaderMessageLink from './messages/HeaderMessageLink'
 import MobileDrawerNav from './MobileDrawerNav'
 
 const supabase = createClient()
@@ -113,7 +114,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
           <>
             {sidebarRole ? (
               isLoggedIn && (
-                <div className="ml-auto md:hidden">
+                <div className="ml-auto flex items-center gap-2 md:hidden">
+                  <HeaderMessageLink />
                   <HeaderBellLink />
                 </div>
               )
@@ -131,6 +133,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 )}
                 {isLoggedIn && (
                   <div className="ml-auto flex items-center gap-2 md:hidden">
+                    <HeaderMessageLink />
                     <HeaderBellLink />
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -190,6 +193,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 </>
               ) : (
                 <>
+                  <HeaderMessageLink />
                   <HeaderBellLink />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

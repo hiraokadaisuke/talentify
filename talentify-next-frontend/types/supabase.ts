@@ -589,6 +589,10 @@ export type Database = {
         }
         Returns: Database['public']['Tables']['offers']['Row']
       }
+      unread_messages_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'pending'
