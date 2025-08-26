@@ -14,27 +14,31 @@ export default function HeaderMessageLink() {
   const { role } = useUserRole()
   const [count, setCount] = useState(0)
 
-  const refreshCount = async () => {
-    const c = await getUnreadMessageCount()
-    setCount(c)
-  }
-
   useEffect(() => {
-    refreshCount()
+    if (role !== 'store' && role !== 'talent') return
+
+    const refresh = async () => {
+      const c = await getUnreadMessageCount(role)
+      setCount(c)
+    }
+
+    refresh()
     const channel = supabase
       .channel('header-message')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
-        refreshCount()
-      })
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages' },
+        refresh,
+      )
       .subscribe()
-    const interval = setInterval(refreshCount, 60000)
+    const interval = setInterval(refresh, 60000)
     return () => {
       supabase.removeChannel(channel)
       clearInterval(interval)
     }
-  }, [])
+  }, [role])
 
-  if (!role) return null
+  if (role !== 'store' && role !== 'talent') return null
   const href = `/${role}/messages`
   const formatted = formatUnreadCount(count)
 
