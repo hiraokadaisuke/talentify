@@ -6,10 +6,12 @@ import { MessageSquare } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { getUnreadMessageCount } from '@/utils/messages'
 import { formatUnreadCount } from '@/utils/notifications'
+import { useUserRole } from '@/utils/useRole'
 
 const supabase = createClient()
 
 export default function HeaderMessageLink() {
+  const { role } = useUserRole()
   const [count, setCount] = useState(0)
 
   const refreshCount = async () => {
@@ -32,11 +34,13 @@ export default function HeaderMessageLink() {
     }
   }, [])
 
+  if (!role) return null
+  const href = `/${role}/messages`
   const formatted = formatUnreadCount(count)
 
   return (
     <Link
-      href="/messages"
+      href={href}
       aria-label="メッセージ"
       className="relative p-2 rounded-full hover:bg-muted focus:outline-none"
     >
