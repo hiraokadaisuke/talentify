@@ -18,14 +18,8 @@ interface OfferHeaderCardProps {
   onAccept?: () => void
   onDecline?: () => void
   onCancel?: () => void
-}
-
-const statusColor: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-green-100 text-green-800',
-  rejected: 'bg-red-100 text-red-800',
-  completed: 'bg-gray-100 text-gray-800',
-  canceled: 'bg-red-100 text-red-800',
+  /** action in progress to control loading state of buttons */
+  actionLoading?: 'accept' | 'decline' | null
 }
 
 export default function OfferHeaderCard({
@@ -34,22 +28,28 @@ export default function OfferHeaderCard({
   onAccept,
   onDecline,
   onCancel,
+  actionLoading = null,
 }: OfferHeaderCardProps) {
-  const status = statusColor[offer.status] || 'bg-gray-100 text-gray-800'
-  const statusLabel =
-    offer.status === 'pending'
-      ? '返答待ち'
-      : offer.status === 'rejected'
-        ? '辞退'
-        : offer.status === 'confirmed'
-          ? '承諾済み'
-          : offer.status
+  const renderStatusBadge = () => {
+    if (offer.status === 'pending') return null
+    if (offer.status === 'confirmed') {
+      return <Badge className="ml-auto mr-2">承諾済み</Badge>
+    }
+    if (offer.status === 'rejected') {
+      return (
+        <Badge variant="secondary" className="ml-auto mr-2">
+          辞退済み
+        </Badge>
+      )
+    }
+    return <Badge className="ml-auto mr-2">{offer.status}</Badge>
+  }
 
   return (
     <Card>
       <CardHeader className="flex items-center">
         <CardTitle>オファー詳細</CardTitle>
-        <Badge className={`${status} ml-auto mr-2`}>{statusLabel}</Badge>
+        {renderStatusBadge()}
       </CardHeader>
       <CardContent className="space-y-4">
         <OfferSummary
@@ -62,19 +62,27 @@ export default function OfferHeaderCard({
         />
         <div className="flex flex-wrap gap-2">
           {role === 'store' && (
-            <>
-              <Button variant="outline" size="sm" onClick={onCancel}>
-                オファーをキャンセル
-              </Button>
-            </>
+            <Button variant="outline" size="sm" onClick={onCancel}>
+              オファーをキャンセル
+            </Button>
           )}
-          {role === 'talent' && (
+          {role === 'talent' && offer.status === 'pending' && (
             <>
-              <Button variant="default" size="sm" onClick={onAccept}>
-                承諾
+              <Button
+                variant="default"
+                size="sm"
+                onClick={onAccept}
+                disabled={actionLoading !== null}
+              >
+                {actionLoading === 'accept' ? '承諾中...' : '承諾'}
               </Button>
-              <Button variant="outline" size="sm" onClick={onDecline}>
-                辞退
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDecline}
+                disabled={actionLoading !== null}
+              >
+                {actionLoading === 'decline' ? '辞退中...' : '辞退'}
               </Button>
             </>
           )}
