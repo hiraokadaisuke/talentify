@@ -6,33 +6,20 @@ export type TalentSchedule = {
 }
 
 import { createClient } from '@/utils/supabase/client'
+import { getTalentId } from './getTalentId'
 
 /**
  * Fetch confirmed schedules for the current talent user
  */
 export async function getTalentSchedule(): Promise<TalentSchedule[]> {
   const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) return []
-
-  const { data: talent, error: talentError } = await supabase
-    .from('talents')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-
-  if (talentError || !talent) {
-    console.error('failed to fetch talent', talentError)
-    return []
-  }
+  const talentId = await getTalentId()
+  if (!talentId) return []
 
   const { data, error } = await supabase
     .from('offers')
     .select('id, date, time_range, stores(store_name)')
-    .eq('talent_id', talent.id)
+    .eq('talent_id', talentId)
     .eq('status', 'confirmed')
     .order('date', { ascending: true })
 

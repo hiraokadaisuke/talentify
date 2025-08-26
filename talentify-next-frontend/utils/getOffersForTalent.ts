@@ -2,6 +2,7 @@
 
 import { z } from 'zod'
 import { createClient } from '@/utils/supabase/client'
+import { getTalentId } from './getTalentId'
 
 const supabase = createClient()
 
@@ -36,24 +37,15 @@ const offerRowSchema = z.object({
 })
 
 export async function getOffersForTalent() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return [] as TalentOffer[]
-
-  const { data: talent } = await supabase
-    .from('talents')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-  if (!talent) return [] as TalentOffer[]
+  const talentId = await getTalentId()
+  if (!talentId) return [] as TalentOffer[]
 
   const { data, error } = await supabase
     .from('offers')
     .select(
       'id, store_id, created_at, date, status, payments(status,paid_at), store:store_id(id, store_name, is_setup_complete)'
     )
-    .eq('talent_id', talent.id)
+    .eq('talent_id', talentId)
     .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
     .order('created_at', { ascending: false })
 
