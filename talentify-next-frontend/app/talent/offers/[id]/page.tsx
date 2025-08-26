@@ -14,6 +14,7 @@ export default function TalentOfferPage() {
   const [loaded, setLoaded] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<'accept' | 'decline' | null>(null)
+  const [invoiceId, setInvoiceId] = useState<string | null>(null)
 
   const loadOffer = useCallback(async () => {
     const { data } = await supabase
@@ -34,8 +35,15 @@ export default function TalentOfferPage() {
         performerAvatarUrl: data.talents?.avatar_url || null,
         storeName: data.stores?.store_name || '',
       })
+      const { data: invoice } = await supabase
+        .from('invoices')
+        .select('id')
+        .eq('offer_id', params.id)
+        .maybeSingle()
+      setInvoiceId(invoice?.id ?? null)
     } else {
       setOffer(null)
+      setInvoiceId(null)
     }
     setLoaded(true)
   }, [params.id, supabase])
@@ -91,6 +99,14 @@ export default function TalentOfferPage() {
     setActionLoading(null)
   }
 
+  const showActions = ['accepted', 'confirmed', 'completed'].includes(offer.status)
+  const invoiceLink = showActions
+    ? invoiceId
+      ? `/talent/invoices/${invoiceId}`
+      : `/talent/offers/${offer.id}/invoice`
+    : undefined
+  const paymentLink = showActions ? `/talent/offers/${offer.id}/payment` : undefined
+
   return (
     <div className="flex flex-col gap-4 h-full p-4">
       <OfferHeaderCard
@@ -99,12 +115,15 @@ export default function TalentOfferPage() {
         onAccept={handleAccept}
         onDecline={handleDecline}
         actionLoading={actionLoading}
+        invoiceLink={invoiceLink}
+        invoiceText="請求書を確認"
       />
       <div id="chat" className="flex-1 min-h-0">
         <OfferChatThread
           offerId={offer.id}
           currentUserId={userId}
           currentRole="talent"
+          paymentLink={paymentLink}
         />
       </div>
     </div>

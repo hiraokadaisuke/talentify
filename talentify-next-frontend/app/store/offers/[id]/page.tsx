@@ -27,6 +27,12 @@ export default async function StoreOfferPage({ params }: PageProps) {
     notFound()
   }
 
+  const { data: invoice } = await supabase
+    .from('invoices')
+    .select('id')
+    .eq('offer_id', params.id)
+    .maybeSingle()
+
   const offer = {
     id: data.id as string,
     status: data.status as string,
@@ -37,9 +43,22 @@ export default async function StoreOfferPage({ params }: PageProps) {
     storeName: data.stores?.store_name || '',
   }
 
+  const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
+  const invoiceLink = showActions
+    ? invoice
+      ? `/store/invoices/${invoice.id}`
+      : `/store/offers/${params.id}/invoice`
+    : undefined
+  const paymentLink = showActions ? `/store/offers/${params.id}/payment` : undefined
+
   return (
     <div className="flex flex-col gap-4 h-full p-4">
-      <OfferHeaderCard offer={offer} role="store" />
+      <OfferHeaderCard
+        offer={offer}
+        role="store"
+        invoiceLink={invoiceLink}
+        invoiceText="請求書を作成・確認"
+      />
       <CancelOfferSection
         offerId={offer.id}
         initialStatus={data.status}
@@ -50,6 +69,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
           offerId={offer.id}
           currentUserId={user.id}
           currentRole="store"
+          paymentLink={paymentLink}
         />
       </div>
     </div>
