@@ -1,23 +1,19 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { messages, threads } from '../data'
 
-export async function GET() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-  if (!user || userError) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const userId = searchParams.get('userId') || 'u1'
 
-  const { count, error } = await supabase
-    .from('offer_messages')
-    .select('id', { head: true, count: 'exact' })
-    .eq('receiver_user', user.id)
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
+  const count = messages.filter(m => {
+    const thread = threads.find(t => t.id === m.threadId)
+    if (!thread) return false
+    return (
+      thread.participants.includes(userId) &&
+      m.senderUserId !== userId &&
+      !m.readBy.includes(userId)
+    )
+  }).length
 
-  return NextResponse.json({ count: count ?? 0 })
+  return NextResponse.json({ count })
 }
