@@ -103,8 +103,9 @@ export default function TalentOfferPage() {
   const invoiceLink = showActions
     ? invoiceId
       ? `/talent/invoices/${invoiceId}`
-      : `/talent/offers/${offer.id}/invoice`
+      : `/talent/invoices/new?offerId=${offer.id}`
     : undefined
+  const invoiceText = invoiceId ? '請求書を見る' : '請求書を作成'
   const paymentLink = showActions ? `/talent/offers/${offer.id}/payment` : undefined
 
   return (
@@ -116,7 +117,7 @@ export default function TalentOfferPage() {
         onDecline={handleDecline}
         actionLoading={actionLoading}
         invoiceLink={invoiceLink}
-        invoiceText="請求書を確認"
+        invoiceText={invoiceText}
       />
       <div id="chat" className="flex-1 min-h-0">
         <OfferChatThread
