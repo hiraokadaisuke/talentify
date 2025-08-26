@@ -15,11 +15,13 @@ export default function HeaderMessageLink() {
   const [count, setCount] = useState(0)
 
   const refreshCount = async () => {
-    const c = await getUnreadMessageCount()
+    if (!role) return
+    const c = await getUnreadMessageCount(role)
     setCount(c)
   }
 
   useEffect(() => {
+    if (!role) return
     refreshCount()
     const channel = supabase
       .channel('header-message')
@@ -32,7 +34,7 @@ export default function HeaderMessageLink() {
       supabase.removeChannel(channel)
       clearInterval(interval)
     }
-  }, [])
+  }, [role])
 
   if (!role) return null
   const href = `/${role}/messages`
