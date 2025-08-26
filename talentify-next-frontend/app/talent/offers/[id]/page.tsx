@@ -43,17 +43,17 @@ export default function TalentOfferPage() {
   const handleAccept = async () => {
     const { error } = await supabase
       .from('offers')
-      .update({ status: 'accepted' })
+      .update({ status: 'confirmed' })
       .eq('id', offer.id)
-    if (!error) setOffer({ ...offer, status: 'accepted' })
+    if (!error) setOffer({ ...offer, status: 'confirmed' })
   }
 
   const handleDecline = async () => {
     const { error } = await supabase
       .from('offers')
-      .update({ status: 'declined' })
+      .update({ status: 'rejected' })
       .eq('id', offer.id)
-    if (!error) setOffer({ ...offer, status: 'declined' })
+    if (!error) setOffer({ ...offer, status: 'rejected' })
   }
 
   return (
