@@ -1,53 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import type { Database } from '@/lib/supabase/types'
+import { messages, threads, nextMessageId, nextThreadId, ThreadType } from '../data'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { offerId, receiverUser, body } = await req.json()
+  const { receiverUserId, body, offerId, senderUserId = 'u1' } = await req.json()
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-  if (!user || userError) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!receiverUserId || !body) {
+    return NextResponse.json(
+      { error: 'receiverUserId and body are required' },
+      { status: 400 }
+    )
   }
 
-  let senderRole: 'store' | 'talent' | 'admin' = 'admin'
-  const { data: store } = await supabase
-    .from('stores')
-    .select('id')
-    .eq('user_id', user.id)
-    .single()
-  if (store) {
-    senderRole = 'store'
-  } else {
-    const { data: talent } = await supabase
-      .from('talents')
-      .select('id')
-      .eq('user_id', user.id)
-      .single()
-    senderRole = talent ? 'talent' : 'admin'
+  const type: ThreadType = offerId ? 'offer' : 'direct'
+
+  let thread = threads.find((t) => {
+    if (t.type !== type) return false
+    if (type === 'offer') {
+      return t.offerId === offerId && t.participants.includes(receiverUserId)
+    }
+    return (
+      t.participants.includes(senderUserId) && t.participants.includes(receiverUserId)
+    )
+  })
+
+  if (!thread) {
+    thread = {
+      id: nextThreadId(),
+      type,
+      participants: [senderUserId, receiverUserId],
+      ...(offerId ? { offerId } : {}),
+    }
+    threads.push(thread)
   }
 
-  const message: Database['public']['Tables']['offer_messages']['Insert'] = {
-    sender_user: user.id,
-    receiver_user: receiverUser,
-    sender_role: senderRole,
+  const message = {
+    id: nextMessageId(),
+    threadId: thread.id,
+    senderUserId,
     body,
-    ...(offerId ? { offer_id: offerId } : {}),
+    createdAt: new Date().toISOString(),
+    readBy: [senderUserId],
   }
 
-  const { data, error } = await supabase
-    .from('offer_messages')
-    .insert(message)
-    .select('*')
-    .single()
+  messages.push(message)
+  thread.lastMessageAt = message.createdAt
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  return NextResponse.json({ data })
+  return NextResponse.json({ data: message, threadId: thread.id })
 }
