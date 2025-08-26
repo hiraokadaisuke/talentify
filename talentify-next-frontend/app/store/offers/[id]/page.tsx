@@ -44,11 +44,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
   }
 
   const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
-  const invoiceLink = showActions
-    ? invoice
-      ? `/store/invoices/${invoice.id}`
-      : `/store/offers/${params.id}/invoice`
-    : undefined
+  const invoiceLink = showActions && invoice ? `/store/invoices/${invoice.id}` : undefined
+  const invoiceText = invoice ? '請求書を見る' : undefined
   const paymentLink = showActions ? `/store/offers/${params.id}/payment` : undefined
 
   return (
@@ -57,7 +54,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
         offer={offer}
         role="store"
         invoiceLink={invoiceLink}
-        invoiceText="請求書を作成・確認"
+        invoiceText={invoiceText}
       />
       <CancelOfferSection
         offerId={offer.id}
