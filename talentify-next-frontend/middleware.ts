@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@/lib/supabase/server'
+import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith('/auth/callback')) {
@@ -14,6 +15,15 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getSession()
 
   const { pathname } = req.nextUrl
+
+  if (session?.user) {
+    const { role } = await getUserRoleInfo(supabase, session.user.id)
+    if ((role === 'store' || role === 'talent') && pathname.startsWith('/messages')) {
+      const redirectUrl = req.nextUrl.clone()
+      redirectUrl.pathname = `/${role}${pathname}`
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
 
   if (pathname === '/' && !session) {
     return res
