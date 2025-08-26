@@ -8,6 +8,7 @@ export const NOTIFICATION_TYPES: NotificationType[] = [
   'payment_created',
   'invoice_submitted',
   'review_received',
+  'message_received',
   'message',
   'offer',
   'offer_accepted',
