@@ -5,6 +5,9 @@ import Image from 'next/image'
 import { createClient } from '@/utils/supabase/client'
 import { ListSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
+import OfferSummary, { OfferSummaryInfo } from './OfferSummary'
+import { toast } from 'sonner'
+
 const supabase = createClient()
 
 export type UserRole = 'store' | 'talent'
@@ -15,6 +18,7 @@ type MessageRow = {
   receiver_user: string
   body: string
   created_at: string | null
+  offer_id: string | null
 }
 
 type ThreadMessage = {
@@ -26,6 +30,7 @@ type ThreadMessage = {
 
 interface Thread {
   id: string
+  partnerId: string
   name: string
   avatar: string
   latest: string
@@ -34,14 +39,23 @@ interface Thread {
   messages: ThreadMessage[]
 }
 
-function groupMessages(messages: MessageRow[], userId: string | null, role: UserRole): Thread[] {
+function groupMessages(
+  messages: MessageRow[],
+  userId: string | null,
+  role: UserRole,
+  type: 'direct' | 'offer'
+): Thread[] {
   const map = new Map<string, Thread>()
   for (const m of messages) {
-    const otherId = m.sender_user === userId ? m.receiver_user : m.sender_user
-    if (!map.has(otherId)) {
-      map.set(otherId, {
-        id: otherId,
-        name: `User ${otherId.slice(0, 8)}`,
+    if (type === 'direct' && m.offer_id) continue
+    if (type === 'offer' && !m.offer_id) continue
+    const key = type === 'offer' ? m.offer_id! : m.sender_user === userId ? m.receiver_user : m.sender_user
+    const partner = m.sender_user === userId ? m.receiver_user : m.sender_user
+    if (!map.has(key)) {
+      map.set(key, {
+        id: key,
+        partnerId: partner,
+        name: type === 'offer' ? `Offer ${key.slice(0, 8)}` : `User ${partner.slice(0, 8)}`,
         avatar: '/avatar-default.svg',
         latest: m.body,
         unread: 0,
@@ -49,7 +63,7 @@ function groupMessages(messages: MessageRow[], userId: string | null, role: User
         messages: []
       })
     }
-    const th = map.get(otherId)!
+    const th = map.get(key)!
     th.messages.push({
       id: m.id,
       from: m.sender_user === userId ? role : role === 'store' ? 'talent' : 'store',
@@ -64,32 +78,38 @@ function groupMessages(messages: MessageRow[], userId: string | null, role: User
   return Array.from(map.values())
 }
 
-export default function MessagesPage({ role }: { role: UserRole }) {
+export default function MessagesPage({ role, type }: { role: UserRole; type: 'direct' | 'offer' }) {
   const [messages, setMessages] = useState<MessageRow[]>([])
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [input, setInput] = useState('')
+  const [offerInfo, setOfferInfo] = useState<OfferSummaryInfo | null>(null)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (user) setUserId(user.id)
 
       try {
-        const res = await fetch('/api/messages/inbox')
+        const res = await fetch(`/api/messages/inbox?type=${type}`)
         if (res.ok) {
           const { data }: { data: MessageRow[] } = await res.json()
           setMessages(data)
+        } else {
+          setMessages([])
         }
       } catch (e) {
         console.error(e)
+        setMessages([])
       }
       setLoading(false)
     }
     init()
-  }, [])
+  }, [type])
 
   useEffect(() => {
     if (!userId) return
@@ -98,6 +118,8 @@ export default function MessagesPage({ role }: { role: UserRole }) {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'offer_messages' }, payload => {
         const m = payload.new as MessageRow
         if (m.sender_user === userId || m.receiver_user === userId) {
+          if (type === 'direct' && m.offer_id) return
+          if (type === 'offer' && !m.offer_id) return
           setMessages(prev => [...prev, m])
         }
       })
@@ -105,32 +127,83 @@ export default function MessagesPage({ role }: { role: UserRole }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [userId])
+  }, [userId, type])
 
-  const threads = useMemo(() => groupMessages(messages, userId, role), [messages, userId, role])
+  const threads = useMemo(() => groupMessages(messages, userId, role, type), [messages, userId, role, type])
 
   useEffect(() => {
-    if (threads.length && !activeId) setActiveId(threads[0].id)
+    if (!threads.length) {
+      setActiveId(null)
+      return
+    }
+    if (!activeId || !threads.find(t => t.id === activeId)) {
+      setActiveId(threads[0].id)
+    }
   }, [threads, activeId])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [activeId, messages])
 
+  useEffect(() => {
+    if (type !== 'offer' || !activeId) {
+      setOfferInfo(null)
+      return
+    }
+    const fetchOffer = async () => {
+      try {
+        const res = await fetch(`/api/offers/${activeId}`)
+        if (res.ok) {
+          const { data } = await res.json()
+          setOfferInfo({
+            status: data.status,
+            date: data.date ?? data.event_date ?? null,
+            reward: data.reward ?? data.fee ?? null,
+            location: data.location ?? null,
+          })
+        } else {
+          setOfferInfo(null)
+        }
+      } catch (err) {
+        console.error(err)
+        setOfferInfo(null)
+      }
+    }
+    fetchOffer()
+  }, [type, activeId])
+
   const activeThread = threads.find(t => t.id === activeId)
 
   const handleSend = async () => {
-    if (!input || !activeId) return
+    if (!input || !activeThread) return
+    const tempId = `temp-${Date.now()}`
+    const newMsg: MessageRow = {
+      id: tempId,
+      sender_user: userId || '',
+      receiver_user: activeThread.partnerId,
+      body: input,
+      created_at: new Date().toISOString(),
+      offer_id: type === 'offer' ? activeThread.id : null,
+    }
+    setMessages(prev => [...prev, newMsg])
+    setInput('')
+
     try {
       const res = await fetch('/api/messages/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receiverUser: activeId, body: input })
+        body: JSON.stringify({
+          receiverUser: activeThread.partnerId,
+          body: newMsg.body,
+          ...(type === 'offer' ? { offerId: activeThread.id } : {}),
+        }),
       })
       if (!res.ok) throw new Error('failed')
-      setInput('')
+      const { data }: { data: MessageRow } = await res.json()
+      setMessages(prev => prev.map(m => (m.id === tempId ? data : m)))
     } catch (err) {
-      console.error(err)
+      setMessages(prev => prev.filter(m => m.id !== tempId))
+      toast.error('送信に失敗しました')
     }
   }
 
@@ -153,6 +226,9 @@ export default function MessagesPage({ role }: { role: UserRole }) {
                 <p className="font-semibold text-sm">{thread.name}</p>
                 <p className="text-xs text-gray-500 truncate">{thread.latest}</p>
               </div>
+              <div className="text-xs text-gray-400 ml-2 whitespace-nowrap">
+                {thread.updatedAt && new Date(thread.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
               {thread.unread > 0 && (
                 <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-2">{thread.unread}</span>
               )}
@@ -161,6 +237,7 @@ export default function MessagesPage({ role }: { role: UserRole }) {
         )}
       </aside>
       <section className="flex flex-col flex-1">
+        {type === 'offer' && <OfferSummary offer={offerInfo} />}
         <div className="flex-1 overflow-y-auto p-4 space-y-2">
           {activeThread?.messages.map(msg => (
             <div key={msg.id} className={`flex ${msg.from === role ? 'justify-end' : 'justify-start'}`}>
