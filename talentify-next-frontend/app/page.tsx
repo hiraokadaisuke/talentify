@@ -5,44 +5,22 @@ import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/server';
-type GenericSupabaseClient = {
-  from<T>(table: string): any;
-};
+import { getUserRoleInfo } from '@/lib/getUserRole';
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const sb = supabase as unknown as GenericSupabaseClient;
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
   if (session) {
-    const userId = session.user.id;
-    const { data: store } = await sb
-      .from<{ id: string; is_setup_complete: boolean | null }>('stores')
-      .select('id, is_setup_complete')
-      .eq('user_id', userId)
-      .maybeSingle();
-    const { data: talent } = await sb
-      .from<{ id: string; is_setup_complete: boolean | null }>('talents')
-      .select('id, is_setup_complete')
-      .eq('user_id', userId)
-      .maybeSingle();
-    const { data: company } = await sb
-      .from<{ id: string; is_setup_complete: boolean | null }>('companies')
-      .select('id, is_setup_complete')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (store) {
-      if (!(store as any).is_setup_complete) redirect('/store/edit');
-      else redirect('/store/dashboard');
-    } else if (talent) {
-      if (!(talent as any).is_setup_complete) redirect('/talent/edit');
-      else redirect('/talent/dashboard');
-    } else if (company) {
-      if (!(company as any).is_setup_complete) redirect('/company/edit');
-      else redirect('/company/dashboard');
+    const { role, isSetupComplete } = await getUserRoleInfo(supabase, session.user.id);
+    if (role === 'store') {
+      redirect(isSetupComplete ? '/store/dashboard' : '/store/edit');
+    } else if (role === 'talent') {
+      redirect(isSetupComplete ? '/talent/dashboard' : '/talent/edit');
+    } else if (role === 'company') {
+      redirect(isSetupComplete ? '/company/dashboard' : '/company/edit');
     } else {
       redirect('/dashboard');
     }

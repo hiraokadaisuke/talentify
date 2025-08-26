@@ -39,7 +39,7 @@ export default function HeaderMessageLink() {
   }, [role])
 
   if (role !== 'store' && role !== 'talent') return null
-  const href = role === 'talent' ? '/talents/messages' : '/store/messages'
+  const href = role === 'talent' ? '/talent/messages' : '/store/messages'
   const formatted = formatUnreadCount(count)
 
   return (

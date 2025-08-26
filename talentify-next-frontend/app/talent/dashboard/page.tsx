@@ -16,7 +16,7 @@ export default async function TalentDashboard() {
         confirmed={schedule.length}
         link='/talent/offers'
       />
-      <MessageAlertCard count={unreadMessagesCount} link='/talents/messages' />
+      <MessageAlertCard count={unreadMessagesCount} link='/talent/messages' />
       <NotificationListCard className='sm:col-span-2 lg:col-span-3' />
       <div className='sm:col-span-2 lg:col-span-3'>
         <ProfileProgressCard />
