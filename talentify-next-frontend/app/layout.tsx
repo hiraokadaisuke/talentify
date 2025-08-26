@@ -3,7 +3,6 @@
 import React from "react";
 import "./globals.css";
 import Header from "../components/Header";
-import Footer from "../components/Footer";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { createClient } from "@/lib/supabase/server";
@@ -27,8 +26,6 @@ export default async function RootLayout({
     data: { session },
   } = await supabase.auth.getSession();
 
-  const showFooter = !session;
-
   return (
     <html lang="ja">
       <body className="font-sans antialiased bg-white text-black">
@@ -37,7 +34,6 @@ export default async function RootLayout({
             <Header />
             <Toaster />
             {children}
-            {showFooter && <Footer />}
           </TooltipProvider>
         </SupabaseProvider>
       </body>
