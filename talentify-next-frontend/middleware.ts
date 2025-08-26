@@ -18,9 +18,22 @@ export async function middleware(req: NextRequest) {
 
   if (session?.user) {
     const { role } = await getUserRoleInfo(supabase, session.user.id)
+
     if ((role === 'store' || role === 'talent') && pathname.startsWith('/messages')) {
       const redirectUrl = req.nextUrl.clone()
       redirectUrl.pathname = `/${role}${pathname}`
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    if (pathname.startsWith('/store') && role !== 'store') {
+      const redirectUrl = req.nextUrl.clone()
+      redirectUrl.pathname = role ? `/${role}/dashboard` : '/login'
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    if (pathname.startsWith('/talent') && role !== 'talent') {
+      const redirectUrl = req.nextUrl.clone()
+      redirectUrl.pathname = role ? `/${role}/dashboard` : '/login'
       return NextResponse.redirect(redirectUrl)
     }
   }
