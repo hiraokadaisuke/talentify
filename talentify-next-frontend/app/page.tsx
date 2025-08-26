@@ -49,7 +49,7 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="flex flex-col items-center text-gray-900 bg-white">
+    <div className="flex flex-col items-center text-gray-900 bg-white">
       {/* Hero Section */}
       <section
         className="w-full min-h-screen flex flex-col justify-center items-center bg-cover bg-center text-white text-center px-6"
@@ -152,12 +152,7 @@ export default async function HomePage() {
       {/* お問い合わせセクション */}
       <SimpleSection title="お問い合わせ" link="/contact" bg="gray-50" />
 
-      {/* Footer */}
-      <footer className="w-full bg-black text-white text-center py-12 mt-12">
-        <div className="text-lg font-semibold mb-2 tracking-wide">TALENTIFY</div>
-        <div className="text-xs opacity-60">© 2025 Talentify Inc. All rights reserved.</div>
-      </footer>
-    </main>
+    </div>
   );
 }
 

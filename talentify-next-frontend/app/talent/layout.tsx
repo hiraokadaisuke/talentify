@@ -21,14 +21,11 @@ export default async function TalentLayout({
   } = await supabase.auth.getSession();
 
   return (
-    <html lang="ja">
-      <body className="font-sans antialiased bg-white text-black">
+    <html lang="ja" className="h-full">
+      <body className="font-sans antialiased bg-white text-black min-h-screen flex flex-col">
         <SupabaseProvider session={session}>
-          {/* 上部固定ヘッダー */}
           <Header sidebarRole="talent" />
-
-          {/* ヘッダー高さ分の余白を考慮して下部を分割 */}
-          <div className="flex h-[calc(100vh-64px)] pt-16">
+          <div className="flex flex-1 pt-16">
             <SidebarProvider>
               <div className="hidden md:block">
                 <Sidebar role="talent" collapsible />
@@ -36,7 +33,6 @@ export default async function TalentLayout({
               <div className="hidden md:block">
                 <SidebarToggle />
               </div>
-              {/* メインコンテンツ */}
               <main className="flex-1 overflow-y-auto p-6 transition-[margin,width]">{children}</main>
             </SidebarProvider>
           </div>
