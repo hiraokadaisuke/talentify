@@ -17,7 +17,6 @@ interface OfferHeaderCardProps {
   role: 'store' | 'talent'
   onAccept?: () => void
   onDecline?: () => void
-  onCancel?: () => void
   /** action in progress to control loading state of buttons */
   actionLoading?: 'accept' | 'decline' | null
 }
@@ -27,7 +26,6 @@ export default function OfferHeaderCard({
   role,
   onAccept,
   onDecline,
-  onCancel,
   actionLoading = null,
 }: OfferHeaderCardProps) {
   const renderStatusBadge = () => {
@@ -61,11 +59,6 @@ export default function OfferHeaderCard({
           invoiceStatus={offer.invoiceStatus}
         />
         <div className="flex flex-wrap gap-2">
-          {role === 'store' && (
-            <Button variant="outline" size="sm" onClick={onCancel}>
-              オファーをキャンセル
-            </Button>
-          )}
           {role === 'talent' && offer.status === 'pending' && (
             <>
               <Button

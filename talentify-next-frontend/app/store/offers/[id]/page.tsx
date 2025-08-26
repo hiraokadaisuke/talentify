@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import OfferHeaderCard from '@/components/offer/OfferHeaderCard'
 import OfferChatThread from '@/components/offer/OfferChatThread'
+import OfferCancelButton from '@/components/offers/OfferCancelButton'
 
 export default function StoreOfferPage() {
   const params = useParams<{ id: string }>()
@@ -43,6 +44,7 @@ export default function StoreOfferPage() {
   return (
     <div className="flex flex-col gap-4 h-full p-4">
       <OfferHeaderCard offer={offer} role="store" />
+      <OfferCancelButton offerId={offer.id} currentStatus={offer.status} />
       <div id="chat" className="flex-1 min-h-0">
         <OfferChatThread
           offerId={offer.id}
