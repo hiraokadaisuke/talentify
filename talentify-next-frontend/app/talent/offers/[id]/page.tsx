@@ -11,6 +11,7 @@ export default function TalentOfferPage() {
   const params = useParams<{ id: string }>()
   const supabase = createClient()
   const [offer, setOffer] = useState<any>(null)
+  const [loaded, setLoaded] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<'accept' | 'decline' | null>(null)
 
@@ -21,6 +22,7 @@ export default function TalentOfferPage() {
         'id,status,date,message,talent_id,user_id, talents(stage_name,avatar_url), stores(store_name)'
       )
       .eq('id', params.id)
+      .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
       .single()
     if (data) {
       setOffer({
@@ -32,7 +34,10 @@ export default function TalentOfferPage() {
         performerAvatarUrl: data.talents?.avatar_url || null,
         storeName: data.stores?.store_name || '',
       })
+    } else {
+      setOffer(null)
     }
+    setLoaded(true)
   }, [params.id, supabase])
 
   useEffect(() => {
@@ -44,8 +49,12 @@ export default function TalentOfferPage() {
     init()
   }, [loadOffer, supabase])
 
-  if (!offer || !userId) {
+  if (!userId || !loaded) {
     return <p className="p-4">Loading...</p>
+  }
+
+  if (!offer) {
+    return <p className="p-4">オファーが見つかりません</p>
   }
 
   const handleAccept = async () => {

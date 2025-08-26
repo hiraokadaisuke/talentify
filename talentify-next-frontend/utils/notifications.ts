@@ -35,7 +35,32 @@ export async function getNotifications(limit?: number): Promise<NotificationRow[
     console.error('failed to fetch notifications', error)
     return []
   }
-  return (data ?? []) as NotificationRow[]
+
+  let notifications = (data ?? []) as NotificationRow[]
+  const offerIds = notifications
+    .map(n => (n.data as any)?.offer_id)
+    .filter((id): id is string => typeof id === 'string')
+
+  if (offerIds.length > 0) {
+    const { data: offers, error: offerError } = await supabase
+      .from('offers')
+      .select('id, status, accepted_at')
+      .in('id', offerIds)
+
+    if (!offerError) {
+      const hidden = new Set(
+        (offers ?? [])
+          .filter(o => o.status === 'canceled' && !o.accepted_at)
+          .map(o => o.id)
+      )
+      notifications = notifications.filter(n => {
+        const id = (n.data as any)?.offer_id
+        return typeof id !== 'string' || !hidden.has(id)
+      })
+    }
+  }
+
+  return notifications
 }
 
 export async function getUnreadNotificationCount(): Promise<number> {
