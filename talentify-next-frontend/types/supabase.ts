@@ -506,6 +506,8 @@ export type Database = {
           invoice_url: string | null
           contract_url: string | null
           accepted_at: string | null
+          canceled_at: string | null
+          canceled_by_role: string | null
         }
         Insert: {
           id?: string
@@ -539,6 +541,8 @@ export type Database = {
           invoice_url?: string | null
           contract_url?: string | null
           accepted_at?: string | null
+          canceled_at?: string | null
+          canceled_by_role?: string | null
         }
         Update: {
           id?: string
@@ -572,6 +576,8 @@ export type Database = {
           invoice_url?: string | null
           contract_url?: string | null
           accepted_at?: string | null
+          canceled_at?: string | null
+          canceled_by_role?: string | null
         }
         Relationships: [
           {

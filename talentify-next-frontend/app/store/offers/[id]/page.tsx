@@ -1,54 +1,54 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
+import { notFound } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import OfferHeaderCard from '@/components/offer/OfferHeaderCard'
 import OfferChatThread from '@/components/offer/OfferChatThread'
-import OfferCancelButton from '@/components/offers/OfferCancelButton'
+import CancelOfferSection from './CancelOfferSection'
 
-export default function StoreOfferPage() {
-  const params = useParams<{ id: string }>()
+type PageProps = {
+  params: { id: string }
+}
+
+export default async function StoreOfferPage({ params }: PageProps) {
   const supabase = createClient()
-  const [offer, setOffer] = useState<any>(null)
-  const [userId, setUserId] = useState<string | null>(null)
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: userData } = await supabase.auth.getUser()
-      setUserId(userData.user?.id ?? null)
-      const { data } = await supabase
-        .from('offers')
-        .select('id,status,date,message,talent_id,user_id, talents(stage_name,avatar_url), stores(store_name)')
-        .eq('id', params.id)
-        .single()
-      if (data) {
-        setOffer({
-          id: data.id,
-          status: data.status,
-          date: data.date,
-          message: data.message,
-          performerName: data.talents?.stage_name || '',
-          performerAvatarUrl: data.talents?.avatar_url || null,
-          storeName: data.stores?.store_name || '',
-        })
-      }
-    }
-    load()
-  }, [params.id, supabase])
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!offer || !userId) {
-    return <p className="p-4">Loading...</p>
+  const { data } = await supabase
+    .from('offers')
+    .select(
+      'id,status,date,message,talent_id,user_id,canceled_at, talents(stage_name,avatar_url), stores(store_name)'
+    )
+    .eq('id', params.id)
+    .single()
+
+  if (!data || !user) {
+    notFound()
+  }
+
+  const offer = {
+    id: data.id as string,
+    status: data.status as string,
+    date: data.date as string,
+    message: data.message as string,
+    performerName: data.talents?.stage_name || '',
+    performerAvatarUrl: data.talents?.avatar_url || null,
+    storeName: data.stores?.store_name || '',
   }
 
   return (
     <div className="flex flex-col gap-4 h-full p-4">
       <OfferHeaderCard offer={offer} role="store" />
-      <OfferCancelButton offerId={offer.id} currentStatus={offer.status} />
+      <CancelOfferSection
+        offerId={offer.id}
+        initialStatus={data.status}
+        initialCanceledAt={data.canceled_at}
+      />
       <div id="chat" className="flex-1 min-h-0">
         <OfferChatThread
           offerId={offer.id}
-          currentUserId={userId}
+          currentUserId={user.id}
           currentRole="store"
         />
       </div>
