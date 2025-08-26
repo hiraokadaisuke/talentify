@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,9 @@ interface OfferHeaderCardProps {
   onDecline?: () => void
   /** action in progress to control loading state of buttons */
   actionLoading?: 'accept' | 'decline' | null
+  /** link and text for invoice action button */
+  invoiceLink?: string
+  invoiceText?: string
 }
 
 export default function OfferHeaderCard({
@@ -27,27 +31,32 @@ export default function OfferHeaderCard({
   onAccept,
   onDecline,
   actionLoading = null,
+  invoiceLink,
+  invoiceText,
 }: OfferHeaderCardProps) {
   const renderStatusBadge = () => {
     if (offer.status === 'pending') return null
     if (offer.status === 'confirmed') {
-      return <Badge className="ml-auto mr-2">承諾済み</Badge>
+      return <Badge>承諾済み</Badge>
     }
     if (offer.status === 'rejected') {
-      return (
-        <Badge variant="secondary" className="ml-auto mr-2">
-          辞退済み
-        </Badge>
-      )
+      return <Badge variant="secondary">辞退済み</Badge>
     }
-    return <Badge className="ml-auto mr-2">{offer.status}</Badge>
+    return <Badge>{offer.status}</Badge>
   }
 
   return (
     <Card>
       <CardHeader className="flex items-center">
         <CardTitle>オファー詳細</CardTitle>
-        {renderStatusBadge()}
+        <div className="ml-auto flex items-center gap-2">
+          {invoiceLink && (
+            <Button variant="default" size="sm" asChild>
+              <Link href={invoiceLink}>{invoiceText}</Link>
+            </Button>
+          )}
+          {renderStatusBadge()}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <OfferSummary

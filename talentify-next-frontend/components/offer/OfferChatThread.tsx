@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import type { OfferMessage } from '@/lib/supabase/offerMessages'
 import {
@@ -11,14 +12,20 @@ import {
 } from '@/lib/supabase/offerMessages'
 import ChatMessageBubble from './ChatMessageBubble'
 import OfferChatInput from './OfferChatInput'
+import { Button } from '@/components/ui/button'
 
 interface OfferChatThreadProps {
   offerId: string
   currentUserId: string
   currentRole: 'store' | 'talent' | 'admin'
+  paymentLink?: string
 }
-
-export default function OfferChatThread({ offerId, currentUserId, currentRole }: OfferChatThreadProps) {
+export default function OfferChatThread({
+  offerId,
+  currentUserId,
+  currentRole,
+  paymentLink,
+}: OfferChatThreadProps) {
   const supabase = createClient()
   const [messages, setMessages] = useState<OfferMessage[]>([])
   const [loading, setLoading] = useState(true)
@@ -115,6 +122,13 @@ export default function OfferChatThread({ offerId, currentUserId, currentRole }:
         ))}
       </div>
       <OfferChatInput offerId={offerId} senderRole={currentRole} onSent={handleSent} />
+      {paymentLink && (
+        <div className="border-t p-2 flex flex-wrap gap-2 justify-end">
+          <Button variant="default" size="sm" asChild>
+            <Link href={paymentLink}>支払い状況</Link>
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
