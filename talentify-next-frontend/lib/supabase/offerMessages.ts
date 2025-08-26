@@ -86,11 +86,14 @@ export async function upsertReadReceipt(client: SupabaseClient, offerId: string)
     data: { user },
   } = await client.auth.getUser()
   if (!user) return
-  await client.from('offer_read_receipts').upsert({
-    offer_id: offerId,
-    user_id: user.id,
-    last_read_at: new Date().toISOString(),
-  })
+  await client.from('offer_read_receipts').upsert(
+    {
+      offer_id: offerId,
+      user_id: user.id,
+      last_read_at: new Date().toISOString(),
+    },
+    { onConflict: 'offer_id,user_id' }
+  )
 }
 
 export async function getReadReceipts(client: SupabaseClient, offerId: string) {
