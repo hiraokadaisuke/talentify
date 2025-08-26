@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import type { Database } from '@/lib/supabase/types'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -30,15 +31,17 @@ export async function POST(req: NextRequest) {
     senderRole = talent ? 'talent' : 'admin'
   }
 
+  const message: Database['public']['Tables']['offer_messages']['Insert'] = {
+    sender_user: user.id,
+    receiver_user: receiverUser,
+    sender_role: senderRole,
+    body,
+    ...(offerId ? { offer_id: offerId } : {}),
+  }
+
   const { data, error } = await supabase
     .from('offer_messages')
-    .insert({
-      offer_id: offerId ?? null,
-      sender_user: user.id,
-      receiver_user: receiverUser,
-      sender_role: senderRole,
-      body,
-    })
+    .insert(message)
     .select('*')
     .single()
 
