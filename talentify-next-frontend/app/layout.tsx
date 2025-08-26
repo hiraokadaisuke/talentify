@@ -27,13 +27,13 @@ export default async function RootLayout({
   } = await supabase.auth.getSession();
 
   return (
-    <html lang="ja">
-      <body className="font-sans antialiased bg-white text-black">
+    <html lang="ja" className="h-full">
+      <body className="font-sans antialiased bg-white text-black min-h-screen flex flex-col">
         <SupabaseProvider session={session}>
           <TooltipProvider delayDuration={200} disableHoverableContent>
             <Header />
+            <main className="flex-1">{children}</main>
             <Toaster />
-            {children}
           </TooltipProvider>
         </SupabaseProvider>
       </body>

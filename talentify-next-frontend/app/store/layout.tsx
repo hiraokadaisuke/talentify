@@ -21,11 +21,11 @@ export default async function StoreLayout({
   } = await supabase.auth.getSession();
 
   return (
-    <html lang="ja">
-      <body className="font-sans antialiased bg-white text-black">
+    <html lang="ja" className="h-full">
+      <body className="font-sans antialiased bg-white text-black min-h-screen flex flex-col">
         <SupabaseProvider session={session}>
           <Header sidebarRole="store" />
-          <div className="flex h-[calc(100vh-64px)] pt-16">
+          <div className="flex flex-1 pt-16">
             <SidebarProvider>
               <div className="hidden md:block">
                 <Sidebar role="store" collapsible />

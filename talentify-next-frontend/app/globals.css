@@ -21,6 +21,7 @@
 
 /* body全体の基本設定 */
 body {
+  margin: 0;
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
