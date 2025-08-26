@@ -6,6 +6,7 @@ export type OfferStatus =
   | 'completed'
   | 'offer_created'
   | 'confirmed'
+  | 'canceled'
 
 export type OfferInsert = {
   user_id: string
