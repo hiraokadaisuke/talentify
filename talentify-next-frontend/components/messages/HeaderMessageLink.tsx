@@ -18,7 +18,7 @@ export default function HeaderMessageLink() {
     if (role !== 'store' && role !== 'talent') return
 
     const refresh = async () => {
-      const c = await getUnreadMessageCount(role)
+      const c = await getUnreadMessageCount()
       setCount(c)
     }
 
@@ -27,7 +27,7 @@ export default function HeaderMessageLink() {
       .channel('header-message')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
+        { event: 'INSERT', schema: 'public', table: 'offer_messages' },
         refresh,
       )
       .subscribe()
@@ -39,7 +39,7 @@ export default function HeaderMessageLink() {
   }, [role])
 
   if (role !== 'store' && role !== 'talent') return null
-  const href = `/${role}/messages`
+  const href = role === 'talent' ? '/talents/messages' : '/store/messages'
   const formatted = formatUnreadCount(count)
 
   return (

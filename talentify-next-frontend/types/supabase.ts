@@ -376,6 +376,37 @@ export type Database = {
         Relationships: []
       }
       ,
+      offer_messages: {
+        Row: {
+          id: string
+          offer_id: string | null
+          sender_user: string
+          receiver_user: string
+          sender_role: 'store' | 'talent' | 'admin'
+          body: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          offer_id?: string | null
+          sender_user: string
+          receiver_user: string
+          sender_role: 'store' | 'talent' | 'admin'
+          body: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          offer_id?: string | null
+          sender_user?: string
+          receiver_user?: string
+          sender_role?: 'store' | 'talent' | 'admin'
+          body?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      ,
       notifications: {
         Row: {
           id: string

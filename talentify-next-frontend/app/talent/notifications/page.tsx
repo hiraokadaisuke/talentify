@@ -47,7 +47,7 @@ export default function TalentNotificationsPage() {
   }
 
   const linkFor = (n: NotificationRow) => {
-    if (n.type === 'message') return '/talent/messages'
+    if (n.type === 'message') return '/talents/messages'
     const offerId = (n.data as any)?.offer_id
     return offerId ? `/talent/offers/${offerId}` : '#'
   }
