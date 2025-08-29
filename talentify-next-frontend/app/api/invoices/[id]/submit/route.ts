@@ -48,6 +48,7 @@ export async function POST(
         await service.from('notifications').insert({
           user_id: store.user_id,
           type: 'invoice_submitted',
+          title: '請求書が提出されました',
           data: { invoice_id: id },
         })
       }

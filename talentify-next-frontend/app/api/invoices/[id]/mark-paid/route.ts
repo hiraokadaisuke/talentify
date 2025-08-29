@@ -29,7 +29,6 @@ export async function POST(
     }
 
     const updates: Record<string, any> = {
-      status: 'paid',
       payment_status: payment_status ?? 'paid',
       paid_at: paid_at ?? new Date().toISOString(),
     }
@@ -53,6 +52,7 @@ export async function POST(
         await service.from('notifications').insert({
           user_id: talent.user_id,
           type: 'payment_created',
+          title: '支払いが記録されました',
           data: { invoice_id: id },
         })
       }
