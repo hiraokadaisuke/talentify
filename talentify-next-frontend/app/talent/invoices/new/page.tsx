@@ -190,121 +190,135 @@ export default function TalentInvoiceNewPage() {
   const steps = ['下書き保存', '提出待ち', '承認待ち', '支払い完了']
 
   return (
-    <main className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">請求書を作成</h1>
-        <div className="flex items-center gap-2 text-sm">
-          <span>現在の状態:</span>
-          <Badge variant="secondary">{statusLabel()}</Badge>
+    <main className="p-6">
+      <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[420px,1fr] gap-6">
+        <div className="flex items-center justify-between lg:col-span-2">
+          <h1 className="text-xl font-bold">請求書を作成</h1>
+          <div className="flex items-center gap-2 text-sm">
+            <span>現在の状態:</span>
+            <Badge variant="secondary">{statusLabel()}</Badge>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>オファー #{offerId}</CardTitle>
+            <CardTitle>オファー概要</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <div>店舗名: {offer?.stores?.store_name}</div>
-            <div>出演日: {formattedDate}</div>
-            <div>予定報酬(目安): ¥{offer?.reward?.toLocaleString?.() ?? ''}</div>
-            <div className="whitespace-pre-wrap">出演内容: {offer?.message}</div>
+          <CardContent className="space-y-4">
+            <div className="space-y-2 text-sm">
+              <div>店舗名: {offer?.stores?.store_name}</div>
+              <div>出演日: {formattedDate}</div>
+              <div>予定報酬(目安): ¥{offer?.reward?.toLocaleString?.() ?? ''}</div>
+              <div className="whitespace-pre-wrap">出演内容: {offer?.message}</div>
+            </div>
+            <div className="border-t pt-4">
+              <h2 className="mb-2 text-sm font-medium">ステータス履歴</h2>
+              <ul className="space-y-2 text-sm">
+                {steps.map((s, i) => (
+                  <li key={s} className="flex items-center gap-2">
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        i <= currentStep() ? 'bg-blue-600' : 'bg-gray-300'
+                      }`}
+                    />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader>
-            <CardTitle>ステータス履歴</CardTitle>
+            <CardTitle>請求書</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2 text-sm">
-              {steps.map((s, i) => (
-                <li key={s} className="flex items-center gap-2">
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      i <= currentStep() ? 'bg-blue-600' : 'bg-gray-300'
-                    }`}
-                  />
-                  <span>{s}</span>
-                </li>
-              ))}
-            </ul>
+            <Tabs defaultValue="system" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="system">システムで作成</TabsTrigger>
+                <TabsTrigger value="pdf">PDFをアップロード</TabsTrigger>
+              </TabsList>
+              <TabsContent value="system">
+                <form onSubmit={submitSystem} className="space-y-4">
+                  <div>
+                    <label className="mb-1 block text-sm">基本報酬</label>
+                    <Input
+                      type="number"
+                      value={baseFee}
+                      onChange={e => setBaseFee(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm">交通費</label>
+                    <Input
+                      type="number"
+                      value={transportFee}
+                      onChange={e => setTransportFee(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm">延長・追加費用</label>
+                    <Input
+                      type="number"
+                      value={extraFee}
+                      onChange={e => setExtraFee(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm">その他メモ</label>
+                    <Textarea
+                      value={memo}
+                      onChange={e => setMemo(e.target.value)}
+                    />
+                  </div>
+                  <div className="text-2xl font-bold text-right">
+                    合計: ¥{total.toLocaleString()}
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      onClick={saveDraft}
+                      disabled={loading}
+                      variant="outline"
+                    >
+                      下書き保存
+                    </Button>
+                    <Button type="submit" disabled={loading}>
+                      提出する
+                    </Button>
+                  </div>
+                </form>
+              </TabsContent>
+              <TabsContent value="pdf">
+                <form onSubmit={submitPdf} className="space-y-4">
+                  <div>
+                    <label className="mb-1 block text-sm">PDFファイル</label>
+                    <Input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm">備考メモ (任意)</label>
+                    <Textarea
+                      value={pdfMemo}
+                      onChange={e => setPdfMemo(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={loading || !pdfFile}>
+                      提出する
+                    </Button>
+                  </div>
+                </form>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
-
-      <Tabs defaultValue="system" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="system">システムで作成</TabsTrigger>
-          <TabsTrigger value="pdf">PDFをアップロード</TabsTrigger>
-        </TabsList>
-        <TabsContent value="system">
-          <form onSubmit={submitSystem} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm">基本報酬</label>
-              <Input
-                type="number"
-                value={baseFee}
-                onChange={e => setBaseFee(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm">交通費</label>
-              <Input
-                type="number"
-                value={transportFee}
-                onChange={e => setTransportFee(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm">延長・追加費用</label>
-              <Input
-                type="number"
-                value={extraFee}
-                onChange={e => setExtraFee(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm">その他メモ</label>
-              <Textarea
-                value={memo}
-                onChange={e => setMemo(e.target.value)}
-              />
-            </div>
-            <div className="text-xl font-bold">合計: ¥{total.toLocaleString()}</div>
-            <div className="flex gap-2">
-              <Button type="button" onClick={saveDraft} disabled={loading} variant="outline">
-                下書き保存
-              </Button>
-              <Button type="submit" disabled={loading}>
-                提出する
-              </Button>
-            </div>
-          </form>
-        </TabsContent>
-        <TabsContent value="pdf">
-          <form onSubmit={submitPdf} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm">PDFファイル</label>
-              <Input
-                type="file"
-                accept="application/pdf"
-                onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
-                required
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm">備考メモ (任意)</label>
-              <Textarea
-                value={pdfMemo}
-                onChange={e => setPdfMemo(e.target.value)}
-              />
-            </div>
-            <Button type="submit" disabled={loading || !pdfFile}>
-              提出する
-            </Button>
-          </form>
-        </TabsContent>
-      </Tabs>
     </main>
   )
 }
