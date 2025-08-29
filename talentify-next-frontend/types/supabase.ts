@@ -306,6 +306,8 @@ export type Database = {
           status: Enums<'invoice_status'>
           due_date: string | null
           invoice_number: string | null
+          payment_status: Enums<'payment_status'>
+          paid_at: string | null
         }
         Insert: {
           id?: string
@@ -319,6 +321,8 @@ export type Database = {
           status?: Enums<'invoice_status'>
           due_date?: string | null
           invoice_number?: string | null
+          payment_status?: Enums<'payment_status'>
+          paid_at?: string | null
         }
         Update: {
           id?: string
@@ -332,6 +336,8 @@ export type Database = {
           status?: Enums<'invoice_status'>
           due_date?: string | null
           invoice_number?: string | null
+          payment_status?: Enums<'payment_status'>
+          paid_at?: string | null
         }
         Relationships: []
       }

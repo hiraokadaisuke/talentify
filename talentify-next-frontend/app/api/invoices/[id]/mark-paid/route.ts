@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
-export async function PATCH(
+export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -11,8 +12,9 @@ export async function PATCH(
     if (userError || !user) {
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
     }
+
     const { id } = params
-    const body = await req.json()
+    const { paid_at, payment_status } = await req.json().catch(() => ({}))
 
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
@@ -22,20 +24,14 @@ export async function PATCH(
     if (invError || !invoice) {
       return NextResponse.json<{ error: string }>({ error: '請求書が見つかりません' }, { status: 404 })
     }
-    if (invoice.status !== 'draft') {
-      return NextResponse.json<{ error: string }>({ error: '下書きのみ編集できます' }, { status: 400 })
-    }
-    if (user.id !== invoice.talent_id) {
+    if (user.id !== invoice.store_id) {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const allowedFields = ['invoice_url', 'amount', 'due_date']
-    const updates: Record<string, any> = {}
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) updates[field] = body[field]
-    }
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json<{ error: string }>({ error: '更新可能な項目がありません' }, { status: 400 })
+    const updates: Record<string, any> = {
+      status: 'paid',
+      payment_status: payment_status ?? 'paid',
+      paid_at: paid_at ?? new Date().toISOString(),
     }
 
     const { data, error } = await supabase
@@ -46,9 +42,27 @@ export async function PATCH(
       .single()
     if (error) throw error
 
+    try {
+      const service = createServiceClient()
+      const { data: talent } = await service
+        .from('talents')
+        .select('user_id')
+        .eq('id', invoice.talent_id)
+        .single()
+      if (talent?.user_id) {
+        await service.from('notifications').insert({
+          user_id: talent.user_id,
+          type: 'payment_created',
+          data: { invoice_id: id },
+        })
+      }
+    } catch (e) {
+      console.error('failed to send notification', e)
+    }
+
     return NextResponse.json(data, { status: 200 })
   } catch (e) {
-    console.error('[PATCH /invoices/:id]', e)
+    console.error('[POST /invoices/:id/mark-paid]', e)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }

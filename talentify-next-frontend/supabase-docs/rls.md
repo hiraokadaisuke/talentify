@@ -9,8 +9,8 @@
 - タレントは自分の請求書を登録可能 (`INSERT`): CHECK `(auth.uid() = talent_id)`
 - ストアは自分の請求書を登録可能 (`INSERT`): CHECK `(auth.uid() = store_id)`
 - ストアまたはタレントは自分の請求書を閲覧可能 (`SELECT`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
-- ストアまたはタレントは請求書を更新可能 (`UPDATE`): USING `((auth.uid() = store_id) OR (auth.uid() = talent_id))`
-- ストアは請求書を更新可能 (`UPDATE`): USING `(auth.uid() = store_id)`
+- draft 状態の請求書はタレント本人のみ更新可能 (`UPDATE`): USING `(auth.uid() = talent_id AND status = 'draft')`
+- submitted 以降の請求書はストアのみ更新可能 (`UPDATE`): USING `(auth.uid() = store_id AND status <> 'draft')`
 
 ### messages
 - ユーザーは自分宛てのメッセージを閲覧可能 (`SELECT`): USING `((auth.uid() = sender_id) OR (auth.uid() = receiver_id))`
