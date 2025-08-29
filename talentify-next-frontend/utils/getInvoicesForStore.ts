@@ -8,6 +8,10 @@ export type Invoice = Database['public']['Tables']['invoices']['Row'] & {
   offers: { paid: boolean | null } | null
 }
 
+type RawInvoice = Database['public']['Tables']['invoices']['Row'] & {
+  offers: { paid: boolean | null }[] | null
+}
+
 export async function getInvoicesForStore() {
   const {
     data: { user },
@@ -31,5 +35,9 @@ export async function getInvoicesForStore() {
     console.error('failed to fetch invoices', error)
     return [] as Invoice[]
   }
-  return (data ?? []) as Invoice[]
+  const raw = (data ?? []) as unknown as RawInvoice[]
+  return raw.map(inv => ({
+    ...inv,
+    offers: Array.isArray(inv.offers) ? inv.offers[0] ?? null : inv.offers,
+  })) as Invoice[]
 }
