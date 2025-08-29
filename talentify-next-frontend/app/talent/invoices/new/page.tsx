@@ -30,11 +30,11 @@ export default function TalentInvoiceNewPage() {
       }
       const { data } = await supabase
         .from('offers')
-        .select('invoice_amount,reward')
+        .select('reward')
         .eq('id', offerId)
         .single()
       if (data) {
-        setAmount(String(data.invoice_amount ?? data.reward ?? ''))
+        setAmount(String(data.reward ?? ''))
       }
     }
     init()

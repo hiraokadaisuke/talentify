@@ -25,6 +25,8 @@
 - status: USER-DEFINED, DEFAULT 'pending'
 - due_date: date
 - invoice_number: text
+- payment_status: USER-DEFINED, DEFAULT 'pending'
+- paid_at: timestamp with time zone
 
 ### messages
 - created_at: timestamp with time zone

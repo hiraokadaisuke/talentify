@@ -25,12 +25,21 @@ export default function TalentInvoiceDetail() {
   const id = params?.id as string
 
   const [invoice, setInvoice] = useState<any | null>(null)
+  const [amount, setAmount] = useState('')
+  const [memo, setMemo] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const load = async () => {
-      const { data, error } = await supabase.from('invoices').select('*').eq('id', id).maybeSingle()
-      if (!error) setInvoice(data)
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*, offers(reward)')
+        .eq('id', id)
+        .maybeSingle()
+      if (!error && data) {
+        setInvoice(data)
+        setAmount(String(data.amount ?? ''))
+      }
       setLoading(false)
     }
     load()
@@ -38,9 +47,12 @@ export default function TalentInvoiceDetail() {
 
   const handleSubmit = async () => {
     if (!invoice) return
-    await supabase.from('invoices').update({
-      status: 'submitted'
-    }).eq('id', id)
+    await fetch(`/api/invoices/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: Number(amount) })
+    })
+    await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
     router.push('/talent/invoices')
   }
 
@@ -56,7 +68,13 @@ export default function TalentInvoiceDetail() {
         <TableBody>
           <TableRow>
             <TableCell className='font-medium'>報酬</TableCell>
-            <TableCell>¥{invoice.amount.toLocaleString()}</TableCell>
+            <TableCell>
+              {invoice.status === 'draft' ? (
+                <Input type='number' value={amount} onChange={e => setAmount(e.target.value)} />
+              ) : (
+                <>¥{invoice.amount.toLocaleString()}</>
+              )}
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell className='font-medium'>請求書番号</TableCell>
@@ -77,7 +95,14 @@ export default function TalentInvoiceDetail() {
         </TableBody>
       </Table>
       {invoice.status === 'draft' && (
-        <Button onClick={handleSubmit}>請求を確定する</Button>
+        <>
+          <div>
+            <label className='block mb-2'>メモ (任意)</label>
+            <Textarea value={memo} onChange={e => setMemo(e.target.value)} />
+          </div>
+          <p className='text-sm text-gray-500'>目安価格: ¥{invoice.offers?.reward?.toLocaleString?.() ?? 0}</p>
+          <Button onClick={handleSubmit}>請求を確定する</Button>
+        </>
       )}
     </main>
   )

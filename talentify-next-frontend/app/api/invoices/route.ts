@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         talent_id: offer.talent_id,
         amount,
         invoice_url,
-        status: 'pending',
+        status: 'draft',
       })
       .select()
       .single()
@@ -48,6 +48,11 @@ export async function POST(req: NextRequest) {
       }
       throw error
     }
+
+    await supabase
+      .from('offers')
+      .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
+      .eq('id', offer_id)
 
     return NextResponse.json(data, { status: 200 })
   } catch (e) {
