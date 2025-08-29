@@ -4,7 +4,9 @@ import type { Database } from '@/types/supabase'
 
 const supabase = createClient()
 
-export type Invoice = Database['public']['Tables']['invoices']['Row']
+export type Invoice = Database['public']['Tables']['invoices']['Row'] & {
+  offers: { paid: boolean | null } | null
+}
 
 export async function getInvoicesForStore() {
   const {
@@ -21,13 +23,13 @@ export async function getInvoicesForStore() {
 
   const { data, error } = await supabase
     .from('invoices')
-    .select('*')
+    .select('*, offers(paid)')
     .eq('store_id', store.id)
     .order('created_at', { ascending: false })
 
   if (error) {
     console.error('failed to fetch invoices', error)
-    return []
+    return [] as Invoice[]
   }
   return (data ?? []) as Invoice[]
 }

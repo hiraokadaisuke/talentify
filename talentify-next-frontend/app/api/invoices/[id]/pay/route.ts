@@ -4,41 +4,37 @@ import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const supabase = await createClient()
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
     }
 
     const { id } = params
-    const { paid_at, payment_status } = await req.json().catch(() => ({}))
-
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
-      .select('store_id, talent_id, status')
+      .select('store_id, talent_id, status, offer_id')
       .eq('id', id)
       .single()
     if (invError || !invoice) {
       return NextResponse.json<{ error: string }>({ error: '請求書が見つかりません' }, { status: 404 })
     }
-    if (user.id !== invoice.store_id) {
+    if (invoice.status !== 'approved' || user.id !== invoice.store_id) {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const updates: Record<string, any> = {
-      payment_status: payment_status ?? 'paid',
-      paid_at: paid_at ?? new Date().toISOString(),
-    }
+    const { paid_at } = await req.json().catch(() => ({}))
 
-    const { data, error } = await supabase
-      .from('invoices')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single()
+    const { error } = await supabase
+      .from('offers')
+      .update({ paid: true, paid_at: paid_at ?? new Date().toISOString() })
+      .eq('id', invoice.offer_id)
     if (error) throw error
 
     try {
@@ -60,9 +56,9 @@ export async function POST(
       console.error('failed to send notification', e)
     }
 
-    return NextResponse.json(data, { status: 200 })
+    return NextResponse.json({ ok: true }, { status: 200 })
   } catch (e) {
-    console.error('[POST /invoices/:id/mark-paid]', e)
+    console.error('[POST /invoices/:id/pay]', e)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }

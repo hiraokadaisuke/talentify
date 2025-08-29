@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(
   req: NextRequest,
@@ -27,11 +28,30 @@ export async function POST(
 
     const { data, error } = await supabase
       .from('invoices')
-      .update({ status: 'rejected' })
+      .update({ status: 'rejected', updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single()
     if (error) throw error
+
+    try {
+      const service = createServiceClient()
+      const { data: talent } = await service
+        .from('talents')
+        .select('user_id')
+        .eq('id', invoice.talent_id)
+        .single()
+      if (talent?.user_id) {
+        await service.from('notifications').insert({
+          user_id: talent.user_id,
+          type: 'invoice_submitted',
+          title: '請求書が差し戻されました',
+          data: { invoice_id: id },
+        })
+      }
+    } catch (e) {
+      console.error('failed to send notification', e)
+    }
 
     return NextResponse.json(data, { status: 200 })
   } catch (e) {
