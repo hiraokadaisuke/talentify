@@ -37,9 +37,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
     .select('id,status')
     .eq('offer_id', params.id)
     .maybeSingle()
-
-  const invoiceStatus = invoice
-    ? invoice.status === 'paid'
+  const invoiceStatus: 'not_submitted' | 'submitted' | 'paid' = invoice
+    ? data.paid
       ? 'paid'
       : 'submitted'
     : 'not_submitted'
