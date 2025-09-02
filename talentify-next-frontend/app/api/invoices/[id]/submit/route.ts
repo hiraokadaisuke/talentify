@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { getSubmitStatus } from '../../utils'
 
 export async function POST(
   req: NextRequest,
@@ -36,7 +37,8 @@ export async function POST(
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    if (invoice.status === 'submitted') {
+    const nextStatus = getSubmitStatus()
+    if (invoice.status === nextStatus) {
       return NextResponse.json({ id }, { status: 200 })
     }
     if (invoice.status !== 'draft') {
@@ -45,7 +47,7 @@ export async function POST(
 
     const { data, error } = await supabase
       .from('invoices')
-      .update({ status: 'submitted' })
+      .update({ status: nextStatus })
       .eq('id', id)
       .select('id')
       .single()
@@ -70,7 +72,7 @@ export async function POST(
       console.error('failed to send notification', e)
     }
 
-    return NextResponse.json({ id: data.id }, { status: 200 })
+    return NextResponse.json({ id: data.id, status: nextStatus }, { status: 200 })
   } catch (err: any) {
     console.error({ code: err.code, message: err.message })
     if (err.code === '23502') {

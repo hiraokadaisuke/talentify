@@ -3,7 +3,7 @@
 - 目的: invoice の提出/支払い状態の追跡
 - カラム/型:
   - `invoices.status` … enum `status_type` (`draft`, `submitted`, `approved`, `rejected`, …)
-    - ※今回 'submitted' を追加。
+    - `submitted` は enum に残るが現在のフローでは使用せず、提出時に自動的に `approved` へ遷移する。
   - `invoices.payment_status` … enum `payment_status` (`pending`, `processing`, `paid`, `failed`)
   - `invoices.paid_at` … `timestamptz`
 - ユニーク制約: `invoices(offer_id)`（1オファー=1請求）
