@@ -109,7 +109,15 @@ export default async function StoreOfferPage({ params }: PageProps) {
             </div>
           </CardContent>
         </Card>
-        <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} invoice={invoiceData} />
+        {invoiceData && (
+          <OfferPaymentStatusCard
+            title="請求"
+            offerId={offer.id}
+            paid={offer.paid}
+            paidAt={offer.paidAt}
+            invoice={invoiceData}
+          />
+        )}
       </div>
       <div className="flex flex-col flex-1 gap-4 w-full lg:w-2/3">
         <div className="flex items-center justify-between p-4 bg-white rounded shadow">

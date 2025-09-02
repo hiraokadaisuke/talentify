@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
+import { Loader2 } from 'lucide-react'
 
 const supabase = createClient()
 
@@ -18,6 +19,7 @@ interface Invoice {
   invoice_url: string | null
   status: string
   created_at: string | null
+  offer_id: string
   offers: { paid: boolean | null } | null
 }
 
@@ -46,11 +48,12 @@ export default function StoreInvoiceDetail() {
 
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
+  const [paying, setPaying] = useState(false)
 
   const load = async () => {
     const { data } = await supabase
       .from('invoices')
-      .select('id,amount,invoice_url,status,created_at,offers(paid)')
+      .select('id,amount,invoice_url,status,created_at,offer_id,offers(paid)')
       .eq('id', id)
       .maybeSingle()
     const raw = data as unknown as RawInvoice | null
@@ -70,11 +73,15 @@ export default function StoreInvoiceDetail() {
   }, [id])
 
   const handlePay = async () => {
+    setPaying(true)
     const res = await fetch(`/api/invoices/${id}/pay`, { method: 'POST' })
+    setPaying(false)
     if (res.ok) {
       toast.success('支払いを記録しました')
       router.refresh()
-      await load()
+      if (invoice?.offer_id) {
+        router.push(`/store/reviews/new?offerId=${invoice.offer_id}`)
+      }
     } else {
       toast.error('支払いの記録に失敗しました')
     }
@@ -92,7 +99,7 @@ export default function StoreInvoiceDetail() {
         </CardHeader>
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>金額: ¥{invoice.amount.toLocaleString()}</div>
+          <div>金額: ¥{invoice.amount.toLocaleString('ja-JP')}</div>
           <div>
             ステータス:{' '}
             <Badge variant='outline'>{statusLabel(invoice)}</Badge>
@@ -112,7 +119,10 @@ export default function StoreInvoiceDetail() {
       </Card>
 
       {!invoice.offers?.paid && (
-        <Button onClick={handlePay}>支払い完了にする</Button>
+        <Button onClick={handlePay} disabled={paying}>
+          {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+          支払い完了にする
+        </Button>
       )}
     </main>
   )
