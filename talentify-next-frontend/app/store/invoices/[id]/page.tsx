@@ -21,6 +21,10 @@ interface Invoice {
   offers: { paid: boolean | null } | null
 }
 
+interface RawInvoice extends Omit<Invoice, 'offers'> {
+  offers: { paid: boolean | null }[] | null
+}
+
 function statusLabel(inv: Invoice): string {
   if (inv.offers?.paid) return '支払い完了'
   switch (inv.status) {
@@ -49,7 +53,14 @@ export default function StoreInvoiceDetail() {
       .select('id,amount,invoice_url,status,created_at,offers(paid)')
       .eq('id', id)
       .maybeSingle()
-    setInvoice(data as Invoice | null)
+    const raw = data as unknown as RawInvoice | null
+    const normalized = raw
+      ? {
+          ...raw,
+          offers: Array.isArray(raw.offers) ? raw.offers[0] ?? null : raw.offers,
+        }
+      : null
+    setInvoice(normalized)
     setLoading(false)
   }
 
