@@ -4,10 +4,23 @@ import { createClient } from '@/lib/supabase/server'
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
     }
+
+    const { data: talent, error: talentError } = await supabase
+      .from('talents')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+    if (talentError || !talent) {
+      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+    }
+
     const body = await req.json()
     const { offer_id, amount, invoice_url } = body
 
@@ -19,7 +32,7 @@ export async function POST(req: NextRequest) {
     if (offerError || !offer) {
       return NextResponse.json<{ error: string }>({ error: 'オファーが見つかりません' }, { status: 404 })
     }
-    if (user.id !== offer.talent_id) {
+    if (talent.id !== offer.talent_id) {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 

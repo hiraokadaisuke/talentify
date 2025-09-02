@@ -25,7 +25,13 @@ export async function PATCH(
     if (invoice.status !== 'draft') {
       return NextResponse.json<{ error: string }>({ error: '下書きのみ編集できます' }, { status: 400 })
     }
-    if (user.id !== invoice.talent_id) {
+
+    const { data: talent, error: talentError } = await supabase
+      .from('talents')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+    if (talentError || !talent || talent.id !== invoice.talent_id) {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
