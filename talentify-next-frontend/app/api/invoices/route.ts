@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       store_id: offer.store_id,
       talent_id: offer.talent_id,
       amount,
-      status: 'submitted',
+      status: 'submitted' as const,
       notes,
       transport_fee,
       extra_fee,
