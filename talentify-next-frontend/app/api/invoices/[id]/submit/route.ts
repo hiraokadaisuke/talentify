@@ -25,7 +25,18 @@ export async function POST(
     if (invError || !invoice) {
       return NextResponse.json<{ error: string }>({ error: '請求書が見つかりません' }, { status: 404 })
     }
-    if (invoice.status !== 'draft' || user.id !== invoice.talent_id) {
+
+    const { data: talent, error: talentError } = await supabase
+      .from('talents')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+    if (
+      talentError ||
+      !talent ||
+      invoice.status !== 'draft' ||
+      talent.id !== invoice.talent_id
+    ) {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
