@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getSubmitStatus } from './utils'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest) {
       store_id: offer.store_id,
       talent_id: offer.talent_id,
       amount,
-      status: 'submitted' as const,
+      status: getSubmitStatus() as 'submitted' | 'approved',
       notes,
       transport_fee,
       extra_fee,
@@ -77,7 +78,7 @@ export async function POST(req: NextRequest) {
         .from('offers')
         .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
         .eq('id', offer_id)
-      return NextResponse.json({ id: updated.id }, { status: 200 })
+      return NextResponse.json({ id: updated.id, status: payload.status }, { status: 200 })
     }
 
     const { data: inserted, error: insertError } = await supabase
@@ -92,7 +93,7 @@ export async function POST(req: NextRequest) {
       .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
       .eq('id', offer_id)
 
-    return NextResponse.json({ id: inserted.id }, { status: 201 })
+    return NextResponse.json({ id: inserted.id, status: payload.status }, { status: 201 })
   } catch (err: any) {
     console.error({ code: err.code, message: err.message })
     if (err.code === '23505' && offerId) {

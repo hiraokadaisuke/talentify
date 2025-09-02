@@ -40,6 +40,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_API_BASE=
 NEXT_PUBLIC_SITE_URL=https://example.com
 NOTIFICATION_WEBHOOK_URL=https://example.com/webhook
+INVOICE_AUTO_APPROVE=true
 
 `NEXT_PUBLIC_API_BASE` を空にしておくと、フロントエンドと同じオリジンの API ルートを使用します。別ドメインを指定すると認証リクエストが CORS でブロックされるため注意してください。特に本番環境ではこの値を設定せず、フロントと API を同一ドメインでホスティングする構成を推奨します。
 

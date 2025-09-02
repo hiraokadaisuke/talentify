@@ -61,21 +61,13 @@ export default function TalentInvoiceNewPage() {
 
   const statusLabel = () => {
     if (invoice?.payment_status === 'paid') return '支払済み'
-    if (invoice?.status === 'approved') return '承認済み'
-    if (invoice?.status === 'submitted') return '提出済み'
+    if (invoice?.status === 'approved') return '提出済み'
     return '下書き'
   }
 
   const currentStep = () => {
-    if (invoice?.payment_status === 'paid') return 3
-    switch (invoice?.status) {
-      case 'approved':
-        return 2
-      case 'submitted':
-        return 1
-      default:
-        return 0
-    }
+    if (invoice?.payment_status === 'paid') return 2
+    return invoice?.status === 'approved' ? 1 : 0
   }
 
   const saveDraft = async () => {
@@ -187,7 +179,7 @@ export default function TalentInvoiceNewPage() {
     ? format(new Date(offer.date), 'yyyy/MM/dd (EEE)', { locale: ja })
     : ''
 
-  const steps = ['下書き保存', '提出待ち', '承認待ち', '支払い完了']
+  const steps = ['下書き保存', '提出済み', '支払い完了']
 
   return (
     <main className="p-6">

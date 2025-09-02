@@ -30,10 +30,8 @@ interface RawInvoice extends Omit<Invoice, 'offers'> {
 function statusLabel(inv: Invoice): string {
   if (inv.offers?.paid) return '支払い完了'
   switch (inv.status) {
-    case 'submitted':
-      return '承認待ち'
     case 'approved':
-      return '承認済み'
+      return '提出済み'
     case 'rejected':
       return '差し戻し済み'
     default:
@@ -118,7 +116,7 @@ export default function StoreInvoiceDetail() {
         </CardContent>
       </Card>
 
-      {!invoice.offers?.paid && (
+      {!invoice.offers?.paid && invoice.status === 'approved' && (
         <Button onClick={handlePay} disabled={paying}>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする
