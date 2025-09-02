@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
       error: userError,
     } = await supabase.auth.getUser()
     if (userError || !user) {
-      return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
     const { data: talent, error: talentError } = await supabase
@@ -20,11 +20,18 @@ export async function POST(req: NextRequest) {
       .eq('user_id', user.id)
       .single()
     if (talentError || !talent) {
-      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
     const body = await req.json()
-    const { offer_id, amount, invoice_url } = body
+    const {
+      offer_id,
+      amount,
+      notes,
+      transport_fee,
+      extra_fee,
+      invoice_url,
+    } = body
     offerId = offer_id
 
     const { data: offer, error: offerError } = await supabase
@@ -33,10 +40,10 @@ export async function POST(req: NextRequest) {
       .eq('id', offer_id)
       .single()
     if (offerError || !offer) {
-      return NextResponse.json<{ error: string }>({ error: 'オファーが見つかりません' }, { status: 404 })
+      return NextResponse.json({ error: 'offer_not_found' }, { status: 404 })
     }
     if (talent.id !== offer.talent_id) {
-      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
     const { data: existing, error: existingError } = await supabase
@@ -46,10 +53,22 @@ export async function POST(req: NextRequest) {
       .maybeSingle()
     if (existingError) throw existingError
 
+    const payload = {
+      offer_id,
+      store_id: offer.store_id,
+      talent_id: offer.talent_id,
+      amount,
+      status: 'submitted',
+      notes,
+      transport_fee,
+      extra_fee,
+      invoice_url,
+    }
+
     if (existing) {
       const { data: updated, error: updateError } = await supabase
         .from('invoices')
-        .update({ amount, invoice_url })
+        .update(payload)
         .eq('id', existing.id)
         .select('id')
         .single()
@@ -63,14 +82,7 @@ export async function POST(req: NextRequest) {
 
     const { data: inserted, error: insertError } = await supabase
       .from('invoices')
-      .insert({
-        offer_id,
-        store_id: offer.store_id,
-        talent_id: offer.talent_id,
-        amount,
-        invoice_url,
-        status: 'submitted',
-      })
+      .insert(payload)
       .select('id')
       .single()
     if (insertError) throw insertError
@@ -80,7 +92,7 @@ export async function POST(req: NextRequest) {
       .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
       .eq('id', offer_id)
 
-    return NextResponse.json({ id: inserted.id }, { status: 200 })
+    return NextResponse.json({ id: inserted.id }, { status: 201 })
   } catch (err: any) {
     console.error({ code: err.code, message: err.message })
     if (err.code === '23505' && offerId) {
@@ -90,16 +102,16 @@ export async function POST(req: NextRequest) {
         .eq('offer_id', offerId)
         .single()
       if (existing) {
-        return NextResponse.json({ id: existing.id }, { status: 200 })
+        return NextResponse.json({ error: 'duplicate', id: existing.id }, { status: 200 })
       }
     }
     if (err.code === '23502') {
-      return NextResponse.json<{ error: string }>({ error: '必要な列が不足しています' }, { status: 400 })
+      return NextResponse.json({ error: 'not_null_violation' }, { status: 400 })
     }
     if (err.code === '42501') {
-      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+      return NextResponse.json({ error: 'forbidden_rls' }, { status: 403 })
     }
-    return NextResponse.json<{ error: string }>({ error: '不明なエラー' }, { status: 400 })
+    return NextResponse.json({ error: 'unknown', code: err.code }, { status: 400 })
   }
 }
 

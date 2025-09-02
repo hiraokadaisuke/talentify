@@ -15,7 +15,7 @@ export async function POST(
       error: userError,
     } = await supabase.auth.getUser()
     if (userError || !user) {
-      return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
     const { data: invoice, error: invError } = await supabase
@@ -24,7 +24,7 @@ export async function POST(
       .eq('id', id)
       .single()
     if (invError || !invoice) {
-      return NextResponse.json<{ error: string }>({ error: '請求書が見つかりません' }, { status: 404 })
+      return NextResponse.json({ error: 'invoice_not_found' }, { status: 404 })
     }
 
     const { data: store, error: storeError } = await supabase
@@ -38,7 +38,7 @@ export async function POST(
       invoice.status !== 'approved' ||
       store.id !== invoice.store_id
     ) {
-      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+      return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
     const { paid_at } = await req.json().catch(() => ({}))
@@ -79,12 +79,12 @@ export async function POST(
   } catch (err: any) {
     console.error({ code: err.code, message: err.message })
     if (err.code === '23502') {
-      return NextResponse.json<{ error: string }>({ error: '必要な列が不足しています' }, { status: 400 })
+      return NextResponse.json({ error: 'not_null_violation' }, { status: 400 })
     }
     if (err.code === '42501') {
-      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+      return NextResponse.json({ error: 'forbidden_rls' }, { status: 403 })
     }
-    return NextResponse.json<{ error: string }>({ error: '不明なエラー' }, { status: 400 })
+    return NextResponse.json({ error: 'unknown', code: err.code }, { status: 400 })
   }
 }
 
