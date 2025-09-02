@@ -6,8 +6,10 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const supabase = await createClient()
+  const { id } = params
+
   try {
-    const supabase = await createClient()
     const {
       data: { user },
       error: userError,
@@ -16,7 +18,6 @@ export async function POST(
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
     }
 
-    const { id } = params
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .select('store_id, talent_id, status, offer_id')
@@ -41,12 +42,19 @@ export async function POST(
     }
 
     const { paid_at } = await req.json().catch(() => ({}))
+    const paidTime = paid_at ?? new Date().toISOString()
 
-    const { error } = await supabase
+    const { error: invoiceError } = await supabase
+      .from('invoices')
+      .update({ payment_status: 'paid', paid_at: paidTime })
+      .eq('id', id)
+    if (invoiceError) throw invoiceError
+
+    const { error: offerError } = await supabase
       .from('offers')
-      .update({ paid: true, paid_at: paid_at ?? new Date().toISOString() })
+      .update({ paid: true, paid_at: paidTime })
       .eq('id', invoice.offer_id)
-    if (error) throw error
+    if (offerError) throw offerError
 
     try {
       const service = createServiceClient()
@@ -68,8 +76,15 @@ export async function POST(
     }
 
     return NextResponse.json({ ok: true }, { status: 200 })
-  } catch (e) {
-    console.error('[POST /invoices/:id/pay]', e)
-    return new NextResponse('Internal Server Error', { status: 500 })
+  } catch (err: any) {
+    console.error({ code: err.code, message: err.message })
+    if (err.code === '23502') {
+      return NextResponse.json<{ error: string }>({ error: '必要な列が不足しています' }, { status: 400 })
+    }
+    if (err.code === '42501') {
+      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+    }
+    return NextResponse.json<{ error: string }>({ error: '不明なエラー' }, { status: 400 })
   }
 }
+

@@ -4,10 +4,12 @@ import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
+  const supabase = await createClient()
+  const { id } = params
+
   try {
-    const supabase = await createClient()
     const {
       data: { user },
       error: userError,
@@ -16,7 +18,6 @@ export async function POST(
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
     }
 
-    const { id } = params
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .select('store_id, talent_id, status')
@@ -31,12 +32,14 @@ export async function POST(
       .select('id')
       .eq('user_id', user.id)
       .single()
-    if (
-      talentError ||
-      !talent ||
-      invoice.status !== 'draft' ||
-      talent.id !== invoice.talent_id
-    ) {
+    if (talentError || !talent || talent.id !== invoice.talent_id) {
+      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+    }
+
+    if (invoice.status === 'submitted') {
+      return NextResponse.json({ id }, { status: 200 })
+    }
+    if (invoice.status !== 'draft') {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
@@ -44,7 +47,7 @@ export async function POST(
       .from('invoices')
       .update({ status: 'submitted' })
       .eq('id', id)
-      .select()
+      .select('id')
       .single()
     if (error) throw error
 
@@ -67,9 +70,16 @@ export async function POST(
       console.error('failed to send notification', e)
     }
 
-    return NextResponse.json(data, { status: 200 })
-  } catch (e) {
-    console.error('[POST /invoices/:id/submit]', e)
-    return new NextResponse('Internal Server Error', { status: 500 })
+    return NextResponse.json({ id: data.id }, { status: 200 })
+  } catch (err: any) {
+    console.error({ code: err.code, message: err.message })
+    if (err.code === '23502') {
+      return NextResponse.json<{ error: string }>({ error: '必要な列が不足しています' }, { status: 400 })
+    }
+    if (err.code === '42501') {
+      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+    }
+    return NextResponse.json<{ error: string }>({ error: '不明なエラー' }, { status: 400 })
   }
 }
+

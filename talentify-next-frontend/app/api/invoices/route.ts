@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
+  const supabase = await createClient()
+  let offerId: string | undefined
+
   try {
-    const supabase = await createClient()
     const {
       data: { user },
       error: userError,
@@ -23,6 +25,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const { offer_id, amount, invoice_url } = body
+    offerId = offer_id
 
     const { data: offer, error: offerError } = await supabase
       .from('offers')
@@ -36,7 +39,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const { data, error } = await supabase
+    const { data: existing, error: existingError } = await supabase
+      .from('invoices')
+      .select('id')
+      .eq('offer_id', offer_id)
+      .maybeSingle()
+    if (existingError) throw existingError
+
+    if (existing) {
+      const { data: updated, error: updateError } = await supabase
+        .from('invoices')
+        .update({ amount, invoice_url })
+        .eq('id', existing.id)
+        .select('id')
+        .single()
+      if (updateError) throw updateError
+      await supabase
+        .from('offers')
+        .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
+        .eq('id', offer_id)
+      return NextResponse.json({ id: updated.id }, { status: 200 })
+    }
+
+    const { data: inserted, error: insertError } = await supabase
       .from('invoices')
       .insert({
         offer_id,
@@ -44,32 +69,37 @@ export async function POST(req: NextRequest) {
         talent_id: offer.talent_id,
         amount,
         invoice_url,
-        status: 'draft',
+        status: 'submitted',
       })
-      .select()
+      .select('id')
       .single()
-
-    if (error) {
-      if (error.code === '23505') {
-        const { data: existing, error: existingError } = await supabase
-          .from('invoices')
-          .select('*')
-          .eq('offer_id', offer_id)
-          .single()
-        if (existingError) throw existingError
-        return NextResponse.json(existing, { status: 200 })
-      }
-      throw error
-    }
+    if (insertError) throw insertError
 
     await supabase
       .from('offers')
       .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
       .eq('id', offer_id)
 
-    return NextResponse.json(data, { status: 200 })
-  } catch (e) {
-    console.error('[POST /invoices]', e)
-    return new NextResponse('Internal Server Error', { status: 500 })
+    return NextResponse.json({ id: inserted.id }, { status: 200 })
+  } catch (err: any) {
+    console.error({ code: err.code, message: err.message })
+    if (err.code === '23505' && offerId) {
+      const { data: existing } = await supabase
+        .from('invoices')
+        .select('id')
+        .eq('offer_id', offerId)
+        .single()
+      if (existing) {
+        return NextResponse.json({ id: existing.id }, { status: 200 })
+      }
+    }
+    if (err.code === '23502') {
+      return NextResponse.json<{ error: string }>({ error: '必要な列が不足しています' }, { status: 400 })
+    }
+    if (err.code === '42501') {
+      return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
+    }
+    return NextResponse.json<{ error: string }>({ error: '不明なエラー' }, { status: 400 })
   }
 }
+
