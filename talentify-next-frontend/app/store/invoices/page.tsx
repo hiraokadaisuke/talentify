@@ -58,13 +58,10 @@ export default function StoreInvoicesPage() {
             {invoices.map(inv => (
               <TableRow key={inv.id}>
                 <TableCell>{formatJaDateTimeWithWeekday(inv.created_at ?? '')}</TableCell>
-                <TableCell>¥{inv.amount.toLocaleString()}</TableCell>
+                <TableCell>¥{inv.amount.toLocaleString('ja-JP')}</TableCell>
                 <TableCell>{renderStatus(inv)}</TableCell>
                 <TableCell>
                   <div className='flex gap-2'>
-                    <Button size='sm' asChild>
-                      <Link href={`/store/invoices/${inv.id}`}>詳細</Link>
-                    </Button>
                     {inv.invoice_url && (
                       <Button size='sm' variant='outline' asChild>
                         <Link href={inv.invoice_url} target='_blank'>
@@ -72,6 +69,9 @@ export default function StoreInvoicesPage() {
                         </Link>
                       </Button>
                     )}
+                    <Button size='sm' asChild>
+                      <Link href={`/store/invoices/${inv.id}`}>詳細</Link>
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
