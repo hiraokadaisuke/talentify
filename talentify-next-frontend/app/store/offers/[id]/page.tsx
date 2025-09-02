@@ -34,7 +34,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
 
   const { data: invoice } = await supabase
     .from('invoices')
-    .select('id,status')
+    .select('id,amount,invoice_url,status')
     .eq('offer_id', params.id)
     .maybeSingle()
   const invoiceStatus: 'not_submitted' | 'submitted' | 'paid' = invoice
@@ -55,6 +55,15 @@ export default async function StoreOfferPage({ params }: PageProps) {
     paidAt: data.paid_at as string | null,
     invoiceStatus,
   }
+
+  const invoiceData = invoice
+    ? {
+        id: invoice.id as string,
+        invoiceUrl: invoice.invoice_url as string | null,
+        amount: invoice.amount as number,
+        status: invoice.status as string,
+      }
+    : null
 
   const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
   const paymentLink = showActions ? `/store/offers/${params.id}/payment` : undefined
@@ -100,7 +109,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
             </div>
           </CardContent>
         </Card>
-        <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} />
+        <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} invoice={invoiceData} />
       </div>
       <div className="flex flex-col flex-1 gap-4 w-full lg:w-2/3">
         <div className="flex items-center justify-between p-4 bg-white rounded shadow">

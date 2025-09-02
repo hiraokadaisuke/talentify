@@ -61,9 +61,18 @@ export default function StoreInvoicesPage() {
                 <TableCell>¥{inv.amount.toLocaleString()}</TableCell>
                 <TableCell>{renderStatus(inv)}</TableCell>
                 <TableCell>
-                  <Button size='sm' asChild>
-                    <Link href={`/store/invoices/${inv.id}`}>詳細</Link>
-                  </Button>
+                  <div className='flex gap-2'>
+                    <Button size='sm' asChild>
+                      <Link href={`/store/invoices/${inv.id}`}>詳細</Link>
+                    </Button>
+                    {inv.invoice_url && (
+                      <Button size='sm' variant='outline' asChild>
+                        <Link href={inv.invoice_url} target='_blank'>
+                          PDF
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
