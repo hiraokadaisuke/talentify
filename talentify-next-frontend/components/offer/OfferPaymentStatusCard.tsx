@@ -38,6 +38,7 @@ export default function OfferPaymentStatusCard({
   const statusLabel = (status?: string) => {
     switch (status) {
       case 'approved':
+      case 'submitted':
         return '提出済み'
       case 'rejected':
         return '差し戻し済み'
@@ -100,7 +101,7 @@ export default function OfferPaymentStatusCard({
                   </Link>
                 </Button>
               )}
-              {!paid && invoice.status === 'approved' && (
+              {!paid && invoice.status !== 'draft' && (
                 <Button onClick={handlePay} disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   支払い完了にする

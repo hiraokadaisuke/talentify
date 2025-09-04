@@ -31,6 +31,7 @@ function statusLabel(inv: Invoice): string {
   if (inv.offers?.paid) return '支払い完了'
   switch (inv.status) {
     case 'approved':
+    case 'submitted':
       return '提出済み'
     case 'rejected':
       return '差し戻し済み'
@@ -116,7 +117,7 @@ export default function StoreInvoiceDetail() {
         </CardContent>
       </Card>
 
-      {!invoice.offers?.paid && invoice.status === 'approved' && (
+      {!invoice.offers?.paid && invoice.status !== 'draft' && (
         <Button onClick={handlePay} disabled={paying}>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする

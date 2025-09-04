@@ -12,6 +12,7 @@ import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday
 const statusLabels: Record<string, string> = {
   draft: '下書き',
   approved: '提出済み',
+  submitted: '提出済み',
   paid: '支払完了',
   rejected: '差し戻し',
 }

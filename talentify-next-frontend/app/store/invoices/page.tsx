@@ -17,6 +17,8 @@ function renderStatus(inv: Invoice) {
   switch (inv.status) {
     case 'approved':
       return <Badge variant='secondary'>提出済み</Badge>
+    case 'submitted':
+      return <Badge variant='secondary'>提出済み</Badge>
     case 'rejected':
       return <Badge variant='destructive'>差し戻し済み</Badge>
     default:
