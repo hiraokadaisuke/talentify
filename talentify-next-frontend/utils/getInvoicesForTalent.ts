@@ -13,7 +13,9 @@ export async function getInvoicesForTalent() {
 
   const { data, error } = await supabase
     .from('invoices')
-    .select('*')
+    .select(
+      'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
+    )
     .eq('talent_id', talentId)
     .order('created_at', { ascending: false })
 

@@ -1,11 +1,20 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { getInvoicesForTalent, type Invoice } from '@/utils/getInvoicesForTalent'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
+import { Button } from '@/components/ui/button'
 
 const statusLabels: Record<string, string> = {
   draft: '下書き',
@@ -40,6 +49,7 @@ export default function TalentInvoicesPage() {
               <TableHead>作成日</TableHead>
               <TableHead>金額</TableHead>
               <TableHead>ステータス</TableHead>
+              <TableHead>操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -48,6 +58,11 @@ export default function TalentInvoicesPage() {
                 <TableCell>{formatJaDateTimeWithWeekday(inv.created_at ?? '')}</TableCell>
                 <TableCell>¥{inv.amount.toLocaleString()}</TableCell>
                 <TableCell>{statusLabels[inv.status]}</TableCell>
+                <TableCell>
+                  <Button size='sm' asChild>
+                    <Link href={`/talent/invoices/${inv.id}`}>詳細</Link>
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
