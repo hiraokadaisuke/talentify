@@ -217,6 +217,11 @@ status が 'completed' の場合に支払い完了とみなし、その日時を
 - social_tiktok: text
 - gender: USER-DEFINED, DEFAULT 'other'
 - bio_others: text
+- bank_name: text
+- branch_name: text
+- account_type: text
+- account_number: text
+- account_holder: text
 
 ### visits
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
