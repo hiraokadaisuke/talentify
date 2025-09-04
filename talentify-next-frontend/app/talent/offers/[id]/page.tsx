@@ -118,10 +118,10 @@ export default function TalentOfferPage() {
   const showActions = ['accepted', 'confirmed', 'completed'].includes(offer.status)
   const invoiceLink = showActions
     ? invoiceId
-      ? `/talent/invoices/${invoiceId}`
+      ? '/talent/invoices'
       : `/talent/invoices/new?offerId=${offer.id}`
     : undefined
-  const invoiceText = invoiceId ? '請求書を見る' : '請求書を作成'
+  const invoiceText = invoiceId ? '請求履歴を見る' : '請求書を作成'
   const paymentLink = showActions ? `/talent/offers/${offer.id}/payment` : undefined
   const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', {
     locale: ja,
