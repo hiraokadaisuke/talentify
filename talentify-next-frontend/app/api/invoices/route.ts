@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       store_id: offer.store_id,
       talent_id: offer.talent_id,
       amount,
-      status: getSubmitStatus() as 'submitted' | 'approved',
+      status: 'draft' as const,
       notes,
       transport_fee,
       extra_fee,
@@ -67,24 +67,34 @@ export async function POST(req: NextRequest) {
     }
 
     if (existing) {
+      const updatePayload = {
+        offer_id,
+        store_id: offer.store_id,
+        talent_id: offer.talent_id,
+        amount,
+        notes,
+        transport_fee,
+        extra_fee,
+        invoice_url,
+      }
       const { data: updated, error: updateError } = await supabase
         .from('invoices')
-        .update(payload)
+        .update(updatePayload)
         .eq('id', existing.id)
-        .select('id')
+        .select('id, status')
         .single()
       if (updateError) throw updateError
       await supabase
         .from('offers')
         .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
         .eq('id', offer_id)
-      return NextResponse.json({ id: updated.id, status: payload.status }, { status: 200 })
+      return NextResponse.json({ id: updated.id, status: updated.status }, { status: 200 })
     }
 
     const { data: inserted, error: insertError } = await supabase
       .from('invoices')
       .insert(payload)
-      .select('id')
+      .select('id, status')
       .single()
     if (insertError) throw insertError
 
@@ -93,7 +103,7 @@ export async function POST(req: NextRequest) {
       .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
       .eq('id', offer_id)
 
-    return NextResponse.json({ id: inserted.id, status: payload.status }, { status: 201 })
+    return NextResponse.json({ id: inserted.id, status: inserted.status }, { status: 201 })
   } catch (err: any) {
     console.error({ code: err.code, message: err.message })
     if (err.code === '23505' && offerId) {

@@ -41,7 +41,7 @@ export async function POST(
     if (invoice.status === nextStatus) {
       return NextResponse.json({ id }, { status: 200 })
     }
-    if (invoice.status !== 'draft') {
+    if (invoice.status !== 'draft' && invoice.status !== 'submitted') {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 

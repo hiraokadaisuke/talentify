@@ -29,6 +29,7 @@ export async function getInvoicesForStore() {
     .from('invoices')
     .select('*, offers(paid)')
     .eq('store_id', store.id)
+    .neq('status', 'draft')
     .order('created_at', { ascending: false })
 
   if (error) {
