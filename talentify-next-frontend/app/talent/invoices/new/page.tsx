@@ -92,7 +92,7 @@ export default function TalentInvoiceNewPage() {
         const data = await res.json()
         id = data.id
       }
-      router.replace(`/talent/invoices/${id}`)
+      router.replace('/talent/invoices')
     } catch (e) {
       toast.error('下書き保存に失敗しました')
       setLoading(false)
@@ -123,7 +123,7 @@ export default function TalentInvoiceNewPage() {
         id = data.id
       }
       await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
-      router.replace(`/talent/invoices/${id}`)
+      router.replace('/talent/invoices')
     } catch (e) {
       toast.error('提出に失敗しました')
       setLoading(false)
@@ -168,7 +168,7 @@ export default function TalentInvoiceNewPage() {
         id = data.id
       }
       await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
-      router.replace(`/talent/invoices/${id}`)
+      router.replace('/talent/invoices')
     } catch (e) {
       toast.error('提出に失敗しました')
       setLoading(false)
