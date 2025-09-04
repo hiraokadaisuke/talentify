@@ -67,6 +67,7 @@ export default function StoreInvoiceDetail() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
   const [paying, setPaying] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   const load = async () => {
     const { data } = await supabase
@@ -105,6 +106,25 @@ export default function StoreInvoiceDetail() {
       }
     } else {
       toast.error('支払いの記録に失敗しました')
+    }
+  }
+
+  const handleDownload = async () => {
+    setDownloading(true)
+    const res = await fetch(`/api/invoices/${id}/pdf`)
+    setDownloading(false)
+    if (res.ok) {
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `invoice-${id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } else {
+      toast.error('PDFのダウンロードに失敗しました')
     }
   }
 
@@ -193,6 +213,11 @@ export default function StoreInvoiceDetail() {
           )}
         </CardContent>
       </Card>
+
+      <Button onClick={handleDownload} disabled={downloading}>
+        {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+        請求書をダウンロード
+      </Button>
 
       {!invoice.offers?.paid && invoice.status !== 'draft' && (
         <Button onClick={handlePay} disabled={paying}>

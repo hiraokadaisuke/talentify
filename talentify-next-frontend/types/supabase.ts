@@ -315,12 +315,15 @@ export type Database = {
           store_id: string
           talent_id: string
           amount: number
+          transport_fee: number | null
+          extra_fee: number | null
           invoice_url: string | null
           created_at: string | null
           updated_at: string | null
           status: Enums<'invoice_status'>
           due_date: string | null
           invoice_number: string | null
+           notes: string | null
           payment_status: Enums<'payment_status'>
           paid_at: string | null
         }
@@ -330,12 +333,15 @@ export type Database = {
           store_id: string
           talent_id: string
           amount: number
+          transport_fee?: number | null
+          extra_fee?: number | null
           invoice_url?: string | null
           created_at?: string | null
           updated_at?: string | null
           status?: Enums<'invoice_status'>
           due_date?: string | null
           invoice_number?: string | null
+          notes?: string | null
           payment_status?: Enums<'payment_status'>
           paid_at?: string | null
         }
@@ -345,12 +351,15 @@ export type Database = {
           store_id?: string
           talent_id?: string
           amount?: number
+          transport_fee?: number | null
+          extra_fee?: number | null
           invoice_url?: string | null
           created_at?: string | null
           updated_at?: string | null
           status?: Enums<'invoice_status'>
           due_date?: string | null
           invoice_number?: string | null
+          notes?: string | null
           payment_status?: Enums<'payment_status'>
           paid_at?: string | null
         }
