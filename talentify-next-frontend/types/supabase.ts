@@ -122,6 +122,11 @@ export type Database = {
           bio_hobby: string | null
           bio_certifications: string | null
           bio_others: string | null
+          bank_name: string | null
+          branch_name: string | null
+          account_type: string | null
+          account_number: string | null
+          account_holder: string | null
           genre: string | null
           notes: string | null
           achievements: string | null
@@ -158,6 +163,11 @@ export type Database = {
           bio_hobby?: string | null
           bio_certifications?: string | null
           bio_others?: string | null
+          bank_name?: string | null
+          branch_name?: string | null
+          account_type?: string | null
+          account_number?: string | null
+          account_holder?: string | null
           genre?: string | null
           notes?: string | null
           achievements?: string | null
@@ -194,6 +204,11 @@ export type Database = {
           bio_hobby?: string | null
           bio_certifications?: string | null
           bio_others?: string | null
+          bank_name?: string | null
+          branch_name?: string | null
+          account_type?: string | null
+          account_number?: string | null
+          account_holder?: string | null
           genre?: string | null
           notes?: string | null
           achievements?: string | null
