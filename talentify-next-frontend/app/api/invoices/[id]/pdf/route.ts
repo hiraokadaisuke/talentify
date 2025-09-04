@@ -20,11 +20,29 @@ export async function GET(
 
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
-      .select(
-        'id, amount, transport_fee, extra_fee, invoice_number, due_date, created_at, store_id, talent_id, talents:talent_id(bank_name, branch_name, account_type, account_number, account_holder)'
-      )
+      .select(`
+        id, amount, transport_fee, extra_fee, invoice_number, due_date, created_at, store_id, talent_id,
+        talents:talent_id(bank_name, branch_name, account_type, account_number, account_holder)
+      `)
       .eq('id', id)
-      .single()
+      .single<{
+        id: string
+        amount: number
+        transport_fee: number | null
+        extra_fee: number | null
+        invoice_number: string | null
+        due_date: string | null
+        created_at: string | null
+        store_id: string
+        talent_id: string
+        talents: {
+          bank_name: string | null
+          branch_name: string | null
+          account_type: string | null
+          account_number: string | null
+          account_holder: string | null
+        } | null
+      }>()
     if (invError || !invoice) {
       return NextResponse.json({ error: 'invoice_not_found' }, { status: 404 })
     }
