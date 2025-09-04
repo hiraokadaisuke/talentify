@@ -20,11 +20,30 @@ interface Invoice {
   status: string
   created_at: string | null
   offer_id: string
+  transport_fee: number | null
+  extra_fee: number | null
+  notes: string | null
+  invoice_number: string | null
+  due_date: string | null
   offers: { paid: boolean | null } | null
+  talents: {
+    bank_name: string | null
+    branch_name: string | null
+    account_type: string | null
+    account_number: string | null
+    account_holder: string | null
+  } | null
 }
 
-interface RawInvoice extends Omit<Invoice, 'offers'> {
+interface RawInvoice extends Omit<Invoice, 'offers' | 'talents'> {
   offers: { paid: boolean | null }[] | null
+  talents: {
+    bank_name: string | null
+    branch_name: string | null
+    account_type: string | null
+    account_number: string | null
+    account_holder: string | null
+  }[] | null
 }
 
 function statusLabel(inv: Invoice): string {
@@ -52,7 +71,9 @@ export default function StoreInvoiceDetail() {
   const load = async () => {
     const { data } = await supabase
       .from('invoices')
-      .select('id,amount,invoice_url,status,created_at,offer_id,offers(paid)')
+      .select(
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,created_at,offer_id,offers(paid),talents:talent_id(bank_name,branch_name,account_type,account_number,account_holder)'
+      )
       .eq('id', id)
       .maybeSingle()
     const raw = data as unknown as RawInvoice | null
@@ -60,6 +81,7 @@ export default function StoreInvoiceDetail() {
       ? {
           ...raw,
           offers: Array.isArray(raw.offers) ? raw.offers[0] ?? null : raw.offers,
+          talents: Array.isArray(raw.talents) ? raw.talents[0] ?? null : raw.talents,
         }
       : null
     setInvoice(normalized)
@@ -89,6 +111,19 @@ export default function StoreInvoiceDetail() {
   if (loading) return <div className='p-4'>読み込み中...</div>
   if (!invoice) return <div className='p-4'>データがありません</div>
 
+  const baseFee =
+    invoice.amount - (invoice.transport_fee ?? 0) - (invoice.extra_fee ?? 0)
+  const bank = invoice.talents
+  const hasBankInfo = bank
+    ? [
+        bank.bank_name,
+        bank.branch_name,
+        bank.account_type,
+        bank.account_number,
+        bank.account_holder,
+      ].some(Boolean)
+    : false
+
   return (
     <main className='p-6 space-y-4'>
       <h1 className='text-xl font-bold'>請求詳細</h1>
@@ -99,6 +134,13 @@ export default function StoreInvoiceDetail() {
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
           <div>金額: ¥{invoice.amount.toLocaleString('ja-JP')}</div>
+          <div>請求書番号: {invoice.invoice_number ?? '-'}</div>
+          <div>
+            支払期限:{' '}
+            {invoice.due_date
+              ? formatJaDateTimeWithWeekday(invoice.due_date)
+              : '-'}
+          </div>
           <div>
             ステータス:{' '}
             <Badge variant='outline'>{statusLabel(invoice)}</Badge>
@@ -113,6 +155,41 @@ export default function StoreInvoiceDetail() {
                 PDFを開く
               </Link>
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>金額内訳</CardTitle>
+        </CardHeader>
+        <CardContent className='space-y-2 text-sm'>
+          <div>基本報酬: ¥{baseFee.toLocaleString('ja-JP')}</div>
+          <div>
+            交通費: ¥{(invoice.transport_fee ?? 0).toLocaleString('ja-JP')}
+          </div>
+          <div>
+            追加料金: ¥{(invoice.extra_fee ?? 0).toLocaleString('ja-JP')}
+          </div>
+          <div>メモ: {invoice.notes || 'なし'}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>振込先情報</CardTitle>
+        </CardHeader>
+        <CardContent className='space-y-2 text-sm'>
+          {hasBankInfo && bank ? (
+            <>
+              <div>銀行名: {bank.bank_name}</div>
+              <div>支店名: {bank.branch_name}</div>
+              <div>口座種別: {bank.account_type}</div>
+              <div>口座番号: {bank.account_number}</div>
+              <div>口座名義: {bank.account_holder}</div>
+            </>
+          ) : (
+            <div>未登録</div>
           )}
         </CardContent>
       </Card>
