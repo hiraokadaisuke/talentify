@@ -431,108 +431,107 @@ export default function TalentOfferPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
-        <div className="flex flex-col gap-6">
-          <Card className="shadow-sm">
-            <CardHeader className="space-y-2">
-              <CardTitle>進捗状況</CardTitle>
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:gap-8">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold text-slate-900">進捗状況</h2>
               <p className="text-sm text-muted-foreground">オファーの進行状況と次に行うアクションを確認できます。</p>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  {statusDisplay.badge}
-                  <span className="text-xs text-muted-foreground">最終更新: {formattedUpdatedAt}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  提出日時: {formattedSubmittedAt}
-                </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                {statusDisplay.badge}
+                <span className="text-xs text-muted-foreground">最終更新: {formattedUpdatedAt}</span>
               </div>
-              <div className="mx-auto w-full max-w-3xl">
-                <OfferProgressTracker
-                  steps={progressSteps}
-                  selectedStep={activeStep}
-                  onStepSelect={setActiveStep}
-                />
-              </div>
-              <div className="rounded-2xl border bg-card p-6 shadow-md">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
-                  {detail.badge}
-                </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
-                {detail.meta && detail.meta.length > 0 && (
-                  <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                    {detail.meta.map(item => (
-                      <div key={item.label} className="space-y-1">
-                        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          {item.label}
-                        </dt>
-                        <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-                {detail.actions && detail.actions.length > 0 && (
-                  <div className="mt-6 flex flex-wrap justify-end gap-2">
-                    {detail.actions.map((action, index) => (
-                      <div key={index} className="inline-flex">{action}</div>
-                    ))}
-                  </div>
-                )}
-                {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle>オファー詳細</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <OfferSummary
-                performerName={offer.performerName}
-                performerAvatarUrl={offer.performerAvatarUrl}
-                storeName={offer.storeName}
-                date={offer.date}
-                message={offer.message}
-                invoiceStatus={offer.invoiceStatus}
+              <span className="text-xs text-muted-foreground">提出日時: {formattedSubmittedAt}</span>
+            </div>
+            <div className="w-full">
+              <OfferProgressTracker
+                steps={progressSteps}
+                selectedStep={activeStep}
+                onStepSelect={setActiveStep}
               />
-              {offer.status === 'pending' && (
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleAccept}
-                    disabled={actionLoading !== null}
-                  >
-                    {actionLoading === 'accept' ? '承諾中...' : '承諾'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDecline}
-                    disabled={actionLoading !== null}
-                  >
-                    {actionLoading === 'decline' ? '辞退中...' : '辞退'}
-                  </Button>
+            </div>
+            <div className="rounded-2xl border bg-card p-6 shadow-md">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
+                {detail.badge}
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
+              {detail.meta && detail.meta.length > 0 && (
+                <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {detail.meta.map(item => (
+                    <div key={item.label} className="space-y-1">
+                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{item.label}</dt>
+                      <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {detail.actions && detail.actions.length > 0 && (
+                <div className="mt-6 flex flex-wrap justify-end gap-2">
+                  {detail.actions.map((action, index) => (
+                    <div key={index} className="inline-flex">{action}</div>
+                  ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+              {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
+            </div>
+          </div>
+        </section>
 
-          <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start lg:gap-8">
+          <div className="flex flex-col gap-6">
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle>オファー詳細</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <OfferSummary
+                  performerName={offer.performerName}
+                  performerAvatarUrl={offer.performerAvatarUrl}
+                  storeName={offer.storeName}
+                  date={offer.date}
+                  message={offer.message}
+                  invoiceStatus={offer.invoiceStatus}
+                />
+                {offer.status === 'pending' && (
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleAccept}
+                      disabled={actionLoading !== null}
+                    >
+                      {actionLoading === 'accept' ? '承諾中...' : '承諾'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleDecline}
+                      disabled={actionLoading !== null}
+                    >
+                      {actionLoading === 'decline' ? '辞退中...' : '辞退'}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} />
+          </div>
+
+          <aside className="flex h-full flex-col" id="chat">
+            <OfferChatThread
+              offerId={offer.id}
+              currentUserId={userId}
+              currentRole="talent"
+              storeName={offer.storeName}
+              talentName={offer.performerName}
+              className="lg:h-[600px] lg:max-h-[70vh]"
+            />
+          </aside>
         </div>
-
-        <aside className="flex h-full flex-col" id="chat">
-          <OfferChatThread
-            offerId={offer.id}
-            currentUserId={userId}
-            currentRole="talent"
-            storeName={offer.storeName}
-            talentName={offer.performerName}
-          />
-        </aside>
       </div>
     </div>
   )

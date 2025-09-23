@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import OfferChatThread from '@/components/offer/OfferChatThread'
 import OfferSummary from '@/components/offer/OfferSummary'
-import OfferPaymentStatusCard from '@/components/offer/OfferPaymentStatusCard'
 import CancelOfferSection from './CancelOfferSection'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { getOfferProgress } from '@/utils/offerProgress'
@@ -78,74 +77,69 @@ export default async function StoreOfferPage({ params }: PageProps) {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
-        <div className="flex flex-col gap-6">
-          <Card className="shadow-sm">
-            <CardHeader className="space-y-2">
-              <CardTitle>進捗状況</CardTitle>
-              <p className="text-sm text-muted-foreground">オファーの進行状況と各ステップの対応内容を確認できます。</p>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <StoreOfferProgressPanel
-                steps={steps}
-                currentStep={current}
-                offer={{
-                  id: offer.id,
-                  status: offer.status,
-                  date: offer.date,
-                  updatedAt: offer.updatedAt,
-                  submittedAt: offer.submittedAt,
-                  paid: offer.paid,
-                  paidAt: offer.paidAt,
-                  invoiceStatus: offer.invoiceStatus,
-                }}
-                invoice={invoiceData}
-                paymentLink={paymentLink}
-              />
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle>オファー詳細</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <OfferSummary
-                performerName={offer.performerName}
-                performerAvatarUrl={offer.performerAvatarUrl}
-                storeName={offer.storeName}
-                date={offer.date}
-                message={offer.message}
-                invoiceStatus={offer.invoiceStatus}
-              />
-              <CancelOfferSection
-                offerId={offer.id}
-                initialStatus={data.status}
-                initialCanceledAt={data.canceled_at}
-              />
-            </CardContent>
-          </Card>
-
-          {invoiceData && (
-            <OfferPaymentStatusCard
-              title="請求"
-              offerId={offer.id}
-              paid={offer.paid}
-              paidAt={offer.paidAt}
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:gap-8">
+        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">進捗状況</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                オファーの進行状況と各ステップの対応内容を確認できます。
+              </p>
+            </div>
+            <StoreOfferProgressPanel
+              steps={steps}
+              currentStep={current}
+              offer={{
+                id: offer.id,
+                status: offer.status,
+                date: offer.date,
+                updatedAt: offer.updatedAt,
+                submittedAt: offer.submittedAt,
+                paid: offer.paid,
+                paidAt: offer.paidAt,
+                invoiceStatus: offer.invoiceStatus,
+              }}
               invoice={invoiceData}
+              paymentLink={paymentLink}
             />
-          )}
-        </div>
+          </div>
+        </section>
 
-        <aside className="flex h-full flex-col" id="chat">
-          <OfferChatThread
-            offerId={offer.id}
-            currentUserId={user.id}
-            currentRole="store"
-            storeName={offer.storeName}
-            talentName={offer.performerName}
-          />
-        </aside>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start lg:gap-8">
+          <div className="flex flex-col gap-6">
+            <Card className="shadow-sm">
+              <CardHeader>
+                <CardTitle>オファー詳細</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <OfferSummary
+                  performerName={offer.performerName}
+                  performerAvatarUrl={offer.performerAvatarUrl}
+                  storeName={offer.storeName}
+                  date={offer.date}
+                  message={offer.message}
+                  invoiceStatus={offer.invoiceStatus}
+                />
+                <CancelOfferSection
+                  offerId={offer.id}
+                  initialStatus={data.status}
+                  initialCanceledAt={data.canceled_at}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          <aside className="flex h-full flex-col" id="chat">
+            <OfferChatThread
+              offerId={offer.id}
+              currentUserId={user.id}
+              currentRole="store"
+              storeName={offer.storeName}
+              talentName={offer.performerName}
+              className="lg:h-[600px] lg:max-h-[70vh]"
+            />
+          </aside>
+        </div>
       </div>
     </div>
   )

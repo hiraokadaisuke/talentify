@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
 import type { OfferMessage } from '@/lib/supabase/offerMessages'
 import {
@@ -21,6 +22,7 @@ interface OfferChatThreadProps {
   storeName: string
   talentName: string
   adminName?: string
+  className?: string
 }
 export default function OfferChatThread({
   offerId,
@@ -29,6 +31,7 @@ export default function OfferChatThread({
   storeName,
   talentName,
   adminName = 'サポート',
+  className,
 }: OfferChatThreadProps) {
   const supabase = createClient()
   const [messages, setMessages] = useState<OfferMessage[]>([])
@@ -165,7 +168,12 @@ export default function OfferChatThread({
   }
 
   return (
-    <div className="flex h-full min-h-[520px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div
+      className={cn(
+        'flex h-full min-h-[520px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm',
+        className,
+      )}
+    >
       <div className="flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-4">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
