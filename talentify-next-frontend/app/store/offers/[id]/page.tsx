@@ -1,19 +1,12 @@
-import type { ReactNode } from 'react'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import OfferChatThread from '@/components/offer/OfferChatThread'
 import OfferSummary from '@/components/offer/OfferSummary'
 import OfferPaymentStatusCard from '@/components/offer/OfferPaymentStatusCard'
-import OfferProgressTracker from '@/components/offer/OfferProgressTracker'
 import CancelOfferSection from './CancelOfferSection'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { getOfferProgress } from '@/utils/offerProgress'
-import type { OfferStepKey } from '@/utils/offerProgress'
-import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
+import StoreOfferProgressPanel from './StoreOfferProgressPanel'
 
 type PageProps = {
   params: { id: string }
@@ -29,7 +22,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const { data } = await supabase
     .from('offers')
     .select(
-      'id,status,date,updated_at,message,talent_id,user_id,canceled_at,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
+      'id,status,date,created_at,updated_at,message,talent_id,user_id,canceled_at,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
     )
     .eq('id', params.id)
     .single()
@@ -43,15 +36,18 @@ export default async function StoreOfferPage({ params }: PageProps) {
     .select('id,amount,invoice_url,status')
     .eq('offer_id', params.id)
     .maybeSingle()
+
   const invoiceStatus: 'not_submitted' | 'submitted' | 'paid' = invoice
     ? data.paid
       ? 'paid'
       : 'submitted'
     : 'not_submitted'
+
   const offer = {
     id: data.id as string,
     status: data.status as string,
     date: data.date as string,
+    submittedAt: data.created_at as string | null,
     message: data.message as string,
     performerName: data.talents?.stage_name || '',
     performerAvatarUrl: data.talents?.avatar_url || null,
@@ -66,211 +62,19 @@ export default async function StoreOfferPage({ params }: PageProps) {
     ? {
         id: invoice.id as string,
         invoiceUrl: invoice.invoice_url as string | null,
-        amount: invoice.amount as number,
+        amount: invoice.amount as number | null,
         status: invoice.status as string,
       }
     : null
 
   const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
   const paymentLink = showActions ? `/store/offers/${params.id}/payment` : undefined
-  const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', {
-    locale: ja,
-  })
-
-  const renderStatusBadge = () => {
-    if (offer.status === 'confirmed' || offer.status === 'accepted') {
-      return <Badge>承認済み</Badge>
-    }
-    if (offer.status === 'rejected') {
-      return <Badge variant="secondary">辞退済み</Badge>
-    }
-    if (offer.status === 'canceled') {
-      return <Badge variant="destructive">キャンセル済み</Badge>
-    }
-    return <Badge variant="secondary">未承諾</Badge>
-  }
 
   const { steps, current } = getOfferProgress({
     status: offer.status,
     invoiceStatus: offer.invoiceStatus,
     paid: offer.paid,
   })
-
-  const formattedVisitDate = offer.date
-    ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja })
-    : '未設定'
-
-  type StepDetail = {
-    title: string
-    description: string
-    badge?: ReactNode
-    meta?: { label: string; value: string }[]
-    actions?: ReactNode[]
-    note?: ReactNode
-  }
-
-  const invoiceStatusText: Record<'not_submitted' | 'submitted' | 'paid', string> = {
-    not_submitted: '未提出',
-    submitted: '提出済み',
-    paid: '支払済み',
-  }
-
-  const buildStepDetail = (step: OfferStepKey): StepDetail => {
-    switch (step) {
-      case 'offer_submitted':
-        return {
-          title: 'オファー提出',
-          description:
-            '店舗からタレントへオファーを送信しました。返信内容はメッセージで確認できます。',
-          meta: [
-            { label: '最終更新', value: formattedUpdatedAt },
-            { label: '来店予定', value: formattedVisitDate },
-          ],
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#chat">メッセージを送る</a>
-            </Button>,
-          ],
-        }
-      case 'approval': {
-        let description = ''
-        switch (offer.status) {
-          case 'pending':
-            description = 'タレントからの返答をお待ちください。必要に応じてメッセージで詳細を共有しましょう。'
-            break
-          case 'accepted':
-            description = 'タレントがオファーを承認しました。来店日時の最終確認を進めてください。'
-            break
-          case 'confirmed':
-            description = '承認が完了し、来店の段取りに進めます。訪問予定の共有を忘れずに行いましょう。'
-            break
-          case 'rejected':
-            description = 'タレントがオファーを辞退しました。別の候補者へのオファー送信をご検討ください。'
-            break
-          case 'canceled':
-            description = 'オファーはキャンセルされました。必要であれば新しいオファーを作成してください。'
-            break
-          default:
-            description = '承認手続きが完了しました。次のステップに進みましょう。'
-            break
-        }
-        return {
-          title: '承認',
-          description,
-          badge: renderStatusBadge(),
-          meta: [{ label: '最終更新', value: formattedUpdatedAt }],
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#chat">メッセージを送る</a>
-            </Button>,
-          ],
-        }
-      }
-      case 'visit': {
-        let description = ''
-        if (offer.status === 'completed') {
-          description = '来店が完了しました。続けて請求内容を確認してください。'
-        } else if (offer.status === 'confirmed') {
-          description = '来店予定が確定しています。必要な持ち物や当日の流れをメッセージで共有しましょう。'
-        } else if (offer.status === 'accepted') {
-          description = 'タレントの承認を受けました。来店日時を確定し、詳細を連絡してください。'
-        } else if (offer.status === 'canceled') {
-          description = 'オファーがキャンセルされたため、来店は行われません。'
-        } else if (offer.status === 'rejected') {
-          description = '辞退済みのため来店は行われません。'
-        } else {
-          description = '来店日時の調整を進めてください。'
-        }
-        return {
-          title: '来店実施',
-          description,
-          meta: [
-            { label: '来店日時', value: formattedVisitDate },
-            { label: '最終更新', value: formattedUpdatedAt },
-          ],
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#chat">メッセージを送る</a>
-            </Button>,
-          ],
-        }
-      }
-      case 'invoice': {
-        let description = ''
-        if (offer.invoiceStatus === 'not_submitted') {
-          description = 'タレントからの請求書提出をお待ちください。提出されると通知されます。'
-        } else if (offer.invoiceStatus === 'submitted') {
-          description = '請求書が提出されました。内容を確認し、支払い手続きへ進みましょう。'
-        } else {
-          description = '請求の確認が完了しました。支払いステップへ進んでください。'
-        }
-        const actions: ReactNode[] = [
-          <Button key="message" variant="outline" size="sm" asChild>
-            <a href="#chat">メッセージを送る</a>
-          </Button>,
-        ]
-        if (invoiceData) {
-          actions.push(
-            <Button key="invoice" variant="outline" size="sm" asChild>
-              <Link href={`/store/invoices/${invoiceData.id}`}>請求書を見る</Link>
-            </Button>,
-          )
-        }
-        return {
-          title: '請求',
-          description,
-          meta: [
-            { label: '請求ステータス', value: invoiceStatusText[offer.invoiceStatus] },
-            ...(invoiceData?.amount
-              ? [{ label: '請求額', value: `¥${invoiceData.amount.toLocaleString('ja-JP')}` }]
-              : []),
-          ],
-          actions,
-        }
-      }
-      case 'payment': {
-        const description = offer.paid
-          ? '支払いが完了しました。必要に応じてレビューの準備を進めてください。'
-          : '請求内容を確認し、支払いを完了してください。支払いが完了するとレビューに進めます。'
-        const actions: ReactNode[] = [
-          <Button key="message" variant="outline" size="sm" asChild>
-            <a href="#chat">メッセージを送る</a>
-          </Button>,
-        ]
-        if (paymentLink) {
-          actions.push(
-            <Button key="payment" size="sm" asChild>
-              <Link href={paymentLink}>支払い状況</Link>
-            </Button>,
-          )
-        }
-        return {
-          title: '支払い',
-          description,
-          meta: [
-            { label: '支払い状況', value: offer.paid ? '完了' : '未完了' },
-            ...(offer.paidAt
-              ? [{ label: '支払い日', value: format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) }]
-              : []),
-          ],
-          actions,
-        }
-      }
-      case 'review':
-      default:
-        return {
-          title: 'レビュー',
-          description: '支払い完了後にタレントへのレビューを記入できます。来店内容を振り返って評価を準備しましょう。',
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#chat">メッセージを送る</a>
-            </Button>,
-          ],
-        }
-    }
-  }
-
-  const detail = buildStepDetail(current)
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -282,36 +86,22 @@ export default async function StoreOfferPage({ params }: PageProps) {
               <p className="text-sm text-muted-foreground">オファーの進行状況と各ステップの対応内容を確認できます。</p>
             </CardHeader>
             <CardContent className="space-y-8">
-              <div className="mx-auto w-full max-w-3xl">
-                <OfferProgressTracker steps={steps} />
-              </div>
-              <div className="rounded-2xl border bg-card p-6 shadow-md">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
-                  {detail.badge}
-                </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
-                {detail.meta && detail.meta.length > 0 && (
-                  <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                    {detail.meta.map(item => (
-                      <div key={item.label} className="space-y-1">
-                        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          {item.label}
-                        </dt>
-                        <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-                {detail.actions && detail.actions.length > 0 && (
-                  <div className="mt-6 flex flex-wrap justify-end gap-2">
-                    {detail.actions.map((action, index) => (
-                      <div key={index} className="inline-flex">{action}</div>
-                    ))}
-                  </div>
-                )}
-                {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
-              </div>
+              <StoreOfferProgressPanel
+                steps={steps}
+                currentStep={current}
+                offer={{
+                  id: offer.id,
+                  status: offer.status,
+                  date: offer.date,
+                  updatedAt: offer.updatedAt,
+                  submittedAt: offer.submittedAt,
+                  paid: offer.paid,
+                  paidAt: offer.paidAt,
+                  invoiceStatus: offer.invoiceStatus,
+                }}
+                invoice={invoiceData}
+                paymentLink={paymentLink}
+              />
             </CardContent>
           </Card>
 
