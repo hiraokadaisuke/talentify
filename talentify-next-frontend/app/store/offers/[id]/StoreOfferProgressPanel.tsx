@@ -293,7 +293,7 @@ export default function StoreOfferProgressPanel({
 
   return (
     <div className="space-y-8">
-      <div className="mx-auto w-full max-w-3xl">
+      <div className="w-full">
         <OfferProgressTracker
           steps={progressSteps}
           selectedStep={activeStep}
