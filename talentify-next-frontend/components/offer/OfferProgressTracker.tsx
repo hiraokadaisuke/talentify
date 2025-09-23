@@ -14,13 +14,13 @@ interface OfferProgressTrackerProps {
 const titleColorByStatus: Record<OfferProgressStep['status'], string> = {
   complete: 'text-[#00B26F]',
   current: 'text-[#1976D2]',
-  upcoming: 'text-[#BDBDBD]',
+  upcoming: 'text-slate-400',
 }
 
 const dateColorByStatus: Record<OfferProgressStep['status'], string> = {
-  complete: 'text-[#00B26F]',
-  current: 'text-[#FF9800]',
-  upcoming: 'text-transparent',
+  complete: 'text-slate-500',
+  current: 'text-[#1976D2]',
+  upcoming: 'text-slate-400',
 }
 
 const iconStylesByStatus: Record<OfferProgressStep['status'], { outer: string; inner: string }> = {
@@ -43,17 +43,10 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
     selectedStep ?? steps.find(step => step.status === 'current')?.key ?? steps[steps.length - 1]?.key
   const completedCount = steps.filter(step => step.status === 'complete').length
 
-  const getDisplaySubLabel = (step: OfferProgressStep) => {
-    if (step.status === 'upcoming') {
-      return ''
-    }
-    return step.subLabel ?? ''
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-end">
-        <span className="text-xs font-medium text-[#1976D2]">
+        <span className="text-xs font-medium text-slate-500">
           {completedCount}/{steps.length}ステップ完了
         </span>
       </div>
@@ -63,7 +56,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
             {steps.map((step, index) => {
               const isSelected = step.key === activeStep
               const iconStyles = iconStylesByStatus[step.status]
-              const displaySubLabel = getDisplaySubLabel(step)
+              const displaySubLabel = step.subLabel ?? ''
               const prevStep = steps[index - 1]
               const nextStep = steps[index + 1]
               const leftConnectorActive = prevStep ? prevStep.status === 'complete' : false
@@ -114,12 +107,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                     <div className="flex min-h-[3.5rem] flex-col items-center justify-start gap-1">
                       <span className={cn('text-sm font-semibold', titleColorByStatus[step.status])}>{step.title}</span>
                       <span className={cn('text-xs font-medium', dateColorByStatus[step.status])}>
-                        {displaySubLabel ||
-                          (step.status === 'current'
-                            ? '期限: -'
-                            : step.status === 'complete'
-                              ? '-'
-                              : ' ')}
+                        {displaySubLabel || ' '}
                       </span>
                     </div>
                   </button>

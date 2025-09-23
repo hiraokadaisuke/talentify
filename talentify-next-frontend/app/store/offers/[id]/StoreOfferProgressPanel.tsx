@@ -16,6 +16,7 @@ interface StoreOfferProgressPanelProps {
     id: string
     status: string
     date: string | null
+    respondDeadline: string | null
     updatedAt: string
     submittedAt: string | null
     paid: boolean
@@ -71,17 +72,27 @@ export default function StoreOfferProgressPanel({
     return offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定'
   }, [offer.date])
 
+  const formattedRespondDeadline = useMemo(() => {
+    return offer.respondDeadline
+      ? format(new Date(offer.respondDeadline), 'yyyy/MM/dd', { locale: ja })
+      : null
+  }, [offer.respondDeadline])
+
   const paymentCompletedLabel = useMemo(() => {
     return offer.paidAt ? format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) : undefined
   }, [offer.paidAt])
 
   const submittedDateLabel = useMemo(() => {
-    return offer.submittedAt ? format(new Date(offer.submittedAt), 'yyyy/MM/dd', { locale: ja }) : null
+    return offer.submittedAt
+      ? `提出日時: ${format(new Date(offer.submittedAt), 'yyyy/MM/dd', { locale: ja })}`
+      : null
   }, [offer.submittedAt])
 
   const approvalDeadlineLabel = useMemo(() => {
-    return offer.date ? format(new Date(offer.date), 'yyyy/MM/dd', { locale: ja }) : null
-  }, [offer.date])
+    return formattedRespondDeadline
+      ? `承認期限: ${formattedRespondDeadline}`
+      : '承認期限: 未設定'
+  }, [formattedRespondDeadline])
 
   const statusBadge = useMemo(() => {
     switch (offer.status) {
@@ -101,23 +112,26 @@ export default function StoreOfferProgressPanel({
     return steps.map(step => {
       switch (step.key) {
         case 'offer_submitted':
-          return { ...step, subLabel: submittedDateLabel ?? '未登録' }
+          return { ...step, subLabel: submittedDateLabel ?? '提出日時: 未登録' }
         case 'approval':
           return {
             ...step,
-            subLabel: approvalDeadlineLabel ? `期限: ${approvalDeadlineLabel}` : '期限: 未設定',
+            subLabel: approvalDeadlineLabel,
           }
         case 'visit':
-          return { ...step, subLabel: formattedVisitDate }
+          return { ...step, subLabel: `来店予定: ${formattedVisitDate}` }
         case 'invoice':
-          return { ...step, subLabel: invoiceStatusText[offer.invoiceStatus] }
+          return { ...step, subLabel: `請求状況: ${invoiceStatusText[offer.invoiceStatus]}` }
         case 'payment':
           return {
             ...step,
-            subLabel: paymentCompletedLabel ?? (offer.paid ? '支払済み' : '未払い'),
+            subLabel:
+              paymentCompletedLabel != null
+                ? `支払い日: ${paymentCompletedLabel}`
+                : `支払い状況: ${offer.paid ? '完了' : '未完了'}`,
           }
         case 'review':
-          return { ...step, subLabel: step.status === 'complete' ? '完了' : '未実施' }
+          return { ...step, subLabel: `レビュー: ${step.status === 'complete' ? '完了' : '未実施'}` }
         default:
           return step
       }
@@ -300,7 +314,7 @@ export default function StoreOfferProgressPanel({
           onStepSelect={setActiveStep}
         />
       </div>
-      <div className="rounded-2xl border bg-card p-6 shadow-md">
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
           {detail.badge}
