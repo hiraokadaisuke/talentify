@@ -12,7 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getOfferProgress } from '@/utils/offerProgress'
-import type { OfferStepKey } from '@/utils/offerProgress'
+import type { OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { toast } from 'sonner'
@@ -25,12 +25,13 @@ export default function TalentOfferPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [actionLoading, setActionLoading] = useState<'accept' | 'decline' | null>(null)
   const [invoiceId, setInvoiceId] = useState<string | null>(null)
+  const [activeStep, setActiveStep] = useState<OfferStepKey>('offer_submitted')
 
   const loadOffer = useCallback(async () => {
     const { data } = await supabase
       .from('offers')
       .select(
-        'id,status,date,updated_at,message,talent_id,user_id,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
+        'id,status,date,updated_at,created_at,message,talent_id,user_id,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
       )
       .eq('id', params.id)
       .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
@@ -55,6 +56,7 @@ export default function TalentOfferPage() {
         performerAvatarUrl: data.talents?.avatar_url || null,
         storeName: data.stores?.store_name || '',
         updatedAt: data.updated_at,
+        submittedAt: data.created_at,
         paid: data.paid,
         paidAt: data.paid_at,
         invoiceStatus,
@@ -75,6 +77,20 @@ export default function TalentOfferPage() {
     }
     init()
   }, [loadOffer, supabase])
+
+  useEffect(() => {
+    if (!offer) {
+      setActiveStep('offer_submitted')
+      return
+    }
+
+    const { current: currentStep } = getOfferProgress({
+      status: offer.status,
+      invoiceStatus: offer.invoiceStatus,
+      paid: offer.paid,
+    })
+    setActiveStep(currentStep)
+  }, [offer])
 
   if (!userId || !loaded) {
     return <p className="p-4">Loading...</p>
@@ -119,31 +135,41 @@ export default function TalentOfferPage() {
   }
 
   const showActions = ['accepted', 'confirmed', 'completed'].includes(offer.status)
-  const invoiceLink = showActions
-    ? invoiceId
-      ? '/talent/invoices'
-      : `/talent/invoices/new?offerId=${offer.id}`
-    : undefined
-  const invoiceText = invoiceId ? '請求履歴を見る' : '請求書を作成'
   const paymentLink = showActions ? `/talent/offers/${offer.id}/payment` : undefined
   const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', {
     locale: ja,
   })
+  const formattedSubmittedAt = offer.submittedAt
+    ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
+    : '未提出'
 
-  const renderStatusBadge = () => {
-    if (offer.status === 'confirmed' || offer.status === 'accepted') {
-      return <Badge>承認済み</Badge>
+  const statusDisplay = (() => {
+    switch (offer.status) {
+      case 'pending':
+        return {
+          text: '承認待ち',
+          badge: (
+            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
+              承認待ち
+            </Badge>
+          ),
+        }
+      case 'accepted':
+        return { text: '承認済み', badge: <Badge variant="success">承認済み</Badge> }
+      case 'confirmed':
+        return { text: '来店予定', badge: <Badge variant="success">来店予定</Badge> }
+      case 'completed':
+        return { text: '完了', badge: <Badge variant="success">完了</Badge> }
+      case 'rejected':
+        return { text: '辞退済み', badge: <Badge variant="secondary">辞退済み</Badge> }
+      case 'canceled':
+        return { text: 'キャンセル済み', badge: <Badge variant="destructive">キャンセル済み</Badge> }
+      default:
+        return { text: '未承諾', badge: <Badge variant="secondary">未承諾</Badge> }
     }
-    if (offer.status === 'rejected') {
-      return <Badge variant="secondary">辞退済み</Badge>
-    }
-    if (offer.status === 'canceled') {
-      return <Badge variant="destructive">キャンセル済み</Badge>
-    }
-    return <Badge variant="secondary">未承諾</Badge>
-  }
+  })()
 
-  const { steps, current } = getOfferProgress({
+  const { steps } = getOfferProgress({
     status: offer.status,
     invoiceStatus: offer.invoiceStatus,
     paid: offer.paid,
@@ -152,6 +178,15 @@ export default function TalentOfferPage() {
   const formattedVisitDate = offer.date
     ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja })
     : '未設定'
+  const submittedDateLabel = offer.submittedAt
+    ? format(new Date(offer.submittedAt), 'yyyy/MM/dd', { locale: ja })
+    : null
+  const approvalDeadlineLabel = offer.date
+    ? format(new Date(offer.date), 'yyyy/MM/dd', { locale: ja })
+    : null
+  const paymentCompletedLabel = offer.paidAt
+    ? format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja })
+    : undefined
 
   type StepDetail = {
     title: string
@@ -168,15 +203,43 @@ export default function TalentOfferPage() {
     paid: '支払済み',
   }
 
-  const buildStepDetail = (step: OfferStepKey): StepDetail => {
+  const progressSteps = steps.map(step => {
+    switch (step.key) {
+      case 'offer_submitted':
+        return { ...step, subLabel: submittedDateLabel ?? '未登録' }
+      case 'approval':
+        return {
+          ...step,
+          subLabel: approvalDeadlineLabel ? `期限: ${approvalDeadlineLabel}` : '期限: 未設定',
+        }
+      case 'visit':
+        return { ...step, subLabel: formattedVisitDate }
+      case 'invoice':
+        return { ...step, subLabel: invoiceStatusText[offer.invoiceStatus] }
+      case 'payment':
+        return {
+          ...step,
+          subLabel: paymentCompletedLabel ?? (offer.paid ? '支払済み' : '未払い'),
+        }
+      case 'review':
+        return { ...step, subLabel: step.status === 'complete' ? '完了' : '未実施' }
+      default:
+        return step
+    }
+  })
+
+  const activeStepStatus = progressSteps.find(step => step.key === activeStep)?.status ?? 'upcoming'
+
+  const buildStepDetail = (step: OfferStepKey, status: OfferProgressStatus): StepDetail => {
     switch (step) {
       case 'offer_submitted':
         return {
           title: 'オファー提出',
           description:
             '店舗からオファーが届きました。内容を確認して、承諾または辞退を選択してください。',
+          badge: status === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
           meta: [
-            { label: '最終更新', value: formattedUpdatedAt },
+            { label: '提出日時', value: formattedSubmittedAt },
             { label: '来店予定', value: formattedVisitDate },
           ],
           actions: [
@@ -210,8 +273,11 @@ export default function TalentOfferPage() {
         return {
           title: '承認',
           description,
-          badge: renderStatusBadge(),
-          meta: [{ label: '最終更新', value: formattedUpdatedAt }],
+          badge: statusDisplay.badge,
+          meta: [
+            { label: 'ステータス', value: statusDisplay.text },
+            { label: '最終更新', value: formattedUpdatedAt },
+          ],
           actions: [
             <Button key="message" variant="outline" size="sm" asChild>
               <a href="#chat">メッセージを送る</a>
@@ -237,6 +303,7 @@ export default function TalentOfferPage() {
         return {
           title: '来店実施',
           description,
+          badge: status === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
           meta: [
             { label: '来店日時', value: formattedVisitDate },
             { label: '最終更新', value: formattedUpdatedAt },
@@ -259,47 +326,82 @@ export default function TalentOfferPage() {
         } else {
           description = '請求書のステータスを確認してください。必要に応じて修正を行いましょう。'
         }
-        const actions: ReactNode[] = [
+        const actions: ReactNode[] = []
+        if (!invoiceId) {
+          actions.push(
+            <Button key="create" size="sm" asChild>
+              <Link href={`/talent/invoices/new?offerId=${offer.id}`}>請求書を作成</Link>
+            </Button>,
+          )
+        } else {
+          actions.push(
+            <Button key="view" size="sm" variant="outline" asChild>
+              <Link href="/talent/invoices">請求書を確認</Link>
+            </Button>,
+          )
+        }
+        actions.push(
           <Button key="message" variant="outline" size="sm" asChild>
             <a href="#chat">メッセージを送る</a>
           </Button>,
-        ]
-        if (invoiceLink) {
-          actions.push(
-            <Button key="invoice" size="sm" asChild>
-              <Link href={invoiceLink}>{invoiceText}</Link>
-            </Button>,
+        )
+        let badge: ReactNode | undefined
+        if (offer.invoiceStatus === 'paid') {
+          badge = <Badge variant="success">支払済み</Badge>
+        } else if (offer.invoiceStatus === 'submitted') {
+          badge = <Badge>提出済み</Badge>
+        } else if (status === 'current') {
+          badge = (
+            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
+              準備中
+            </Badge>
           )
         }
         return {
           title: '請求',
           description,
+          badge,
           meta: [
-            { label: '請求ステータス', value: invoiceStatusText[offer.invoiceStatus] },
-            ...(invoiceId ? [{ label: '請求ID', value: invoiceId }] : []),
+            { label: '請求書', value: invoiceId ? '作成済み' : '未作成' },
+            { label: 'ステータス', value: invoiceStatusText[offer.invoiceStatus] },
           ],
           actions,
+          note:
+            invoiceId === null
+              ? '来店が完了してから請求書を作成してください。早めの提出で支払いもスムーズになります。'
+              : undefined,
         }
       }
       case 'payment': {
-        const description = offer.paid
-          ? '支払いが完了しました。取引内容を確認し、レビューに備えましょう。'
-          : '店舗からの支払いを待っています。状況に変化があればメッセージで確認してください。'
-        const actions: ReactNode[] = [
-          <Button key="message" variant="outline" size="sm" asChild>
-            <a href="#chat">メッセージを送る</a>
-          </Button>,
-        ]
+        const actions: ReactNode[] = []
         if (paymentLink) {
           actions.push(
             <Button key="payment" size="sm" asChild>
-              <Link href={paymentLink}>支払い状況</Link>
+              <Link href={paymentLink}>支払い状況を確認</Link>
             </Button>,
+          )
+        }
+        actions.push(
+          <Button key="message" variant="outline" size="sm" asChild>
+            <a href="#chat">メッセージを送る</a>
+          </Button>,
+        )
+        let badge: ReactNode | undefined
+        if (offer.paid) {
+          badge = <Badge variant="success">完了</Badge>
+        } else if (status === 'current') {
+          badge = (
+            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
+              支払い待ち
+            </Badge>
           )
         }
         return {
           title: '支払い',
-          description,
+          description: offer.paid
+            ? '支払いが完了しました。入金内容を確認し、レビューが届くまでお待ちください。'
+            : '請求書の支払いを待っています。状況を確認し、必要であれば店舗に連絡しましょう。',
+          badge,
           meta: [
             { label: '支払い状況', value: offer.paid ? '完了' : '未完了' },
             ...(offer.paidAt
@@ -314,6 +416,7 @@ export default function TalentOfferPage() {
         return {
           title: 'レビュー',
           description: '支払いが完了すると店舗からのレビューを確認できます。フィードバックを次回に活かしましょう。',
+          badge: status === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
           actions: [
             <Button key="message" variant="outline" size="sm" asChild>
               <a href="#chat">メッセージを送る</a>
@@ -323,7 +426,8 @@ export default function TalentOfferPage() {
     }
   }
 
-  const detail = buildStepDetail(current)
+  const detail = buildStepDetail(activeStep, activeStepStatus)
+
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -335,8 +439,21 @@ export default function TalentOfferPage() {
               <p className="text-sm text-muted-foreground">オファーの進行状況と次に行うアクションを確認できます。</p>
             </CardHeader>
             <CardContent className="space-y-8">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  {statusDisplay.badge}
+                  <span className="text-xs text-muted-foreground">最終更新: {formattedUpdatedAt}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  提出日時: {formattedSubmittedAt}
+                </span>
+              </div>
               <div className="mx-auto w-full max-w-3xl">
-                <OfferProgressTracker steps={steps} />
+                <OfferProgressTracker
+                  steps={progressSteps}
+                  selectedStep={activeStep}
+                  onStepSelect={setActiveStep}
+                />
               </div>
               <div className="rounded-2xl border bg-card p-6 shadow-md">
                 <div className="flex flex-wrap items-center gap-2">
