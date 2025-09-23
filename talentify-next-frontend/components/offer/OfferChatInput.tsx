@@ -42,7 +42,7 @@ export default function OfferChatInput({ offerId, senderRole, onSent }: OfferCha
   }
 
   return (
-    <div className="border-t p-2 space-y-2">
+    <div className="space-y-3">
       <Textarea
         value={body}
         onChange={e => setBody(e.target.value)}
@@ -50,7 +50,7 @@ export default function OfferChatInput({ offerId, senderRole, onSent }: OfferCha
         placeholder="メッセージを入力"
         rows={1}
       />
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
         <Button onClick={handleSend} disabled={sending}>
           送信
         </Button>

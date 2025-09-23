@@ -273,90 +273,94 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const detail = buildStepDetail(current)
 
   return (
-    <div className="flex h-full flex-col gap-6 p-4 lg:flex-row">
-      <div className="flex flex-1 flex-col gap-6">
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle>進捗状況</CardTitle>
-            <p className="text-sm text-muted-foreground">オファーの進行状況と各ステップの対応内容を確認できます。</p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <OfferProgressTracker steps={steps} />
-            <div className="rounded-lg border bg-background p-5 shadow-sm">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
-                {detail.badge}
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <div className="flex flex-col gap-6">
+          <Card className="shadow-sm">
+            <CardHeader className="space-y-2">
+              <CardTitle>進捗状況</CardTitle>
+              <p className="text-sm text-muted-foreground">オファーの進行状況と各ステップの対応内容を確認できます。</p>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              <div className="mx-auto w-full max-w-3xl">
+                <OfferProgressTracker steps={steps} />
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">{detail.description}</p>
-              {detail.meta && detail.meta.length > 0 && (
-                <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {detail.meta.map(item => (
-                    <div key={item.label} className="space-y-1">
-                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        {item.label}
-                      </dt>
-                      <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-              {detail.actions && detail.actions.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {detail.actions.map((action, index) => (
-                    <div key={index} className="inline-flex">{action}</div>
-                  ))}
+              <div className="rounded-2xl border bg-card p-6 shadow-md">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
+                  {detail.badge}
                 </div>
-              )}
-              {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
-            </div>
-          </CardContent>
-        </Card>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
+                {detail.meta && detail.meta.length > 0 && (
+                  <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {detail.meta.map(item => (
+                      <div key={item.label} className="space-y-1">
+                        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          {item.label}
+                        </dt>
+                        <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                {detail.actions && detail.actions.length > 0 && (
+                  <div className="mt-6 flex flex-wrap justify-end gap-2">
+                    {detail.actions.map((action, index) => (
+                      <div key={index} className="inline-flex">{action}</div>
+                    ))}
+                  </div>
+                )}
+                {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>オファー詳細</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <OfferSummary
-              performerName={offer.performerName}
-              performerAvatarUrl={offer.performerAvatarUrl}
-              storeName={offer.storeName}
-              date={offer.date}
-              message={offer.message}
-              invoiceStatus={offer.invoiceStatus}
-            />
-            <CancelOfferSection
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle>オファー詳細</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <OfferSummary
+                performerName={offer.performerName}
+                performerAvatarUrl={offer.performerAvatarUrl}
+                storeName={offer.storeName}
+                date={offer.date}
+                message={offer.message}
+                invoiceStatus={offer.invoiceStatus}
+              />
+              <CancelOfferSection
+                offerId={offer.id}
+                initialStatus={data.status}
+                initialCanceledAt={data.canceled_at}
+              />
+            </CardContent>
+          </Card>
+
+          {invoiceData && (
+            <OfferPaymentStatusCard
+              title="請求"
               offerId={offer.id}
-              initialStatus={data.status}
-              initialCanceledAt={data.canceled_at}
+              paid={offer.paid}
+              paidAt={offer.paidAt}
+              invoice={invoiceData}
             />
-          </CardContent>
-        </Card>
-
-        {invoiceData && (
-          <OfferPaymentStatusCard
-            title="請求"
-            offerId={offer.id}
-            paid={offer.paid}
-            paidAt={offer.paidAt}
-            invoice={invoiceData}
-          />
-        )}
-      </div>
-
-      <div className="flex w-full flex-col gap-4 lg:max-w-md xl:max-w-lg">
-        <div>
-          <h2 className="text-base font-semibold text-foreground">メッセージ</h2>
-          <p className="text-sm text-muted-foreground">オファーに関する連絡は右のチャットから行えます。</p>
+          )}
         </div>
-        <div id="chat" className="flex-1 min-h-[520px]">
-          <OfferChatThread
-            offerId={offer.id}
-            currentUserId={user.id}
-            currentRole="store"
-            paymentLink={paymentLink}
-          />
-        </div>
+
+        <aside className="flex h-full flex-col gap-4 rounded-2xl border bg-card p-6 shadow-md" id="chat">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold text-foreground">メッセージ</h2>
+            <p className="text-sm text-muted-foreground">オファーに関する連絡はチャットから行えます。</p>
+          </div>
+          <div className="flex-1 min-h-[520px]">
+            <OfferChatThread
+              offerId={offer.id}
+              currentUserId={user.id}
+              currentRole="store"
+              paymentLink={paymentLink}
+            />
+          </div>
+        </aside>
       </div>
     </div>
   )
