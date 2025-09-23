@@ -1,11 +1,17 @@
+import type { ReactNode } from 'react'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import OfferChatThread from '@/components/offer/OfferChatThread'
 import OfferSummary from '@/components/offer/OfferSummary'
 import OfferPaymentStatusCard from '@/components/offer/OfferPaymentStatusCard'
+import OfferProgressTracker from '@/components/offer/OfferProgressTracker'
 import CancelOfferSection from './CancelOfferSection'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { getOfferProgress } from '@/utils/offerProgress'
+import type { OfferStepKey } from '@/utils/offerProgress'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
@@ -84,9 +90,228 @@ export default async function StoreOfferPage({ params }: PageProps) {
     return <Badge variant="secondary">未承諾</Badge>
   }
 
+  const { steps, current } = getOfferProgress({
+    status: offer.status,
+    invoiceStatus: offer.invoiceStatus,
+    paid: offer.paid,
+  })
+
+  const formattedVisitDate = offer.date
+    ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja })
+    : '未設定'
+
+  type StepDetail = {
+    title: string
+    description: string
+    badge?: ReactNode
+    meta?: { label: string; value: string }[]
+    actions?: ReactNode[]
+    note?: ReactNode
+  }
+
+  const invoiceStatusText: Record<'not_submitted' | 'submitted' | 'paid', string> = {
+    not_submitted: '未提出',
+    submitted: '提出済み',
+    paid: '支払済み',
+  }
+
+  const buildStepDetail = (step: OfferStepKey): StepDetail => {
+    switch (step) {
+      case 'offer_submitted':
+        return {
+          title: 'オファー提出',
+          description:
+            '店舗からタレントへオファーを送信しました。返信内容はメッセージで確認できます。',
+          meta: [
+            { label: '最終更新', value: formattedUpdatedAt },
+            { label: '来店予定', value: formattedVisitDate },
+          ],
+          actions: [
+            <Button key="message" variant="outline" size="sm" asChild>
+              <a href="#chat">メッセージを送る</a>
+            </Button>,
+          ],
+        }
+      case 'approval': {
+        let description = ''
+        switch (offer.status) {
+          case 'pending':
+            description = 'タレントからの返答をお待ちください。必要に応じてメッセージで詳細を共有しましょう。'
+            break
+          case 'accepted':
+            description = 'タレントがオファーを承認しました。来店日時の最終確認を進めてください。'
+            break
+          case 'confirmed':
+            description = '承認が完了し、来店の段取りに進めます。訪問予定の共有を忘れずに行いましょう。'
+            break
+          case 'rejected':
+            description = 'タレントがオファーを辞退しました。別の候補者へのオファー送信をご検討ください。'
+            break
+          case 'canceled':
+            description = 'オファーはキャンセルされました。必要であれば新しいオファーを作成してください。'
+            break
+          default:
+            description = '承認手続きが完了しました。次のステップに進みましょう。'
+            break
+        }
+        return {
+          title: '承認',
+          description,
+          badge: renderStatusBadge(),
+          meta: [{ label: '最終更新', value: formattedUpdatedAt }],
+          actions: [
+            <Button key="message" variant="outline" size="sm" asChild>
+              <a href="#chat">メッセージを送る</a>
+            </Button>,
+          ],
+        }
+      }
+      case 'visit': {
+        let description = ''
+        if (offer.status === 'completed') {
+          description = '来店が完了しました。続けて請求内容を確認してください。'
+        } else if (offer.status === 'confirmed') {
+          description = '来店予定が確定しています。必要な持ち物や当日の流れをメッセージで共有しましょう。'
+        } else if (offer.status === 'accepted') {
+          description = 'タレントの承認を受けました。来店日時を確定し、詳細を連絡してください。'
+        } else if (offer.status === 'canceled') {
+          description = 'オファーがキャンセルされたため、来店は行われません。'
+        } else if (offer.status === 'rejected') {
+          description = '辞退済みのため来店は行われません。'
+        } else {
+          description = '来店日時の調整を進めてください。'
+        }
+        return {
+          title: '来店実施',
+          description,
+          meta: [
+            { label: '来店日時', value: formattedVisitDate },
+            { label: '最終更新', value: formattedUpdatedAt },
+          ],
+          actions: [
+            <Button key="message" variant="outline" size="sm" asChild>
+              <a href="#chat">メッセージを送る</a>
+            </Button>,
+          ],
+        }
+      }
+      case 'invoice': {
+        let description = ''
+        if (offer.invoiceStatus === 'not_submitted') {
+          description = 'タレントからの請求書提出をお待ちください。提出されると通知されます。'
+        } else if (offer.invoiceStatus === 'submitted') {
+          description = '請求書が提出されました。内容を確認し、支払い手続きへ進みましょう。'
+        } else {
+          description = '請求の確認が完了しました。支払いステップへ進んでください。'
+        }
+        const actions: ReactNode[] = [
+          <Button key="message" variant="outline" size="sm" asChild>
+            <a href="#chat">メッセージを送る</a>
+          </Button>,
+        ]
+        if (invoiceData) {
+          actions.push(
+            <Button key="invoice" variant="outline" size="sm" asChild>
+              <Link href={`/store/invoices/${invoiceData.id}`}>請求書を見る</Link>
+            </Button>,
+          )
+        }
+        return {
+          title: '請求',
+          description,
+          meta: [
+            { label: '請求ステータス', value: invoiceStatusText[offer.invoiceStatus] },
+            ...(invoiceData?.amount
+              ? [{ label: '請求額', value: `¥${invoiceData.amount.toLocaleString('ja-JP')}` }]
+              : []),
+          ],
+          actions,
+        }
+      }
+      case 'payment': {
+        const description = offer.paid
+          ? '支払いが完了しました。必要に応じてレビューの準備を進めてください。'
+          : '請求内容を確認し、支払いを完了してください。支払いが完了するとレビューに進めます。'
+        const actions: ReactNode[] = [
+          <Button key="message" variant="outline" size="sm" asChild>
+            <a href="#chat">メッセージを送る</a>
+          </Button>,
+        ]
+        if (paymentLink) {
+          actions.push(
+            <Button key="payment" size="sm" asChild>
+              <Link href={paymentLink}>支払い状況</Link>
+            </Button>,
+          )
+        }
+        return {
+          title: '支払い',
+          description,
+          meta: [
+            { label: '支払い状況', value: offer.paid ? '完了' : '未完了' },
+            ...(offer.paidAt
+              ? [{ label: '支払い日', value: format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) }]
+              : []),
+          ],
+          actions,
+        }
+      }
+      case 'review':
+      default:
+        return {
+          title: 'レビュー',
+          description: '支払い完了後にタレントへのレビューを記入できます。来店内容を振り返って評価を準備しましょう。',
+          actions: [
+            <Button key="message" variant="outline" size="sm" asChild>
+              <a href="#chat">メッセージを送る</a>
+            </Button>,
+          ],
+        }
+    }
+  }
+
+  const detail = buildStepDetail(current)
+
   return (
-    <div className="flex flex-col lg:flex-row gap-4 h-full p-4">
-      <div className="flex flex-col gap-4 w-full lg:w-1/3">
+    <div className="flex h-full flex-col gap-6 p-4 lg:flex-row">
+      <div className="flex flex-1 flex-col gap-6">
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle>進捗状況</CardTitle>
+            <p className="text-sm text-muted-foreground">オファーの進行状況と各ステップの対応内容を確認できます。</p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <OfferProgressTracker steps={steps} />
+            <div className="rounded-lg border bg-background p-5 shadow-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
+                {detail.badge}
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">{detail.description}</p>
+              {detail.meta && detail.meta.length > 0 && (
+                <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {detail.meta.map(item => (
+                    <div key={item.label} className="space-y-1">
+                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {item.label}
+                      </dt>
+                      <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              {detail.actions && detail.actions.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {detail.actions.map((action, index) => (
+                    <div key={index} className="inline-flex">{action}</div>
+                  ))}
+                </div>
+              )}
+              {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>オファー詳細</CardTitle>
@@ -100,15 +325,14 @@ export default async function StoreOfferPage({ params }: PageProps) {
               message={offer.message}
               invoiceStatus={offer.invoiceStatus}
             />
-            <div className="mt-4">
-              <CancelOfferSection
-                offerId={offer.id}
-                initialStatus={data.status}
-                initialCanceledAt={data.canceled_at}
-              />
-            </div>
+            <CancelOfferSection
+              offerId={offer.id}
+              initialStatus={data.status}
+              initialCanceledAt={data.canceled_at}
+            />
           </CardContent>
         </Card>
+
         {invoiceData && (
           <OfferPaymentStatusCard
             title="請求"
@@ -119,16 +343,13 @@ export default async function StoreOfferPage({ params }: PageProps) {
           />
         )}
       </div>
-      <div className="flex flex-col flex-1 gap-4 w-full lg:w-2/3">
-        <div className="flex items-center justify-between p-4 bg-white rounded shadow">
-          <div className="flex items-center gap-2">
-            {renderStatusBadge()}
-            <span className="text-sm text-muted-foreground">
-              最終更新: {formattedUpdatedAt}
-            </span>
-          </div>
+
+      <div className="flex w-full flex-col gap-4 lg:max-w-md xl:max-w-lg">
+        <div>
+          <h2 className="text-base font-semibold text-foreground">メッセージ</h2>
+          <p className="text-sm text-muted-foreground">オファーに関する連絡は右のチャットから行えます。</p>
         </div>
-        <div id="chat" className="flex-1 min-h-0">
+        <div id="chat" className="flex-1 min-h-[520px]">
           <OfferChatThread
             offerId={offer.id}
             currentUserId={user.id}
