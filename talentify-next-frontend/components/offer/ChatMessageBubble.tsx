@@ -22,10 +22,10 @@ export default function ChatMessageBubble({
   const read = isMine && peerLastReadAt && new Date(peerLastReadAt) >= new Date(message.created_at)
 
   return (
-    <div className={clsx('flex mb-2', isMine ? 'justify-end' : 'justify-start')}> 
+    <div className={clsx('mb-3 flex', isMine ? 'justify-end' : 'justify-start')}>
       <div
         className={clsx(
-          'rounded px-3 py-2 max-w-[80%] shadow',
+          'max-w-[80%] rounded-2xl px-4 py-3 text-sm shadow-md',
           isMine ? 'bg-primary text-primary-foreground' : 'bg-muted'
         )}
       >
@@ -55,7 +55,7 @@ export default function ChatMessageBubble({
             </a>
           )
         })}
-        <div className={clsx('text-xs mt-1', isMine ? 'text-right' : 'text-left')}>
+        <div className={clsx('mt-2 text-[11px] uppercase tracking-wide', isMine ? 'text-right' : 'text-left')}>
           {time} {read && '✓'}
         </div>
       </div>

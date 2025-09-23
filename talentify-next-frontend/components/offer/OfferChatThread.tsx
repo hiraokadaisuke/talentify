@@ -99,16 +99,16 @@ export default function OfferChatThread({
   }
 
   return (
-    <div className="flex flex-col h-full border rounded">
+    <div className="flex h-full min-h-[520px] flex-col overflow-hidden rounded-xl border bg-card shadow-sm">
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-2"
+        className="flex-1 overflow-y-auto p-4"
         aria-live="polite"
       >
         {loading && <p>Loading...</p>}
         {!loading && messages.length === 0 && (
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="text-center text-sm leading-relaxed text-muted-foreground">
             このオファーに関する連絡はまだありません。下の入力欄からメッセージを送信しましょう。
           </p>
         )}
@@ -121,9 +121,11 @@ export default function OfferChatThread({
           />
         ))}
       </div>
-      <OfferChatInput offerId={offerId} senderRole={currentRole} onSent={handleSent} />
+      <div className="border-t bg-background p-4">
+        <OfferChatInput offerId={offerId} senderRole={currentRole} onSent={handleSent} />
+      </div>
       {paymentLink && (
-        <div className="border-t p-2 flex flex-wrap gap-2 justify-end">
+        <div className="flex flex-wrap justify-end gap-2 border-t bg-muted/40 p-4">
           <Button variant="default" size="sm" asChild>
             <Link href={paymentLink}>支払い状況</Link>
           </Button>

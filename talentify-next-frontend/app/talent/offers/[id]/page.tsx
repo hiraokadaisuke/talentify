@@ -326,97 +326,101 @@ export default function TalentOfferPage() {
   const detail = buildStepDetail(current)
 
   return (
-    <div className="flex h-full flex-col gap-6 p-4 lg:flex-row">
-      <div className="flex flex-1 flex-col gap-6">
-        <Card>
-          <CardHeader className="space-y-1">
-            <CardTitle>進捗状況</CardTitle>
-            <p className="text-sm text-muted-foreground">オファーの進行状況と次に行うアクションを確認できます。</p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <OfferProgressTracker steps={steps} />
-            <div className="rounded-lg border bg-background p-5 shadow-sm">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
-                {detail.badge}
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <div className="flex flex-col gap-6">
+          <Card className="shadow-sm">
+            <CardHeader className="space-y-2">
+              <CardTitle>進捗状況</CardTitle>
+              <p className="text-sm text-muted-foreground">オファーの進行状況と次に行うアクションを確認できます。</p>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              <div className="mx-auto w-full max-w-3xl">
+                <OfferProgressTracker steps={steps} />
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">{detail.description}</p>
-              {detail.meta && detail.meta.length > 0 && (
-                <dl className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {detail.meta.map(item => (
-                    <div key={item.label} className="space-y-1">
-                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        {item.label}
-                      </dt>
-                      <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-              {detail.actions && detail.actions.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {detail.actions.map((action, index) => (
-                    <div key={index} className="inline-flex">{action}</div>
-                  ))}
+              <div className="rounded-2xl border bg-card p-6 shadow-md">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base font-semibold text-foreground">{detail.title}</h3>
+                  {detail.badge}
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
+                {detail.meta && detail.meta.length > 0 && (
+                  <dl className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {detail.meta.map(item => (
+                      <div key={item.label} className="space-y-1">
+                        <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          {item.label}
+                        </dt>
+                        <dd className="text-sm font-semibold text-foreground">{item.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                {detail.actions && detail.actions.length > 0 && (
+                  <div className="mt-6 flex flex-wrap justify-end gap-2">
+                    {detail.actions.map((action, index) => (
+                      <div key={index} className="inline-flex">{action}</div>
+                    ))}
+                  </div>
+                )}
+                {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle>オファー詳細</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <OfferSummary
+                performerName={offer.performerName}
+                performerAvatarUrl={offer.performerAvatarUrl}
+                storeName={offer.storeName}
+                date={offer.date}
+                message={offer.message}
+                invoiceStatus={offer.invoiceStatus}
+              />
+              {offer.status === 'pending' && (
+                <div className="flex flex-wrap justify-end gap-2">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleAccept}
+                    disabled={actionLoading !== null}
+                  >
+                    {actionLoading === 'accept' ? '承諾中...' : '承諾'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDecline}
+                    disabled={actionLoading !== null}
+                  >
+                    {actionLoading === 'decline' ? '辞退中...' : '辞退'}
+                  </Button>
                 </div>
               )}
-              {detail.note && <div className="mt-4 text-sm text-muted-foreground">{detail.note}</div>}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>オファー詳細</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <OfferSummary
-              performerName={offer.performerName}
-              performerAvatarUrl={offer.performerAvatarUrl}
-              storeName={offer.storeName}
-              date={offer.date}
-              message={offer.message}
-              invoiceStatus={offer.invoiceStatus}
+          <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} />
+        </div>
+
+        <aside className="flex h-full flex-col gap-4 rounded-2xl border bg-card p-6 shadow-md" id="chat">
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold text-foreground">メッセージ</h2>
+            <p className="text-sm text-muted-foreground">店舗との連絡はチャットをご利用ください。</p>
+          </div>
+          <div className="flex-1 min-h-[520px]">
+            <OfferChatThread
+              offerId={offer.id}
+              currentUserId={userId}
+              currentRole="talent"
+              paymentLink={paymentLink}
             />
-            {offer.status === 'pending' && (
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleAccept}
-                  disabled={actionLoading !== null}
-                >
-                  {actionLoading === 'accept' ? '承諾中...' : '承諾'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDecline}
-                  disabled={actionLoading !== null}
-                >
-                  {actionLoading === 'decline' ? '辞退中...' : '辞退'}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} />
-      </div>
-
-      <div className="flex w-full flex-col gap-4 lg:max-w-md xl:max-w-lg">
-        <div>
-          <h2 className="text-base font-semibold text-foreground">メッセージ</h2>
-          <p className="text-sm text-muted-foreground">店舗との連絡はチャットを利用してください。</p>
-        </div>
-        <div id="chat" className="flex-1 min-h-[520px]">
-          <OfferChatThread
-            offerId={offer.id}
-            currentUserId={userId}
-            currentRole="talent"
-            paymentLink={paymentLink}
-          />
-        </div>
+          </div>
+        </aside>
       </div>
     </div>
   )
