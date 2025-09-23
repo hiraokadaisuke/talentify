@@ -137,19 +137,14 @@ export default async function StoreOfferPage({ params }: PageProps) {
           )}
         </div>
 
-        <aside className="flex h-full flex-col gap-4 rounded-2xl border bg-card p-6 shadow-md" id="chat">
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-foreground">メッセージ</h2>
-            <p className="text-sm text-muted-foreground">オファーに関する連絡はチャットから行えます。</p>
-          </div>
-          <div className="flex-1 min-h-[520px]">
-            <OfferChatThread
-              offerId={offer.id}
-              currentUserId={user.id}
-              currentRole="store"
-              paymentLink={paymentLink}
-            />
-          </div>
+        <aside className="flex h-full flex-col" id="chat">
+          <OfferChatThread
+            offerId={offer.id}
+            currentUserId={user.id}
+            currentRole="store"
+            storeName={offer.storeName}
+            talentName={offer.performerName}
+          />
         </aside>
       </div>
     </div>
