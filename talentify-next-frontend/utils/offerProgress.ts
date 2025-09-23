@@ -12,6 +12,7 @@ export interface OfferProgressStep {
   key: OfferStepKey
   title: string
   status: OfferProgressStatus
+  subLabel?: string
 }
 
 export const OFFER_STEP_LABELS: Record<OfferStepKey, string> = {
