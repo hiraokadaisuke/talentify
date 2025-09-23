@@ -18,7 +18,7 @@ export default function OfferChatInput({ offerId, senderRole, onSent }: OfferCha
   const supabase = createClient()
 
   const handleSend = async () => {
-    if (!body) return
+    if (!body.trim()) return
     setSending(true)
     try {
       const message = await sendOfferMessage(supabase, {
@@ -47,11 +47,17 @@ export default function OfferChatInput({ offerId, senderRole, onSent }: OfferCha
         value={body}
         onChange={e => setBody(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder="メッセージを入力"
-        rows={1}
+        placeholder="メッセージを入力..."
+        rows={3}
+        className="min-h-[96px] resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-inner"
       />
-      <div className="flex justify-end gap-2">
-        <Button onClick={handleSend} disabled={sending}>
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+        <p>Enter + Shift で改行、Enter で送信</p>
+        <Button
+          onClick={handleSend}
+          disabled={sending || !body.trim()}
+          className="rounded-full bg-slate-800 px-6 text-white hover:bg-slate-700"
+        >
           送信
         </Button>
       </div>
