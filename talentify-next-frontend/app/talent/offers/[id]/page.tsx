@@ -3,10 +3,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import OfferSummary from '@/components/offer/OfferSummary'
-import OfferPaymentStatusCard from '@/components/offer/OfferPaymentStatusCard'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { getOfferProgress } from '@/utils/offerProgress'
 import { toast } from 'sonner'
 import TalentOfferProgressPanel from './TalentOfferProgressPanel'
@@ -146,47 +142,10 @@ export default function TalentOfferPage() {
             storeName: offer.storeName,
             talentName: offer.performerName,
           }}
+          onAcceptOffer={handleAccept}
+          onDeclineOffer={handleDecline}
+          actionLoading={actionLoading}
         />
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle>オファー詳細</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <OfferSummary
-                performerName={offer.performerName}
-                performerAvatarUrl={offer.performerAvatarUrl}
-                storeName={offer.storeName}
-                date={offer.date}
-                message={offer.message}
-                invoiceStatus={offer.invoiceStatus}
-              />
-              {offer.status === 'pending' && (
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleAccept}
-                    disabled={actionLoading !== null}
-                  >
-                    {actionLoading === 'accept' ? '承諾中...' : '承諾'}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDecline}
-                    disabled={actionLoading !== null}
-                  >
-                    {actionLoading === 'decline' ? '辞退中...' : '辞退'}
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <OfferPaymentStatusCard paid={offer.paid} paidAt={offer.paidAt} />
-        </div>
       </div>
     </div>
   )
