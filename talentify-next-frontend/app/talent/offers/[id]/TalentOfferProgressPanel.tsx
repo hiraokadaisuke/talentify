@@ -1,40 +1,28 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import type { OfferProgressStep, OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import type { OfferProgressStep, OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import ProgressCard from './ProgressCard'
 import StepDetailCard from './StepDetailCard'
 import MessageCard from './MessageCard'
 
-interface StoreOfferProgressPanelProps {
+type TalentOfferProgressPanelProps = {
   steps: OfferProgressStep[]
   initialActiveStep: OfferStepKey
   offer: {
     id: string
     status: string
     date: string | null
-    respondDeadline: string | null
     updatedAt: string
     submittedAt: string | null
     paid: boolean
     paidAt: string | null
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
-    storeName: string
-    reward: number | null
   }
-  invoice?: {
-    id: string
-    invoiceUrl: string | null
-    amount: number | null
-    status: string
-  } | null
+  invoiceId: string | null
   paymentLink?: string
-  cancelation: {
-    initialStatus: string
-    initialCanceledAt: string | null
-  }
   message: {
     offerId: string
     currentUserId: string
@@ -43,21 +31,14 @@ interface StoreOfferProgressPanelProps {
   }
 }
 
-const invoiceStatusText: Record<'not_submitted' | 'submitted' | 'paid', string> = {
-  not_submitted: '未提出',
-  submitted: '提出済み',
-  paid: '支払済み',
-}
-
-export default function StoreOfferProgressPanel({
+export default function TalentOfferProgressPanel({
   steps,
   initialActiveStep,
   offer,
-  invoice,
+  invoiceId,
   paymentLink,
-  cancelation,
   message,
-}: StoreOfferProgressPanelProps) {
+}: TalentOfferProgressPanelProps) {
   const [activeStep, setActiveStep] = useState<OfferStepKey>(initialActiveStep)
 
   useEffect(() => {
@@ -66,19 +47,13 @@ export default function StoreOfferProgressPanel({
 
   const formattedSubmittedAt = useMemo(() => {
     return offer.submittedAt
-      ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
+      ? `提出日時: ${format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })}`
       : '提出日時: 未登録'
   }, [offer.submittedAt])
 
   const formattedVisitDate = useMemo(() => {
     return offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定'
   }, [offer.date])
-
-  const formattedRespondDeadline = useMemo(() => {
-    return offer.respondDeadline
-      ? format(new Date(offer.respondDeadline), 'yyyy/MM/dd', { locale: ja })
-      : null
-  }, [offer.respondDeadline])
 
   const paymentCompletedLabel = useMemo(() => {
     return offer.paidAt ? format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) : undefined
@@ -90,10 +65,7 @@ export default function StoreOfferProgressPanel({
         case 'offer_submitted':
           return { ...step, subLabel: formattedSubmittedAt }
         case 'approval':
-          return {
-            ...step,
-            subLabel: formattedRespondDeadline ? `承認期限: ${formattedRespondDeadline}` : '承認期限: 未設定',
-          }
+          return { ...step }
         case 'visit':
           return { ...step, subLabel: `来店予定: ${formattedVisitDate}` }
         case 'invoice':
@@ -107,23 +79,12 @@ export default function StoreOfferProgressPanel({
                 : `支払い状況: ${offer.paid ? '完了' : '未完了'}`,
           }
         case 'review':
-          return {
-            ...step,
-            subLabel: `レビュー: ${step.status === 'complete' ? '完了' : '未実施'}`,
-          }
+          return { ...step, subLabel: `レビュー: ${step.status === 'complete' ? '完了' : '未実施'}` }
         default:
           return step
       }
     })
-  }, [
-    steps,
-    formattedSubmittedAt,
-    formattedRespondDeadline,
-    formattedVisitDate,
-    offer.invoiceStatus,
-    offer.paid,
-    paymentCompletedLabel,
-  ])
+  }, [formattedSubmittedAt, formattedVisitDate, offer.invoiceStatus, offer.paid, paymentCompletedLabel, steps])
 
   const activeStatus: OfferProgressStatus = useMemo(() => {
     return progressSteps.find(step => step.key === activeStep)?.status ?? 'upcoming'
@@ -138,9 +99,8 @@ export default function StoreOfferProgressPanel({
             activeStep={activeStep}
             activeStatus={activeStatus}
             offer={offer}
-            invoice={invoice}
+            invoiceId={invoiceId}
             paymentLink={paymentLink}
-            cancelation={cancelation}
           />
         </div>
         <div className="lg:col-span-1">
@@ -155,3 +115,10 @@ export default function StoreOfferProgressPanel({
     </div>
   )
 }
+
+const invoiceStatusText: Record<'not_submitted' | 'submitted' | 'paid', string> = {
+  not_submitted: '未提出',
+  submitted: '提出済み',
+  paid: '支払済み',
+}
+

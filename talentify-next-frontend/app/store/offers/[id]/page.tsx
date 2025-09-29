@@ -2,13 +2,11 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import OfferChatThread from '@/components/offer/OfferChatThread'
-import CancelOfferSection from './CancelOfferSection'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { getOfferProgress } from '@/utils/offerProgress'
 import StoreOfferProgressPanel from './StoreOfferProgressPanel'
+import { deriveActiveStep } from '@/lib/offers/deriveActiveStep'
 
 type PageProps = {
   params: { id: string }
@@ -24,7 +22,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const { data } = await supabase
     .from('offers')
     .select(
-      'id,status,date,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
+      'id,status,date,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
     )
     .eq('id', params.id)
     .single()
@@ -54,6 +52,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     message: data.message as string,
     performerName: data.talents?.stage_name || '',
     performerAvatarUrl: data.talents?.avatar_url || null,
+    acceptedAt: data.accepted_at as string | null,
     storeName: data.stores?.store_name || '',
     updatedAt: data.updated_at as string,
     paid: data.paid as boolean,
@@ -74,10 +73,19 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
   const paymentLink = showActions ? `/store/offers/${params.id}/payment` : undefined
 
-  const { steps, current } = getOfferProgress({
+  const { steps } = getOfferProgress({
     status: offer.status,
     invoiceStatus: offer.invoiceStatus,
     paid: offer.paid,
+  })
+
+  const activeStep = deriveActiveStep({
+    status: offer.status,
+    acceptedAt: offer.acceptedAt,
+    visitScheduledAt: offer.date,
+    invoiceStatus: offer.invoiceStatus,
+    paid: offer.paid,
+    paidAt: offer.paidAt,
   })
 
   const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
@@ -115,92 +123,32 @@ export default async function StoreOfferPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
-          <div className="space-y-3">
-            <div className="flex flex-col gap-2">
-              <h2 className="text-lg font-semibold text-slate-900">進捗状況</h2>
-              <p className="text-sm text-muted-foreground">
-                オファーの進行状況と各ステップの対応内容を確認できます。
-              </p>
-            </div>
-            <StoreOfferProgressPanel
-              steps={steps}
-              currentStep={current}
-              offer={{
-                id: offer.id,
-                status: offer.status,
-                date: offer.date,
-                respondDeadline: offer.respondDeadline,
-                updatedAt: offer.updatedAt,
-                submittedAt: offer.submittedAt,
-                paid: offer.paid,
-                paidAt: offer.paidAt,
-                invoiceStatus: offer.invoiceStatus,
-              }}
-              invoice={invoiceData}
-              paymentLink={paymentLink}
-            />
-          </div>
-        </section>
-
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start lg:gap-8">
-          <div className="flex flex-col gap-6">
-            <Card className="rounded-lg border border-slate-200 bg-white p-0 shadow-sm">
-              <CardHeader className="mb-0 flex flex-col gap-2 border-b border-slate-100 p-6 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <CardTitle className="text-lg">オファー提出</CardTitle>
-                  <p className="mt-1 text-sm text-slate-600">
-                    オファーが正常に提出されました。進捗に応じてタレントへ連絡を行いましょう。
-                  </p>
-                </div>
-                <Badge className={cn('self-start', statusClassName)}>{statusLabel}</Badge>
-              </CardHeader>
-              <CardContent className="space-y-6 p-6">
-                <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">提出日時</dt>
-                    <dd className="text-base font-semibold text-slate-900">{formattedSubmittedAt}</dd>
-                  </div>
-                  <div className="space-y-1">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">提出者</dt>
-                    <dd className="text-sm font-medium text-slate-900">{offer.storeName || '未設定'}</dd>
-                  </div>
-                  <div className="space-y-1">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">オファー金額</dt>
-                    <dd className="text-base font-semibold text-slate-900">
-                      {offer.reward != null ? `¥${offer.reward.toLocaleString('ja-JP')}` : '未設定'}
-                    </dd>
-                  </div>
-                  <div className="space-y-1">
-                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">ステータス</dt>
-                    <dd>
-                      <Badge className={cn('mt-1', statusClassName)}>{statusLabel}</Badge>
-                    </dd>
-                  </div>
-                </dl>
-                <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                  このオファーに関する詳細についてお気軽にメッセージをお送りください。
-                </div>
-                <CancelOfferSection
-                  offerId={offer.id}
-                  initialStatus={data.status}
-                  initialCanceledAt={data.canceled_at}
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          <aside className="flex h-full flex-col" id="chat">
-            <OfferChatThread
-              offerId={offer.id}
-              currentUserId={user.id}
-              currentRole="store"
-              storeName={offer.storeName}
-              talentName={offer.performerName}
-              className="lg:h-[600px] lg:max-h-[70vh]"
-            />
-          </aside>
-        </div>
+        <StoreOfferProgressPanel
+          steps={steps}
+          initialActiveStep={activeStep}
+          offer={{
+            id: offer.id,
+            status: offer.status,
+            date: offer.date,
+            respondDeadline: offer.respondDeadline,
+            updatedAt: offer.updatedAt,
+            submittedAt: offer.submittedAt,
+            paid: offer.paid,
+            paidAt: offer.paidAt,
+            invoiceStatus: offer.invoiceStatus,
+            storeName: offer.storeName,
+            reward: offer.reward,
+          }}
+          invoice={invoiceData}
+          paymentLink={paymentLink}
+          cancelation={{ initialStatus: data.status as string, initialCanceledAt: data.canceled_at as string | null }}
+          message={{
+            offerId: offer.id,
+            currentUserId: user.id,
+            storeName: offer.storeName,
+            talentName: offer.performerName,
+          }}
+        />
       </div>
     </div>
   )
