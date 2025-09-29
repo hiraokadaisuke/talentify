@@ -29,6 +29,9 @@ type TalentOfferProgressPanelProps = {
     storeName: string
     talentName: string
   }
+  onAcceptOffer?: () => void
+  onDeclineOffer?: () => void
+  actionLoading?: 'accept' | 'decline' | null
 }
 
 export default function TalentOfferProgressPanel({
@@ -38,6 +41,9 @@ export default function TalentOfferProgressPanel({
   invoiceId,
   paymentLink,
   message,
+  onAcceptOffer,
+  onDeclineOffer,
+  actionLoading,
 }: TalentOfferProgressPanelProps) {
   const [activeStep, setActiveStep] = useState<OfferStepKey>(initialActiveStep)
 
@@ -101,6 +107,9 @@ export default function TalentOfferProgressPanel({
             offer={offer}
             invoiceId={invoiceId}
             paymentLink={paymentLink}
+            onAcceptOffer={onAcceptOffer}
+            onDeclineOffer={onDeclineOffer}
+            actionLoading={actionLoading}
           />
         </div>
         <div className="lg:col-span-1">

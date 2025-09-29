@@ -24,6 +24,9 @@ type StepDetailCardProps = {
   }
   invoiceId: string | null
   paymentLink?: string
+  onAcceptOffer?: () => void
+  onDeclineOffer?: () => void
+  actionLoading?: 'accept' | 'decline' | null
 }
 
 type StepDetail = {
@@ -60,7 +63,16 @@ const statusDisplay = (status: string) => {
   }
 }
 
-export default function StepDetailCard({ activeStep, activeStatus, offer, invoiceId, paymentLink }: StepDetailCardProps) {
+export default function StepDetailCard({
+  activeStep,
+  activeStatus,
+  offer,
+  invoiceId,
+  paymentLink,
+  onAcceptOffer,
+  onDeclineOffer,
+  actionLoading,
+}: StepDetailCardProps) {
   const formattedSubmittedAt = useMemo(() => {
     return offer.submittedAt
       ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
@@ -119,6 +131,40 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             description = '承認が完了しました。次のステップに進んでください。'
             break
         }
+        const actions: ReactNode[] = []
+        if (offer.status === 'pending') {
+          if (onAcceptOffer) {
+            actions.push(
+              <Button
+                key="accept"
+                variant="default"
+                size="sm"
+                onClick={onAcceptOffer}
+                disabled={actionLoading !== null}
+              >
+                {actionLoading === 'accept' ? '承諾中...' : '承諾'}
+              </Button>,
+            )
+          }
+          if (onDeclineOffer) {
+            actions.push(
+              <Button
+                key="decline"
+                variant="outline"
+                size="sm"
+                onClick={onDeclineOffer}
+                disabled={actionLoading !== null}
+              >
+                {actionLoading === 'decline' ? '辞退中...' : '辞退'}
+              </Button>,
+            )
+          }
+        }
+        actions.push(
+          <Button key="message" variant="outline" size="sm" asChild>
+            <a href="#offer-messages">メッセージを送る</a>
+          </Button>,
+        )
         return {
           title: '承認',
           description,
@@ -127,11 +173,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             { label: 'ステータス', value: status.text },
             { label: '最終更新', value: formattedUpdatedAt },
           ],
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#offer-messages">メッセージを送る</a>
-            </Button>,
-          ],
+          actions,
         }
       }
       case 'visit': {
@@ -284,6 +326,9 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
     offer.status,
     paymentCompletedLabel,
     paymentLink,
+    onAcceptOffer,
+    onDeclineOffer,
+    actionLoading,
   ])
 
   return (
