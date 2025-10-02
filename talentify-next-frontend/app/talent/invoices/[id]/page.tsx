@@ -44,6 +44,7 @@ export default function TalentInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // 編集可能にするのは due_date のみ（請求書番号は自動採番・編集不可）
   const [dueDate, setDueDate] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -52,13 +53,20 @@ export default function TalentInvoiceDetailPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('invoices')
         .select(
           'id,offer_id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
         )
         .eq('id', id)
         .single()
+
+      if (error) {
+        toast.error('読み込みに失敗しました')
+        setLoading(false)
+        return
+      }
+
       const inv = data as Invoice | null
       setInvoice(inv)
       setDueDate(inv?.due_date ?? '')
@@ -68,20 +76,20 @@ export default function TalentInvoiceDetailPage() {
     if (id) load()
   }, [id])
 
-  if (loading) return <div className='p-4'>読み込み中...</div>
-  if (!invoice) return <div className='p-4'>データがありません</div>
+  if (loading) return <div className="p-4">読み込み中...</div>
+  if (!invoice) return <div className="p-4">データがありません</div>
 
-  const baseFee = invoice.amount - (invoice.transport_fee ?? 0) - (invoice.extra_fee ?? 0)
+  const baseFee =
+    invoice.amount - (invoice.transport_fee ?? 0) - (invoice.extra_fee ?? 0)
+
+  const updatePayload = {
+    due_date: dueDate || null,
+    notes: notes || null,
+  } as const
 
   const handleSave = async () => {
     setSaving(true)
-    const { error } = await supabase
-      .from('invoices')
-      .update({
-        due_date: dueDate || null,
-        notes: notes || null,
-      })
-      .eq('id', id)
+    const { error } = await supabase.from('invoices').update(updatePayload).eq('id', id)
     setSaving(false)
     if (error) {
       toast.error('保存に失敗しました')
@@ -93,13 +101,7 @@ export default function TalentInvoiceDetailPage() {
 
   const handleSubmit = async () => {
     setSubmitting(true)
-    const { error } = await supabase
-      .from('invoices')
-      .update({
-        due_date: dueDate || null,
-        notes: notes || null,
-      })
-      .eq('id', id)
+    const { error } = await supabase.from('invoices').update(updatePayload).eq('id', id)
     if (error) {
       toast.error('提出に失敗しました')
       setSubmitting(false)
@@ -116,34 +118,41 @@ export default function TalentInvoiceDetailPage() {
   }
 
   return (
-    <main className='p-6 space-y-4'>
-      <h1 className='text-xl font-bold'>請求詳細</h1>
+    <main className="p-6 space-y-4">
+      <h1 className="text-xl font-bold">請求詳細</h1>
 
       <Card>
         <CardHeader>
           <CardTitle>請求情報</CardTitle>
         </CardHeader>
-        <CardContent className='space-y-2 text-sm'>
+        <CardContent className="space-y-3 text-sm">
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>
-            請求書番号: {invoice.invoice_number ?? '自動採番予定'}
-          </div>
-          <div>
-            支払期限:{' '}
+
+          {/* 請求書番号は編集不可（自動採番・表示のみ） */}
+          <div>請求書番号: {invoice.invoice_number ?? '自動採番予定'}</div>
+
+          <div className="flex items-center gap-2">
+            <span className="shrink-0">支払期限:</span>
             {invoice.status === 'draft' ? (
-              <Input type='date' value={dueDate} onChange={e => setDueDate(e.target.value)} />
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-48"
+              />
             ) : invoice.due_date ? (
-              formatJaDateTimeWithWeekday(invoice.due_date)
+              <span>{formatJaDateTimeWithWeekday(invoice.due_date)}</span>
             ) : (
-              '-'
+              <span>-</span>
             )}
           </div>
+
           <div>
             ステータス:{' '}
-            <Badge variant='outline'>
+            <Badge variant="outline">
               {invoice.payment_status === 'paid'
                 ? '支払い済み'
-                : statusLabels[invoice.status]}
+                : statusLabels[invoice.status] ?? invoice.status}
             </Badge>
           </div>
         </CardContent>
@@ -153,29 +162,30 @@ export default function TalentInvoiceDetailPage() {
         <CardHeader>
           <CardTitle>金額内訳</CardTitle>
         </CardHeader>
-        <CardContent className='space-y-2 text-sm'>
+        <CardContent className="space-y-3 text-sm">
           <div>基本報酬: ¥{baseFee.toLocaleString('ja-JP')}</div>
           <div>交通費: ¥{(invoice.transport_fee ?? 0).toLocaleString('ja-JP')}</div>
           <div>追加料金: ¥{(invoice.extra_fee ?? 0).toLocaleString('ja-JP')}</div>
-          <div>
-            メモ:{' '}
+
+          <div className="space-y-1">
+            <div>メモ:</div>
             {invoice.status === 'draft' ? (
-              <Textarea value={notes} onChange={e => setNotes(e.target.value)} />
+              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
             ) : (
-              invoice.notes || 'なし'
+              <div>{invoice.notes || 'なし'}</div>
             )}
           </div>
         </CardContent>
       </Card>
 
       {invoice.status === 'draft' && (
-        <div className='flex gap-2'>
+        <div className="flex gap-2">
           <Button onClick={handleSave} disabled={saving}>
-            {saving && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             保存
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             提出
           </Button>
         </div>
