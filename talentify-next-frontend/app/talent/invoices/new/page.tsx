@@ -9,7 +9,28 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { format } from 'date-fns'
+import { addMonths, endOfMonth, format, parseISO, setDate } from 'date-fns'
+
+const dueDateOptions = [
+  { value: 'none', label: '設定しない' },
+  { value: 'next_month_end', label: '来店月末締め＋翌月末払い' },
+  { value: 'next_month_20', label: '来店月末締め＋翌月20日払い' },
+] as const
+
+type DueDateOptionValue = (typeof dueDateOptions)[number]['value']
+type DueDatePattern = DueDateOptionValue | 'custom'
+
+const computeDueDateFromPattern = (pattern: DueDateOptionValue, offerDateStr: string) => {
+  const baseDate = parseISO(offerDateStr)
+  switch (pattern) {
+    case 'next_month_end':
+      return format(endOfMonth(addMonths(baseDate, 1)), 'yyyy-MM-dd')
+    case 'next_month_20':
+      return format(setDate(addMonths(baseDate, 1), 20), 'yyyy-MM-dd')
+    default:
+      return ''
+  }
+}
 import { ja } from 'date-fns/locale'
 import { toast } from 'sonner'
 
@@ -27,6 +48,10 @@ export default function TalentInvoiceNewPage() {
   const [extraFee, setExtraFee] = useState('')
   const [memo, setMemo] = useState('')
 
+  const [dueDatePattern, setDueDatePattern] = useState<DueDatePattern>('next_month_end')
+  const [dueDate, setDueDate] = useState('')
+  const [dueDateInitialized, setDueDateInitialized] = useState(false)
+
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [pdfMemo, setPdfMemo] = useState('')
 
@@ -43,16 +68,54 @@ export default function TalentInvoiceNewPage() {
       if (offerData) setOffer(offerData)
       const { data: invData } = await supabase
         .from('invoices')
-        .select('id, amount, status, payment_status, invoice_url')
+        .select('id, amount, status, payment_status, invoice_url, due_date')
         .eq('offer_id', offerId)
         .maybeSingle()
       if (invData) {
         setInvoice(invData)
         setBaseFee(String(invData.amount ?? ''))
+        setDueDate(invData.due_date ?? '')
+        if (!invData.due_date) {
+          setDueDatePattern('none')
+        }
       }
     }
     init()
   }, [offerId, supabase])
+
+  useEffect(() => {
+    if (dueDateInitialized) return
+    if (!offer?.date) return
+
+    if (invoice?.due_date) {
+      const normalized = format(parseISO(invoice.due_date), 'yyyy-MM-dd')
+      const matched = dueDateOptions
+        .filter(option => option.value !== 'none')
+        .find(
+          option =>
+            computeDueDateFromPattern(option.value, offer.date) === normalized,
+        )
+      if (matched) {
+        setDueDatePattern(matched.value)
+        setDueDate(normalized)
+      } else {
+        setDueDatePattern('custom')
+        setDueDate(normalized)
+      }
+    }
+    setDueDateInitialized(true)
+  }, [dueDateInitialized, invoice?.due_date, offer?.date])
+
+  useEffect(() => {
+    if (!offer?.date) return
+    if (dueDatePattern === 'custom') return
+    if (dueDatePattern === 'none') {
+      setDueDate('')
+      return
+    }
+    const computed = computeDueDateFromPattern(dueDatePattern, offer.date)
+    setDueDate(computed)
+  }, [dueDatePattern, offer?.date])
 
   const total =
     Number(baseFee || 0) +
@@ -79,14 +142,18 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: total }),
+          body: JSON.stringify({ amount: total, due_date: dueDate || null }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
         const res = await fetch('/api/invoices', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ offer_id: offerId, amount: total }),
+          body: JSON.stringify({
+            offer_id: offerId,
+            amount: total,
+            due_date: dueDate || null,
+          }),
         })
         if (!res.ok) throw new Error('post failed')
         const data = await res.json()
@@ -94,7 +161,7 @@ export default function TalentInvoiceNewPage() {
       }
       if (!id) throw new Error('id missing')
       setInvoice(prev => {
-        const next = { ...(prev ?? {}), id, amount: total }
+        const next = { ...(prev ?? {}), id, amount: total, due_date: dueDate || null }
         if (!next.status) next.status = 'draft'
         if (next.payment_status === undefined) next.payment_status = null
         return next
@@ -117,14 +184,18 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: total }),
+          body: JSON.stringify({ amount: total, due_date: dueDate || null }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
         const res = await fetch('/api/invoices', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ offer_id: offerId, amount: total }),
+          body: JSON.stringify({
+            offer_id: offerId,
+            amount: total,
+            due_date: dueDate || null,
+          }),
         })
         if (!res.ok) throw new Error('post failed')
         const data = await res.json()
@@ -132,7 +203,7 @@ export default function TalentInvoiceNewPage() {
       }
       if (!id) throw new Error('id missing')
       setInvoice(prev => {
-        const next = { ...(prev ?? {}), id, amount: total }
+        const next = { ...(prev ?? {}), id, amount: total, due_date: dueDate || null }
         if (!next.status) next.status = 'draft'
         if (next.payment_status === undefined) next.payment_status = null
         return next
@@ -167,7 +238,7 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invoice_url: invoiceUrl }),
+          body: JSON.stringify({ invoice_url: invoiceUrl, due_date: dueDate || null }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
@@ -178,6 +249,7 @@ export default function TalentInvoiceNewPage() {
             offer_id: offerId,
             amount: 0,
             invoice_url: invoiceUrl,
+            due_date: dueDate || null,
           }),
         })
         if (!res.ok) throw new Error('post failed')
@@ -191,6 +263,7 @@ export default function TalentInvoiceNewPage() {
           id,
           invoice_url: invoiceUrl,
           amount: prev?.amount ?? 0,
+          due_date: dueDate || null,
         }
         if (!next.status) next.status = 'draft'
         if (next.payment_status === undefined) next.payment_status = null
@@ -211,6 +284,26 @@ export default function TalentInvoiceNewPage() {
     : ''
 
   const steps = ['下書き保存', '提出済み', '支払い完了']
+
+  const dueDateMessage = (() => {
+    if (dueDate) {
+      try {
+        const formatted = format(parseISO(dueDate), 'yyyy/MM/dd (EEE)', {
+          locale: ja,
+        })
+        return `支払期限: ${formatted}`
+      } catch {
+        return `支払期限: ${dueDate}`
+      }
+    }
+    if (dueDatePattern === 'none') {
+      return '支払期限は設定されていません'
+    }
+    if (!offer?.date) {
+      return '出演日情報がないため支払期限を計算できません'
+    }
+    return '支払期限は設定されていません'
+  })()
 
   return (
     <main className="p-6">
@@ -257,88 +350,114 @@ export default function TalentInvoiceNewPage() {
             <CardTitle>請求書</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="system" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="system">システムで作成</TabsTrigger>
-                <TabsTrigger value="pdf">PDFをアップロード</TabsTrigger>
-              </TabsList>
-              <TabsContent value="system">
-                <form onSubmit={submitSystem} className="space-y-4">
-                  <div>
-                    <label className="mb-1 block text-sm">基本報酬</label>
-                    <Input
-                      type="number"
-                      value={baseFee}
-                      onChange={e => setBaseFee(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm">交通費</label>
-                    <Input
-                      type="number"
-                      value={transportFee}
-                      onChange={e => setTransportFee(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm">延長・追加費用</label>
-                    <Input
-                      type="number"
-                      value={extraFee}
-                      onChange={e => setExtraFee(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm">その他メモ</label>
-                    <Textarea
-                      value={memo}
-                      onChange={e => setMemo(e.target.value)}
-                    />
-                  </div>
-                  <div className="text-2xl font-bold text-right">
-                    合計: ¥{total.toLocaleString()}
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      type="button"
-                      onClick={saveDraft}
-                      disabled={loading}
-                      variant="outline"
-                    >
-                      下書き保存
-                    </Button>
-                    <Button type="submit" disabled={loading}>
-                      提出する
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-              <TabsContent value="pdf">
-                <form onSubmit={submitPdf} className="space-y-4">
-                  <div>
-                    <label className="mb-1 block text-sm">PDFファイル</label>
-                    <Input
-                      type="file"
-                      accept="application/pdf"
-                      onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-sm">備考メモ (任意)</label>
-                    <Textarea
-                      value={pdfMemo}
-                      onChange={e => setPdfMemo(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <Button type="submit" disabled={loading || !pdfFile}>
-                      提出する
-                    </Button>
-                  </div>
-                </form>
-              </TabsContent>
-            </Tabs>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium">支払期限パターン</label>
+                <select
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={dueDatePattern}
+                  onChange={e => {
+                    const value = e.target.value as DueDatePattern
+                    if (value === 'custom') return
+                    setDueDatePattern(value)
+                  }}
+                >
+                  {dueDateOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                  {dueDatePattern === 'custom' && (
+                    <option value="custom" disabled>
+                      その他（既存の支払期限を維持）
+                    </option>
+                  )}
+                </select>
+                <p className="mt-2 text-sm text-muted-foreground">{dueDateMessage}</p>
+              </div>
+              <Tabs defaultValue="system" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="system">システムで作成</TabsTrigger>
+                  <TabsTrigger value="pdf">PDFをアップロード</TabsTrigger>
+                </TabsList>
+                <TabsContent value="system">
+                  <form onSubmit={submitSystem} className="space-y-4">
+                    <div>
+                      <label className="mb-1 block text-sm">基本報酬</label>
+                      <Input
+                        type="number"
+                        value={baseFee}
+                        onChange={e => setBaseFee(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm">交通費</label>
+                      <Input
+                        type="number"
+                        value={transportFee}
+                        onChange={e => setTransportFee(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm">延長・追加費用</label>
+                      <Input
+                        type="number"
+                        value={extraFee}
+                        onChange={e => setExtraFee(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm">その他メモ</label>
+                      <Textarea
+                        value={memo}
+                        onChange={e => setMemo(e.target.value)}
+                      />
+                    </div>
+                    <div className="text-2xl font-bold text-right">
+                      合計: ¥{total.toLocaleString()}
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        onClick={saveDraft}
+                        disabled={loading}
+                        variant="outline"
+                      >
+                        下書き保存
+                      </Button>
+                      <Button type="submit" disabled={loading}>
+                        提出する
+                      </Button>
+                    </div>
+                  </form>
+                </TabsContent>
+                <TabsContent value="pdf">
+                  <form onSubmit={submitPdf} className="space-y-4">
+                    <div>
+                      <label className="mb-1 block text-sm">PDFファイル</label>
+                      <Input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm">備考メモ (任意)</label>
+                      <Textarea
+                        value={pdfMemo}
+                        onChange={e => setPdfMemo(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <Button type="submit" disabled={loading || !pdfFile}>
+                        提出する
+                      </Button>
+                    </div>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </div>
           </CardContent>
         </Card>
       </div>
