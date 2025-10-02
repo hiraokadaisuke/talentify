@@ -92,9 +92,17 @@ export default function TalentInvoiceNewPage() {
         const data = await res.json()
         id = data.id
       }
-      router.replace('/talent/invoices')
+      if (!id) throw new Error('id missing')
+      setInvoice(prev => {
+        const next = { ...(prev ?? {}), id, amount: total }
+        if (!next.status) next.status = 'draft'
+        if (next.payment_status === undefined) next.payment_status = null
+        return next
+      })
+      toast.success('下書きを保存しました')
     } catch (e) {
       toast.error('下書き保存に失敗しました')
+    } finally {
       setLoading(false)
     }
   }
@@ -122,10 +130,19 @@ export default function TalentInvoiceNewPage() {
         const data = await res.json()
         id = data.id
       }
-      await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
-      router.replace('/talent/invoices')
+      if (!id) throw new Error('id missing')
+      setInvoice(prev => {
+        const next = { ...(prev ?? {}), id, amount: total }
+        if (!next.status) next.status = 'draft'
+        if (next.payment_status === undefined) next.payment_status = null
+        return next
+      })
+      const submitRes = await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
+      if (!submitRes.ok) throw new Error('submit failed')
+      router.push(`/talent/invoices/${id}/submitted`)
     } catch (e) {
       toast.error('提出に失敗しました')
+    } finally {
       setLoading(false)
     }
   }
@@ -167,10 +184,24 @@ export default function TalentInvoiceNewPage() {
         const data = await res.json()
         id = data.id
       }
-      await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
-      router.replace('/talent/invoices')
+      if (!id) throw new Error('id missing')
+      setInvoice(prev => {
+        const next = {
+          ...(prev ?? {}),
+          id,
+          invoice_url: invoiceUrl,
+          amount: prev?.amount ?? 0,
+        }
+        if (!next.status) next.status = 'draft'
+        if (next.payment_status === undefined) next.payment_status = null
+        return next
+      })
+      const submitRes = await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
+      if (!submitRes.ok) throw new Error('submit failed')
+      router.push(`/talent/invoices/${id}/submitted`)
     } catch (e) {
       toast.error('提出に失敗しました')
+    } finally {
       setLoading(false)
     }
   }
