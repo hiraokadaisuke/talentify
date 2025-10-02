@@ -23,6 +23,8 @@ interface StoreOfferProgressPanelProps {
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
     storeName: string
     reward: number | null
+    talentId: string | null
+    reviewCompleted: boolean
   }
   invoice?: {
     id: string
@@ -109,7 +111,7 @@ export default function StoreOfferProgressPanel({
         case 'review':
           return {
             ...step,
-            subLabel: `レビュー: ${step.status === 'complete' ? '完了' : '未実施'}`,
+            subLabel: `レビュー: ${offer.reviewCompleted ? '完了' : '未実施'}`,
           }
         default:
           return step
@@ -123,6 +125,7 @@ export default function StoreOfferProgressPanel({
     offer.invoiceStatus,
     offer.paid,
     paymentCompletedLabel,
+    offer.reviewCompleted,
   ])
 
   const activeStatus: OfferProgressStatus = useMemo(() => {
