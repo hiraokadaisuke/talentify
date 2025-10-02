@@ -22,7 +22,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const { data } = await supabase
     .from('offers')
     .select(
-      'id,status,date,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
+      'id,status,date,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,reviews(id), talents(stage_name,avatar_url), stores(store_name)'
     )
     .eq('id', params.id)
     .single()
@@ -30,6 +30,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
   if (!data || !user) {
     notFound()
   }
+
+  const reviewCompleted = Array.isArray((data as any).reviews) && (data as any).reviews.length > 0
 
   const { data: invoice } = await supabase
     .from('invoices')
@@ -59,6 +61,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
     paidAt: data.paid_at as string | null,
     invoiceStatus,
     reward: data.reward as number | null,
+    talentId: data.talent_id as string | null,
+    reviewCompleted,
   }
 
   const invoiceData = invoice
@@ -77,6 +81,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     status: offer.status,
     invoiceStatus: offer.invoiceStatus,
     paid: offer.paid,
+    reviewCompleted: offer.reviewCompleted,
   })
 
   const activeStep = deriveActiveStep({
@@ -138,6 +143,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
             invoiceStatus: offer.invoiceStatus,
             storeName: offer.storeName,
             reward: offer.reward,
+            talentId: offer.talentId,
+            reviewCompleted: offer.reviewCompleted,
           }}
           invoice={invoiceData}
           paymentLink={paymentLink}

@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, type ReactNode } from 'react'
+import { useCallback, useMemo, type ReactNode } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,6 +10,7 @@ import type { OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import CancelOfferSection from './CancelOfferSection'
+import ReviewModal from '@/components/modals/ReviewModal'
 
 type StepDetailCardProps = {
   activeStep: OfferStepKey
@@ -25,6 +27,8 @@ type StepDetailCardProps = {
     paidAt: string | null
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
     reward: number | null
+    talentId: string | null
+    reviewCompleted: boolean
   }
   invoice?: {
     id: string
@@ -77,6 +81,12 @@ export default function StepDetailCard({
   paymentLink,
   cancelation,
 }: StepDetailCardProps) {
+  const router = useRouter()
+
+  const handleReviewSubmitted = useCallback(() => {
+    router.refresh()
+  }, [router])
+
   const formattedSubmittedAt = useMemo(() => {
     return offer.submittedAt
       ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
@@ -264,16 +274,32 @@ export default function StepDetailCard({
       }
       case 'review':
       default:
-        detail = {
-          title: 'レビュー',
-          description:
-            '支払い完了後にタレントへのレビューを記入できます。来店内容を振り返って評価を準備しましょう。',
-          badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
-          actions: [
+        {
+          const actions: ReactNode[] = [
             <Button key="message" variant="outline" size="sm" asChild>
               <a href="#offer-messages">メッセージを送る</a>
             </Button>,
-          ],
+          ]
+
+          if (offer.paid && !offer.reviewCompleted) {
+            actions.push(
+              <ReviewModal
+                key="review"
+                offerId={offer.id}
+                talentId={offer.talentId ?? ''}
+                trigger={<Button size="sm">レビューする</Button>}
+                onSubmitted={handleReviewSubmitted}
+              />,
+            )
+          }
+
+          detail = {
+            title: 'レビュー',
+            description:
+              '支払い完了後にタレントへのレビューを記入できます。来店内容を振り返って評価を準備しましょう。',
+            badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
+            actions,
+          }
         }
         break
     }
@@ -302,12 +328,15 @@ export default function StepDetailCard({
     offer.id,
     offer.invoiceStatus,
     offer.paid,
+    offer.reviewCompleted,
+    offer.talentId,
     offer.reward,
     offer.status,
     offer.storeName,
     paymentCompletedLabel,
     paymentLink,
     cancelation,
+    handleReviewSubmitted,
   ])
 
   return (
