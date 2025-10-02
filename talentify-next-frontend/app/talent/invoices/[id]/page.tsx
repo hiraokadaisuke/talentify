@@ -44,7 +44,6 @@ export default function TalentInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const [invoiceNumber, setInvoiceNumber] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -62,7 +61,6 @@ export default function TalentInvoiceDetailPage() {
         .single()
       const inv = data as Invoice | null
       setInvoice(inv)
-      setInvoiceNumber(inv?.invoice_number ?? '')
       setDueDate(inv?.due_date ?? '')
       setNotes(inv?.notes ?? '')
       setLoading(false)
@@ -80,7 +78,6 @@ export default function TalentInvoiceDetailPage() {
     const { error } = await supabase
       .from('invoices')
       .update({
-        invoice_number: invoiceNumber || null,
         due_date: dueDate || null,
         notes: notes || null,
       })
@@ -99,7 +96,6 @@ export default function TalentInvoiceDetailPage() {
     const { error } = await supabase
       .from('invoices')
       .update({
-        invoice_number: invoiceNumber || null,
         due_date: dueDate || null,
         notes: notes || null,
       })
@@ -130,12 +126,7 @@ export default function TalentInvoiceDetailPage() {
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
           <div>
-            請求書番号:{' '}
-            {invoice.status === 'draft' ? (
-              <Input value={invoiceNumber} onChange={e => setInvoiceNumber(e.target.value)} />
-            ) : (
-              invoice.invoice_number ?? '-'
-            )}
+            請求書番号: {invoice.invoice_number ?? '自動採番予定'}
           </div>
           <div>
             支払期限:{' '}
