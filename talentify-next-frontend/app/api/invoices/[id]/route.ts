@@ -54,7 +54,33 @@ export async function PATCH(
 
     return NextResponse.json(data, { status: 200 })
   } catch (e) {
-    console.error('[PATCH /invoices/:id]', e)
+    const error = e as { code?: string; message?: string; hint?: string }
+    const code = error?.code ?? 'UNKNOWN'
+    const message = error?.message ?? 'Internal Server Error'
+    const hint = error?.hint
+
+    console.error('[PATCH /invoices/:id]', { code, message, hint })
+
+    if (error?.code) {
+      const status =
+        error.code === '42501'
+          ? 403
+          : error.code === '23502' || error.code === '22007' || error.code === '22008'
+            ? 400
+            : 500
+
+      return NextResponse.json(
+        {
+          error: {
+            code: error.code,
+            message: error.message,
+            hint: error.hint ?? null,
+          },
+        },
+        { status },
+      )
+    }
+
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
