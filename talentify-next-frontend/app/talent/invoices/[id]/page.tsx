@@ -45,7 +45,6 @@ export default function TalentInvoiceDetailPage() {
   const [loading, setLoading] = useState(true)
 
   const [invoiceNumber, setInvoiceNumber] = useState('')
-  const [dueDate, setDueDate] = useState('')
   const [notes, setNotes] = useState('')
 
   const [saving, setSaving] = useState(false)
@@ -63,7 +62,6 @@ export default function TalentInvoiceDetailPage() {
       const inv = data as Invoice | null
       setInvoice(inv)
       setInvoiceNumber(inv?.invoice_number ?? '')
-      setDueDate(inv?.due_date ?? '')
       setNotes(inv?.notes ?? '')
       setLoading(false)
     }
@@ -81,7 +79,6 @@ export default function TalentInvoiceDetailPage() {
       .from('invoices')
       .update({
         invoice_number: invoiceNumber || null,
-        due_date: dueDate || null,
         notes: notes || null,
       })
       .eq('id', id)
@@ -100,7 +97,6 @@ export default function TalentInvoiceDetailPage() {
       .from('invoices')
       .update({
         invoice_number: invoiceNumber || null,
-        due_date: dueDate || null,
         notes: notes || null,
       })
       .eq('id', id)
@@ -139,13 +135,7 @@ export default function TalentInvoiceDetailPage() {
           </div>
           <div>
             支払期限:{' '}
-            {invoice.status === 'draft' ? (
-              <Input type='date' value={dueDate} onChange={e => setDueDate(e.target.value)} />
-            ) : invoice.due_date ? (
-              formatJaDateTimeWithWeekday(invoice.due_date)
-            ) : (
-              '-'
-            )}
+            {invoice.due_date ? formatJaDateTimeWithWeekday(invoice.due_date) : '-'}
           </div>
           <div>
             ステータス:{' '}
