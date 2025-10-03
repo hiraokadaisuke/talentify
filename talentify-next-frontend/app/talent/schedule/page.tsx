@@ -29,6 +29,16 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  buildMonthlyBulkPayload,
+  type AvailabilityStatus,
+} from './utils'
 import { createClient } from '@/utils/supabase/client'
 import { getTalentId } from '@/utils/getTalentId'
 import {
@@ -46,7 +56,6 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
-type AvailabilityStatus = 'ok' | 'ng'
 type DefaultMode = 'default_ok' | 'default_ng'
 
 type AvailabilitySettings = {
@@ -99,6 +108,7 @@ export default function TalentSchedulePage() {
   const [loading, setLoading] = useState(false)
   const [updatingDates, setUpdatingDates] = useState<Record<string, boolean>>({})
   const [updatingDefaultMode, setUpdatingDefaultMode] = useState(false)
+  const [bulkUpdating, setBulkUpdating] = useState(false)
 
   const defaultStatus: AvailabilityStatus = useMemo(() => {
     if (!availabilitySettings) return 'ok'
@@ -120,7 +130,7 @@ export default function TalentSchedulePage() {
     }
   }, [])
 
-  useEffect(() => {
+  const fetchCalendarData = useCallback(async () => {
     if (!talentId) return
 
     const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 })
@@ -128,81 +138,81 @@ export default function TalentSchedulePage() {
     const from = format(start, 'yyyy-MM-dd')
     const to = format(end, 'yyyy-MM-dd')
 
-    const load = async () => {
-      setLoading(true)
-      try {
-        const availabilityResponse = await fetch(
-          `/api/availability?talent_id=${talentId}&from=${from}&to=${to}`
-        )
+    setLoading(true)
+    try {
+      const availabilityResponse = await fetch(
+        `/api/availability?talent_id=${talentId}&from=${from}&to=${to}`
+      )
 
-        if (!availabilityResponse.ok) {
-          throw new Error('Failed to fetch availability')
-        }
-
-        const availabilityData: {
-          settings: AvailabilitySettings
-          dates: { date: string; status: AvailabilityStatus }[]
-        } = await availabilityResponse.json()
-
-        setAvailabilitySettings({
-          default_mode: availabilityData.settings.default_mode,
-          timezone: availabilityData.settings.timezone ?? DEFAULT_TIMEZONE,
-        })
-
-        const baseStatus =
-          availabilityData.settings.default_mode === 'default_ok' ? 'ok' : 'ng'
-
-        const mappedOverrides = availabilityData.dates.reduce(
-          (acc, current) => {
-            if (current.status !== baseStatus) {
-              acc[current.date] = current.status
-            }
-            return acc
-          },
-          {} as Record<string, AvailabilityStatus>
-        )
-        setOverrides(mappedOverrides)
-
-        const { data: offerRows, error: offerError } = await supabase
-          .from('offers')
-          .select(
-            'id, date, status, start_time, notes, stores:store_id(store_name)'
-          )
-          .eq('talent_id', talentId)
-          .gte('date', from)
-          .lte('date', to)
-          .in('status', ['confirmed', 'completed', 'cancelled', 'canceled', 'no_show'])
-
-        if (offerError) {
-          throw offerError
-        }
-
-        const mappedEvents = (offerRows ?? []).map((offer: any) => {
-          const datetime = offer.start_time
-            ? `${offer.date}T${offer.start_time}`
-            : `${offer.date}T00:00:00`
-          const startDate = new Date(datetime)
-          return {
-            id: offer.id as string,
-            title: (offer.stores?.store_name as string | null) ?? '出演',
-            start: startDate,
-            end: startDate,
-            status: mapOfferStatus(offer.status),
-            storeName: (offer.stores?.store_name as string | null) ?? '出演',
-          } satisfies TalentCalendarEvent
-        })
-
-        setEvents(mappedEvents)
-      } catch (error) {
-        console.error('Failed to load talent schedule data', error)
-        toast.error('スケジュールの取得に失敗しました')
-      } finally {
-        setLoading(false)
+      if (!availabilityResponse.ok) {
+        throw new Error('Failed to fetch availability')
       }
-    }
 
-    load()
+      const availabilityData: {
+        settings: AvailabilitySettings
+        dates: { date: string; status: AvailabilityStatus }[]
+      } = await availabilityResponse.json()
+
+      setAvailabilitySettings({
+        default_mode: availabilityData.settings.default_mode,
+        timezone: availabilityData.settings.timezone ?? DEFAULT_TIMEZONE,
+      })
+
+      const baseStatus =
+        availabilityData.settings.default_mode === 'default_ok' ? 'ok' : 'ng'
+
+      const mappedOverrides = availabilityData.dates.reduce(
+        (acc, current) => {
+          if (current.status !== baseStatus) {
+            acc[current.date] = current.status
+          }
+          return acc
+        },
+        {} as Record<string, AvailabilityStatus>
+      )
+      setOverrides(mappedOverrides)
+
+      const { data: offerRows, error: offerError } = await supabase
+        .from('offers')
+        .select(
+          'id, date, status, start_time, notes, stores:store_id(store_name)'
+        )
+        .eq('talent_id', talentId)
+        .gte('date', from)
+        .lte('date', to)
+        .in('status', ['confirmed', 'completed', 'cancelled', 'canceled', 'no_show'])
+
+      if (offerError) {
+        throw offerError
+      }
+
+      const mappedEvents = (offerRows ?? []).map((offer: any) => {
+        const datetime = offer.start_time
+          ? `${offer.date}T${offer.start_time}`
+          : `${offer.date}T00:00:00`
+        const startDate = new Date(datetime)
+        return {
+          id: offer.id as string,
+          title: (offer.stores?.store_name as string | null) ?? '出演',
+          start: startDate,
+          end: startDate,
+          status: mapOfferStatus(offer.status),
+          storeName: (offer.stores?.store_name as string | null) ?? '出演',
+        } satisfies TalentCalendarEvent
+      })
+
+      setEvents(mappedEvents)
+    } catch (error) {
+      console.error('Failed to load talent schedule data', error)
+      toast.error('スケジュールの取得に失敗しました')
+    } finally {
+      setLoading(false)
+    }
   }, [calendarDate, supabase, talentId])
+
+  useEffect(() => {
+    void fetchCalendarData()
+  }, [fetchCalendarData])
 
   const eventsByDate = useMemo(() => {
     const map = new Map<string, TalentCalendarEvent[]>()
@@ -303,10 +313,12 @@ export default function TalentSchedulePage() {
           throw new Error('Failed to update availability')
         }
         toast.success('可用性を更新しました')
+        await fetchCalendarData()
       } catch (error) {
         console.error('Failed to update availability', error)
         setOverrides(previousOverrides)
         toast.error('可用性の更新に失敗しました')
+        await fetchCalendarData()
       } finally {
         setUpdatingDates((prev) => {
           const { [key]: _unused, ...rest } = prev
@@ -314,7 +326,14 @@ export default function TalentSchedulePage() {
         })
       }
     },
-    [availabilitySettings, defaultStatus, overrides, today, updatingDates]
+    [
+      availabilitySettings,
+      defaultStatus,
+      fetchCalendarData,
+      overrides,
+      today,
+      updatingDates,
+    ]
   )
 
   const handleDefaultModeChange = useCallback(
@@ -351,17 +370,70 @@ export default function TalentSchedulePage() {
           }
           return nextOverrides
         })
-
-        toast.success('基本設定を保存しました')
+        await fetchCalendarData()
+        toast.success('基本可用性を更新しました')
       } catch (error) {
         console.error('Failed to update default availability mode', error)
         setAvailabilitySettings(previous)
-        toast.error('基本設定の保存に失敗しました')
+        toast.error('基本可用性の更新に失敗しました')
+        await fetchCalendarData()
       } finally {
         setUpdatingDefaultMode(false)
       }
     },
-    [availabilitySettings]
+    [availabilitySettings, fetchCalendarData]
+  )
+
+  const handleBulkUpdate = useCallback(
+    async (status: AvailabilityStatus) => {
+      if (!availabilitySettings) return
+
+      const payload = buildMonthlyBulkPayload(calendarDate, status)
+      if (payload.length === 0) return
+
+      const previousOverrides = overrides
+      const optimisticOverrides = { ...overrides }
+
+      for (const item of payload) {
+        if (status === defaultStatus) {
+          delete optimisticOverrides[item.date]
+        } else {
+          optimisticOverrides[item.date] = status
+        }
+      }
+
+      setOverrides(optimisticOverrides)
+      setBulkUpdating(true)
+
+      try {
+        const response = await fetch('/api/availability/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dates: payload }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to update availability')
+        }
+
+        toast.success('この月の可用性を更新しました')
+        await fetchCalendarData()
+      } catch (error) {
+        console.error('Failed to bulk update availability', error)
+        setOverrides(previousOverrides)
+        toast.error('可用性の更新に失敗しました')
+        await fetchCalendarData()
+      } finally {
+        setBulkUpdating(false)
+      }
+    },
+    [
+      availabilitySettings,
+      calendarDate,
+      defaultStatus,
+      fetchCalendarData,
+      overrides,
+    ]
   )
 
   const EventComponent = ({ event }: { event: TalentCalendarEvent }) => {
@@ -419,7 +491,7 @@ export default function TalentSchedulePage() {
             </Button>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-4 text-sm">
+        <div className="flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -439,22 +511,57 @@ export default function TalentSchedulePage() {
               ▶
             </Button>
           </div>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <span
-                aria-hidden
-                className="h-3 w-3 rounded"
-                style={{ backgroundColor: AVAILABILITY_COLORS.ok }}
-              />
-              <span>OK</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span
-                aria-hidden
-                className="h-3 w-3 rounded"
-                style={{ backgroundColor: AVAILABILITY_COLORS.ng }}
-              />
-              <span>NG</span>
+          <div className="flex flex-col items-start gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkUpdating || !availabilitySettings}
+                  className="text-xs"
+                >
+                  月一括設定
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 text-xs">
+                <DropdownMenuItem
+                  onSelect={() => {
+                    void handleBulkUpdate('ok')
+                  }}
+                  disabled={bulkUpdating}
+                  className="text-xs"
+                >
+                  この月を全てOKにする
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    void handleBulkUpdate('ng')
+                  }}
+                  disabled={bulkUpdating}
+                  className="text-xs"
+                >
+                  この月を全てNGにする
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1">
+                <span
+                  aria-hidden
+                  className="h-3 w-3 rounded"
+                  style={{ backgroundColor: AVAILABILITY_COLORS.ok }}
+                />
+                <span>OK</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span
+                  aria-hidden
+                  className="h-3 w-3 rounded"
+                  style={{ backgroundColor: AVAILABILITY_COLORS.ng }}
+                />
+                <span>NG</span>
+              </div>
             </div>
           </div>
         </div>
