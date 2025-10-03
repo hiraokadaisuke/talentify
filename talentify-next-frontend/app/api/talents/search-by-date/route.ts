@@ -10,18 +10,20 @@ const querySchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/),
 })
 
-export type TalentRow = Pick<
-  Database['public']['Tables']['talents']['Row'],
-  | 'id'
-  | 'stage_name'
-  | 'genre'
-  | 'area'
-  | 'avatar_url'
-  | 'rate'
-  | 'rating'
-  | 'bio'
-  | 'media_appearance'
->
+export type TalentRow =
+  Pick<
+    Database['public']['Tables']['talents']['Row'],
+    | 'id'
+    | 'stage_name'
+    | 'genre'
+    | 'area'
+    | 'avatar_url'
+    | 'rate'
+    | 'bio'
+    | 'media_appearance'
+  > & {
+    rating?: number | null
+  }
 
 export type AvailabilitySettingRow = Pick<
   Database['public']['Tables']['talent_availability_settings']['Row'],
@@ -113,7 +115,7 @@ export function mergeTalentAvailability({
         area: talent.area,
         avatar_url: talent.avatar_url,
         rate: talent.rate,
-        rating: talent.rating,
+        rating: talent.rating ?? null,
         bio: talent.bio,
         achievements: talent.media_appearance ?? null,
         availability_status: availabilityStatus,
@@ -145,7 +147,7 @@ export async function GET(request: NextRequest) {
     supabase
       .from('talents')
       .select(
-        'id, stage_name, genre, area, avatar_url, rate, rating, bio, media_appearance'
+        'id, stage_name, genre, area, avatar_url, rate, bio, media_appearance'
       )
       .eq('is_profile_complete', true),
     supabase.from('talent_availability_settings').select('talent_id, default_mode'),
