@@ -14,6 +14,7 @@ export type TalentOffer = {
   date: string | null
   status: string | null
   paid?: boolean | null
+  invoice_status: 'not_submitted' | 'submitted' | 'paid'
 }
 
 const offerRowSchema = z.object({
@@ -60,13 +61,42 @@ export async function getOffersForTalent() {
     return [] as TalentOffer[]
   }
 
-  return parsed.data.map(o => ({
-    id: o.id,
-    store_id: o.store_id,
-    store_name: o.store?.store_name ?? null,
-    created_at: o.created_at,
-    date: o.date,
-    status: o.status,
-    paid: o.payments?.[0]?.status === 'completed',
-  })) as TalentOffer[]
+  let invoiceMap = new Map<string, { status: string | null; payment_status: string | null }>()
+
+  if (parsed.data.length > 0) {
+    const { data: invoices, error: invoiceError } = await supabase
+      .from('invoices')
+      .select('offer_id,status,payment_status')
+      .in(
+        'offer_id',
+        parsed.data.map(o => o.id)
+      )
+
+    if (invoiceError) {
+      console.error('failed to fetch invoices for offers:', invoiceError)
+    } else if (Array.isArray(invoices)) {
+      invoiceMap = new Map(invoices.map(invoice => [invoice.offer_id, invoice]))
+    }
+  }
+
+  return parsed.data.map(o => {
+    const paymentStatus = o.payments?.[0]?.status ?? null
+    const invoice = invoiceMap.get(o.id)
+    const invoiceStatus: 'not_submitted' | 'submitted' | 'paid' = invoice
+      ? paymentStatus === 'completed' || invoice.payment_status === 'paid'
+        ? 'paid'
+        : 'submitted'
+      : 'not_submitted'
+
+    return {
+      id: o.id,
+      store_id: o.store_id,
+      store_name: o.store?.store_name ?? null,
+      created_at: o.created_at,
+      date: o.date,
+      status: o.status,
+      paid: paymentStatus === 'completed',
+      invoice_status: invoiceStatus,
+    }
+  }) as TalentOffer[]
 }
