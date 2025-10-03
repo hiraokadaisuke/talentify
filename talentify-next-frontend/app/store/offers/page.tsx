@@ -1,14 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { getOffersForStore, Offer } from '@/utils/getOffersForStore'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
-import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { getOfferProgress } from '@/utils/offerProgress'
+import { OfferProgressStatusIcons } from '@/components/offer/OfferProgressStatusIcons'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
@@ -29,9 +33,7 @@ const statusVariants: Record<string, Parameters<typeof Badge>[0]['variant']> = {
 export default function StoreOffersPage() {
   const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [sortKey, setSortKey] = useState<'created_at' | 'date'>('created_at')
-  const [search, setSearch] = useState('')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
     const load = async () => {
@@ -42,47 +44,51 @@ export default function StoreOffersPage() {
     load()
   }, [])
 
-  const filtered = offers
-    .filter(o => (statusFilter === 'all' ? true : o.status === statusFilter))
-    .filter(o => (o.talent_name ?? '').toLowerCase().includes(search.toLowerCase()))
+  const offersWithProgress = useMemo(() => {
+    return offers.map(offer => {
+      const { steps } = getOfferProgress({
+        status: offer.status ?? 'pending',
+        invoiceStatus: offer.invoice_status,
+        paid: Boolean(offer.paid),
+        reviewCompleted: offer.review_completed,
+      })
 
-  const sorted = [...filtered].sort((a, b) => {
-    const aVal = a[sortKey] ? new Date(a[sortKey]!).getTime() : 0
-    const bVal = b[sortKey] ? new Date(b[sortKey]!).getTime() : 0
-    return bVal - aVal
-  })
+      return {
+        ...offer,
+        steps,
+      }
+    })
+  }, [offers])
+
+  const sorted = useMemo(() => {
+    return [...offersWithProgress].sort((a, b) => {
+      const aTime = a.date ? new Date(a.date).getTime() : sortOrder === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY
+      const bTime = b.date ? new Date(b.date).getTime() : sortOrder === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY
+
+      if (sortOrder === 'asc') {
+        return aTime - bTime
+      }
+      return bTime - aTime
+    })
+  }, [offersWithProgress, sortOrder])
+
+  const toggleSortOrder = () => {
+    setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))
+  }
+
+  const formatVisitDate = (value: string | null) => {
+    if (!value) return '未定'
+    try {
+      return format(new Date(value), 'yyyy/MM/dd (EEE)', { locale: ja })
+    } catch (error) {
+      console.error('failed to format visit date', error)
+      return '未定'
+    }
+  }
 
   return (
     <main className="p-4 md:p-6 space-y-4">
       <h1 className="text-xl font-bold">オファー一覧</h1>
-      <div className="flex flex-wrap gap-2 text-sm items-center">
-        <select
-          value={statusFilter}
-          onChange={e => setStatusFilter(e.target.value)}
-          className="border rounded p-1"
-        >
-          <option value="all">すべて</option>
-          <option value="pending">保留中</option>
-          <option value="confirmed">承諾済</option>
-          <option value="rejected">拒否</option>
-          <option value="completed">来店完</option>
-        </select>
-        <select
-          value={sortKey}
-          onChange={e => setSortKey(e.target.value as 'created_at' | 'date')}
-          className="border rounded p-1"
-        >
-          <option value="created_at">送信日</option>
-          <option value="date">来店日</option>
-        </select>
-        <Input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="検索"
-          className="w-40"
-        />
-      </div>
-
       {loading ? (
         <TableSkeleton rows={3} />
       ) : sorted.length === 0 ? (
@@ -93,30 +99,42 @@ export default function StoreOffersPage() {
             <Table>
               <TableHeader className="sticky top-0 bg-white">
                 <TableRow className="text-sm">
-                  <TableHead className="w-1/4">演者名</TableHead>
-                  <TableHead className="w-1/6">オファー送信日</TableHead>
-                  <TableHead className="w-1/6">来店日</TableHead>
-                  <TableHead className="w-1/6">支払い状況</TableHead>
-                  <TableHead className="w-1/6">状態</TableHead>
-                  <TableHead className="w-1/12">操作</TableHead>
+                  <TableHead className="w-[160px]" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
+                    <button
+                      type="button"
+                      onClick={toggleSortOrder}
+                      className="inline-flex items-center gap-1 font-semibold text-slate-700 hover:text-[#2563EB]"
+                    >
+                      来店日
+                      {sortOrder === 'asc' ? (
+                        <ChevronUp className="h-4 w-4 text-[#2563EB]" aria-hidden="true" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-[#2563EB]" aria-hidden="true" />
+                      )}
+                      <span className="sr-only">来店日で並び替え</span>
+                    </button>
+                  </TableHead>
+                  <TableHead className="min-w-[200px]">演者名</TableHead>
+                  <TableHead className="min-w-[320px]">オファー進捗</TableHead>
+                  <TableHead className="w-[120px] text-right">詳細</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sorted.map(o => (
-                  <TableRow key={o.id} className="h-10">
-                    <TableCell className="truncate" title={o.talent_name ?? ''}>{o.talent_name ?? '-'}</TableCell>
-                    <TableCell>{formatJaDateTimeWithWeekday(o.created_at ?? '')}</TableCell>
-                    <TableCell>{o.date ? formatJaDateTimeWithWeekday(o.date) : '未定'}</TableCell>
-                    <TableCell>{o.paid ? '済' : '未'}</TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariants[o.status ?? 'pending']}>
-                        {statusLabels[o.status ?? 'pending']}
-                      </Badge>
+                  <TableRow key={o.id} className="h-16 transition-colors hover:bg-slate-100/70">
+                    <TableCell className="align-middle">
+                      <div className="font-medium text-slate-900">{formatVisitDate(o.date)}</div>
                     </TableCell>
-                    <TableCell>
-                      <Link href={`/store/offers/${o.id}`} className="text-blue-600 underline">
-                        詳細
-                      </Link>
+                    <TableCell className="align-middle">
+                      <div className="truncate text-slate-900" title={o.talent_name ?? ''}>{o.talent_name ?? '-'}</div>
+                    </TableCell>
+                    <TableCell className="align-middle">
+                      <OfferProgressStatusIcons steps={o.steps} />
+                    </TableCell>
+                    <TableCell className="align-middle text-right">
+                      <Button variant="ghost" size="sm" asChild className="text-[#2563EB] hover:bg-[#2563EB]/10">
+                        <Link href={`/store/offers/${o.id}`}>詳細</Link>
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -124,24 +142,25 @@ export default function StoreOffersPage() {
             </Table>
           </div>
 
-          <div className="md:hidden space-y-2">
+          <div className="md:hidden space-y-3">
             {sorted.map(o => (
-              <div key={o.id} className="border rounded p-2 space-y-1">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium truncate" title={o.talent_name ?? ''}>{o.talent_name ?? '-'}</span>
+              <div key={o.id} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium text-slate-900">{formatVisitDate(o.date)}</div>
                   <Badge variant={statusVariants[o.status ?? 'pending']}>
                     {statusLabels[o.status ?? 'pending']}
                   </Badge>
                 </div>
-                <div className="text-sm space-y-0.5">
-                  <div>オファー送信日: {formatJaDateTimeWithWeekday(o.created_at ?? '')}</div>
-                  <div>来店日: {o.date ? formatJaDateTimeWithWeekday(o.date) : '未定'}</div>
-                  <div>支払い状況: {o.paid ? '済' : '未'}</div>
+                <div className="text-base font-semibold text-slate-900" title={o.talent_name ?? ''}>
+                  {o.talent_name ?? '-'}
+                </div>
+                <div className="-mx-1 overflow-x-auto">
+                  <OfferProgressStatusIcons steps={o.steps} className="mx-1 min-w-[360px]" />
                 </div>
                 <div className="flex justify-end">
-                  <Link href={`/store/offers/${o.id}`} className="text-blue-600 underline text-sm">
-                    詳細
-                  </Link>
+                  <Button variant="ghost" size="sm" asChild className="text-[#2563EB] hover:bg-[#2563EB]/10">
+                    <Link href={`/store/offers/${o.id}`}>詳細</Link>
+                  </Button>
                 </div>
               </div>
             ))}
