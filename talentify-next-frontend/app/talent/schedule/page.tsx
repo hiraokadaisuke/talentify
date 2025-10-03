@@ -1,66 +1,529 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import type { CSSProperties } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import {
+  Calendar as BigCalendar,
+  Views,
+  dateFnsLocalizer,
+  type SlotInfo,
+} from 'react-big-calendar'
+import format from 'date-fns/format'
+import parse from 'date-fns/parse'
+import startOfWeek from 'date-fns/startOfWeek'
+import getDay from 'date-fns/getDay'
+import ja from 'date-fns/locale/ja'
+import addMonths from 'date-fns/addMonths'
+import subMonths from 'date-fns/subMonths'
+import startOfMonth from 'date-fns/startOfMonth'
+import endOfMonth from 'date-fns/endOfMonth'
+import endOfWeek from 'date-fns/endOfWeek'
+import startOfDay from 'date-fns/startOfDay'
+import startOfToday from 'date-fns/startOfToday'
+import isBefore from 'date-fns/isBefore'
+import isSameDay from 'date-fns/isSameDay'
+import isSameMonth from 'date-fns/isSameMonth'
+
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { getTalentSchedule, type TalentSchedule } from '@/utils/getTalentSchedule'
+import { createClient } from '@/utils/supabase/client'
+import { getTalentId } from '@/utils/getTalentId'
+import {
+  type DisplayStatus,
+  mapOfferStatus,
+} from '@/utils/storeSchedule'
 import { toast } from 'sonner'
-import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 
-export default function SchedulePage() {
-  const [items, setItems] = useState<TalentSchedule[]>([])
-  const [loading, setLoading] = useState(true)
+const locales = { ja }
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
+  getDay,
+  locales,
+})
+
+type AvailabilityStatus = 'ok' | 'ng'
+type DefaultMode = 'default_ok' | 'default_ng'
+
+type AvailabilitySettings = {
+  default_mode: DefaultMode
+  timezone: string | null
+}
+
+type TalentCalendarEvent = {
+  id: string
+  title: string
+  start: Date
+  end: Date
+  status: DisplayStatus
+  storeName: string
+  isMore?: boolean
+}
+
+const STATUS_LABEL: Record<DisplayStatus, string> = {
+  scheduled: '予定',
+  completed: '完了',
+  cancelled: 'キャンセル',
+  no_show: '欠席',
+}
+
+const STATUS_BADGE: Record<
+  DisplayStatus,
+  'default' | 'success' | 'destructive' | 'secondary'
+> = {
+  scheduled: 'default',
+  completed: 'success',
+  cancelled: 'destructive',
+  no_show: 'secondary',
+}
+
+const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
+  ok: 'rgba(34, 197, 94, 0.16)',
+  ng: 'rgba(148, 163, 184, 0.28)',
+}
+
+const DEFAULT_TIMEZONE = 'Asia/Tokyo'
+
+export default function TalentSchedulePage() {
+  const supabase = useMemo(() => createClient(), [])
+  const [talentId, setTalentId] = useState<string | null>(null)
+  const [calendarDate, setCalendarDate] = useState(() => new Date())
+  const [availabilitySettings, setAvailabilitySettings] =
+    useState<AvailabilitySettings | null>(null)
+  const [overrides, setOverrides] = useState<Record<string, AvailabilityStatus>>({})
+  const [events, setEvents] = useState<TalentCalendarEvent[]>([])
+  const [loading, setLoading] = useState(false)
+  const [updatingDates, setUpdatingDates] = useState<Record<string, boolean>>({})
+  const [updatingDefaultMode, setUpdatingDefaultMode] = useState(false)
+
+  const defaultStatus: AvailabilityStatus = useMemo(() => {
+    if (!availabilitySettings) return 'ok'
+    return availabilitySettings.default_mode === 'default_ok' ? 'ok' : 'ng'
+  }, [availabilitySettings])
 
   useEffect(() => {
-    getTalentSchedule().then((data) => {
-      setItems(data)
-      setLoading(false)
-      if (
-        data.length > 0 &&
-        typeof window !== 'undefined' &&
-        window.location.search.includes('confirmed=1')
-      ) {
-        toast.success('出演スケジュールが確定しました')
-      }
-    })
+    let mounted = true
+    getTalentId()
+      .then((id) => {
+        if (mounted) setTalentId(id)
+      })
+      .catch((error) => {
+        console.error('Failed to resolve talent id', error)
+        toast.error('タレント情報の取得に失敗しました')
+      })
+    return () => {
+      mounted = false
+    }
   }, [])
 
-  return (
-    <div className='max-w-screen-md mx-auto py-8 space-y-6'>
-      <h1 className='text-2xl font-bold mb-4'>スケジュール管理</h1>
+  useEffect(() => {
+    if (!talentId) return
 
-      <Card>
-        <CardHeader>
-          <CardTitle>今後の出演予定</CardTitle>
-        </CardHeader>
-        <CardContent className='space-y-4 text-sm'>
-          {loading && <p>Loading...</p>}
-          {!loading && items.length === 0 && <p className='text-muted-foreground'>確定した予定はありません</p>}
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className='flex justify-between items-center border rounded px-4 py-2'
+    const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 })
+    const end = endOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
+    const from = format(start, 'yyyy-MM-dd')
+    const to = format(end, 'yyyy-MM-dd')
+
+    const load = async () => {
+      setLoading(true)
+      try {
+        const availabilityResponse = await fetch(
+          `/api/availability?talent_id=${talentId}&from=${from}&to=${to}`
+        )
+
+        if (!availabilityResponse.ok) {
+          throw new Error('Failed to fetch availability')
+        }
+
+        const availabilityData: {
+          settings: AvailabilitySettings
+          dates: { date: string; status: AvailabilityStatus }[]
+        } = await availabilityResponse.json()
+
+        setAvailabilitySettings({
+          default_mode: availabilityData.settings.default_mode,
+          timezone: availabilityData.settings.timezone ?? DEFAULT_TIMEZONE,
+        })
+
+        const baseStatus =
+          availabilityData.settings.default_mode === 'default_ok' ? 'ok' : 'ng'
+
+        const mappedOverrides = availabilityData.dates.reduce(
+          (acc, current) => {
+            if (current.status !== baseStatus) {
+              acc[current.date] = current.status
+            }
+            return acc
+          },
+          {} as Record<string, AvailabilityStatus>
+        )
+        setOverrides(mappedOverrides)
+
+        const { data: offerRows, error: offerError } = await supabase
+          .from('offers')
+          .select(
+            'id, date, status, start_time, notes, stores:store_id(store_name)'
+          )
+          .eq('talent_id', talentId)
+          .gte('date', from)
+          .lte('date', to)
+          .in('status', ['confirmed', 'completed', 'cancelled', 'canceled', 'no_show'])
+
+        if (offerError) {
+          throw offerError
+        }
+
+        const mappedEvents = (offerRows ?? []).map((offer: any) => {
+          const datetime = offer.start_time
+            ? `${offer.date}T${offer.start_time}`
+            : `${offer.date}T00:00:00`
+          const startDate = new Date(datetime)
+          return {
+            id: offer.id as string,
+            title: (offer.stores?.store_name as string | null) ?? '出演',
+            start: startDate,
+            end: startDate,
+            status: mapOfferStatus(offer.status),
+            storeName: (offer.stores?.store_name as string | null) ?? '出演',
+          } satisfies TalentCalendarEvent
+        })
+
+        setEvents(mappedEvents)
+      } catch (error) {
+        console.error('Failed to load talent schedule data', error)
+        toast.error('スケジュールの取得に失敗しました')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    load()
+  }, [calendarDate, supabase, talentId])
+
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, TalentCalendarEvent[]>()
+    for (const event of events) {
+      const key = format(event.start, 'yyyy-MM-dd')
+      if (!map.has(key)) {
+        map.set(key, [])
+      }
+      map.get(key)!.push(event)
+    }
+    for (const [, list] of map.entries()) {
+      list.sort((a, b) => a.start.getTime() - b.start.getTime())
+    }
+    return map
+  }, [events])
+
+  const calendarEvents = useMemo(() => {
+    const result: TalentCalendarEvent[] = []
+    for (const [dateKey, list] of eventsByDate.entries()) {
+      const visible = list.slice(0, 2)
+      result.push(...visible)
+      if (list.length > visible.length) {
+        const date = new Date(`${dateKey}T00:00:00`)
+        result.push({
+          id: `${dateKey}-more`,
+          title: `+${list.length - visible.length}`,
+          start: date,
+          end: date,
+          status: 'scheduled',
+          storeName: '',
+          isMore: true,
+        })
+      }
+    }
+    return result
+  }, [eventsByDate])
+
+  const today = startOfToday()
+
+  const dayPropGetter = useCallback(
+    (date: Date) => {
+      if (!availabilitySettings) return {}
+      const key = format(date, 'yyyy-MM-dd')
+      const status = overrides[key] ?? defaultStatus
+      const style: CSSProperties = {
+        backgroundColor: AVAILABILITY_COLORS[status],
+      }
+      if (!isSameMonth(date, calendarDate)) {
+        style.opacity = 0.5
+      }
+      if (isSameDay(date, today)) {
+        style.boxShadow = 'inset 0 0 0 2px rgba(59, 130, 246, 0.6)'
+      }
+      const isPast = isBefore(startOfDay(date), today)
+      if (isPast) {
+        style.cursor = 'not-allowed'
+      }
+      return {
+        style,
+        title: isPast ? '過去の日付は編集できません' : undefined,
+      }
+    },
+    [availabilitySettings, overrides, defaultStatus, calendarDate, today]
+  )
+
+  const handleSlotSelect = useCallback(
+    async (slot: SlotInfo) => {
+      if (!availabilitySettings) return
+      const selectedDate = slot.start
+      if (!selectedDate) return
+      const normalized = startOfDay(selectedDate)
+      if (isBefore(normalized, today)) return
+
+      const key = format(normalized, 'yyyy-MM-dd')
+      if (updatingDates[key]) return
+
+      const previousOverrides = overrides
+      const current = overrides[key] ?? defaultStatus
+      const next: AvailabilityStatus = current === 'ok' ? 'ng' : 'ok'
+
+      const optimistic = { ...overrides }
+      if (next === defaultStatus) {
+        delete optimistic[key]
+      } else {
+        optimistic[key] = next
+      }
+      setOverrides(optimistic)
+      setUpdatingDates((prev) => ({ ...prev, [key]: true }))
+
+      try {
+        const response = await fetch('/api/availability/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dates: [{ date: key, status: next }] }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to update availability')
+        }
+        toast.success('可用性を更新しました')
+      } catch (error) {
+        console.error('Failed to update availability', error)
+        setOverrides(previousOverrides)
+        toast.error('可用性の更新に失敗しました')
+      } finally {
+        setUpdatingDates((prev) => {
+          const { [key]: _unused, ...rest } = prev
+          return rest
+        })
+      }
+    },
+    [availabilitySettings, defaultStatus, overrides, today, updatingDates]
+  )
+
+  const handleDefaultModeChange = useCallback(
+    async (mode: DefaultMode) => {
+      if (!availabilitySettings || mode === availabilitySettings.default_mode) {
+        return
+      }
+
+      const previous = availabilitySettings
+      setAvailabilitySettings({ ...availabilitySettings, default_mode: mode })
+      setUpdatingDefaultMode(true)
+
+      try {
+        const response = await fetch('/api/availability/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            default_mode: mode,
+            timezone: availabilitySettings.timezone ?? DEFAULT_TIMEZONE,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to save settings')
+        }
+
+        const newDefaultStatus: AvailabilityStatus = mode === 'default_ok' ? 'ok' : 'ng'
+        setOverrides((prev) => {
+          const nextOverrides = { ...prev }
+          for (const [date, status] of Object.entries(nextOverrides)) {
+            if (status === newDefaultStatus) {
+              delete nextOverrides[date]
+            }
+          }
+          return nextOverrides
+        })
+
+        toast.success('基本設定を保存しました')
+      } catch (error) {
+        console.error('Failed to update default availability mode', error)
+        setAvailabilitySettings(previous)
+        toast.error('基本設定の保存に失敗しました')
+      } finally {
+        setUpdatingDefaultMode(false)
+      }
+    },
+    [availabilitySettings]
+  )
+
+  const EventComponent = ({ event }: { event: TalentCalendarEvent }) => {
+    if (event.isMore) {
+      return <span className="truncate text-muted-foreground">{event.title}</span>
+    }
+    return (
+      <span
+        className="flex items-center gap-1 truncate"
+        title={`${event.storeName} ${STATUS_LABEL[event.status]}`}
+      >
+        <span className="text-sm text-foreground">{event.storeName}</span>
+        <Badge variant={STATUS_BADGE[event.status]} className="px-1 text-[10px]">
+          {STATUS_LABEL[event.status]}
+        </Badge>
+      </span>
+    )
+  }
+
+  const headerLabel = format(calendarDate, 'yyyy年M月')
+
+  return (
+    <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
+      <div className="sticky top-0 z-10 space-y-3 bg-background pb-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-2xl font-bold">スケジュール管理</h1>
+          <div className="flex items-center gap-1 self-start rounded-md border bg-white p-1 shadow-sm dark:bg-neutral-900">
+            <Button
+              type="button"
+              size="sm"
+              variant={
+                (availabilitySettings?.default_mode ?? 'default_ok') === 'default_ok'
+                  ? 'default'
+                  : 'ghost'
+              }
+              className="px-3"
+              onClick={() => handleDefaultModeChange('default_ok')}
+              disabled={updatingDefaultMode}
             >
-              <div>
-                <p className='font-medium'>{formatJaDateTimeWithWeekday(item.date)}</p>
-                {item.store_name && (
-                  <p className='text-xs text-gray-500'>店舗: {item.store_name}</p>
-                )}
-                {item.time_range && (
-                  <p className='text-xs text-gray-500'>{item.time_range}</p>
-                )}
-              </div>
-              <div className='flex items-center gap-2'>
-                <Badge>確定済</Badge>
-                <Link href={`/talent/offers/${item.id}`} className='text-xs text-blue-600 underline'>詳細</Link>
-              </div>
+              基本OK
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={
+                (availabilitySettings?.default_mode ?? 'default_ok') === 'default_ng'
+                  ? 'default'
+                  : 'ghost'
+              }
+              className="px-3"
+              onClick={() => handleDefaultModeChange('default_ng')}
+              disabled={updatingDefaultMode}
+            >
+              基本NG
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCalendarDate(subMonths(calendarDate, 1))}
+              aria-label="前の月"
+            >
+              ◀
+            </Button>
+            <span className="text-lg font-semibold">{headerLabel}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCalendarDate(addMonths(calendarDate, 1))}
+              aria-label="次の月"
+            >
+              ▶
+            </Button>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <span
+                aria-hidden
+                className="h-3 w-3 rounded"
+                style={{ backgroundColor: AVAILABILITY_COLORS.ok }}
+              />
+              <span>OK</span>
             </div>
-          ))}
-        </CardContent>
-      </Card>
-      {/* Toasts are handled globally */}
-    </div>
+            <div className="flex items-center gap-1">
+              <span
+                aria-hidden
+                className="h-3 w-3 rounded"
+                style={{ backgroundColor: AVAILABILITY_COLORS.ng }}
+              />
+              <span>NG</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-neutral-900">
+        {loading && (
+          <p className="mb-2 text-sm text-muted-foreground">読み込み中…</p>
+        )}
+        <div className="-mx-2 overflow-x-auto px-2">
+          <div className="min-w-[720px]">
+            <BigCalendar
+              culture="ja"
+              toolbar={false}
+              className="talent-calendar"
+              localizer={localizer}
+              events={calendarEvents}
+              startAccessor="start"
+              endAccessor="end"
+              views={[Views.MONTH]}
+              date={calendarDate}
+              onNavigate={(d) => setCalendarDate(d)}
+              selectable
+              onSelectSlot={handleSlotSelect}
+              dayPropGetter={dayPropGetter}
+              components={{ event: EventComponent }}
+              formats={{ weekdayFormat: 'eee' }}
+              style={{ height: 480 }}
+              eventPropGetter={(event) => {
+                const calendarEvent = event as TalentCalendarEvent
+                if (calendarEvent.isMore) {
+                  return {
+                    style: {
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: 'rgb(107, 114, 128)',
+                      padding: 0,
+                    },
+                    className: 'text-xs font-medium',
+                  }
+                }
+                return {
+                  style: {
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    padding: 0,
+                  },
+                  className: 'text-xs',
+                }
+              }}
+              popup={false}
+            />
+          </div>
+        </div>
+      </div>
+      <style jsx global>{`
+        .talent-calendar .rbc-month-view {
+          border: none;
+        }
+        .talent-calendar .rbc-row-segment .rbc-event-content {
+          flex: 1;
+        }
+        .talent-calendar .rbc-off-range-bg {
+          opacity: 0.35;
+        }
+        .talent-calendar .rbc-today {
+          background-color: transparent;
+        }
+      `}</style>
+    </main>
   )
 }

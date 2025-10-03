@@ -44,6 +44,60 @@ export type Database = {
         }
         Relationships: []
       }
+      talent_availability_dates: {
+        Row: {
+          created_at: string | null
+          id: string
+          status: 'ok' | 'ng'
+          talent_id: string
+          the_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          status: 'ok' | 'ng'
+          talent_id: string
+          the_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          status?: 'ok' | 'ng'
+          talent_id?: string
+          the_date?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      talent_availability_settings: {
+        Row: {
+          created_at: string | null
+          default_mode: 'default_ok' | 'default_ng'
+          id: string
+          talent_id: string
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          default_mode: 'default_ok' | 'default_ng'
+          id?: string
+          talent_id: string
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          default_mode?: 'default_ok' | 'default_ng'
+          id?: string
+          talent_id?: string
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       companies: {
         Row: {
           id: string
