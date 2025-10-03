@@ -46,7 +46,7 @@ export default function StoreOffersPage() {
 
   const offersWithProgress = useMemo(() => {
     return offers.map(offer => {
-      const { steps } = getOfferProgress({
+      const { steps, badge } = getOfferProgress({
         status: offer.status ?? 'pending',
         invoiceStatus: offer.invoice_status,
         paid: Boolean(offer.paid),
@@ -56,6 +56,7 @@ export default function StoreOffersPage() {
       return {
         ...offer,
         steps,
+        badge,
       }
     })
   }, [offers])
@@ -129,7 +130,7 @@ export default function StoreOffersPage() {
                       <div className="truncate text-slate-900" title={o.talent_name ?? ''}>{o.talent_name ?? '-'}</div>
                     </TableCell>
                     <TableCell className="align-middle">
-                      <OfferProgressStatusIcons steps={o.steps} />
+                      <OfferProgressStatusIcons steps={o.steps} badge={o.badge} />
                     </TableCell>
                     <TableCell className="align-middle text-right">
                       <Button variant="ghost" size="sm" asChild className="text-[#2563EB] hover:bg-[#2563EB]/10">
@@ -155,7 +156,7 @@ export default function StoreOffersPage() {
                   {o.talent_name ?? '-'}
                 </div>
                 <div className="-mx-1 overflow-x-auto">
-                  <OfferProgressStatusIcons steps={o.steps} className="mx-1 min-w-[360px]" />
+                  <OfferProgressStatusIcons steps={o.steps} badge={o.badge} className="mx-1 min-w-[420px]" />
                 </div>
                 <div className="flex justify-end">
                   <Button variant="ghost" size="sm" asChild className="text-[#2563EB] hover:bg-[#2563EB]/10">

@@ -15,6 +15,13 @@ export interface OfferProgressStep {
   subLabel?: string
 }
 
+export type OfferProgressBadgeVariant = 'default' | 'secondary' | 'success'
+
+export interface OfferProgressBadge {
+  label: string
+  variant: OfferProgressBadgeVariant
+}
+
 export const OFFER_STEP_LABELS: Record<OfferStepKey, string> = {
   offer_submitted: 'オファー提出',
   approval: '承認',
@@ -31,12 +38,59 @@ interface ProgressParams {
   reviewCompleted?: boolean
 }
 
+function resolveProgressBadge({
+  status,
+  invoiceStatus,
+  paid,
+  reviewCompleted,
+}: ProgressParams): OfferProgressBadge {
+  if ((paid || invoiceStatus === 'paid') && !reviewCompleted) {
+    return {
+      label: 'レビュー待ち',
+      variant: 'default',
+    }
+  }
+
+  if (paid || invoiceStatus === 'paid' || reviewCompleted) {
+    return {
+      label: '支払い済み',
+      variant: 'success',
+    }
+  }
+
+  if (status === 'completed') {
+    return {
+      label: '来店完了',
+      variant: 'success',
+    }
+  }
+
+  if (status === 'confirmed') {
+    return {
+      label: '来店予定',
+      variant: 'default',
+    }
+  }
+
+  if (status === 'accepted') {
+    return {
+      label: '承認済み',
+      variant: 'default',
+    }
+  }
+
+  return {
+    label: '承認待ち',
+    variant: 'secondary',
+  }
+}
+
 export function getOfferProgress({
   status,
   invoiceStatus,
   paid,
   reviewCompleted = false,
-}: ProgressParams): { steps: OfferProgressStep[]; current: OfferStepKey } {
+}: ProgressParams): { steps: OfferProgressStep[]; current: OfferStepKey; badge: OfferProgressBadge } {
   const order: OfferStepKey[] = [
     'offer_submitted',
     'approval',
@@ -80,5 +134,5 @@ export function getOfferProgress({
         : 'upcoming',
   }))
 
-  return { steps, current }
+  return { steps, current, badge: resolveProgressBadge({ status, invoiceStatus, paid, reviewCompleted }) }
 }
