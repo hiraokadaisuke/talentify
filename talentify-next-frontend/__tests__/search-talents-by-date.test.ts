@@ -9,7 +9,6 @@ describe('mergeTalentAvailability', () => {
   const baseTalent = (overrides: Partial<TalentRow> = {}): TalentRow => ({
     id: 'talent-1',
     stage_name: 'Stage Name',
-    display_name: 'Display Name',
     genre: 'Pop',
     area: 'Tokyo',
     avatar_url: 'https://example.com/avatar.png',
@@ -59,6 +58,7 @@ describe('mergeTalentAvailability', () => {
     expect(results[0]).toMatchObject({
       id: 'talent-ng-ok',
       availability_status: 'ok',
+      display_name: 'Stage Name',
       achievements: 'Recent achievements',
     })
   })

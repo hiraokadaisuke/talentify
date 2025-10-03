@@ -14,7 +14,6 @@ export type TalentRow = Pick<
   Database['public']['Tables']['talents']['Row'],
   | 'id'
   | 'stage_name'
-  | 'display_name'
   | 'genre'
   | 'area'
   | 'avatar_url'
@@ -109,7 +108,7 @@ export function mergeTalentAvailability({
       return {
         id: talent.id,
         stage_name: talent.stage_name,
-        display_name: talent.display_name,
+        display_name: talent.stage_name ?? null,
         genre: talent.genre,
         area: talent.area,
         avatar_url: talent.avatar_url,
@@ -146,7 +145,7 @@ export async function GET(request: NextRequest) {
     supabase
       .from('talents')
       .select(
-        'id, stage_name, display_name, genre, area, avatar_url, rate, rating, bio, media_appearance'
+        'id, stage_name, genre, area, avatar_url, rate, rating, bio, media_appearance'
       )
       .eq('is_profile_complete', true),
     supabase.from('talent_availability_settings').select('talent_id, default_mode'),
