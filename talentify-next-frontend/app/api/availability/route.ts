@@ -71,11 +71,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const { data: settingsData, error: settingsError } = await supabase
+  const userId = resolvedUserId
+
+  type AvailabilitySettingsRow = {
+    default_mode: string | null
+    timezone: string | null
+  }
+
+  const supabaseRpc = supabase as any
+
+  const settingsResponse = await supabaseRpc
     .from('talent_availability_settings')
     .select('default_mode, timezone')
-    .eq('user_id', resolvedUserId)
+    .eq('user_id', userId)
     .maybeSingle()
+
+  const settingsError = settingsResponse.error
+  const settingsData = settingsResponse.data as AvailabilitySettingsRow | null
 
   if (settingsError) {
     console.error('Failed to fetch availability settings', settingsError)
@@ -85,12 +97,20 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const { data: datesData, error: datesError } = await supabase
+  type AvailabilityDateRow = {
+    the_date: string
+    status: string
+  }
+
+  const datesResponse = await supabaseRpc
     .from('talent_availability_dates')
     .select('the_date, status')
-    .eq('user_id', resolvedUserId)
+    .eq('user_id', userId)
     .gte('the_date', from)
     .lte('the_date', to)
+
+  const datesError = datesResponse.error
+  const datesData = datesResponse.data as AvailabilityDateRow[] | null
 
   if (datesError) {
     console.error('Failed to fetch availability dates', datesError)
