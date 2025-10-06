@@ -22,7 +22,11 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const { data } = await supabase
     .from('offers')
     .select(
-      'id,status,date,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,reviews(id), talents(stage_name,avatar_url), stores(store_name)'
+      `
+      id,status,date,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,
+      reviews(id), talents(stage_name,avatar_url),
+      store:stores!offers_store_id_fkey(id, store_name)
+    `
     )
     .eq('id', params.id)
     .single()
@@ -55,7 +59,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     performerName: data.talents?.stage_name || '',
     performerAvatarUrl: data.talents?.avatar_url || null,
     acceptedAt: data.accepted_at as string | null,
-    storeName: data.stores?.store_name || '',
+    storeName: data.store?.store_name || '',
     updatedAt: data.updated_at as string,
     paid: data.paid as boolean,
     paidAt: data.paid_at as string | null,

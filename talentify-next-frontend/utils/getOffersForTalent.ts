@@ -44,7 +44,10 @@ export async function getOffersForTalent() {
   const { data, error } = await supabase
     .from('offers')
     .select(
-      'id, store_id, created_at, date, status, payments(status,paid_at), store:store_id(id, store_name, is_setup_complete)'
+      `
+      id, store_id, created_at, date, status, payments(status,paid_at),
+      store:stores!offers_store_id_fkey(id, store_name, is_setup_complete)
+    `
     )
     .eq('talent_id', talentId)
     .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { toDbOfferStatus } from '@/app/lib/offerStatus'
 
 export const runtime = 'nodejs'
 
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
       time_range: body.time_range,
       agreed: body.agreed,
       message: body.message ?? '',
-      status: 'pending',
+      status: toDbOfferStatus('pending') ?? 'pending',
     })
     .select()
     .single()

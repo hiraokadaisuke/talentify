@@ -3,6 +3,7 @@ import type { Database } from '@/types/supabase'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import type { PostgrestError } from '@supabase/supabase-js'
+import { toDbOfferStatus } from '@/app/lib/offerStatus'
 
 const querySchema = z.object({
   date: z
@@ -143,6 +144,8 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient()
   const { date } = parsed.data
 
+  const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
+
   const [talentsRes, settingsRes, datesRes, offersRes] = (await Promise.all([
     supabase
       .from('talents')
@@ -158,7 +161,7 @@ export async function GET(request: NextRequest) {
     supabase
       .from('offers')
       .select('talent_id')
-      .eq('status', 'confirmed')
+      .eq('status', confirmedStatus)
       .eq('date', date),
   ])) as [
     QueryResult<TalentRow[]>,

@@ -17,6 +17,7 @@ import isSameDay from 'date-fns/isSameDay'
 import addMonths from 'date-fns/addMonths'
 import subMonths from 'date-fns/subMonths'
 import { createClient } from '@/utils/supabase/client'
+import { type OfferStatusDb, toDbOfferStatus } from '@/app/lib/offerStatus'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import OfferModal from '@/components/modals/OfferModal'
 import { Badge } from '@/components/ui/badge'
@@ -108,6 +109,9 @@ export default function StoreSchedulePage() {
 
       const statusesQuery = ['confirmed', 'canceled', 'no_show']
       if (includeCompleted) statusesQuery.push('completed')
+      const normalizedStatuses = statusesQuery
+        .map(status => toDbOfferStatus(status))
+        .filter((status): status is OfferStatusDb => Boolean(status))
 
       const { data: store } = await supabase
         .from('stores')
@@ -122,7 +126,7 @@ export default function StoreSchedulePage() {
           'id, talent_id, date, status, start_time, notes, talents(stage_name)'
         )
         .eq('store_id', store.id)
-        .in('status', statusesQuery)
+        .in('status', normalizedStatuses)
 
       if (error) {
         console.error('Failed to fetch offers', error)

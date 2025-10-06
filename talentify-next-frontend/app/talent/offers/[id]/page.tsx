@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { getOfferProgress } from '@/utils/offerProgress'
 import { toast } from 'sonner'
+import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import TalentOfferProgressPanel from './TalentOfferProgressPanel'
 
 export default function TalentOfferPage() {
@@ -20,7 +21,11 @@ export default function TalentOfferPage() {
     const { data } = await supabase
       .from('offers')
       .select(
-        'id,status,date,updated_at,created_at,message,talent_id,user_id,paid,paid_at, talents(stage_name,avatar_url), stores(store_name)'
+        `
+        id,status,date,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
+        talents(stage_name,avatar_url),
+        store:stores!offers_store_id_fkey(id, store_name)
+      `
       )
       .eq('id', params.id)
       .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
@@ -43,7 +48,8 @@ export default function TalentOfferPage() {
         message: data.message,
         performerName: data.talents?.stage_name || '',
         performerAvatarUrl: data.talents?.avatar_url || null,
-        storeName: data.stores?.store_name || '',
+        storeName:
+          data.store?.store_name || '',
         updatedAt: data.updated_at,
         submittedAt: data.created_at,
         paid: data.paid,
@@ -81,7 +87,7 @@ export default function TalentOfferPage() {
     setOffer({ ...offer, status: 'confirmed' })
     const { error } = await supabase
       .from('offers')
-      .update({ status: 'confirmed' })
+      .update({ status: toDbOfferStatus('confirmed') })
       .eq('id', offer.id)
     if (error) {
       toast.error('承諾に失敗しました')
@@ -98,7 +104,7 @@ export default function TalentOfferPage() {
     setOffer({ ...offer, status: 'rejected' })
     const { error } = await supabase
       .from('offers')
-      .update({ status: 'rejected' })
+      .update({ status: toDbOfferStatus('rejected') })
       .eq('id', offer.id)
     if (error) {
       toast.error('辞退に失敗しました')
