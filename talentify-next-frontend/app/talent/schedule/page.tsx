@@ -45,6 +45,10 @@ import {
   type DisplayStatus,
   mapOfferStatus,
 } from '@/utils/storeSchedule'
+import {
+  type OfferStatusDb,
+  toDbOfferStatus,
+} from '@/app/lib/offerStatus'
 import { toast } from 'sonner'
 
 const locales = { ja }
@@ -217,15 +221,28 @@ export default function TalentSchedulePage() {
         setOverrides(mappedOverrides)
       }
 
+      const statusesForQuery = [
+        'confirmed',
+        'completed',
+        'cancelled',
+        'canceled',
+        'no_show',
+      ]
+        .map(status => toDbOfferStatus(status))
+        .filter((status): status is OfferStatusDb => Boolean(status))
+
       const { data: offerRows, error: offerError } = await supabase
         .from('offers')
         .select(
-          'id, date, status, start_time, notes, stores:store_id(store_name)'
+          `
+          id, date, status, start_time, end_time, notes,
+          store:stores!offers_store_id_fkey(id, store_name, display_name)
+        `
         )
         .eq('talent_id', talentId)
         .gte('date', calendarFrom)
         .lte('date', calendarTo)
-        .in('status', ['confirmed', 'completed', 'cancelled', 'canceled', 'no_show'])
+        .in('status', statusesForQuery)
 
       if (offerError) {
         throw offerError
@@ -238,11 +255,17 @@ export default function TalentSchedulePage() {
         const startDate = new Date(datetime)
         return {
           id: offer.id as string,
-          title: (offer.stores?.store_name as string | null) ?? '出演',
+          title:
+            (offer.store?.display_name as string | null) ??
+            (offer.store?.store_name as string | null) ??
+            '出演',
           start: startDate,
           end: startDate,
           status: mapOfferStatus(offer.status),
-          storeName: (offer.stores?.store_name as string | null) ?? '出演',
+          storeName:
+            (offer.store?.display_name as string | null) ??
+            (offer.store?.store_name as string | null) ??
+            '出演',
         } satisfies TalentCalendarEvent
       })
 

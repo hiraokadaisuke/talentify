@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
+import { toDbOfferStatus } from "@/app/lib/offerStatus"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { toast } from "sonner"
@@ -36,7 +37,7 @@ export default function CancelOfferSection({
       const { data, error } = await supabase
         .from("offers")
         .update({
-          status: "canceled",
+          status: toDbOfferStatus("canceled"),
           canceled_at: new Date().toISOString(),
           canceled_by_role: "store",
         })

@@ -62,7 +62,12 @@ export default function TalentInvoiceNewPage() {
       if (!offerId) return
       const { data: offerData } = await supabase
         .from('offers')
-        .select('id, date, reward, message, stores(store_name)')
+        .select(
+          `
+          id, date, reward, message,
+          store:stores!offers_store_id_fkey(id, store_name, display_name)
+        `
+        )
         .eq('id', offerId)
         .single()
       if (offerData) setOffer(offerData)
@@ -322,7 +327,10 @@ export default function TalentInvoiceNewPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2 text-sm">
-              <div>店舗名: {offer?.stores?.store_name}</div>
+              <div>
+                店舗名:{' '}
+                {offer?.store?.display_name ?? offer?.store?.store_name ?? ''}
+              </div>
               <div>出演日: {formattedDate}</div>
               <div>予定報酬(目安): ¥{offer?.reward?.toLocaleString?.() ?? ''}</div>
               <div className="whitespace-pre-wrap">出演内容: {offer?.message}</div>

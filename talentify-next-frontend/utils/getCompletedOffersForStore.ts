@@ -1,5 +1,6 @@
 'use client'
 import { createClient } from '@/utils/supabase/client'
+import { toDbOfferStatus } from '@/app/lib/offerStatus'
 
 const supabase = createClient()
 export type CompletedOffer = {
@@ -25,11 +26,13 @@ export async function getCompletedOffersForStore() {
     .single()
   if (!store) return [] as CompletedOffer[]
 
+  const completedStatus = toDbOfferStatus('completed') ?? 'completed'
+
   const { data, error } = await supabase
     .from('offers')
     .select('id, talent_id, store_id, date, message, reviews(id), talents(stage_name)')
     .eq('store_id', store.id)
-    .eq('status', 'completed')
+    .eq('status', completedStatus)
   if (error) {
     console.error('failed to fetch completed offers', error)
     return []

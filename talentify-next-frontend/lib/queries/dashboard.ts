@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import type { ScheduleItem } from '@/components/ScheduleCard'
+import { toDbOfferStatus } from '@/app/lib/offerStatus'
 
 export async function getTalentDashboardData() {
   const supabase = createClient()
@@ -19,12 +20,14 @@ export async function getTalentDashboardData() {
 
   const talentId = talent?.id
 
+  const pendingStatus = toDbOfferStatus('pending') ?? 'pending'
+
   const { count: pendingOffersCount } = talentId
     ? await supabase
         .from('offers')
         .select('*', { count: 'exact', head: true })
         .eq('talent_id', talentId)
-        .in('status', ['pending'])
+        .in('status', [pendingStatus])
     : { count: 0 }
 
   const { count: unreadMessagesCount } = await supabase
@@ -34,18 +37,25 @@ export async function getTalentDashboardData() {
     .eq('type', 'message')
     .eq('is_read', false)
 
+  const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
+
   const { data: scheduleData } = talentId
     ? await supabase
         .from('offers')
-        .select('id, date, time_range, stores(store_name)')
+        .select(
+          `
+          id, date, time_range,
+          store:stores!offers_store_id_fkey(id, store_name, display_name)
+        `
+        )
         .eq('talent_id', talentId)
-        .eq('status', 'confirmed')
+        .eq('status', confirmedStatus)
         .order('date', { ascending: true })
     : { data: [] }
 
   const schedule: ScheduleItem[] = (scheduleData ?? []).map((d: any) => ({
     date: d.date,
-    performer: d.stores?.store_name ?? '',
+    performer: d.store?.display_name ?? d.store?.store_name ?? '',
     status: 'confirmed',
     href: `/talent/offers/${d.id}`,
   }))
@@ -82,6 +92,8 @@ export async function getStoreDashboardData() {
     throw new Error(storeError?.message ?? 'store not found')
   }
 
+  const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
+
   const {
     data: offers,
     error: offersError,
@@ -104,7 +116,7 @@ export async function getStoreDashboardData() {
     .from('offers')
     .select('id, date, talents(stage_name)')
     .eq('store_id', store.id)
-    .eq('status', 'confirmed')
+    .eq('status', confirmedStatus)
     .gte('date', new Date().toISOString().slice(0, 10))
     .order('date', { ascending: true })
     .limit(5)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { toDbOfferStatus } from '@/app/lib/offerStatus'
 
 export async function PUT(
   req: NextRequest,
@@ -52,6 +53,12 @@ export async function PUT(
     const updates: Record<string, any> = {}
     for (const field of allowedFields) {
       if (body[field] !== undefined) updates[field] = body[field]
+    }
+
+    if (updates.status !== undefined) {
+      const normalizedStatus = toDbOfferStatus(updates.status)
+      if (normalizedStatus) updates.status = normalizedStatus
+      else delete updates.status
     }
 
     if (Object.keys(updates).length === 0) {
