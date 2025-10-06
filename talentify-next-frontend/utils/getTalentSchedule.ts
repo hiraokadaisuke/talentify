@@ -24,7 +24,7 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
     .select(
       `
       id, date, time_range,
-      store:stores!offers_store_id_fkey(id, store_name, display_name)
+      store:stores!offers_store_id_fkey(id, store_name)
     `
     )
     .eq('talent_id', talentId)
@@ -42,6 +42,6 @@ export async function getTalentSchedule(): Promise<TalentSchedule[]> {
     id: o.id,
     date: o.date,
     time_range: o.time_range,
-    store_name: o.store?.display_name ?? o.store?.store_name ?? null,
+    store_name: o.store?.store_name ?? null,
   }))
 }

@@ -65,7 +65,7 @@ export default function TalentInvoiceNewPage() {
         .select(
           `
           id, date, reward, message,
-          store:stores!offers_store_id_fkey(id, store_name, display_name)
+          store:stores!offers_store_id_fkey(id, store_name)
         `
         )
         .eq('id', offerId)
@@ -329,7 +329,7 @@ export default function TalentInvoiceNewPage() {
             <div className="space-y-2 text-sm">
               <div>
                 店舗名:{' '}
-                {offer?.store?.display_name ?? offer?.store?.store_name ?? ''}
+                {offer?.store?.store_name ?? ''}
               </div>
               <div>出演日: {formattedDate}</div>
               <div>予定報酬(目安): ¥{offer?.reward?.toLocaleString?.() ?? ''}</div>

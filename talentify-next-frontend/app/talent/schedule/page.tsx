@@ -236,7 +236,7 @@ export default function TalentSchedulePage() {
         .select(
           `
           id, date, status, start_time, end_time, notes,
-          store:stores!offers_store_id_fkey(id, store_name, display_name)
+          store:stores!offers_store_id_fkey(id, store_name)
         `
         )
         .eq('talent_id', talentId)
@@ -255,17 +255,11 @@ export default function TalentSchedulePage() {
         const startDate = new Date(datetime)
         return {
           id: offer.id as string,
-          title:
-            (offer.store?.display_name as string | null) ??
-            (offer.store?.store_name as string | null) ??
-            '出演',
+          title: (offer.store?.store_name as string | null) ?? '出演',
           start: startDate,
           end: startDate,
           status: mapOfferStatus(offer.status),
-          storeName:
-            (offer.store?.display_name as string | null) ??
-            (offer.store?.store_name as string | null) ??
-            '出演',
+          storeName: (offer.store?.store_name as string | null) ?? '出演',
         } satisfies TalentCalendarEvent
       })
 

@@ -45,7 +45,7 @@ export async function getTalentDashboardData() {
         .select(
           `
           id, date, time_range,
-          store:stores!offers_store_id_fkey(id, store_name, display_name)
+          store:stores!offers_store_id_fkey(id, store_name)
         `
         )
         .eq('talent_id', talentId)
@@ -55,7 +55,7 @@ export async function getTalentDashboardData() {
 
   const schedule: ScheduleItem[] = (scheduleData ?? []).map((d: any) => ({
     date: d.date,
-    performer: d.store?.display_name ?? d.store?.store_name ?? '',
+    performer: d.store?.store_name ?? '',
     status: 'confirmed',
     href: `/talent/offers/${d.id}`,
   }))
