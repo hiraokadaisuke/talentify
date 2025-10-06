@@ -97,9 +97,23 @@ const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
 
 const DEFAULT_TIMEZONE = 'Asia/Tokyo'
 
+function pad(value: number) {
+  return String(value).padStart(2, '0')
+}
+
+function monthRange(date: Date) {
+  const year = date.getFullYear()
+  const month = date.getMonth()
+  const from = `${year}-${pad(month + 1)}-01`
+  const lastDay = new Date(year, month + 1, 0).getDate()
+  const to = `${year}-${pad(month + 1)}-${pad(lastDay)}`
+  return { from, to }
+}
+
 export default function TalentSchedulePage() {
   const supabase = useMemo(() => createClient(), [])
   const [talentId, setTalentId] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [calendarDate, setCalendarDate] = useState(() => new Date())
   const [availabilitySettings, setAvailabilitySettings] =
     useState<AvailabilitySettings | null>(null)
@@ -130,47 +144,78 @@ export default function TalentSchedulePage() {
     }
   }, [])
 
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      const { data, error } = await supabase.auth.getUser()
+      if (!mounted) return
+      if (error || !data.user) {
+        console.error('Failed to retrieve authenticated user', error)
+        toast.error('ユーザー情報の取得に失敗しました')
+        return
+      }
+      setUserId(data.user.id)
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [supabase])
+
   const fetchCalendarData = useCallback(async () => {
-    if (!talentId) return
+    if (!talentId || !userId) return
 
     const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 })
     const end = endOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
-    const from = format(start, 'yyyy-MM-dd')
-    const to = format(end, 'yyyy-MM-dd')
+    const calendarFrom = format(start, 'yyyy-MM-dd')
+    const calendarTo = format(end, 'yyyy-MM-dd')
+    const { from, to } = monthRange(calendarDate)
 
     setLoading(true)
     try {
-      const availabilityResponse = await fetch(
-        `/api/availability?talent_id=${talentId}&from=${from}&to=${to}`
+      const availabilityUrl = new URL(
+        '/api/availability',
+        window.location.origin
       )
+      availabilityUrl.searchParams.set('user_id', userId)
+      availabilityUrl.searchParams.set('from', from)
+      availabilityUrl.searchParams.set('to', to)
 
-      if (!availabilityResponse.ok) {
-        throw new Error('Failed to fetch availability')
-      }
-
-      const availabilityData: {
-        settings: AvailabilitySettings
-        dates: { date: string; status: AvailabilityStatus }[]
-      } = await availabilityResponse.json()
-
-      setAvailabilitySettings({
-        default_mode: availabilityData.settings.default_mode,
-        timezone: availabilityData.settings.timezone ?? DEFAULT_TIMEZONE,
+      const availabilityResponse = await fetch(availabilityUrl.toString(), {
+        credentials: 'include',
       })
 
-      const baseStatus =
-        availabilityData.settings.default_mode === 'default_ok' ? 'ok' : 'ng'
+      if (availabilityResponse.status === 404) {
+        setAvailabilitySettings(null)
+        setOverrides({})
+      } else {
+        if (!availabilityResponse.ok) {
+          throw new Error('Failed to fetch availability')
+        }
 
-      const mappedOverrides = availabilityData.dates.reduce(
-        (acc, current) => {
-          if (current.status !== baseStatus) {
-            acc[current.date] = current.status
-          }
-          return acc
-        },
-        {} as Record<string, AvailabilityStatus>
-      )
-      setOverrides(mappedOverrides)
+        const availabilityData: {
+          settings: AvailabilitySettings
+          dates: { date: string; status: AvailabilityStatus }[]
+        } = await availabilityResponse.json()
+
+        setAvailabilitySettings({
+          default_mode: availabilityData.settings.default_mode,
+          timezone: availabilityData.settings.timezone ?? DEFAULT_TIMEZONE,
+        })
+
+        const baseStatus =
+          availabilityData.settings.default_mode === 'default_ok' ? 'ok' : 'ng'
+
+        const mappedOverrides = availabilityData.dates.reduce(
+          (acc, current) => {
+            if (current.status !== baseStatus) {
+              acc[current.date] = current.status
+            }
+            return acc
+          },
+          {} as Record<string, AvailabilityStatus>
+        )
+        setOverrides(mappedOverrides)
+      }
 
       const { data: offerRows, error: offerError } = await supabase
         .from('offers')
@@ -178,8 +223,8 @@ export default function TalentSchedulePage() {
           'id, date, status, start_time, notes, stores:store_id(store_name)'
         )
         .eq('talent_id', talentId)
-        .gte('date', from)
-        .lte('date', to)
+        .gte('date', calendarFrom)
+        .lte('date', calendarTo)
         .in('status', ['confirmed', 'completed', 'cancelled', 'canceled', 'no_show'])
 
       if (offerError) {
@@ -208,7 +253,7 @@ export default function TalentSchedulePage() {
     } finally {
       setLoading(false)
     }
-  }, [calendarDate, supabase, talentId])
+  }, [calendarDate, supabase, talentId, userId])
 
   useEffect(() => {
     void fetchCalendarData()
