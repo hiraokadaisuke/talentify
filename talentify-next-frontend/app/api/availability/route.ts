@@ -3,15 +3,21 @@ import { z } from 'zod'
 
 import { createClient } from '@/lib/supabase/server'
 
-const querySchema = z.object({
-  talent_id: z.string().uuid('talent_id must be a valid UUID'),
-  from: z
-    .string()
-    .refine((value) => !Number.isNaN(Date.parse(value)), 'from must be a date'),
-  to: z
-    .string()
-    .refine((value) => !Number.isNaN(Date.parse(value)), 'to must be a date'),
-})
+const querySchema = z
+  .object({
+    user_id: z.string().uuid('user_id must be a valid UUID').optional(),
+    talent_id: z.string().uuid('talent_id must be a valid UUID').optional(),
+    from: z
+      .string()
+      .refine((value) => !Number.isNaN(Date.parse(value)), 'from must be a date'),
+    to: z
+      .string()
+      .refine((value) => !Number.isNaN(Date.parse(value)), 'to must be a date'),
+  })
+  .refine((value) => Boolean(value.user_id || value.talent_id), {
+    message: 'user_id or talent_id is required',
+    path: ['user_id'],
+  })
 
 export async function GET(request: NextRequest) {
   const searchParams = Object.fromEntries(request.nextUrl.searchParams.entries())
@@ -24,42 +30,64 @@ export async function GET(request: NextRequest) {
     )
   }
 
+  const supabase = createClient()
+
   const {
     data: { user },
-  } = await createClient().auth.getUser()
+  } = await supabase.auth.getUser()
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { talent_id: talentId, from, to } = parsed.data
+  const { user_id: queryUserId, talent_id: queryTalentId, from, to } = parsed.data
 
-  const supabase = createClient()
+  // Resolve user id
+  let resolvedUserId = queryUserId ?? null
 
-  const { data: talent, error: talentError } = await supabase
-    .from('talents')
-    .select('id')
-    .eq('id', talentId)
-    .eq('user_id', user.id)
-    .maybeSingle()
+  if (!resolvedUserId && queryTalentId) {
+    const { data: talentRow, error: talentError } = await supabase
+      .from('talents')
+      .select('user_id')
+      .eq('id', queryTalentId)
+      .maybeSingle()
 
-  if (talentError) {
-    console.error('Failed to verify talent ownership', talentError)
-    return NextResponse.json(
-      { error: 'Failed to verify talent ownership' },
-      { status: 500 }
-    )
+    if (talentError) {
+      console.error('Failed to resolve talent to user', talentError)
+      return NextResponse.json(
+        { error: 'Failed to resolve talent' },
+        { status: 500 }
+      )
+    }
+
+    resolvedUserId = talentRow?.user_id ?? queryTalentId
   }
 
-  if (!talent) {
+  if (!resolvedUserId) {
+    return NextResponse.json({ error: 'Invalid query parameters' }, { status: 400 })
+  }
+
+  if (resolvedUserId !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const { data: settingsData, error: settingsError } = await supabase
+  const userId = resolvedUserId
+
+  type AvailabilitySettingsRow = {
+    default_mode: string | null
+    timezone: string | null
+  }
+
+  const supabaseRpc = supabase as any
+
+  const settingsResponse = await supabaseRpc
     .from('talent_availability_settings')
     .select('default_mode, timezone')
-    .eq('talent_id', talentId)
+    .eq('user_id', userId)
     .maybeSingle()
+
+  const settingsError = settingsResponse.error
+  const settingsData = settingsResponse.data as AvailabilitySettingsRow | null
 
   if (settingsError) {
     console.error('Failed to fetch availability settings', settingsError)
@@ -69,12 +97,20 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const { data: datesData, error: datesError } = await supabase
+  type AvailabilityDateRow = {
+    the_date: string
+    status: string
+  }
+
+  const datesResponse = await supabaseRpc
     .from('talent_availability_dates')
     .select('the_date, status')
-    .eq('talent_id', talentId)
+    .eq('user_id', userId)
     .gte('the_date', from)
     .lte('the_date', to)
+
+  const datesError = datesResponse.error
+  const datesData = datesResponse.data as AvailabilityDateRow[] | null
 
   if (datesError) {
     console.error('Failed to fetch availability dates', datesError)
