@@ -31,7 +31,7 @@ const offerRowSchema = z.object({
   store: z
     .object({
       id: z.string(),
-      store_name: z.string().nullable(),
+      name: z.string().nullable(),
       is_setup_complete: z.boolean().nullable(),
     })
     .nullable(),
@@ -46,7 +46,7 @@ export async function getOffersForTalent() {
     .select(
       `
       id, store_id, created_at, date, status, payments(status,paid_at),
-      store:stores!offers_store_id_fkey(id, store_name, is_setup_complete)
+      store:stores!offers_store_id_fkey(id, name, is_setup_complete)
     `
     )
     .eq('talent_id', talentId)
@@ -91,7 +91,7 @@ export async function getOffersForTalent() {
         : 'submitted'
       : 'not_submitted'
 
-    const storeName = o.store?.store_name ?? null
+    const storeName = o.store?.name ?? null
 
     return {
       id: o.id,
