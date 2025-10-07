@@ -6,12 +6,14 @@
 - [schema.md](./schema.md): 各テーブルとカラム定義
 - [constraints.md](./constraints.md): 主キー・外部キー・ユニーク制約
 - [enums.md](./enums.md) / [./enums](./enums): ENUM 型の詳細と JSON 定義
+- [extensions.md](./extensions.md): 有効化済み拡張機能の一覧
 - [rls.md](./rls.md): Row Level Security ポリシー一覧
 - [triggers.md](./triggers.md): トリガー定義
 - [sequences.md](./sequences.md): シーケンス定義
 - [functions.sql](./functions.sql): PL/pgSQL 関数定義
 - [invoices-rls-and-policies.md](./invoices-rls-and-policies.md): 請求書関連の RLS とポリシー
 - [invoices-status-and-payment.md](./invoices-status-and-payment.md): 請求書ステータスと支払いフロー
+- [./proposals](./proposals): 未適用／検討中の SQL 提案集
 - [20250315_add_note_to_visits.sql](./20250315_add_note_to_visits.sql) などの SQL: マイグレーションや補助スクリプト
 
 ## 設計メモ
@@ -157,6 +159,8 @@
 | `20250830_offer_message_tables.sql` | `offer_messages` テーブルおよび関連制約を定義。 |
 | `20250901_unread_messages_rpc.sql` | 未読メッセージ数取得 RPC の下書き。 |
 | `20250904_add_bank_fields_to_talents.sql` | `talents` テーブルへの銀行口座カラム追加。 |
+| `./proposals/20250214_notifications_update.sql` | 通知の既読更新を許可するための提案 SQL。 |
+| `./proposals/20250219_store_rls.sql` | ストア関連 RLS を整理するための提案 SQL。 |
 
 ---
 
