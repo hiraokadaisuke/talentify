@@ -24,7 +24,7 @@ export default function TalentOfferPage() {
         `
         id,status,date,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
         talents(stage_name,avatar_url),
-        store:stores!offers_store_id_fkey(id, store_name)
+        store:stores!offers_store_id_fkey(id, store_name, company:companies(display_name))
       `
       )
       .eq('id', params.id)
@@ -49,7 +49,7 @@ export default function TalentOfferPage() {
         performerName: data.talents?.stage_name || '',
         performerAvatarUrl: data.talents?.avatar_url || null,
         storeName:
-          data.store?.store_name || '',
+          data.store?.company?.display_name || data.store?.store_name || '',
         updatedAt: data.updated_at,
         submittedAt: data.created_at,
         paid: data.paid,

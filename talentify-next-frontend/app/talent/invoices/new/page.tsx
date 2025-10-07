@@ -65,7 +65,7 @@ export default function TalentInvoiceNewPage() {
         .select(
           `
           id, date, reward, message,
-          store:stores!offers_store_id_fkey(id, store_name)
+          store:stores!offers_store_id_fkey(id, store_name, company:companies(display_name))
         `
         )
         .eq('id', offerId)
@@ -132,6 +132,9 @@ export default function TalentInvoiceNewPage() {
     if (invoice?.status === 'approved') return '提出済み'
     return '下書き'
   }
+
+  const storeDisplayName =
+    offer?.store?.company?.display_name ?? offer?.store?.store_name ?? ''
 
   const currentStep = () => {
     if (invoice?.payment_status === 'paid') return 2
@@ -329,7 +332,7 @@ export default function TalentInvoiceNewPage() {
             <div className="space-y-2 text-sm">
               <div>
                 店舗名:{' '}
-                {offer?.store?.store_name ?? ''}
+                {storeDisplayName}
               </div>
               <div>出演日: {formattedDate}</div>
               <div>予定報酬(目安): ¥{offer?.reward?.toLocaleString?.() ?? ''}</div>
