@@ -65,7 +65,7 @@ export default function TalentInvoiceNewPage() {
         .select(
           `
           id, date, reward, message,
-          store:stores!offers_store_id_fkey(id, store_name, company:companies(display_name))
+          store:stores!offers_store_id_fkey(id, store_name)
         `
         )
         .eq('id', offerId)
@@ -133,8 +133,7 @@ export default function TalentInvoiceNewPage() {
     return '下書き'
   }
 
-  const storeDisplayName =
-    offer?.store?.company?.display_name ?? offer?.store?.store_name ?? ''
+  const storeDisplayName = offer?.store?.store_name ?? ''
 
   const currentStep = () => {
     if (invoice?.payment_status === 'paid') return 2

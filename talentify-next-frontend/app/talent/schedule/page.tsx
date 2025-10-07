@@ -256,7 +256,7 @@ export default function TalentSchedulePage() {
         .select(
           `
           id, date, status, start_time, end_time, notes,
-          store:stores!offers_store_id_fkey(id, store_name, company:companies(display_name))
+          store:stores!offers_store_id_fkey(id, store_name)
         `
         )
         .eq('talent_id', talentId)
@@ -279,7 +279,6 @@ export default function TalentSchedulePage() {
             buildDateTime(offer.date as string | null, offer.end_time as string | null) ?? startDate
 
           const storeName =
-            (offer.store?.company?.display_name as string | null) ??
             (offer.store?.store_name as string | null) ??
             '出演'
 
