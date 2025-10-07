@@ -1,20 +1,40 @@
-# Supabase Operations Handbook
+# Supabase Documentation Hub
 
-本ドキュメントは Supabase 関連の運用ナレッジを 1 か所に集約したものです。RLS ポリシー、RPC、及び補助 SQL の情報を横断的に確認できます。
+本ディレクトリは Supabase に関する設計情報と運用ナレッジを 1 か所に集約したハブです。データベーススキーマ、RLS ポリシー、RPC、補助 SQL などを横断的に参照できます。
 
-## 目次
-- [Row Level Security (RLS)](#row-level-security-rls)
-  - [public.stores ポリシー最終構成 (2025-08-15)](#publicstores-ポリシー最終構成-2025-08-15)
-  - [public.offer_messages ポリシー (2025-08-30)](#publicoffer_messages-ポリシー-2025-08-30)
-- [Remote Procedure Calls (RPC)](#remote-procedure-calls-rpc)
-  - [public.get_offer_store_names(uuid[])](#publicget_offer_store_namesuuid)
-- [関連 SQL スクリプト](#関連-sql-スクリプト)
+## ドキュメント構成
+- [schema.md](./schema.md): 各テーブルとカラム定義
+- [constraints.md](./constraints.md): 主キー・外部キー・ユニーク制約
+- [enums.md](./enums.md) / [./enums](./enums): ENUM 型の詳細と JSON 定義
+- [rls.md](./rls.md): Row Level Security ポリシー一覧
+- [triggers.md](./triggers.md): トリガー定義
+- [sequences.md](./sequences.md): シーケンス定義
+- [functions.sql](./functions.sql): PL/pgSQL 関数定義
+- [invoices-rls-and-policies.md](./invoices-rls-and-policies.md): 請求書関連の RLS とポリシー
+- [invoices-status-and-payment.md](./invoices-status-and-payment.md): 請求書ステータスと支払いフロー
+- [20250315_add_note_to_visits.sql](./20250315_add_note_to_visits.sql) などの SQL: マイグレーションや補助スクリプト
 
----
+## 設計メモ
+### プロビジョニングフロー
+- `/talent/edit` と `/store/edit` ではアクセス時に `user_id = auth.uid()` の行を `select … maybeSingle` で確認し、存在しない場合は初期値で `insert`。
+- 重複によるユニーク制約エラーは無視し、初回のみ `provisioned <role> profile` をログ出力。
+- 以後の `SELECT/INSERT/UPDATE` は RLS 前提で常に `user_id` 条件を付与。
 
-## Row Level Security (RLS)
+### 通知運用ルール
+- 通知は service role (`createServiceClient`) でのみ作成。
+- 通知の宛先は関連するタレントの `talents.user_id` を `notifications.user_id` にそのままセット。
+- `talents.user_id` を取得できない場合は通知を作成せず、理由をサーバーログに記録。
 
-### public.stores ポリシー最終構成 (2025-08-15)
+### API 仕様: スケジュール取得
+`GET /api/store/schedule?from=&to=&statuses=&includeCompleted=`
+
+- `includeCompleted` (boolean, default: `true`): `false` の場合、完了済みの予定を除外。
+
+## 運用ハンドブック
+
+### Row Level Security (RLS)
+
+#### public.stores ポリシー最終構成 (2025-08-15)
 
 - **目的**
   - 店舗オーナー（`auth.uid() = stores.user_id`）のみが自身の店舗を CRUD できる
@@ -81,7 +101,7 @@
   UPDATE public.stores SET store_name = 'test' WHERE user_id <> auth.uid();
   ```
 
-### public.offer_messages ポリシー (2025-08-30)
+#### public.offer_messages ポリシー (2025-08-30)
 
 - **有効化**
   ```sql
@@ -105,9 +125,9 @@
   - `offer_id` はオファーとメッセージを紐付けるための任意フィールド。
   - 挿入は送信者のみ、閲覧は送信者または受信者に限定。
 
-## Remote Procedure Calls (RPC)
+### Remote Procedure Calls (RPC)
 
-### public.get_offer_store_names(uuid[])
+#### public.get_offer_store_names(uuid[])
 
 - **目的**: RLS を維持したまま、呼び出しユーザーに関係するオファーの店舗名のみ取得する。
 - **戻り値**
@@ -128,10 +148,11 @@
   const { data, error } = await supabase.rpc("get_offer_store_names", { _offer_ids: offerIds });
   ```
 
-## 関連 SQL スクリプト
+### 関連 SQL スクリプト
 
 | ファイル | 概要 |
 | --- | --- |
+| `20250315_add_note_to_visits.sql` | `visit_notes` 追加のための補助スクリプト。 |
 | `20250825_add_rpcs_for_store_display_name.sql` | `get_offer_store_names` 追加用マイグレーション。 |
 | `20250830_offer_message_tables.sql` | `offer_messages` テーブルおよび関連制約を定義。 |
 | `20250901_unread_messages_rpc.sql` | 未読メッセージ数取得 RPC の下書き。 |
@@ -139,4 +160,4 @@
 
 ---
 
-今後 Supabase 関連の知見を追記する際は本ファイルに集約し、断片化を防ぎます。
+今後 Supabase 関連の知見を追記する際は本ディレクトリに集約し、断片化を防ぎます。
