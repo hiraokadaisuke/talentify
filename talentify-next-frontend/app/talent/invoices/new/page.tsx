@@ -133,6 +133,8 @@ export default function TalentInvoiceNewPage() {
     return '下書き'
   }
 
+  const storeDisplayName = offer?.store?.store_name ?? ''
+
   const currentStep = () => {
     if (invoice?.payment_status === 'paid') return 2
     return invoice?.status === 'approved' ? 1 : 0
@@ -329,7 +331,7 @@ export default function TalentInvoiceNewPage() {
             <div className="space-y-2 text-sm">
               <div>
                 店舗名:{' '}
-                {offer?.store?.store_name ?? ''}
+                {storeDisplayName}
               </div>
               <div>出演日: {formattedDate}</div>
               <div>予定報酬(目安): ¥{offer?.reward?.toLocaleString?.() ?? ''}</div>

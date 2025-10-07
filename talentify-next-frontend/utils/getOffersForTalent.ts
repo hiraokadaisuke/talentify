@@ -91,10 +91,12 @@ export async function getOffersForTalent() {
         : 'submitted'
       : 'not_submitted'
 
+    const storeName = o.store?.store_name ?? null
+
     return {
       id: o.id,
       store_id: o.store_id,
-      store_name: o.store?.store_name ?? null,
+      store_name: storeName,
       created_at: o.created_at,
       date: o.date,
       status: o.status,

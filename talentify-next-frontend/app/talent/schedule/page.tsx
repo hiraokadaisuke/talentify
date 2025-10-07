@@ -11,6 +11,7 @@ import {
 } from 'react-big-calendar'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
+import parseISO from 'date-fns/parseISO'
 import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import ja from 'date-fns/locale/ja'
@@ -24,6 +25,7 @@ import startOfToday from 'date-fns/startOfToday'
 import isBefore from 'date-fns/isBefore'
 import isSameDay from 'date-fns/isSameDay'
 import isSameMonth from 'date-fns/isSameMonth'
+import isValid from 'date-fns/isValid'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
@@ -112,6 +114,24 @@ function monthRange(date: Date) {
   const lastDay = new Date(year, month + 1, 0).getDate()
   const to = `${year}-${pad(month + 1)}-${pad(lastDay)}`
   return { from, to }
+}
+
+function buildDateTime(dateStr?: string | null, timeStr?: string | null) {
+  if (!dateStr) return null
+  const trimmedDate = dateStr.trim()
+  if (!trimmedDate) return null
+
+  let normalizedTime = '00:00:00'
+  if (timeStr && timeStr.trim()) {
+    const trimmedTime = timeStr.trim()
+    normalizedTime = /^\d{2}:\d{2}$/.test(trimmedTime)
+      ? `${trimmedTime}:00`
+      : trimmedTime
+  }
+
+  const iso = `${trimmedDate}T${normalizedTime}`
+  const parsed = parseISO(iso)
+  return isValid(parsed) ? parsed : null
 }
 
 export default function TalentSchedulePage() {
@@ -248,20 +268,30 @@ export default function TalentSchedulePage() {
         throw offerError
       }
 
-      const mappedEvents = (offerRows ?? []).map((offer: any) => {
-        const datetime = offer.start_time
-          ? `${offer.date}T${offer.start_time}`
-          : `${offer.date}T00:00:00`
-        const startDate = new Date(datetime)
-        return {
-          id: offer.id as string,
-          title: (offer.store?.store_name as string | null) ?? '出演',
-          start: startDate,
-          end: startDate,
-          status: mapOfferStatus(offer.status),
-          storeName: (offer.store?.store_name as string | null) ?? '出演',
-        } satisfies TalentCalendarEvent
-      })
+      const mappedEvents = (offerRows ?? [])
+        .map((offer: any) => {
+          const startDate = buildDateTime(offer.date as string | null, offer.start_time as string | null)
+          if (!startDate) {
+            return null
+          }
+
+          const endDate =
+            buildDateTime(offer.date as string | null, offer.end_time as string | null) ?? startDate
+
+          const storeName =
+            (offer.store?.store_name as string | null) ??
+            '出演'
+
+          return {
+            id: offer.id as string,
+            title: storeName,
+            start: startDate,
+            end: endDate,
+            status: mapOfferStatus(offer.status),
+            storeName,
+          } satisfies TalentCalendarEvent
+        })
+        .filter((event): event is TalentCalendarEvent => event != null)
 
       setEvents(mappedEvents)
     } catch (error) {
