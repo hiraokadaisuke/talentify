@@ -6,6 +6,7 @@ Talentify は、ライター・演者とパチンコホールをマッチング�
 
 /talentify-next-frontend   ← メインの Next.js アプリ (App Router 構成)
 /supabase                  ← Supabase プロジェクト構成・管理
+/supabase-docs             ← Supabase スキーマや運用ドキュメントの集約場所
 
 Next.js の API Routes や Middleware を用いたサーバー処理と
 Supabase を組み合わせた BaaS 構成です。
@@ -117,7 +118,7 @@ talentify-next-frontend/
 PostgreSQL を使用したスキーマベースのデータ構造
 
 Row Level Security (RLS) による安全なデータアクセス
-RLSポリシーの詳細は [docs/rls-policies.md](docs/rls-policies.md) を参照してください。
+RLSポリシーの詳細は [supabase-docs/rls.md](supabase-docs/rls.md) を参照してください。
 
 Supabase Auth による認証管理 (メール/パスワード)
 
@@ -125,12 +126,7 @@ Supabase Storage で画像/動画アップロード
 
 ## Migration Notes
 
-The role string previously stored as `performer` is now `talent`.
-Run the following SQL on Supabase to migrate existing data:
-
-```sql
-UPDATE talents SET role = 'talent' WHERE role = 'performer';
-```
+Supabase に関する移行履歴や手動 SQL は [supabase-docs/migration-notes.md](supabase-docs/migration-notes.md) に集約しました。
 
 📄 ライセンス
 
