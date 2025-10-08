@@ -1,4 +1,6 @@
 ## シーケンス
 
-- auth.refresh_tokens_id_seq: bigint, START 1, INCREMENT 1
-- graphql.seq_schema_version: integer, START 1, INCREMENT 1
+| スキーマ | シーケンス名 | データ型 | START | INCREMENT |
+| --- | --- | --- | --- | --- |
+| auth | refresh_tokens_id_seq | bigint | 1 | 1 |
+| graphql | seq_schema_version | integer | 1 | 1 |
