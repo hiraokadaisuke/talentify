@@ -131,6 +131,22 @@ status が 'completed' の場合に支払い完了とみなし、その日時を
 - bio: text
 - is_profile_complete = true のタレントのみを公開。talents.id を id として含む。
 
+_View definition_
+```sql
+SELECT id,
+       display_name,
+       stage_name,
+       genre,
+       area,
+       avatar_url,
+       rating,
+       rate,
+       phone,
+       bio
+  FROM talents
+ WHERE is_profile_complete = true;
+```
+
 ### reviews
 - id: uuid, NOT NULL, DEFAULT gen_random_uuid()
 - offer_id: uuid
@@ -285,9 +301,70 @@ status が 'completed' の場合に支払い完了とみなし、その日時を
 - stats_since: timestamp with time zone
 - minmax_stats_since: timestamp with time zone
 
+_View definition_
+```sql
+SELECT userid,
+       dbid,
+       toplevel,
+       queryid,
+       query,
+       plans,
+       total_plan_time,
+       min_plan_time,
+       max_plan_time,
+       mean_plan_time,
+       stddev_plan_time,
+       calls,
+       total_exec_time,
+       min_exec_time,
+       max_exec_time,
+       mean_exec_time,
+       stddev_exec_time,
+       rows,
+       shared_blks_hit,
+       shared_blks_read,
+       shared_blks_dirtied,
+       shared_blks_written,
+       local_blks_hit,
+       local_blks_read,
+       local_blks_dirtied,
+       local_blks_written,
+       temp_blks_read,
+       temp_blks_written,
+       shared_blk_read_time,
+       shared_blk_write_time,
+       local_blk_read_time,
+       local_blk_write_time,
+       temp_blk_read_time,
+       temp_blk_write_time,
+       wal_records,
+       wal_fpi,
+       wal_bytes,
+       jit_functions,
+       jit_generation_time,
+       jit_inlining_count,
+       jit_inlining_time,
+       jit_optimization_count,
+       jit_optimization_time,
+       jit_emission_count,
+       jit_emission_time,
+       jit_deform_count,
+       jit_deform_time,
+       stats_since,
+       minmax_stats_since
+  FROM pg_stat_statements(true);
+```
+
 ### pg_stat_statements_info (extensions schema)
 - dealloc: bigint
 - stats_reset: timestamp with time zone
+
+_View definition_
+```sql
+SELECT dealloc,
+       stats_reset
+  FROM pg_stat_statements_info();
+```
 
 ### decrypted_secrets (vault schema)
 - id: uuid
