@@ -81,16 +81,41 @@
 - identities(provider_id, provider)
 - mfa_amr_claims(session_id, authentication_method)
 - mfa_factors(last_challenged_at)
+- mfa_factors(friendly_name, user_id) ※ `TRIM(friendly_name) <> ''` の場合のみ
+- mfa_factors(user_id, phone)
 - oauth_clients(client_id)
+- one_time_tokens(user_id, token_type)
 - refresh_tokens(token)
 - saml_providers(entity_id)
+- sso_domains(lower(domain))
+- sso_providers(lower(resource_id))
 - users(phone)
+- users(email) ※ `is_sso_user = false` の場合のみ
+- users(confirmation_token) ※ 数字と空白のみで構成されない値に限定
+- users(recovery_token) ※ 数字と空白のみで構成されない値に限定
+- users(reauthentication_token) ※ 数字と空白のみで構成されない値に限定
+- users(email_change_token_new) ※ 数字と空白のみで構成されない値に限定
+- users(email_change_token_current) ※ 数字と空白のみで構成されない値に限定
 
 ### public スキーマ
 - invoices(offer_id)
+- message_threads(participants_key) ※ `type = 'direct'` の場合のみ
 - offer_read_receipts(offer_id, user_id)
+- payments(offer_id)
+- reviews(offer_id, store_id)
 - stores(user_id)
+- stores(user_id) ※ `user_id IS NOT NULL` の場合のみ（NULL を除いたユニーク制約）
 - talent_availability_dates(user_id, the_date)
+- talents(user_id) ※ `user_id IS NOT NULL` の場合のみ
+
+### realtime / storage / その他
+- realtime.subscription(subscription_id, entity, filters)
+- storage.buckets(name)
+- storage.migrations(name)
+- storage.objects(bucket_id, name)
+- storage.objects(bucket_id, level, name COLLATE "C")
+- storage.objects(name COLLATE "C", bucket_id, level)
+- vault.secrets(name) ※ `name IS NOT NULL` の場合のみ
 
 ## チェック制約
 
