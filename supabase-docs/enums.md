@@ -16,6 +16,10 @@
 - s256
 - plain
 
+### auth.oauth_registration_type
+- dynamic
+- manual
+
 ### realtime.equality_op
 - eq
 - neq
@@ -33,6 +37,14 @@
 - totp
 - webauthn
 - phone
+
+### public.availability_default_mode
+- default_ok
+- default_ng
+
+### public.availability_status
+- ok
+- ng
 
 ### public.gender_type
 - male
@@ -87,6 +99,7 @@
 - confirmed
 - canceled
 - no_show
+- submitted
 
 ### public.visit_status
 - scheduled
@@ -97,3 +110,7 @@
 - value1
 - value2
 - value3
+
+### storage.buckettype
+- STANDARD
+- ANALYTICS

@@ -8,6 +8,9 @@
     "rejected",
     "completed",
     "offer_created",
-    "confirmed"
+    "confirmed",
+    "canceled",
+    "no_show",
+    "submitted"
   ]
 }
