@@ -72,7 +72,7 @@ type TalentCalendarEvent = {
   end: Date
   status: DisplayStatus
   storeName: string
-  allDay?: boolean
+  allDay: boolean
   isMore?: boolean
 }
 
