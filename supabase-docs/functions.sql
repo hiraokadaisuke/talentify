@@ -792,6 +792,24 @@ BEGIN
 END;
 $function$;
 
+-- public.can_talent_read_store
+CREATE OR REPLACE FUNCTION public.can_talent_read_store(store_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ SECURITY DEFINER
+ STABLE
+AS $function$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.offers o
+    JOIN public.talents t ON t.id = o.talent_id
+    WHERE o.store_id = store_id
+      AND t.user_id = auth.uid()
+  );
+$function$;
+
+ALTER FUNCTION public.can_talent_read_store(uuid) OWNER TO postgres;
+
 -- public.get_offer_store_names
 CREATE OR REPLACE FUNCTION public.get_offer_store_names(_offer_ids uuid[])
  RETURNS TABLE(offer_id uuid, store_id uuid, store_display_name text)
