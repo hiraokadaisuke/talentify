@@ -323,6 +323,9 @@ export default function ScheduleCalendar() {
         setOverrides(mappedOverrides)
       }
 
+      const startUTC = new Date(`${calendarFrom}T00:00:00+09:00`).toISOString()
+      const endUTC = new Date(`${calendarTo}T23:59:59+09:00`).toISOString()
+
       const { data: offerRows, error: offerError } = await supabase
         .from('offers')
         .select(
@@ -331,9 +334,10 @@ export default function ScheduleCalendar() {
           store:stores!offers_store_id_fkey(id, store_name)
         `
         )
-        .eq('user_id', userId)
-        .gte('date', calendarFrom)
-        .lte('date', calendarTo)
+        .eq('talent_id', talentId)
+        .gte('date', startUTC)
+        .lte('date', endUTC)
+        .in('status', ['confirmed', 'completed'])
 
       if (offerError) {
         throw offerError
