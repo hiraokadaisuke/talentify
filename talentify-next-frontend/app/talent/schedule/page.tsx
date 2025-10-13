@@ -47,10 +47,6 @@ import {
   type DisplayStatus,
   mapOfferStatus,
 } from '@/utils/storeSchedule'
-import {
-  type OfferStatusDb,
-  toDbOfferStatus,
-} from '@/app/lib/offerStatus'
 import { toast } from 'sonner'
 
 const locales = { ja }
@@ -76,6 +72,7 @@ type TalentCalendarEvent = {
   end: Date
   status: DisplayStatus
   storeName: string
+  allDay?: boolean
   isMore?: boolean
 }
 
@@ -96,12 +93,26 @@ const STATUS_BADGE: Record<
   no_show: 'secondary',
 }
 
+const STATUS_INDICATOR_COLORS: Record<DisplayStatus, string> = {
+  scheduled: 'bg-amber-400 dark:bg-amber-500',
+  completed: 'bg-emerald-500',
+  cancelled: 'bg-rose-500',
+  no_show: 'bg-slate-400 dark:bg-slate-500',
+}
+
 const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
   ok: 'rgba(34, 197, 94, 0.16)',
   ng: 'rgba(148, 163, 184, 0.28)',
 }
 
 const DEFAULT_TIMEZONE = 'Asia/Tokyo'
+
+const JST_DATE_FORMATTER = new Intl.DateTimeFormat('ja-JP', {
+  timeZone: 'Asia/Tokyo',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
 
 function pad(value: number) {
   return String(value).padStart(2, '0')
@@ -132,6 +143,16 @@ function buildDateTime(dateStr?: string | null, timeStr?: string | null) {
   const iso = `${trimmedDate}T${normalizedTime}`
   const parsed = parseISO(iso)
   return isValid(parsed) ? parsed : null
+}
+
+function toJstDateString(dateStr?: string | null) {
+  if (!dateStr) return null
+  const parsed = new Date(dateStr)
+  if (Number.isNaN(parsed.getTime())) return null
+  const formatted = JST_DATE_FORMATTER.format(parsed)
+  const [year, month, day] = formatted.split('/')
+  if (!year || !month || !day) return null
+  return `${year.padStart(2, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
 
 export default function TalentSchedulePage() {
@@ -241,16 +262,6 @@ export default function TalentSchedulePage() {
         setOverrides(mappedOverrides)
       }
 
-      const statusesForQuery = [
-        'confirmed',
-        'completed',
-        'cancelled',
-        'canceled',
-        'no_show',
-      ]
-        .map(status => toDbOfferStatus(status))
-        .filter((status): status is OfferStatusDb => Boolean(status))
-
       const { data: offerRows, error: offerError } = await supabase
         .from('offers')
         .select(
@@ -259,10 +270,9 @@ export default function TalentSchedulePage() {
           store:stores!offers_store_id_fkey(id, store_name)
         `
         )
-        .eq('talent_id', talentId)
+        .eq('user_id', userId)
         .gte('date', calendarFrom)
         .lte('date', calendarTo)
-        .in('status', statusesForQuery)
 
       if (offerError) {
         throw offerError
@@ -270,13 +280,24 @@ export default function TalentSchedulePage() {
 
       const mappedEvents = (offerRows ?? [])
         .map((offer: any) => {
-          const startDate = buildDateTime(offer.date as string | null, offer.start_time as string | null)
+          const jstDate = toJstDateString(offer.date as string | null)
+          if (!jstDate) {
+            return null
+          }
+
+          const hasStartTime = Boolean(offer.start_time)
+          const hasEndTime = Boolean(offer.end_time)
+          const startDate =
+            buildDateTime(jstDate, offer.start_time as string | null) ??
+            buildDateTime(jstDate, null)
+
           if (!startDate) {
             return null
           }
 
-          const endDate =
-            buildDateTime(offer.date as string | null, offer.end_time as string | null) ?? startDate
+          const endDate = hasEndTime
+            ? buildDateTime(jstDate, offer.end_time as string | null) ?? startDate
+            : startDate
 
           const storeName =
             (offer.store?.store_name as string | null) ??
@@ -289,6 +310,7 @@ export default function TalentSchedulePage() {
             end: endDate,
             status: mapOfferStatus(offer.status),
             storeName,
+            allDay: !hasStartTime || !hasEndTime,
           } satisfies TalentCalendarEvent
         })
         .filter((event): event is TalentCalendarEvent => event != null)
@@ -336,6 +358,7 @@ export default function TalentSchedulePage() {
           status: 'scheduled',
           storeName: '',
           isMore: true,
+          allDay: true,
         })
       }
     }
@@ -532,13 +555,39 @@ export default function TalentSchedulePage() {
     if (event.isMore) {
       return <span className="truncate text-muted-foreground">{event.title}</span>
     }
+    const hasCustomTime = !event.allDay && event.start != null && event.end != null
+    let timeLabel: string | null = null
+    if (hasCustomTime) {
+      const startLabel = format(event.start, 'HH:mm')
+      const endLabel =
+        event.end.getTime() !== event.start.getTime()
+          ? format(event.end, 'HH:mm')
+          : null
+      timeLabel = endLabel ? `${startLabel}-${endLabel}` : startLabel
+    }
+    const tooltipParts = [event.storeName, STATUS_LABEL[event.status]]
+    if (timeLabel) {
+      tooltipParts.push(timeLabel)
+    }
+    if (event.allDay) {
+      tooltipParts.push('終日オファー')
+    }
     return (
-      <span
-        className="flex items-center gap-1 truncate"
-        title={`${event.storeName} ${STATUS_LABEL[event.status]}`}
-      >
-        <span className="text-sm text-foreground">{event.storeName}</span>
-        <Badge variant={STATUS_BADGE[event.status]} className="px-1 text-[10px]">
+      <span className="flex items-center gap-1 truncate" title={tooltipParts.join(' ')}>
+        <span
+          aria-hidden
+          className={`h-2 w-2 flex-shrink-0 rounded-full ${STATUS_INDICATOR_COLORS[event.status]}`}
+        />
+        <span className="flex min-w-0 items-center gap-1 truncate">
+          {timeLabel ? (
+            <span className="text-xs text-muted-foreground">{timeLabel}</span>
+          ) : null}
+          <span className="truncate text-sm text-foreground">{event.storeName}</span>
+        </span>
+        <Badge
+          variant={STATUS_BADGE[event.status]}
+          className="flex-shrink-0 px-1 text-[10px]"
+        >
           {STATUS_LABEL[event.status]}
         </Badge>
       </span>
