@@ -1,23 +1,16 @@
 'use client'
 
-import { useEffect, useState, type ComponentType } from 'react'
+import dynamic from 'next/dynamic'
+
+const ScheduleCalendar = dynamic(() => import('./ScheduleCalendar'), {
+  ssr: false,
+  loading: () => (
+    <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
+      <p className="text-sm text-muted-foreground">カレンダーを読み込んでいます…</p>
+    </main>
+  ),
+})
 
 export default function TalentSchedulePage() {
-  const [CalendarComp, setCalendarComp] = useState<ComponentType | null>(null)
-
-  useEffect(() => {
-    let mounted = true
-    void import('./TalentCalendarClient').then((mod) => {
-      if (!mounted) return
-      setCalendarComp(() => mod.default)
-    })
-    return () => {
-      mounted = false
-    }
-  }, [])
-
-  if (!CalendarComp) return null
-
-  const Calendar = CalendarComp
-  return <Calendar />
+  return <ScheduleCalendar />
 }
