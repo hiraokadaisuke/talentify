@@ -36,7 +36,7 @@
 
 ### Row Level Security (RLS)
 
-#### public.stores ポリシー最終構成 (2025-08-15)
+#### public.stores ポリシー最終構成 (2025-10-13)
 
 - **目的**
   - 店舗オーナー（`auth.uid() = stores.user_id`）のみが自身の店舗を CRUD できる
@@ -54,6 +54,13 @@
   FOR SELECT
   TO authenticated
   USING (auth.uid() = user_id);
+
+  -- タレント向け（オファー経由の閲覧許可）
+  CREATE POLICY "talent_can_read_offer_stores"
+  ON public.stores
+  FOR SELECT
+  TO authenticated
+  USING (public.can_talent_read_store(id));
 
   CREATE POLICY "store_owner_insert_own"
   ON public.stores
@@ -78,10 +85,14 @@
   - `TO authenticated` を明示し、public ロール（匿名）を含めない。
   - `INSERT`/`UPDATE` は `USING` と `WITH CHECK` の両方で `auth.uid() = user_id` を満たす必要がある（upsert 時も担保）。
   - Service Role（サーバー側）は RLS をバイパスするため、フロントの実ユーザー検証は authenticated セッションで行う。
+  - タレント向けの閲覧は `SECURITY DEFINER` 関数 `public.can_talent_read_store` を介して実装し、stores テーブルを直接参照しないことで再帰クエリを防止。
 - **削除・統合済みの旧ポリシー**
   - Allow authenticated insert
   - Allow store owner insert / Allow store owner read / Allow store owner update
   - store owners can insert/read/update/delete own stores（重複・役割曖昧・public ロール混在回避のため整理）
+- **変更履歴 (2025-10-13)**
+  - `public.can_talent_read_store` を追加し、オファー紐づけタレントによる閲覧判定を関数化。
+  - `talent_can_read_offer_stores` ポリシーを SECURITY DEFINER 関数経由に差し替え、stores テーブル再帰による 42P17 を回避。
 - **変更履歴 (2025-08-15)**
   - `public.stores`: `talent_can_select_related_store_via_offers`, `talent_can_select_related_store_via_reviews` を削除
   - オーナースコープのポリシーのみ（`auth.uid() = user_id`）を SELECT/INSERT/UPDATE/DELETE に残す
@@ -149,6 +160,16 @@
   ```ts
   const { data, error } = await supabase.rpc("get_offer_store_names", { _offer_ids: offerIds });
   ```
+
+### RLS 補助関数
+
+#### public.can_talent_read_store(uuid)
+
+- **目的**: タレントが自身に紐づくオファー経由で店舗情報を閲覧できるようにしつつ、RLS の再帰クエリを防止する。
+- **戻り値**: `boolean`
+- **セキュリティ**: `SECURITY DEFINER`, `STABLE`, オーナー: `postgres`
+- **アクセス制御**: `offers` と `talents` を結合し、`t.user_id = auth.uid()` で認証ユーザーがオファーのタレント本人であることを検証。
+- **利用箇所**: `public.stores` テーブルの `talent_can_read_offer_stores` ポリシー。
 
 ### 関連 SQL スクリプト
 
