@@ -138,13 +138,32 @@ function toJstDateString(
   return `${year.padStart(2, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
 
-export default function TalentCalendarClient() {
+export default function ScheduleCalendar() {
   const [calendarLib, setCalendarLib] = useState<{
     Calendar: ComponentType<any>
     Views: any
     localizer: any
   } | null>(null)
   const [jstFormatter, setJstFormatter] = useState<Intl.DateTimeFormat | null>(null)
+  const headerFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: 'long',
+      }),
+    []
+  )
+  const timeFormatter = useMemo(
+    () =>
+      new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }),
+    []
+  )
   const supabase = useMemo(() => createClient(), [])
   const [talentId, setTalentId] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
@@ -160,6 +179,15 @@ export default function TalentCalendarClient() {
   const [updatingDefaultMode, setUpdatingDefaultMode] = useState(false)
   const [bulkUpdating, setBulkUpdating] = useState(false)
   const [ready, setReady] = useState(false)
+  const headerLabel = useMemo(() => {
+    if (!calendarDate) return ''
+    return headerFormatter.format(calendarDate)
+  }, [calendarDate, headerFormatter])
+
+  const formatTime = useCallback(
+    (value: Date) => timeFormatter.format(value),
+    [timeFormatter]
+  )
 
   const defaultStatus: AvailabilityStatus = useMemo(() => {
     if (!availabilitySettings) return 'ok'
@@ -592,10 +620,10 @@ export default function TalentCalendarClient() {
     const hasCustomTime = !event.allDay && event.start != null && event.end != null
     let timeLabel: string | null = null
     if (hasCustomTime) {
-      const startLabel = format(event.start, 'HH:mm')
+      const startLabel = formatTime(event.start)
       const endLabel =
         event.end.getTime() !== event.start.getTime()
-          ? format(event.end, 'HH:mm')
+          ? formatTime(event.end)
           : null
       timeLabel = endLabel ? `${startLabel}-${endLabel}` : startLabel
     }
@@ -638,12 +666,14 @@ export default function TalentCalendarClient() {
     !calendarLib.Views ||
     !jstFormatter
   ) {
-    return null
+    return (
+      <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
+        <p className="text-sm text-muted-foreground">カレンダーを読み込んでいます…</p>
+      </main>
+    )
   }
 
   const { Calendar: BigCalendar, Views, localizer } = calendarLib
-
-  const headerLabel = format(calendarDate, 'yyyy年M月')
 
   return (
     <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
