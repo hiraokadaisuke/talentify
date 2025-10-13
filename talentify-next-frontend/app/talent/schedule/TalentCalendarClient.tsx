@@ -1,5 +1,7 @@
 'use client'
 
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+
 import type { CSSProperties, ComponentType } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { SlotInfo } from 'react-big-calendar'
@@ -168,7 +170,6 @@ export default function TalentCalendarClient() {
     let mounted = true
     void (async () => {
       const mod = await import('react-big-calendar')
-      await import('react-big-calendar/lib/css/react-big-calendar.css')
       if (!mounted) return
       const CalendarComponent = (mod.Calendar ?? mod.default) as ComponentType<any>
       const localizer = mod.dateFnsLocalizer({
