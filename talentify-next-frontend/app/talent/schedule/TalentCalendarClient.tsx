@@ -1,14 +1,8 @@
 'use client'
 
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ComponentType } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-
-import {
-  Calendar as BigCalendar,
-  Views,
-  dateFnsLocalizer,
-  type SlotInfo,
-} from 'react-big-calendar'
+import type { SlotInfo } from 'react-big-calendar'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
 import parseISO from 'date-fns/parseISO'
@@ -26,8 +20,6 @@ import isBefore from 'date-fns/isBefore'
 import isSameDay from 'date-fns/isSameDay'
 import isSameMonth from 'date-fns/isSameMonth'
 import isValid from 'date-fns/isValid'
-
-import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -50,13 +42,6 @@ import {
 import { toast } from 'sonner'
 
 const locales = { ja }
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: (date) => startOfWeek(date, { weekStartsOn: 1 }),
-  getDay,
-  locales,
-})
 
 type DefaultMode = 'default_ok' | 'default_ng'
 
@@ -107,13 +92,6 @@ const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
 
 const DEFAULT_TIMEZONE = 'Asia/Tokyo'
 
-const JST_DATE_FORMATTER = new Intl.DateTimeFormat('ja-JP', {
-  timeZone: 'Asia/Tokyo',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-})
-
 function pad(value: number) {
   return String(value).padStart(2, '0')
 }
@@ -145,17 +123,26 @@ function buildDateTime(dateStr?: string | null, timeStr?: string | null) {
   return isValid(parsed) ? parsed : null
 }
 
-function toJstDateString(dateStr?: string | null) {
-  if (!dateStr) return null
+function toJstDateString(
+  dateStr: string | null | undefined,
+  formatter: Intl.DateTimeFormat | null
+) {
+  if (!dateStr || !formatter) return null
   const parsed = new Date(dateStr)
   if (Number.isNaN(parsed.getTime())) return null
-  const formatted = JST_DATE_FORMATTER.format(parsed)
+  const formatted = formatter.format(parsed)
   const [year, month, day] = formatted.split('/')
   if (!year || !month || !day) return null
   return `${year.padStart(2, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
 
 export default function TalentCalendarClient() {
+  const [calendarLib, setCalendarLib] = useState<{
+    Calendar: ComponentType<any>
+    Views: any
+    localizer: any
+  } | null>(null)
+  const [jstFormatter, setJstFormatter] = useState<Intl.DateTimeFormat | null>(null)
   const supabase = useMemo(() => createClient(), [])
   const [talentId, setTalentId] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
@@ -176,6 +163,41 @@ export default function TalentCalendarClient() {
     if (!availabilitySettings) return 'ok'
     return availabilitySettings.default_mode === 'default_ok' ? 'ok' : 'ng'
   }, [availabilitySettings])
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      const mod = await import('react-big-calendar')
+      await import('react-big-calendar/lib/css/react-big-calendar.css')
+      if (!mounted) return
+      const CalendarComponent = (mod.Calendar ?? mod.default) as ComponentType<any>
+      const localizer = mod.dateFnsLocalizer({
+        format,
+        parse,
+        startOfWeek: (date) => startOfWeek(date, { weekStartsOn: 1 }),
+        getDay,
+        locales,
+      })
+      setCalendarLib({
+        Calendar: CalendarComponent,
+        Views: mod.Views,
+        localizer,
+      })
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const formatter = new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    })
+    setJstFormatter(formatter)
+  }, [])
 
   useEffect(() => {
     const now = new Date()
@@ -217,7 +239,7 @@ export default function TalentCalendarClient() {
   }, [supabase])
 
   const fetchCalendarData = useCallback(async () => {
-    if (!talentId || !userId || !calendarDate) return
+    if (!talentId || !userId || !calendarDate || !jstFormatter) return
 
     const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 })
     const end = endOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
@@ -290,7 +312,7 @@ export default function TalentCalendarClient() {
 
       const mappedEvents = (offerRows ?? [])
         .map((offer: any) => {
-          const jstDate = toJstDateString(offer.date as string | null)
+          const jstDate = toJstDateString(offer.date as string | null, jstFormatter)
           if (!jstDate) {
             return null
           }
@@ -332,7 +354,7 @@ export default function TalentCalendarClient() {
     } finally {
       setLoading(false)
     }
-  }, [calendarDate, supabase, talentId, userId])
+  }, [calendarDate, jstFormatter, supabase, talentId, userId])
 
   useEffect(() => {
     void fetchCalendarData()
@@ -605,9 +627,20 @@ export default function TalentCalendarClient() {
     )
   }
 
-  if (!ready || !calendarDate || !today) {
+  if (
+    !ready ||
+    !calendarDate ||
+    !today ||
+    !calendarLib ||
+    !calendarLib.localizer ||
+    !calendarLib.Calendar ||
+    !calendarLib.Views ||
+    !jstFormatter
+  ) {
     return null
   }
+
+  const { Calendar: BigCalendar, Views, localizer } = calendarLib
 
   const headerLabel = format(calendarDate, 'yyyy年M月')
 
