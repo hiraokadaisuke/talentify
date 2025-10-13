@@ -1,0 +1,183 @@
+{
+  "public": {
+    "enums": {
+      "availability_status": {
+        "description": "演者の来店可否を示す可用性フラグ",
+        "values": ["ok", "ng"]
+      }
+    },
+    "tables": {
+      "talent_availability_settings": {
+        "description": "各タレントの基本可用性設定。デフォルトモードと曜日別のパターンを保持する。",
+        "columns": [
+          {
+            "name": "talent_id",
+            "type": "uuid",
+            "nullable": false,
+            "default": null,
+            "references": {
+              "schema": "public",
+              "table": "talents",
+              "column": "id",
+              "on_delete": "cascade"
+            }
+          },
+          {
+            "name": "default_mode",
+            "type": "availability_status",
+            "nullable": false,
+            "default": "'ok'::availability_status"
+          },
+          {
+            "name": "timezone",
+            "type": "text",
+            "nullable": false,
+            "default": "'Asia/Tokyo'::text"
+          },
+          {
+            "name": "week_pattern",
+            "type": "jsonb",
+            "nullable": true,
+            "default": null,
+            "description": "0(日)〜6(土) をキーとした曜日別の可用性マップ"
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz",
+            "nullable": false,
+            "default": "now()"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz",
+            "nullable": false,
+            "default": "now()"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "talent_availability_settings_pkey",
+            "type": "primary",
+            "columns": ["talent_id"]
+          }
+        ],
+        "rls": {
+          "enabled": true,
+          "policies": [
+            {
+              "name": "tas_select_self",
+              "command": "SELECT",
+              "using": "public.is_self_talent(talent_id)"
+            },
+            {
+              "name": "tas_update_self",
+              "command": "UPDATE",
+              "using": "public.is_self_talent(talent_id)",
+              "with_check": "public.is_self_talent(talent_id)"
+            }
+          ]
+        }
+      },
+      "talent_availability_overrides": {
+        "description": "特定日単位での可用性上書き。デフォルト設定を日付単位で上書きする。",
+        "columns": [
+          {
+            "name": "talent_id",
+            "type": "uuid",
+            "nullable": false,
+            "default": null,
+            "references": {
+              "schema": "public",
+              "table": "talents",
+              "column": "id",
+              "on_delete": "cascade"
+            }
+          },
+          {
+            "name": "date",
+            "type": "date",
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "status",
+            "type": "availability_status",
+            "nullable": false,
+            "default": null
+          },
+          {
+            "name": "created_at",
+            "type": "timestamptz",
+            "nullable": false,
+            "default": "now()"
+          },
+          {
+            "name": "updated_at",
+            "type": "timestamptz",
+            "nullable": false,
+            "default": "now()"
+          }
+        ],
+        "indexes": [
+          {
+            "name": "talent_availability_overrides_pkey",
+            "type": "primary",
+            "columns": ["talent_id", "date"]
+          }
+        ],
+        "rls": {
+          "enabled": true,
+          "policies": [
+            {
+              "name": "tao_select_self",
+              "command": "SELECT",
+              "using": "public.is_self_talent(talent_id)"
+            },
+            {
+              "name": "tao_insert_self",
+              "command": "INSERT",
+              "with_check": "public.is_self_talent(talent_id)"
+            },
+            {
+              "name": "tao_update_self",
+              "command": "UPDATE",
+              "using": "public.is_self_talent(talent_id)",
+              "with_check": "public.is_self_talent(talent_id)"
+            },
+            {
+              "name": "tao_delete_self",
+              "command": "DELETE",
+              "using": "public.is_self_talent(talent_id)"
+            }
+          ]
+        }
+      }
+    },
+    "functions": {
+      "resolve_talent_availability": {
+        "description": "タレントの最終的な可用性をデフォルト・曜日パターン・例外と既存オファーから算出する。",
+        "arguments": [
+          { "name": "_talent_id", "type": "uuid" },
+          { "name": "_date", "type": "date" }
+        ],
+        "returns": "availability_status",
+        "language": "plpgsql",
+        "volatility": "stable"
+      },
+      "get_available_talents": {
+        "description": "指定日で利用可能(OK)なタレントを返す RPC。SECURITY DEFINER で公開ロールから実行可能。",
+        "arguments": [
+          { "name": "_date", "type": "date" }
+        ],
+        "returns": [
+          { "name": "talent_id", "type": "uuid" },
+          { "name": "availability", "type": "availability_status" }
+        ],
+        "language": "plpgsql",
+        "volatility": "stable",
+        "security": "definer",
+        "grants": ["anon", "authenticated"]
+      }
+    }
+  }
+}

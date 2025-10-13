@@ -4,11 +4,20 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
 const DEFAULT_TIMEZONE = 'Asia/Tokyo'
+const dayStatusSchema = z.enum(['ok', 'ng'])
 
-const payloadSchema = z.object({
-  default_mode: z.enum(['default_ok', 'default_ng']),
-  timezone: z.string().min(1).optional(),
-})
+const weekPatternSchema = z.record(z.enum(['0', '1', '2', '3', '4', '5', '6']), dayStatusSchema)
+
+const payloadSchema = z
+  .object({
+    default_mode: dayStatusSchema.optional(),
+    timezone: z.string().min(1).optional(),
+    week_pattern: z.union([weekPatternSchema, z.null()]).optional(),
+  })
+  .refine((value) => Object.keys(value).length > 0, {
+    message: 'At least one field is required',
+    path: ['default_mode'],
+  })
 
 export async function GET() {
   const supabase = createClient()
@@ -41,7 +50,7 @@ export async function GET() {
 
   const { data: settings, error: settingsError } = await supabase
     .from('talent_availability_settings')
-    .select('default_mode, timezone')
+    .select('default_mode, timezone, week_pattern')
     .eq('talent_id', talent.id)
     .maybeSingle()
 
@@ -54,8 +63,9 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    default_mode: settings?.default_mode ?? 'default_ok',
+    default_mode: settings?.default_mode ?? 'ok',
     timezone: settings?.timezone ?? DEFAULT_TIMEZONE,
+    week_pattern: settings?.week_pattern ?? null,
   })
 }
 
@@ -98,14 +108,40 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const timezone = parsed.data.timezone ?? DEFAULT_TIMEZONE
+  const { data: existingSettings, error: existingError } = await supabase
+    .from('talent_availability_settings')
+    .select('default_mode, timezone, week_pattern')
+    .eq('talent_id', talent.id)
+    .maybeSingle()
+
+  if (existingError) {
+    console.error('Failed to load current availability settings', existingError)
+    return NextResponse.json(
+      { error: 'Failed to load current availability settings' },
+      { status: 500 }
+    )
+  }
+
+  const hasWeekPatternField = Object.prototype.hasOwnProperty.call(
+    parsed.data,
+    'week_pattern'
+  )
+
+  const nextDefaultMode =
+    parsed.data.default_mode ?? existingSettings?.default_mode ?? 'ok'
+  const nextTimezone =
+    parsed.data.timezone ?? existingSettings?.timezone ?? DEFAULT_TIMEZONE
+  const nextWeekPattern = hasWeekPatternField
+    ? parsed.data.week_pattern ?? null
+    : existingSettings?.week_pattern ?? null
 
   const { error: upsertError } = await supabase
     .from('talent_availability_settings')
     .upsert({
       talent_id: talent.id,
-      default_mode: parsed.data.default_mode,
-      timezone,
+      default_mode: nextDefaultMode,
+      timezone: nextTimezone,
+      week_pattern: nextWeekPattern,
     })
 
   if (upsertError) {

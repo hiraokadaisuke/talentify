@@ -3,16 +3,18 @@ import { z } from 'zod'
 
 import { createClient } from '@/lib/supabase/server'
 
+const DATE_ERROR_MESSAGE = 'value must be a valid ISO date'
+
 const querySchema = z
   .object({
     user_id: z.string().uuid('user_id must be a valid UUID').optional(),
     talent_id: z.string().uuid('talent_id must be a valid UUID').optional(),
     from: z
       .string()
-      .refine((value) => !Number.isNaN(Date.parse(value)), 'from must be a date'),
+      .refine((value) => !Number.isNaN(Date.parse(value)), DATE_ERROR_MESSAGE),
     to: z
       .string()
-      .refine((value) => !Number.isNaN(Date.parse(value)), 'to must be a date'),
+      .refine((value) => !Number.isNaN(Date.parse(value)), DATE_ERROR_MESSAGE),
   })
   .refine((value) => Boolean(value.user_id || value.talent_id), {
     message: 'user_id or talent_id is required',
@@ -42,52 +44,76 @@ export async function GET(request: NextRequest) {
 
   const { user_id: queryUserId, talent_id: queryTalentId, from, to } = parsed.data
 
-  // Resolve user id
-  let resolvedUserId = queryUserId ?? null
+  let resolvedTalentId: string | null = null
 
-  if (!resolvedUserId && queryTalentId) {
+  if (queryTalentId) {
     const { data: talentRow, error: talentError } = await supabase
       .from('talents')
-      .select('user_id')
+      .select('id, user_id')
       .eq('id', queryTalentId)
       .maybeSingle()
 
     if (talentError) {
-      console.error('Failed to resolve talent to user', talentError)
+      console.error('Failed to resolve requested talent', talentError)
       return NextResponse.json(
         { error: 'Failed to resolve talent' },
         { status: 500 }
       )
     }
 
-    resolvedUserId = talentRow?.user_id ?? queryTalentId
+    if (!talentRow) {
+      return NextResponse.json({ error: 'Talent not found' }, { status: 404 })
+    }
+
+    if (talentRow.user_id !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    resolvedTalentId = talentRow.id
+  } else if (queryUserId) {
+    if (queryUserId !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { data: talentRow, error: talentError } = await supabase
+      .from('talents')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (talentError) {
+      console.error('Failed to resolve user talent', talentError)
+      return NextResponse.json(
+        { error: 'Failed to resolve talent' },
+        { status: 500 }
+      )
+    }
+
+    if (!talentRow) {
+      return NextResponse.json(
+        { error: 'Talent profile not found' },
+        { status: 404 }
+      )
+    }
+
+    resolvedTalentId = talentRow.id
   }
 
-  if (!resolvedUserId) {
+  if (!resolvedTalentId) {
     return NextResponse.json({ error: 'Invalid query parameters' }, { status: 400 })
   }
 
-  if (resolvedUserId !== user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-
-  const userId = resolvedUserId
-
-  type AvailabilitySettingsRow = {
-    default_mode: string | null
+  type SettingsRow = {
+    default_mode: 'ok' | 'ng' | null
     timezone: string | null
+    week_pattern: Record<string, 'ok' | 'ng'> | null
   }
 
-  const supabaseRpc = supabase as any
-
-  const settingsResponse = await supabaseRpc
+  const { data: settingsRow, error: settingsError } = await supabase
     .from('talent_availability_settings')
-    .select('default_mode, timezone')
-    .eq('user_id', userId)
-    .maybeSingle()
-
-  const settingsError = settingsResponse.error
-  const settingsData = settingsResponse.data as AvailabilitySettingsRow | null
+    .select('default_mode, timezone, week_pattern')
+    .eq('talent_id', resolvedTalentId)
+    .maybeSingle<SettingsRow>()
 
   if (settingsError) {
     console.error('Failed to fetch availability settings', settingsError)
@@ -97,36 +123,30 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  type AvailabilityDateRow = {
-    the_date: string
-    status: string
-  }
+  const { data: overrideRows, error: overridesError } = await supabase
+    .from('talent_availability_overrides')
+    .select('date, status')
+    .eq('talent_id', resolvedTalentId)
+    .gte('date', from)
+    .lte('date', to)
+    .order('date', { ascending: true })
 
-  const datesResponse = await supabaseRpc
-    .from('talent_availability_dates')
-    .select('the_date, status')
-    .eq('user_id', userId)
-    .gte('the_date', from)
-    .lte('the_date', to)
-
-  const datesError = datesResponse.error
-  const datesData = datesResponse.data as AvailabilityDateRow[] | null
-
-  if (datesError) {
-    console.error('Failed to fetch availability dates', datesError)
+  if (overridesError) {
+    console.error('Failed to fetch availability overrides', overridesError)
     return NextResponse.json(
-      { error: 'Failed to fetch availability dates' },
+      { error: 'Failed to fetch availability overrides' },
       { status: 500 }
     )
   }
 
   return NextResponse.json({
     settings: {
-      default_mode: settingsData?.default_mode ?? 'default_ok',
-      timezone: settingsData?.timezone ?? 'Asia/Tokyo',
+      default_mode: settingsRow?.default_mode ?? 'ok',
+      timezone: settingsRow?.timezone ?? 'Asia/Tokyo',
+      week_pattern: settingsRow?.week_pattern ?? null,
     },
-    dates: (datesData ?? []).map((row) => ({
-      date: row.the_date,
+    dates: (overrideRows ?? []).map((row) => ({
+      date: row.date,
       status: row.status,
     })),
   })

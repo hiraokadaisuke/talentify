@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import Image from 'next/image'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -71,6 +72,16 @@ const STATUS_BADGE: Record<
   no_show: 'secondary',
 }
 
+type AvailabilityStatus = 'ok' | 'ng'
+
+type AvailableTalent = {
+  talent_id: string
+  stage_name: string | null
+  name: string | null
+  avatar_url: string | null
+  availability: AvailabilityStatus
+}
+
 export default function StoreSchedulePage() {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
@@ -99,6 +110,46 @@ export default function StoreSchedulePage() {
   const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
   const [selected, setSelected] = useState<StoreScheduleEvent | null>(null)
+  const [availabilityDate, setAvailabilityDate] = useState(() =>
+    format(new Date(), 'yyyy-MM-dd')
+  )
+  const [availableTalents, setAvailableTalents] = useState<AvailableTalent[]>([])
+  const [searchingAvailability, setSearchingAvailability] = useState(false)
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null)
+  const [availabilitySearched, setAvailabilitySearched] = useState(false)
+
+  const handleAvailabilitySearch = useCallback(async () => {
+    if (!availabilityDate) return
+    setSearchingAvailability(true)
+    setAvailabilityError(null)
+    try {
+      const response = await fetch(
+        `/api/talents/available?date=${encodeURIComponent(availabilityDate)}`
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch available talents')
+      }
+
+      const data = (await response.json()) as { talents: AvailableTalent[] | null }
+      setAvailableTalents(data.talents ?? [])
+    } catch (error) {
+      console.error('Failed to fetch available talents', error)
+      setAvailableTalents([])
+      setAvailabilityError('利用可能な演者の取得に失敗しました')
+    } finally {
+      setSearchingAvailability(false)
+      setAvailabilitySearched(true)
+    }
+  }, [availabilityDate])
+
+  const handleAvailabilitySubmit = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+      void handleAvailabilitySearch()
+    },
+    [handleAvailabilitySearch]
+  )
 
   useEffect(() => {
     const loadOffers = async () => {
@@ -327,6 +378,89 @@ export default function StoreSchedulePage() {
             {STATUS_LABEL[s]}
           </div>
         ))}
+      </div>
+      <div className="mb-4 rounded-lg border bg-white p-4 shadow-sm dark:bg-neutral-900">
+        <form
+          onSubmit={handleAvailabilitySubmit}
+          className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+        >
+          <div className="flex w-full flex-col gap-2 sm:max-w-xs">
+            <label htmlFor="availability-date" className="text-sm font-medium">
+              来店希望日
+            </label>
+            <Input
+              id="availability-date"
+              type="date"
+              value={availabilityDate}
+              onChange={(event) => {
+                setAvailabilityDate(event.target.value)
+                setAvailabilityError(null)
+                setAvailabilitySearched(false)
+              }}
+              required
+            />
+          </div>
+          <Button
+            type="submit"
+            className="self-start sm:self-auto"
+            disabled={searchingAvailability || !availabilityDate}
+          >
+            {searchingAvailability ? '検索中…' : '利用可能な演者を検索'}
+          </Button>
+        </form>
+        {availabilityError ? (
+          <p className="mt-3 text-sm text-destructive">{availabilityError}</p>
+        ) : null}
+        {searchingAvailability ? (
+          <p className="mt-3 text-sm text-muted-foreground">検索中です…</p>
+        ) : availabilitySearched ? (
+          availableTalents.length > 0 ? (
+            <div className="mt-4 space-y-3">
+              {availableTalents.map((talent) => {
+                return (
+                  <div
+                    key={talent.talent_id}
+                    className="flex items-center justify-between rounded-md border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 overflow-hidden rounded-full bg-muted">
+                        <Image
+                          src={
+                            talent.avatar_url && /^https?:\/\//i.test(talent.avatar_url)
+                              ? talent.avatar_url
+                              : '/avatar-default.svg'
+                          }
+                          alt={talent.stage_name ?? talent.name ?? 'Talent avatar'}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <div>
+                        <p className="font-semibold">
+                          {talent.stage_name ?? 'ステージネーム未設定'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {talent.name ?? '本名未設定'}
+                        </p>
+                      </div>
+                    </div>
+                    <Button asChild size="sm">
+                      <Link href={`/store/offers/create?talent_id=${talent.talent_id}`}>
+                        オファー作成
+                      </Link>
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">
+              該当する演者は見つかりませんでした。
+            </p>
+          )
+        ) : null}
       </div>
       <div className="h-[430px]">
         <BigCalendar

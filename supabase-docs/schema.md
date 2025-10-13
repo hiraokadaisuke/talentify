@@ -36,10 +36,13 @@
 - reviews
 - schedules
 - stores
-- talent_availability_dates
+- **ENUM** availability_status
 - talent_availability_settings
+- talent_availability_overrides
 - talents
 - visits
+- **FUNCTION** resolve_talent_availability
+- **FUNCTION** get_available_talents
 
 ### realtime スキーマ
 - messages

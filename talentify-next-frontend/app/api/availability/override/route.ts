@@ -10,7 +10,7 @@ const payloadSchema = z.object({
         date: z
           .string()
           .refine((value) => !Number.isNaN(Date.parse(value)), 'date must be ISO'),
-        status: z.enum(['ok', 'ng']),
+        status: z.enum(['ok', 'ng', 'default']),
       })
     )
     .min(1),
@@ -20,7 +20,6 @@ const DEFAULT_TIMEZONE = 'Asia/Tokyo'
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null)
-
   const parsed = payloadSchema.safeParse(body)
 
   if (!parsed.success) {
@@ -47,9 +46,9 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (talentError) {
-    console.error('Failed to fetch talent for availability bulk update', talentError)
+    console.error('Failed to fetch talent for override update', talentError)
     return NextResponse.json(
-      { error: 'Failed to fetch talent for availability bulk update' },
+      { error: 'Failed to fetch talent for override update' },
       { status: 500 }
     )
   }
@@ -59,52 +58,64 @@ export async function POST(request: NextRequest) {
   }
 
   const talentId = talent.id
+  const deduped = new Map<string, 'ok' | 'ng' | 'default'>()
 
-  const { data: settingsData, error: settingsError } = await supabase
+  for (const item of parsed.data.dates) {
+    deduped.set(item.date, item.status)
+  }
+
+  const toUpsert: { talent_id: string; date: string; status: 'ok' | 'ng' }[] = []
+  const toDelete: string[] = []
+
+  for (const [date, status] of deduped.entries()) {
+    if (status === 'default') {
+      toDelete.push(date)
+    } else {
+      toUpsert.push({ talent_id: talentId, date, status })
+    }
+  }
+
+  const { data: existingSettings, error: existingSettingsError } = await supabase
     .from('talent_availability_settings')
-    .select('default_mode')
+    .select('talent_id')
     .eq('talent_id', talentId)
     .maybeSingle()
 
-  if (settingsError) {
-    console.error('Failed to load talent availability settings', settingsError)
+  if (existingSettingsError) {
+    console.error('Failed to check existing availability settings', existingSettingsError)
     return NextResponse.json(
-      { error: 'Failed to load talent availability settings' },
+      { error: 'Failed to prepare availability overrides' },
       { status: 500 }
     )
   }
 
-  const defaultStatus =
-    (settingsData?.default_mode ?? 'default_ok') === 'default_ok' ? 'ok' : 'ng'
-
-  const toUpsert: {
-    talent_id: string
-    the_date: string
-    status: 'ok' | 'ng'
-  }[] = []
-  const toDelete: string[] = []
-
-  for (const item of parsed.data.dates) {
-    if (item.status === defaultStatus) {
-      toDelete.push(item.date)
-    } else {
-      toUpsert.push({
+  if (!existingSettings) {
+    const { error: initSettingsError } = await supabase
+      .from('talent_availability_settings')
+      .upsert({
         talent_id: talentId,
-        the_date: item.date,
-        status: item.status,
+        default_mode: 'ok',
+        timezone: DEFAULT_TIMEZONE,
       })
+
+    if (initSettingsError) {
+      console.error('Failed to initialize availability settings before override', initSettingsError)
+      return NextResponse.json(
+        { error: 'Failed to prepare availability overrides' },
+        { status: 500 }
+      )
     }
   }
 
   if (toUpsert.length > 0) {
     const { error: upsertError } = await supabase
-      .from('talent_availability_dates')
-      .upsert(toUpsert, { onConflict: 'talent_id,the_date' })
+      .from('talent_availability_overrides')
+      .upsert(toUpsert, { onConflict: 'talent_id,date' })
 
     if (upsertError) {
-      console.error('Failed to upsert availability dates', upsertError)
+      console.error('Failed to upsert availability overrides', upsertError)
       return NextResponse.json(
-        { error: 'Failed to upsert availability dates' },
+        { error: 'Failed to upsert availability overrides' },
         { status: 500 }
       )
     }
@@ -112,34 +123,15 @@ export async function POST(request: NextRequest) {
 
   if (toDelete.length > 0) {
     const { error: deleteError } = await supabase
-      .from('talent_availability_dates')
+      .from('talent_availability_overrides')
       .delete()
       .eq('talent_id', talentId)
-      .in('the_date', toDelete)
+      .in('date', toDelete)
 
     if (deleteError) {
-      console.error('Failed to delete availability dates', deleteError)
+      console.error('Failed to delete availability overrides', deleteError)
       return NextResponse.json(
-        { error: 'Failed to delete availability dates' },
-        { status: 500 }
-      )
-    }
-  }
-
-  // ensure default settings exist when first updating
-  if (!settingsData) {
-    const { error: insertSettingsError } = await supabase
-      .from('talent_availability_settings')
-      .upsert({
-        talent_id: talentId,
-        default_mode: 'default_ok',
-        timezone: DEFAULT_TIMEZONE,
-      })
-
-    if (insertSettingsError) {
-      console.error('Failed to initialize availability settings', insertSettingsError)
-      return NextResponse.json(
-        { error: 'Failed to initialize availability settings' },
+        { error: 'Failed to delete availability overrides' },
         { status: 500 }
       )
     }

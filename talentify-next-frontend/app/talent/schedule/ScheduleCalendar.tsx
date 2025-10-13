@@ -22,6 +22,7 @@ import isBefore from 'date-fns/isBefore'
 import isSameDay from 'date-fns/isSameDay'
 import isSameMonth from 'date-fns/isSameMonth'
 import isValid from 'date-fns/isValid'
+import eachDayOfInterval from 'date-fns/eachDayOfInterval'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -31,10 +32,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  buildMonthlyBulkPayload,
-  type AvailabilityStatus,
-} from './utils'
+import { Modal, ModalContent, ModalFooter, ModalHeader, ModalTitle } from '@/components/ui/modal'
+import { Switch } from '@/components/ui/switch'
+import { type AvailabilityStatus } from './utils'
 import { createClient } from '@/utils/supabase/client'
 import { getTalentId } from '@/utils/getTalentId'
 import {
@@ -45,11 +45,12 @@ import { toast } from 'sonner'
 
 const locales = { ja }
 
-type DefaultMode = 'default_ok' | 'default_ng'
+type DefaultMode = 'ok' | 'ng'
 
 type AvailabilitySettings = {
   default_mode: DefaultMode
-  timezone: string | null
+  timezone: string
+  week_pattern: Record<string, AvailabilityStatus> | null
 }
 
 type TalentCalendarEvent = {
@@ -93,6 +94,43 @@ const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
 }
 
 const DEFAULT_TIMEZONE = 'Asia/Tokyo'
+const WEEKDAY_LABELS = ['日', '月', '火', '水', '木', '金', '土']
+
+function buildWeekPatternDraft(
+  defaultMode: DefaultMode,
+  pattern: Record<string, AvailabilityStatus> | null
+) {
+  const result: Record<string, AvailabilityStatus> = {}
+  for (let i = 0; i < 7; i += 1) {
+    const key = i.toString()
+    result[key] = pattern?.[key] ?? defaultMode
+  }
+  return result
+}
+
+function getDateKeyFromDate(date: Date) {
+  return format(date, 'yyyy-MM-dd')
+}
+
+function getWeekdayKeyFromDate(date: Date) {
+  return date.getDay().toString()
+}
+
+function getWeekdayKeyFromDateKey(dateKey: string) {
+  const [yearStr, monthStr, dayStr] = dateKey.split('-')
+  const year = Number(yearStr)
+  const month = Number(monthStr)
+  const day = Number(dayStr)
+  if (
+    Number.isNaN(year) ||
+    Number.isNaN(month) ||
+    Number.isNaN(day)
+  ) {
+    return null
+  }
+  const utcDate = new Date(Date.UTC(year, month - 1, day))
+  return utcDate.getUTCDay().toString()
+}
 
 function pad(value: number) {
   return String(value).padStart(2, '0')
@@ -166,17 +204,22 @@ export default function ScheduleCalendar() {
   )
   const supabase = useMemo(() => createClient(), [])
   const [talentId, setTalentId] = useState<string | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
   const [calendarDate, setCalendarDate] = useState<Date | null>(null)
   const [today, setToday] = useState<Date | null>(null)
   const [availabilitySettings, setAvailabilitySettings] =
     useState<AvailabilitySettings | null>(null)
   const [overrides, setOverrides] = useState<Record<string, AvailabilityStatus>>({})
+  const [weekPatternModalOpen, setWeekPatternModalOpen] = useState(false)
+  const [weekPatternDraft, setWeekPatternDraft] = useState<
+    Record<string, AvailabilityStatus>
+  >({})
+  const [weekPatternActive, setWeekPatternActive] = useState(false)
   const [events, setEvents] = useState<TalentCalendarEvent[]>([])
   const [calendarEvents, setCalendarEvents] = useState<TalentCalendarEvent[]>([])
   const [loading, setLoading] = useState(false)
   const [updatingDates, setUpdatingDates] = useState<Record<string, boolean>>({})
   const [updatingDefaultMode, setUpdatingDefaultMode] = useState(false)
+  const [updatingWeekPattern, setUpdatingWeekPattern] = useState(false)
   const [bulkUpdating, setBulkUpdating] = useState(false)
   const [ready, setReady] = useState(false)
   const headerLabel = useMemo(() => {
@@ -189,10 +232,48 @@ export default function ScheduleCalendar() {
     [timeFormatter]
   )
 
-  const defaultStatus: AvailabilityStatus = useMemo(() => {
-    if (!availabilitySettings) return 'ok'
-    return availabilitySettings.default_mode === 'default_ok' ? 'ok' : 'ng'
-  }, [availabilitySettings])
+  const getBaseStatusForDateKey = useCallback(
+    (dateKey: string): AvailabilityStatus => {
+      if (!availabilitySettings) return 'ok'
+      const weekdayKey = getWeekdayKeyFromDateKey(dateKey)
+      const patternStatus =
+        (weekdayKey && availabilitySettings.week_pattern?.[weekdayKey]) ?? null
+      return patternStatus ?? availabilitySettings.default_mode
+    },
+    [availabilitySettings]
+  )
+
+  const getBaseStatusForDate = useCallback(
+    (date: Date): AvailabilityStatus =>
+      getBaseStatusForDateKey(getDateKeyFromDate(date)),
+    [getBaseStatusForDateKey]
+  )
+
+  const resolveNextStatus = useCallback(
+    (
+      dateKey: string,
+      currentOverrides: Record<string, AvailabilityStatus>
+    ): 'ok' | 'ng' | 'default' => {
+      const currentOverride = currentOverrides[dateKey]
+      if (currentOverride === 'ok') return 'ng'
+      if (currentOverride === 'ng') return 'default'
+      const base = getBaseStatusForDateKey(dateKey)
+      return base === 'ok' ? 'ng' : 'ok'
+    },
+    [getBaseStatusForDateKey]
+  )
+
+  const getDisplayStatusForDate = useCallback(
+    (date: Date): AvailabilityStatus => {
+      const dateKey = getDateKeyFromDate(date)
+      const override = overrides[dateKey]
+      if (override) {
+        return override
+      }
+      return getBaseStatusForDate(date)
+    },
+    [getBaseStatusForDate, overrides]
+  )
 
   useEffect(() => {
     let mounted = true
@@ -250,25 +331,8 @@ export default function ScheduleCalendar() {
     }
   }, [])
 
-  useEffect(() => {
-    let mounted = true
-    void (async () => {
-      const { data, error } = await supabase.auth.getUser()
-      if (!mounted) return
-      if (error || !data.user) {
-        console.error('Failed to retrieve authenticated user', error)
-        toast.error('ユーザー情報の取得に失敗しました')
-        return
-      }
-      setUserId(data.user.id)
-    })()
-    return () => {
-      mounted = false
-    }
-  }, [supabase])
-
   const fetchCalendarData = useCallback(async () => {
-    if (!talentId || !userId || !calendarDate || !jstFormatter) return
+    if (!talentId || !calendarDate || !jstFormatter) return
 
     const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 })
     const end = endOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
@@ -282,7 +346,7 @@ export default function ScheduleCalendar() {
         '/api/availability',
         window.location.origin
       )
-      availabilityUrl.searchParams.set('user_id', userId)
+      availabilityUrl.searchParams.set('talent_id', talentId)
       availabilityUrl.searchParams.set('from', from)
       availabilityUrl.searchParams.set('to', to)
 
@@ -293,34 +357,43 @@ export default function ScheduleCalendar() {
       if (availabilityResponse.status === 404) {
         setAvailabilitySettings(null)
         setOverrides({})
+        setWeekPatternDraft({})
+        setWeekPatternActive(false)
       } else {
         if (!availabilityResponse.ok) {
           throw new Error('Failed to fetch availability')
         }
 
         const availabilityData: {
-          settings: AvailabilitySettings
+          settings: {
+            default_mode: DefaultMode
+            timezone: string
+            week_pattern: Record<string, AvailabilityStatus> | null
+          }
           dates: { date: string; status: AvailabilityStatus }[]
         } = await availabilityResponse.json()
 
         setAvailabilitySettings({
           default_mode: availabilityData.settings.default_mode,
           timezone: availabilityData.settings.timezone ?? DEFAULT_TIMEZONE,
+          week_pattern: availabilityData.settings.week_pattern ?? null,
         })
 
-        const baseStatus =
-          availabilityData.settings.default_mode === 'default_ok' ? 'ok' : 'ng'
-
-        const mappedOverrides = availabilityData.dates.reduce(
+        const overridesMap = availabilityData.dates.reduce(
           (acc, current) => {
-            if (current.status !== baseStatus) {
-              acc[current.date] = current.status
-            }
+            acc[current.date] = current.status
             return acc
           },
           {} as Record<string, AvailabilityStatus>
         )
-        setOverrides(mappedOverrides)
+        setOverrides(overridesMap)
+        setWeekPatternActive(Boolean(availabilityData.settings.week_pattern))
+        setWeekPatternDraft(
+          buildWeekPatternDraft(
+            availabilityData.settings.default_mode,
+            availabilityData.settings.week_pattern ?? null
+          )
+        )
       }
 
       const startUTC = new Date(`${calendarFrom}T00:00:00+09:00`).toISOString()
@@ -387,7 +460,7 @@ export default function ScheduleCalendar() {
     } finally {
       setLoading(false)
     }
-  }, [calendarDate, jstFormatter, supabase, talentId, userId])
+  }, [calendarDate, jstFormatter, supabase, talentId])
 
   useEffect(() => {
     void fetchCalendarData()
@@ -436,8 +509,7 @@ export default function ScheduleCalendar() {
   const dayPropGetter = useCallback(
     (date: Date) => {
       if (!availabilitySettings || !today || !calendarDate) return {}
-      const key = format(date, 'yyyy-MM-dd')
-      const status = overrides[key] ?? defaultStatus
+      const status = getDisplayStatusForDate(date)
       const style: CSSProperties = {
         backgroundColor: AVAILABILITY_COLORS[status],
       }
@@ -456,38 +528,47 @@ export default function ScheduleCalendar() {
         title: isPast ? '過去の日付は編集できません' : undefined,
       }
     },
-    [availabilitySettings, overrides, defaultStatus, calendarDate, today]
+    [availabilitySettings, calendarDate, getDisplayStatusForDate, today]
   )
 
-  const handleSlotSelect = useCallback(
-    async (slot: SlotInfo) => {
-      if (!availabilitySettings || !today) return
-      const selectedDate = slot.start
-      if (!selectedDate) return
-      const normalized = startOfDay(selectedDate)
-      if (isBefore(normalized, today)) return
+  const applyAvailabilityChanges = useCallback(
+    async (dateKeys: string[]) => {
+      if (!availabilitySettings || dateKeys.length === 0) return
 
-      const key = format(normalized, 'yyyy-MM-dd')
-      if (updatingDates[key]) return
+      const uniqueKeys = Array.from(new Set(dateKeys))
+      if (uniqueKeys.some((key) => updatingDates[key])) {
+        return
+      }
 
       const previousOverrides = overrides
-      const current = overrides[key] ?? defaultStatus
-      const next: AvailabilityStatus = current === 'ok' ? 'ng' : 'ok'
+      const optimisticOverrides = { ...overrides }
+      const payload: { date: string; status: 'ok' | 'ng' | 'default' }[] = []
 
-      const optimistic = { ...overrides }
-      if (next === defaultStatus) {
-        delete optimistic[key]
-      } else {
-        optimistic[key] = next
+      for (const key of uniqueKeys) {
+        const nextStatus = resolveNextStatus(key, previousOverrides)
+        payload.push({ date: key, status: nextStatus })
+        if (nextStatus === 'default') {
+          delete optimisticOverrides[key]
+        } else {
+          optimisticOverrides[key] = nextStatus
+        }
       }
-      setOverrides(optimistic)
-      setUpdatingDates((prev) => ({ ...prev, [key]: true }))
+
+      if (payload.length === 0) {
+        return
+      }
+
+      setOverrides(optimisticOverrides)
+      setUpdatingDates((prev) => ({
+        ...prev,
+        ...Object.fromEntries(uniqueKeys.map((key) => [key, true])),
+      }))
 
       try {
-        const response = await fetch('/api/availability/bulk', {
+        const response = await fetch('/api/availability/override', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dates: [{ date: key, status: next }] }),
+          body: JSON.stringify({ dates: payload }),
         })
 
         if (!response.ok) {
@@ -502,20 +583,156 @@ export default function ScheduleCalendar() {
         await fetchCalendarData()
       } finally {
         setUpdatingDates((prev) => {
-          const { [key]: _unused, ...rest } = prev
-          return rest
+          const next = { ...prev }
+          for (const key of uniqueKeys) {
+            delete next[key]
+          }
+          return next
         })
       }
     },
-    [
-      availabilitySettings,
-      defaultStatus,
-      fetchCalendarData,
-      overrides,
-      today,
-      updatingDates,
-    ]
+    [availabilitySettings, fetchCalendarData, overrides, resolveNextStatus, updatingDates]
   )
+
+  const handleSlotSelect = useCallback(
+    async (slot: SlotInfo) => {
+      if (!availabilitySettings || !today) return
+      const selectedSlots = Array.isArray(slot.slots) && slot.slots.length > 0
+        ? slot.slots
+        : [slot.start]
+      const normalizedKeys = selectedSlots
+        .map((value) => {
+          if (!value) return null
+          const normalized = startOfDay(value as Date)
+          if (isBefore(normalized, today)) {
+            return null
+          }
+          return getDateKeyFromDate(normalized)
+        })
+        .filter((value): value is string => Boolean(value))
+
+      if (normalizedKeys.length === 0) {
+        return
+      }
+
+      await applyAvailabilityChanges(normalizedKeys)
+    },
+    [applyAvailabilityChanges, availabilitySettings, today]
+  )
+
+  const handleWeekdayToggle = useCallback(
+    async (weekday: number) => {
+      if (!availabilitySettings || !calendarDate || !today) return
+
+      const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 })
+      const end = endOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
+      const keys = eachDayOfInterval({ start, end })
+        .filter((date) => date.getDay() === weekday)
+        .map((date) => startOfDay(date))
+        .filter((date) => !isBefore(date, today))
+        .map((date) => getDateKeyFromDate(date))
+
+      if (keys.length === 0) {
+        return
+      }
+
+      await applyAvailabilityChanges(keys)
+    },
+    [applyAvailabilityChanges, availabilitySettings, calendarDate, today]
+  )
+
+  const handleOpenWeekPatternModal = useCallback(() => {
+    if (!availabilitySettings) return
+    setWeekPatternDraft(
+      buildWeekPatternDraft(
+        availabilitySettings.default_mode,
+        availabilitySettings.week_pattern ?? null
+      )
+    )
+    setWeekPatternActive(Boolean(availabilitySettings.week_pattern))
+    setWeekPatternModalOpen(true)
+  }, [availabilitySettings])
+
+  const handleWeekPatternDayToggle = useCallback(
+    (weekday: number) => {
+      if (!availabilitySettings) return
+      const key = weekday.toString()
+      setWeekPatternDraft((prev) => {
+        const current = prev[key] ?? availabilitySettings.default_mode
+        const next: AvailabilityStatus = current === 'ok' ? 'ng' : 'ok'
+        return { ...prev, [key]: next }
+      })
+      setWeekPatternActive(true)
+    },
+    [availabilitySettings]
+  )
+
+  const handleWeekPatternReset = useCallback(() => {
+    if (!availabilitySettings) return
+    setWeekPatternActive(false)
+    setWeekPatternDraft(
+      buildWeekPatternDraft(availabilitySettings.default_mode, null)
+    )
+  }, [availabilitySettings])
+
+  const handleWeekPatternActiveChange = useCallback(
+    (checked: boolean) => {
+      if (!availabilitySettings) return
+      if (checked) {
+        setWeekPatternActive(true)
+      } else {
+        setWeekPatternActive(false)
+        setWeekPatternDraft(
+          buildWeekPatternDraft(availabilitySettings.default_mode, null)
+        )
+      }
+    },
+    [availabilitySettings]
+  )
+
+  const handleWeekPatternSave = useCallback(async () => {
+    if (!availabilitySettings) return
+
+    setUpdatingWeekPattern(true)
+    try {
+      const response = await fetch('/api/availability/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          default_mode: availabilitySettings.default_mode,
+          timezone: availabilitySettings.timezone ?? DEFAULT_TIMEZONE,
+          week_pattern: weekPatternActive ? weekPatternDraft : null,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save week pattern')
+      }
+
+      setAvailabilitySettings((prev) =>
+        prev
+          ? {
+              ...prev,
+              week_pattern: weekPatternActive ? { ...weekPatternDraft } : null,
+            }
+          : prev
+      )
+      toast.success('曜日パターンを保存しました')
+      setWeekPatternModalOpen(false)
+      await fetchCalendarData()
+    } catch (error) {
+      console.error('Failed to save week pattern', error)
+      toast.error('曜日パターンの保存に失敗しました')
+      await fetchCalendarData()
+    } finally {
+      setUpdatingWeekPattern(false)
+    }
+  }, [
+    availabilitySettings,
+    fetchCalendarData,
+    weekPatternActive,
+    weekPatternDraft,
+  ])
 
   const handleDefaultModeChange = useCallback(
     async (mode: DefaultMode) => {
@@ -525,6 +742,9 @@ export default function ScheduleCalendar() {
 
       const previous = availabilitySettings
       setAvailabilitySettings({ ...availabilitySettings, default_mode: mode })
+      setWeekPatternDraft((prev) =>
+        buildWeekPatternDraft(mode, weekPatternActive ? prev : null)
+      )
       setUpdatingDefaultMode(true)
 
       try {
@@ -541,18 +761,8 @@ export default function ScheduleCalendar() {
           throw new Error('Failed to save settings')
         }
 
-        const newDefaultStatus: AvailabilityStatus = mode === 'default_ok' ? 'ok' : 'ng'
-        setOverrides((prev) => {
-          const nextOverrides = { ...prev }
-          for (const [date, status] of Object.entries(nextOverrides)) {
-            if (status === newDefaultStatus) {
-              delete nextOverrides[date]
-            }
-          }
-          return nextOverrides
-        })
-        await fetchCalendarData()
         toast.success('基本可用性を更新しました')
+        await fetchCalendarData()
       } catch (error) {
         console.error('Failed to update default availability mode', error)
         setAvailabilitySettings(previous)
@@ -562,32 +772,47 @@ export default function ScheduleCalendar() {
         setUpdatingDefaultMode(false)
       }
     },
-    [availabilitySettings, fetchCalendarData]
+    [availabilitySettings, fetchCalendarData, weekPatternActive]
   )
 
   const handleBulkUpdate = useCallback(
     async (status: AvailabilityStatus) => {
       if (!availabilitySettings || !calendarDate) return
 
-      const payload = buildMonthlyBulkPayload(calendarDate, status)
-      if (payload.length === 0) return
+      const monthDays = eachDayOfInterval({
+        start: startOfMonth(calendarDate),
+        end: endOfMonth(calendarDate),
+      })
+
+      if (monthDays.length === 0) return
 
       const previousOverrides = overrides
       const optimisticOverrides = { ...overrides }
+      const payload: { date: string; status: 'ok' | 'ng' | 'default' }[] = []
 
-      for (const item of payload) {
-        if (status === defaultStatus) {
-          delete optimisticOverrides[item.date]
+      for (const date of monthDays) {
+        const dateKey = getDateKeyFromDate(date)
+        const base = getBaseStatusForDateKey(dateKey)
+        if (status === base) {
+          if (optimisticOverrides[dateKey]) {
+            delete optimisticOverrides[dateKey]
+            payload.push({ date: dateKey, status: 'default' })
+          }
         } else {
-          optimisticOverrides[item.date] = status
+          optimisticOverrides[dateKey] = status
+          payload.push({ date: dateKey, status })
         }
+      }
+
+      if (payload.length === 0) {
+        return
       }
 
       setOverrides(optimisticOverrides)
       setBulkUpdating(true)
 
       try {
-        const response = await fetch('/api/availability/bulk', {
+        const response = await fetch('/api/availability/override', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ dates: payload }),
@@ -611,7 +836,7 @@ export default function ScheduleCalendar() {
     [
       availabilitySettings,
       calendarDate,
-      defaultStatus,
+      getBaseStatusForDateKey,
       fetchCalendarData,
       overrides,
     ]
@@ -660,6 +885,30 @@ export default function ScheduleCalendar() {
     )
   }
 
+  const WeekdayHeaderComponent = useMemo(
+    () =>
+      function WeekdayHeader({ label, date }: { label: string; date: Date }) {
+        const weekday = getDay(date)
+        const status = getDisplayStatusForDate(date)
+        return (
+          <button
+            type="button"
+            className="w-full rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition hover:bg-muted"
+            style={{
+              backgroundColor: AVAILABILITY_COLORS[status],
+            }}
+            onClick={() => {
+              void handleWeekdayToggle(weekday)
+            }}
+            title="この曜日の可用性をまとめて切り替える"
+          >
+            {label}
+          </button>
+        )
+      },
+    [getDisplayStatusForDate, handleWeekdayToggle]
+  )
+
   if (
     !ready ||
     !calendarDate ||
@@ -684,35 +933,54 @@ export default function ScheduleCalendar() {
       <div className="sticky top-0 z-10 space-y-3 bg-background pb-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold">スケジュール管理</h1>
-          <div className="flex items-center gap-1 self-start rounded-md border bg-white p-1 shadow-sm dark:bg-neutral-900">
-            <Button
-              type="button"
-              size="sm"
-              variant={
-                (availabilitySettings?.default_mode ?? 'default_ok') === 'default_ok'
-                  ? 'default'
-                  : 'ghost'
-              }
-              className="px-3"
-              onClick={() => handleDefaultModeChange('default_ok')}
-              disabled={updatingDefaultMode}
-            >
-              基本OK
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={
-                (availabilitySettings?.default_mode ?? 'default_ok') === 'default_ng'
-                  ? 'default'
-                  : 'ghost'
-              }
-              className="px-3"
-              onClick={() => handleDefaultModeChange('default_ng')}
-              disabled={updatingDefaultMode}
-            >
-              基本NG
-            </Button>
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex items-center gap-1 rounded-md border bg-white p-1 shadow-sm dark:bg-neutral-900">
+              <Button
+                type="button"
+                size="sm"
+                variant={
+                  (availabilitySettings?.default_mode ?? 'ok') === 'ok'
+                    ? 'default'
+                    : 'ghost'
+                }
+                className="px-3"
+                onClick={() => handleDefaultModeChange('ok')}
+                disabled={updatingDefaultMode}
+              >
+                基本OK
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant={
+                  (availabilitySettings?.default_mode ?? 'ok') === 'ng'
+                    ? 'default'
+                    : 'ghost'
+                }
+                className="px-3"
+                onClick={() => handleDefaultModeChange('ng')}
+                disabled={updatingDefaultMode}
+              >
+                基本NG
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleOpenWeekPatternModal}
+                disabled={!availabilitySettings}
+              >
+                曜日パターン設定
+              </Button>
+              <Badge
+                variant={weekPatternActive ? 'default' : 'secondary'}
+                className="px-2 py-1 text-xs"
+              >
+                {weekPatternActive ? '曜日パターン適用中' : '曜日パターン未設定'}
+              </Badge>
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
@@ -811,7 +1079,10 @@ export default function ScheduleCalendar() {
               selectable
               onSelectSlot={handleSlotSelect}
               dayPropGetter={dayPropGetter}
-              components={{ event: EventComponent }}
+              components={{
+                event: EventComponent,
+                month: { header: WeekdayHeaderComponent },
+              }}
               formats={{ weekdayFormat: 'eee' }}
               style={{ height: 480 }}
               eventPropGetter={(event) => {
@@ -855,6 +1126,93 @@ export default function ScheduleCalendar() {
           background-color: transparent;
         }
       `}</style>
+      <Modal open={weekPatternModalOpen} onOpenChange={setWeekPatternModalOpen}>
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>曜日パターン設定</ModalTitle>
+            <p className="mt-1 text-sm text-muted-foreground">
+              各曜日ごとの基本ステータスを設定できます。パターンを無効にすると基本モードの設定が適用されます。
+            </p>
+          </ModalHeader>
+          <div className="space-y-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium">曜日ごとの可用性</p>
+                <p className="text-xs text-muted-foreground">
+                  ボタンをクリックして曜日ごとのOK/NGを切り替えます。
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="week-pattern-active"
+                  checked={weekPatternActive}
+                  onCheckedChange={handleWeekPatternActiveChange}
+                  disabled={!availabilitySettings || updatingWeekPattern}
+                />
+                <label
+                  htmlFor="week-pattern-active"
+                  className="text-xs text-muted-foreground"
+                >
+                  {weekPatternActive ? 'パターン有効' : '基本のみ適用'}
+                </label>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {WEEKDAY_LABELS.map((label, index) => {
+                const key = index.toString()
+                const status =
+                  weekPatternDraft[key] ??
+                  availabilitySettings?.default_mode ??
+                  'ok'
+                const isOk = status === 'ok'
+                return (
+                  <Button
+                    key={key}
+                    type="button"
+                    variant={isOk ? 'default' : 'outline'}
+                    className="justify-between"
+                    onClick={() => handleWeekPatternDayToggle(index)}
+                    disabled={!weekPatternActive || updatingWeekPattern}
+                  >
+                    <span>{label}</span>
+                    <span className="text-xs">{isOk ? 'OK' : 'NG'}</span>
+                  </Button>
+                )
+              })}
+            </div>
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleWeekPatternReset}
+                disabled={!availabilitySettings || updatingWeekPattern}
+              >
+                リセット
+              </Button>
+            </div>
+          </div>
+          <ModalFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setWeekPatternModalOpen(false)}
+              disabled={updatingWeekPattern}
+            >
+              キャンセル
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                void handleWeekPatternSave()
+              }}
+              disabled={updatingWeekPattern}
+            >
+              保存
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </main>
   )
 }

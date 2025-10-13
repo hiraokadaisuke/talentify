@@ -44,57 +44,54 @@ export type Database = {
         }
         Relationships: []
       }
-      talent_availability_dates: {
+      talent_availability_settings: {
         Row: {
-          created_at: string | null
-          id: string
-          status: 'ok' | 'ng'
           talent_id: string
-          the_date: string
-          updated_at: string | null
+          default_mode: 'ok' | 'ng'
+          timezone: string
+          week_pattern: Json | null
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          id?: string
-          status: 'ok' | 'ng'
           talent_id: string
-          the_date: string
-          updated_at?: string | null
+          default_mode?: 'ok' | 'ng'
+          timezone?: string
+          week_pattern?: Json | null
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          id?: string
-          status?: 'ok' | 'ng'
           talent_id?: string
-          the_date?: string
-          updated_at?: string | null
+          default_mode?: 'ok' | 'ng'
+          timezone?: string
+          week_pattern?: Json | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
-      talent_availability_settings: {
+      talent_availability_overrides: {
         Row: {
-          created_at: string | null
-          default_mode: 'default_ok' | 'default_ng'
-          id: string
           talent_id: string
-          timezone: string | null
-          updated_at: string | null
+          date: string
+          status: 'ok' | 'ng'
+          created_at: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          default_mode: 'default_ok' | 'default_ng'
-          id?: string
           talent_id: string
-          timezone?: string | null
-          updated_at?: string | null
+          date: string
+          status: 'ok' | 'ng'
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          default_mode?: 'default_ok' | 'default_ng'
-          id?: string
           talent_id?: string
-          timezone?: string | null
-          updated_at?: string | null
+          date?: string
+          status?: 'ok' | 'ng'
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -722,6 +719,7 @@ export type Database = {
       }
     }
     Enums: {
+      availability_status: 'ok' | 'ng'
       invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'pending'
       notification_type:
         | 'offer_created'
@@ -859,6 +857,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      availability_status: ['ok', 'ng'],
       invoice_status: ['draft', 'submitted', 'approved', 'rejected', 'pending'],
       notification_type: [
         'offer_created',
