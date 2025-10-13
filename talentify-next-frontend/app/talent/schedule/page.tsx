@@ -1,9 +1,23 @@
-import dynamic from 'next/dynamic'
+'use client'
 
-const TalentCalendar = dynamic(() => import('./TalentCalendarClient'), {
-  ssr: false,
-})
+import { useEffect, useState, type ComponentType } from 'react'
 
 export default function TalentSchedulePage() {
-  return <TalentCalendar />
+  const [CalendarComp, setCalendarComp] = useState<ComponentType | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    void import('./TalentCalendarClient').then((mod) => {
+      if (!mounted) return
+      setCalendarComp(() => mod.default)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  if (!CalendarComp) return null
+
+  const Calendar = CalendarComp
+  return <Calendar />
 }
