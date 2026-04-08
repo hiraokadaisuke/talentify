@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/service'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
+import {
+  findOffers,
+  findStoreIdByUserId,
+  OFFER_STATUS_FILTERS,
+  type OfferStatusFilter,
+} from '@/lib/repositories/offers/findOffers'
+import { createServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
 
 export const runtime = 'nodejs'
 
@@ -32,6 +38,58 @@ export function validateOfferPayload(payload: OfferPayload): string | null {
   return null
 }
 
+
+const OFFER_STATUS_VALUES = new Set<string>(OFFER_STATUS_FILTERS)
+
+function isOfferStatusFilter(value: string): value is OfferStatusFilter {
+  return OFFER_STATUS_VALUES.has(value)
+}
+
+function parseOfferStatusParam(rawStatus: string | null): OfferStatusFilter | undefined {
+  if (!rawStatus) return undefined
+  if (!isOfferStatusFilter(rawStatus)) return undefined
+  return rawStatus
+}
+
+export async function GET(req: NextRequest) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ ok: false, code: 'UNAUTHORIZED', reason: 'auth required' }, { status: 401 })
+  }
+
+  const rawStatus = req.nextUrl.searchParams.get('status')
+  const status = parseOfferStatusParam(rawStatus)
+  if (rawStatus && !status) {
+    return NextResponse.json(
+      { ok: false, code: 'VALIDATION_ERROR', reason: 'invalid status query parameter' },
+      { status: 400 }
+    )
+  }
+
+  try {
+    const storeId = await findStoreIdByUserId(user.id)
+
+    if (!storeId) {
+      // Store profile does not exist for this authenticated user yet, so not found is appropriate.
+      return NextResponse.json({ ok: false, code: 'STORE_NOT_FOUND', reason: 'store not found' }, { status: 404 })
+    }
+
+    const offers = await findOffers({
+      storeId,
+      status,
+    })
+
+    return NextResponse.json({ ok: true, offers })
+  } catch (error) {
+    console.error('GET /api/offers failed', error)
+    return NextResponse.json({ ok: false, code: 'INTERNAL_SERVER_ERROR' }, { status: 500 })
+  }
+}
 export async function POST(req: NextRequest) {
   const body = (await req.json()) as OfferPayload
   const validationError = validateOfferPayload(body)
