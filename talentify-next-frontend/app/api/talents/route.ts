@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { isProfileComplete } from '@/utils/isProfileComplete'
 
 export async function GET() {
@@ -51,9 +52,7 @@ export async function POST(req: Request) {
     avatar_url,
   })
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getCurrentUser()
 
   if (!user) {
     return new Response(JSON.stringify({ error: 'unauthenticated' }), {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { getSubmitStatus } from './utils'
 
@@ -7,10 +8,7 @@ export async function POST(req: NextRequest) {
   let offerId: string | undefined
 
   try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    const { user, error: userError } = await getCurrentUser()
     if (userError || !user) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
@@ -125,4 +123,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'unknown', code: err.code }, { status: 400 })
   }
 }
-

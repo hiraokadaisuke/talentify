@@ -1,14 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { NextRequest } from 'next/server'
 
 export async function GET() {
   // awaitをつけてSupabaseクライアントを取得
   const supabase = await createClient()
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  const { user, error: userError } = await getCurrentUser()
 
   const query = supabase.from('schedules').select('*')
   if (user) query.eq('user_id', user.id)
@@ -29,10 +27,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const { date, description } = body
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  const { user, error: userError } = await getCurrentUser()
 
   if (!user || userError) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
