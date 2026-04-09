@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/service'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
-import { findStoreOffersByAuthUser, OFFER_STATUS_TYPES, OfferStatusType } from '@/lib/repositories/offers'
+import {
+  createOffer,
+  findExistingOfferForCreate,
+  findStoreByIdForAuthUser,
+  findStoreOffersByAuthUser,
+  OFFER_STATUS_TYPES,
+  OfferCreateConflictError,
+  OfferStatusType,
+} from '@/lib/repositories/offers'
 
 export const runtime = 'nodejs'
 
@@ -79,71 +86,59 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, code: 'UNAUTHORIZED', reason: 'auth required' }, { status: 401 })
   }
 
-  const service = createServiceClient()
-
   // confirm store belongs to user
-  const { data: store, error: storeError } = await service
-    .from('stores')
-    .select('id, user_id')
-    .eq('id', body.store_id)
-    .single()
-  if (storeError || !store || store.user_id !== user.id) {
+  const store = await findStoreByIdForAuthUser({
+    storeId: body.store_id,
+    userId: user.id,
+  })
+  if (!store) {
     return NextResponse.json({ ok: false, code: 'FORBIDDEN', reason: 'invalid store' }, { status: 403 })
   }
 
   // check existing offer for idempotency
-  const { data: existingRows } = await service
-    .from('offers')
-    .select('*')
-    .eq('store_id', body.store_id)
-    .eq('talent_id', body.talent_id)
-    .eq('date', body.date)
-    .eq('time_range', body.time_range)
-    .order('created_at', { ascending: false })
-    .limit(1)
-
-  const existing = existingRows?.[0] ?? null
+  const offerDate = new Date(body.date)
+  const existing = await findExistingOfferForCreate({
+    storeId: body.store_id,
+    talentId: body.talent_id,
+    date: offerDate,
+    timeRange: body.time_range,
+  })
   if (existing) {
     return NextResponse.json({ ok: true, offer: existing })
   }
 
-  const { data: offer, error: offerError, status: insertStatus } = await service
-    .from('offers')
-    .insert({
+  try {
+    const offer = await createOffer({
       user_id: user.id,
       store_id: body.store_id,
       talent_id: body.talent_id,
-      date: body.date,
+      date: offerDate,
       time_range: body.time_range,
       agreed: body.agreed,
       message: body.message ?? '',
       status: toDbOfferStatus('pending') ?? 'pending',
     })
-    .select()
-    .single()
-  if (offerError || !offer) {
-    if (insertStatus === 409 || offerError?.code === '23505') {
+
+    // Notification creation is handled by a database trigger
+    return NextResponse.json({ ok: true, offer })
+  } catch (error) {
+    if (error instanceof OfferCreateConflictError) {
       // fallback to existing offer lookup
-      const { data: fallbackRows } = await service
-        .from('offers')
-        .select('*')
-        .eq('store_id', body.store_id)
-        .eq('talent_id', body.talent_id)
-        .eq('date', body.date)
-        .eq('time_range', body.time_range)
-        .order('created_at', { ascending: false })
-        .limit(1)
-      const fallback = fallbackRows?.[0] ?? null
+      const fallback = await findExistingOfferForCreate({
+        storeId: body.store_id,
+        talentId: body.talent_id,
+        date: offerDate,
+        timeRange: body.time_range,
+      })
       if (fallback) {
         return NextResponse.json({ ok: true, offer: fallback })
       }
     }
+
+    const reason = error instanceof Error ? error.message : 'insert failed'
     return NextResponse.json(
-      { ok: false, code: 'INSERT_FAILED', reason: offerError?.message ?? 'insert failed' },
+      { ok: false, code: 'INSERT_FAILED', reason },
       { status: 500 }
     )
   }
-
-  // Notification creation is handled by a database trigger
-  return NextResponse.json({ ok: true, offer })
 }
