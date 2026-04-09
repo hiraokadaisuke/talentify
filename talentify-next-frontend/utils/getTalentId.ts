@@ -1,5 +1,6 @@
 'use client'
 
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import { createClient } from '@/utils/supabase/client'
 
 const supabase = createClient()
@@ -9,9 +10,7 @@ const supabase = createClient()
  * Returns `null` when no authenticated user or talent record exists.
  */
 export async function getTalentId(): Promise<string | null> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return null
 
   const { data, error } = await supabase

@@ -1,4 +1,5 @@
 'use client'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import { createClient } from '@/utils/supabase/client'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 
@@ -13,10 +14,18 @@ export type CompletedOffer = {
   talent_name: string | null
 }
 
+type RawCompletedOffer = {
+  id: string
+  talent_id: string
+  store_id: string
+  date: string
+  message: string
+  reviews: { id: string }[] | null
+  talents: { stage_name: string | null } | null
+}
+
 export async function getCompletedOffersForStore() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return [] as CompletedOffer[]
 
   const { data: store } = await supabase
@@ -37,13 +46,14 @@ export async function getCompletedOffersForStore() {
     console.error('failed to fetch completed offers', error)
     return []
   }
-  return (data || []).map(o => ({
+  const offers = (data || []) as unknown as RawCompletedOffer[]
+  return offers.map(o => ({
     id: o.id,
     talent_id: o.talent_id,
     store_id: o.store_id,
     date: o.date,
     message: o.message,
-    reviewed: !!(o as any).reviews?.length,
-    talent_name: (o as any).talents?.stage_name || null,
+    reviewed: !!o.reviews?.length,
+    talent_name: o.talents?.stage_name || null,
   })) as CompletedOffer[]
 }

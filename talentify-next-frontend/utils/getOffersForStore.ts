@@ -1,5 +1,6 @@
 'use client'
 
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import { createClient } from '@/utils/supabase/client'
 
 const supabase = createClient()
@@ -20,10 +21,21 @@ export type Offer = {
   review_completed: boolean
 }
 
+type RawOffer = {
+  id: string
+  user_id: string
+  store_id: string
+  talent_id: string
+  created_at: string | null
+  date: string | null
+  status: string | null
+  payments: { id: string | null; status: string | null; paid_at: string | null }[] | null
+  talents: { stage_name: string | null } | null
+  reviews: { id: string }[] | null
+}
+
 export async function getOffersForStore() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return [] as Offer[]
 
   const { data: store } = await supabase
@@ -46,7 +58,7 @@ export async function getOffersForStore() {
     return [] as Offer[]
   }
 
-  const offers = (data ?? []) as any[]
+  const offers = (data ?? []) as unknown as RawOffer[]
 
   let invoiceMap = new Map<string, { status: string | null; payment_status: string | null }>()
   if (offers.length > 0) {
