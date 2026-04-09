@@ -1,4 +1,5 @@
 'use client'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import { createClient } from '@/utils/supabase/client'
 import type { Database } from '@/types/supabase'
 
@@ -13,9 +14,7 @@ type RawInvoice = Database['public']['Tables']['invoices']['Row'] & {
 }
 
 export async function getInvoicesForStore() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return [] as Invoice[]
 
   const { data: store } = await supabase
