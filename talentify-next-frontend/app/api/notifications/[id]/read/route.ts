@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import {
   markNotificationRead,
   markNotificationUnread,
@@ -15,10 +15,7 @@ type RouteContext = {
 
 export async function PATCH(req: NextRequest, context: RouteContext) {
   try {
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { user } = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })

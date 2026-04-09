@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import { findOfferAccessById, findOfferByIdForAuthUser, updateOfferById } from '@/lib/repositories/offers'
 
@@ -8,13 +8,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createClient()
     const { id } = params
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    const { user, error: userError } = await getCurrentUser()
 
     if (userError || !user) {
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
@@ -39,14 +35,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createClient()
     const { id } = params
     const body = await req.json()
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    const { user, error: userError } = await getCurrentUser()
     if (userError || !user) {
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
     }
