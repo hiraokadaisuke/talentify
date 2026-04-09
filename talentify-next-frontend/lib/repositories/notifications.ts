@@ -1,9 +1,9 @@
+import type { notification_type } from '@prisma/client'
 import { getPrismaClient } from '@/lib/prisma'
-import type { NotificationType } from '@/types/notifications'
 
 type CountUnreadNotificationsParams = {
   userId: string
-  type?: NotificationType
+  type?: notification_type
 }
 
 export async function countUnreadNotificationsByUser({
