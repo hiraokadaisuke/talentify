@@ -1,13 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createServiceClient } from '@/lib/supabase/service'
 import {
+  createNotification,
   countUnreadNotificationsByUser,
   findNotificationsByUser,
 } from '@/lib/repositories/notifications'
+import type { Json } from '@/types/supabase'
 import { NOTIFICATION_TYPES, NotificationType } from '@/types/notifications'
 
 export const runtime = 'nodejs'
+
+function isJsonValue(value: unknown): value is Json {
+  if (
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  ) {
+    return true
+  }
+
+  if (Array.isArray(value)) {
+    return value.every((item) => isJsonValue(item))
+  }
+
+  if (typeof value === 'object') {
+    return Object.values(value).every((item) => isJsonValue(item))
+  }
+
+  return false
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -46,31 +68,41 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { user_id, type, payload, title, body } = await req.json()
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    if (!user_id || !type || !title || !NOTIFICATION_TYPES.includes(type as NotificationType)) {
+    if (!user) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    }
+
+    const { type, payload, title, body } = await req.json()
+
+    if (!type || !title || !NOTIFICATION_TYPES.includes(type as NotificationType)) {
       return NextResponse.json({ error: 'invalid request' }, { status: 400 })
     }
 
-    const supabase = createServiceClient()
-    const { data, error } = await supabase
-      .from('notifications')
-      .insert({
-        user_id,
+    try {
+      const normalizedPayload = payload === undefined ? null : payload
+      if (normalizedPayload !== null && !isJsonValue(normalizedPayload)) {
+        return NextResponse.json({ error: 'invalid request' }, { status: 400 })
+      }
+
+      const data = await createNotification({
+        user_id: user.id,
         type,
         title,
         body: body ?? null,
-        data: payload ?? null,
+        data: normalizedPayload,
       })
-      .select()
-      .single()
 
-    if (error) {
-      console.error('failed to insert notification', { user_id, type, error })
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return NextResponse.json({ data })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'failed to insert notification'
+      console.error('failed to insert notification', { user_id: user.id, type, error })
+      return NextResponse.json({ error: message }, { status: 400 })
     }
-
-    return NextResponse.json({ data })
   } catch (error) {
     console.error('failed to insert notification', error)
     return NextResponse.json({ error: 'invalid request' }, { status: 400 })
