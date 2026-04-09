@@ -7,12 +7,11 @@ export type StoreContract = {
 }
 
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 
 export async function getContractsForStore(): Promise<StoreContract[]> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const supabase = createClient()
+  const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return []
 
   const { data: store } = await supabase
@@ -44,7 +43,7 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
       .eq('offer_id', offer.id)
       .maybeSingle()
 
-    const url = (offer as any).contract_url || null
+    const url = offer.contract_url ?? null
 
     results.push({
       offer_id: offer.id,
