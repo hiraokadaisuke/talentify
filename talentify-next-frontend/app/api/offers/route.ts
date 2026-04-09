@@ -48,10 +48,11 @@ export async function GET(req: NextRequest) {
   const statusParam = req.nextUrl.searchParams.get('status')
   let status: OfferStatusType | undefined
   if (statusParam) {
-    if (!OFFER_STATUS_VALUES.has(statusParam as OfferStatusType)) {
+    const normalizedStatus = statusParam.trim().toLowerCase() as OfferStatusType
+    if (!OFFER_STATUS_VALUES.has(normalizedStatus)) {
       return NextResponse.json({ ok: false, code: 'VALIDATION_ERROR', reason: 'invalid status' }, { status: 400 })
     }
-    status = statusParam as OfferStatusType
+    status = normalizedStatus
   }
 
   try {
