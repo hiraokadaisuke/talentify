@@ -16,70 +16,55 @@ interface AddNotificationPayload {
   data?: Record<string, unknown> | null
 }
 
+type GetNotificationsResponse = {
+  data?: NotificationRow[]
+}
+
+type GetUnreadCountResponse = {
+  count?: number
+}
+
 export async function getNotifications(limit?: number): Promise<NotificationRow[]> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return []
+  try {
+    const searchParams = new URLSearchParams()
+    if (typeof limit === 'number' && Number.isFinite(limit) && limit > 0) {
+      searchParams.set('limit', String(Math.floor(limit)))
+    }
 
-  let query = supabase
-    .from('notifications')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+    const suffix = searchParams.toString()
+    const res = await fetch(`${API_BASE}/api/notifications${suffix ? `?${suffix}` : ''}`)
 
-  if (limit) query = query.limit(limit)
+    if (!res.ok) {
+      if (res.status !== 401) {
+        console.error('failed to fetch notifications', await res.text())
+      }
+      return []
+    }
 
-  const { data, error } = await query
-  if (error) {
+    const payload = (await res.json()) as GetNotificationsResponse
+    return Array.isArray(payload.data) ? payload.data : []
+  } catch (error) {
     console.error('failed to fetch notifications', error)
     return []
   }
-
-  let notifications = (data ?? []) as NotificationRow[]
-  const offerIds = notifications
-    .map(n => (n.data as any)?.offer_id)
-    .filter((id): id is string => typeof id === 'string')
-
-  if (offerIds.length > 0) {
-    const { data: offers, error: offerError } = await supabase
-      .from('offers')
-      .select('id, status, accepted_at')
-      .in('id', offerIds)
-
-    if (!offerError) {
-      const hidden = new Set(
-        (offers ?? [])
-          .filter(o => o.status === 'canceled' && !o.accepted_at)
-          .map(o => o.id)
-      )
-      notifications = notifications.filter(n => {
-        const id = (n.data as any)?.offer_id
-        return typeof id !== 'string' || !hidden.has(id)
-      })
-    }
-  }
-
-  return notifications
 }
 
 export async function getUnreadNotificationCount(): Promise<number> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return 0
+  try {
+    const res = await fetch(`${API_BASE}/api/notifications?unread_count=true`)
+    if (!res.ok) {
+      if (res.status !== 401) {
+        console.error('failed to fetch unread notifications count', await res.text())
+      }
+      return 0
+    }
 
-  const { count, error } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('is_read', false)
-
-  if (error) {
+    const payload = (await res.json()) as GetUnreadCountResponse
+    return typeof payload.count === 'number' ? payload.count : 0
+  } catch (error) {
     console.error('failed to fetch unread notifications count', error)
     return 0
   }
-  return count ?? 0
 }
 
 export async function markNotificationRead(id: string) {
@@ -129,4 +114,3 @@ export function formatUnreadCount(count: number): string | null {
   if (count <= 0) return null
   return count > 99 ? '99+' : String(count)
 }
-
