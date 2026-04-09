@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
-import { findOfferByIdForAuthUser } from '@/lib/repositories/offers'
-
-type OfferAccessLookup = {
-  store?: { user_id?: string | null } | null
-  talent?: { user_id?: string | null } | null
-}
+import { findOfferAccessById, findOfferByIdForAuthUser } from '@/lib/repositories/offers'
 
 export async function GET(
   _req: NextRequest,
@@ -56,18 +51,14 @@ export async function PUT(
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
     }
 
-    const { data: offer, error: offerError } = await supabase
-      .from('offers')
-      .select('store:store_id(user_id), talent:talent_id(user_id)')
-      .eq('id', id)
-      .single<OfferAccessLookup>()
-    if (offerError || !offer) {
+    const offerAccess = await findOfferAccessById(id)
+    if (!offerAccess) {
       return NextResponse.json<{ error: string }>({ error: 'オファーが見つかりません' }, { status: 404 })
     }
 
     let allowedFields: string[] = []
-    const storeUserId = offer.store?.user_id ?? undefined
-    const talentUserId = offer.talent?.user_id ?? undefined
+    const storeUserId = offerAccess.store_user_id ?? undefined
+    const talentUserId = offerAccess.talent_user_id ?? undefined
     if (storeUserId && user.id === storeUserId) {
       allowedFields = ['status', 'contract_url']
     } else if (talentUserId && user.id === talentUserId) {

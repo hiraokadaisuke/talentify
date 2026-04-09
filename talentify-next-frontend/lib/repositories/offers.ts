@@ -58,6 +58,11 @@ type FindOfferByIdForAuthUserParams = {
   userId: string
 }
 
+export type OfferAccessForUpdate = {
+  store_user_id: string | null
+  talent_user_id: string | null
+}
+
 export async function findStoreOffersByAuthUser({
   userId,
   status,
@@ -161,5 +166,34 @@ export async function findOfferByIdForAuthUser({
     invoice_amount: offer.invoice_amount,
     store_name: offer.stores?.store_name ?? null,
     talent_display_name: offer.talents?.display_name ?? offer.talents?.name ?? null,
+  }
+}
+
+export async function findOfferAccessById(offerId: string): Promise<OfferAccessForUpdate | null> {
+  const prisma = getPrismaClient()
+
+  const offer = await prisma.offers.findUnique({
+    where: { id: offerId },
+    select: {
+      stores: {
+        select: {
+          user_id: true,
+        },
+      },
+      talents: {
+        select: {
+          user_id: true,
+        },
+      },
+    },
+  })
+
+  if (!offer) {
+    return null
+  }
+
+  return {
+    store_user_id: offer.stores?.user_id ?? null,
+    talent_user_id: offer.talents?.user_id ?? null,
   }
 }
