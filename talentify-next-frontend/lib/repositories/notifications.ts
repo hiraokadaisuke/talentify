@@ -1,13 +1,14 @@
-import { Prisma, type notification_type } from '@prisma/client'
+import { Prisma } from '@prisma/client'
 import { getPrismaClient } from '@/lib/prisma'
 import type { Database, Json } from '@/types/supabase'
+import type { NotificationType } from '@/types/notifications'
 
 type NotificationRow = Database['public']['Tables']['notifications']['Row']
 type NotificationInsert = Database['public']['Tables']['notifications']['Insert']
 
 type CountUnreadNotificationsParams = {
   userId: string
-  type?: notification_type
+  type?: NotificationType
 }
 
 type FindNotificationsByUserParams = {
@@ -175,7 +176,7 @@ export async function createNotification({
 
   const rows = await prisma.$queryRaw<NotificationInsertQueryRow[]>`
     INSERT INTO public.notifications (user_id, type, title, body, data)
-    VALUES (${user_id}::uuid, ${type}::public.notification_type, ${title}, ${body ?? null}, ${data ?? null}::jsonb)
+    VALUES (${user_id}::uuid, ${type}, ${title}, ${body ?? null}, ${data ?? null}::jsonb)
     RETURNING id, user_id, type::text, data, title, body, is_read, created_at, read_at
   `
 

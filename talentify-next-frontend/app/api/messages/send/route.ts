@@ -52,12 +52,12 @@ export async function POST(req: NextRequest) {
     const service = createServiceClient()
     await service.from('notifications').insert({
       user_id: receiverUserId,
-      type: 'message_received',
+      type: 'message',
       title: '新着メッセージ',
       data: { thread_id: thread.id, message_id: message.id },
     })
   } catch (e) {
-    console.error('failed to insert message_received notification', e)
+    console.error('failed to insert message notification', e)
   }
 
   return NextResponse.json({ data: message, threadId: thread.id })

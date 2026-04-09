@@ -6,7 +6,7 @@ import {
   findNotificationsByUser,
 } from '@/lib/repositories/notifications'
 import type { Json } from '@/types/supabase'
-import { NOTIFICATION_TYPES, NotificationType } from '@/types/notifications'
+import { isNotificationType } from '@/types/notifications'
 
 export const runtime = 'nodejs'
 
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
 
     const { type, payload, title, body } = await req.json()
 
-    if (!type || !title || !NOTIFICATION_TYPES.includes(type as NotificationType)) {
+    if (!title || !isNotificationType(type)) {
       return NextResponse.json({ error: 'invalid request' }, { status: 400 })
     }
 
