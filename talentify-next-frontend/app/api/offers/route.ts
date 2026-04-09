@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
+import { findStoreOffersByAuthUser, OFFER_STATUS_TYPES, OfferStatusType } from '@/lib/repositories/offers'
 
 export const runtime = 'nodejs'
+
+const OFFER_STATUS_VALUES = new Set<OfferStatusType>(OFFER_STATUS_TYPES)
 
 export interface OfferPayload {
   store_id: string
@@ -30,6 +33,34 @@ export function validateOfferPayload(payload: OfferPayload): string | null {
     return 'invalid time_range'
   }
   return null
+}
+
+export async function GET(req: NextRequest) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ ok: false, code: 'UNAUTHORIZED', reason: 'auth required' }, { status: 401 })
+  }
+
+  const statusParam = req.nextUrl.searchParams.get('status')
+  let status: OfferStatusType | undefined
+  if (statusParam) {
+    if (!OFFER_STATUS_VALUES.has(statusParam as OfferStatusType)) {
+      return NextResponse.json({ ok: false, code: 'VALIDATION_ERROR', reason: 'invalid status' }, { status: 400 })
+    }
+    status = statusParam as OfferStatusType
+  }
+
+  try {
+    const offers = await findStoreOffersByAuthUser({ userId: user.id, status })
+    return NextResponse.json({ ok: true, offers })
+  } catch (error) {
+    console.error('[GET /api/offers]', error)
+    return NextResponse.json({ ok: false, code: 'FETCH_FAILED', reason: 'failed to fetch offers' }, { status: 500 })
+  }
 }
 
 export async function POST(req: NextRequest) {
