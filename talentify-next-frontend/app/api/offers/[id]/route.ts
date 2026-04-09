@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
-import { findOfferAccessById, findOfferByIdForAuthUser } from '@/lib/repositories/offers'
+import { findOfferAccessById, findOfferByIdForAuthUser, updateOfferById } from '@/lib/repositories/offers'
 
 export async function GET(
   _req: NextRequest,
@@ -93,9 +93,7 @@ export async function PUT(
       return NextResponse.json<{ error: string }>({ error: '更新可能な項目がありません' }, { status: 400 })
     }
 
-    const { error } = await supabase.from('offers').update(updates).eq('id', id)
-
-    if (error) throw error
+    await updateOfferById(id, updates)
 
     // Notify performer or store about status change via webhook if configured
     const webhook = process.env.NOTIFICATION_WEBHOOK_URL

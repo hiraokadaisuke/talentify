@@ -1,4 +1,5 @@
 import { getPrismaClient } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 
 export const OFFER_STATUS_TYPES = [
   'draft',
@@ -62,6 +63,8 @@ export type OfferAccessForUpdate = {
   store_user_id: string | null
   talent_user_id: string | null
 }
+
+export type OfferUpdateInput = Record<string, unknown>
 
 export async function findStoreOffersByAuthUser({
   userId,
@@ -196,4 +199,15 @@ export async function findOfferAccessById(offerId: string): Promise<OfferAccessF
     store_user_id: offer.stores?.user_id ?? null,
     talent_user_id: offer.talents?.user_id ?? null,
   }
+}
+
+export async function updateOfferById(offerId: string, updates: OfferUpdateInput): Promise<number> {
+  const prisma = getPrismaClient()
+
+  const result = await prisma.offers.updateMany({
+    where: { id: offerId },
+    data: updates as Prisma.offersUpdateManyMutationInput,
+  })
+
+  return result.count
 }
