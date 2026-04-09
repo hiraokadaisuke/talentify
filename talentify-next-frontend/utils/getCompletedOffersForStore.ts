@@ -46,7 +46,7 @@ export async function getCompletedOffersForStore() {
     console.error('failed to fetch completed offers', error)
     return []
   }
-  const offers = (data || []) as RawCompletedOffer[]
+  const offers = (data || []) as unknown as RawCompletedOffer[]
   return offers.map(o => ({
     id: o.id,
     talent_id: o.talent_id,
