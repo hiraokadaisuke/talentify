@@ -3,6 +3,7 @@ import { getPrismaClient } from '@/lib/prisma'
 import type { Database, Json } from '@/types/supabase'
 
 type NotificationRow = Database['public']['Tables']['notifications']['Row']
+type NotificationInsert = Database['public']['Tables']['notifications']['Insert']
 
 type CountUnreadNotificationsParams = {
   userId: string
@@ -41,6 +42,18 @@ type NotificationQueryRow = {
   read_at: Date | null
 }
 
+type NotificationInsertQueryRow = {
+  id: string
+  user_id: string
+  type: NotificationRow['type']
+  data: Json | null
+  title: string
+  body: string | null
+  is_read: boolean
+  created_at: Date
+  read_at: Date | null
+}
+
 type OfferVisibilityQueryRow = {
   id: string
   status: string | null
@@ -48,6 +61,20 @@ type OfferVisibilityQueryRow = {
 }
 
 function toNotificationRow(row: NotificationQueryRow): NotificationRow {
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    type: row.type,
+    data: row.data,
+    title: row.title,
+    body: row.body,
+    is_read: row.is_read,
+    created_at: row.created_at.toISOString(),
+    read_at: row.read_at?.toISOString() ?? null,
+  }
+}
+
+function toNotificationRowFromInsert(row: NotificationInsertQueryRow): NotificationRow {
   return {
     id: row.id,
     user_id: row.user_id,
@@ -135,6 +162,28 @@ export async function findNotificationsByUser({
       return !offerId || !hiddenOfferIds.has(offerId)
     })
     .map(toNotificationRow)
+}
+
+export async function createNotification({
+  user_id,
+  type,
+  title,
+  body,
+  data,
+}: NotificationInsert): Promise<NotificationRow> {
+  const prisma = getPrismaClient()
+
+  const rows = await prisma.$queryRaw<NotificationInsertQueryRow[]>`
+    INSERT INTO public.notifications (user_id, type, title, body, data)
+    VALUES (${user_id}::uuid, ${type}::public.notification_type, ${title}, ${body ?? null}, ${data ?? null}::jsonb)
+    RETURNING id, user_id, type::text, data, title, body, is_read, created_at, read_at
+  `
+
+  if (rows.length === 0) {
+    throw new Error('failed to insert notification')
+  }
+
+  return toNotificationRowFromInsert(rows[0])
 }
 
 export async function markNotificationRead({
