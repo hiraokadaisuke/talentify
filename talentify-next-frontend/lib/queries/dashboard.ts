@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type { ScheduleItem } from '@/components/ScheduleCard'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
+import { countUnreadNotificationsByUser } from '@/lib/repositories/notifications'
 
 export async function getTalentDashboardData() {
   const supabase = createClient()
@@ -30,12 +31,10 @@ export async function getTalentDashboardData() {
         .in('status', [pendingStatus])
     : { count: 0 }
 
-  const { count: unreadMessagesCount } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('type', 'message')
-    .eq('is_read', false)
+  const unreadMessagesCount = await countUnreadNotificationsByUser({
+    userId: user.id,
+    type: 'message',
+  })
 
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
 
@@ -132,16 +131,10 @@ export async function getStoreDashboardData() {
     href: `/store/offers/${d.id}`,
   }))
 
-  const { count: unreadCount, error: unreadError } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('type', 'message')
-    .eq('is_read', false)
+  const unreadCount = await countUnreadNotificationsByUser({
+    userId: user.id,
+    type: 'message',
+  })
 
-  if (unreadError) {
-    throw new Error(unreadError.message)
-  }
-
-  return { offerStats, schedule, unreadCount: unreadCount ?? 0 }
+  return { offerStats, schedule, unreadCount }
 }
