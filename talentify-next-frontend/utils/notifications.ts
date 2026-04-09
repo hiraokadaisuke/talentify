@@ -1,10 +1,7 @@
 'use client'
-import { createClient } from '@/utils/supabase/client'
 import { API_BASE } from '@/lib/api'
 import type { Database } from '@/types/supabase'
 import type { NotificationType } from '@/types/notifications'
-
-const supabase = createClient()
 
 export type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
@@ -22,6 +19,22 @@ type GetNotificationsResponse = {
 
 type GetUnreadCountResponse = {
   count?: number
+}
+
+async function patchNotificationReadState(id: string, isRead: boolean): Promise<void> {
+  try {
+    const res = await fetch(`${API_BASE}/api/notifications/${id}/read`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_read: isRead }),
+    })
+
+    if (!res.ok && res.status !== 401) {
+      console.error('failed to update notification read state', await res.text())
+    }
+  } catch (error) {
+    console.error('failed to update notification read state', error)
+  }
 }
 
 export async function getNotifications(limit?: number): Promise<NotificationRow[]> {
@@ -68,25 +81,29 @@ export async function getUnreadNotificationCount(): Promise<number> {
 }
 
 export async function markNotificationRead(id: string) {
-  await supabase
-    .from('notifications')
-    .update({ is_read: true, read_at: new Date().toISOString() })
-    .eq('id', id)
+  await patchNotificationReadState(id, true)
 }
 
 export async function markNotificationUnread(id: string) {
-  await supabase
-    .from('notifications')
-    .update({ is_read: false, read_at: null })
-    .eq('id', id)
+  await patchNotificationReadState(id, false)
 }
 
 export async function markAllNotificationsRead(ids: string[]) {
   if (ids.length === 0) return
-  await supabase
-    .from('notifications')
-    .update({ is_read: true, read_at: new Date().toISOString() })
-    .in('id', ids)
+
+  try {
+    const res = await fetch(`${API_BASE}/api/notifications/read-all`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    })
+
+    if (!res.ok && res.status !== 401) {
+      console.error('failed to mark all notifications as read', await res.text())
+    }
+  } catch (error) {
+    console.error('failed to mark all notifications as read', error)
+  }
 }
 
 export async function addNotification(payload: AddNotificationPayload) {
