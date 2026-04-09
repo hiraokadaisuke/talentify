@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import {
   createNotification,
   countUnreadNotificationsByUser,
@@ -33,10 +33,7 @@ function isJsonValue(value: unknown): value is Json {
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { user } = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -68,10 +65,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { user } = await getCurrentUser()
 
     if (!user) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
