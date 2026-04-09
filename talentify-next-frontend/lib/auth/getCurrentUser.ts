@@ -1,20 +1,12 @@
-import type { AuthError, User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
+import {
+  getCurrentUserWithClient,
+  type CurrentUserResult,
+} from '@/lib/auth/getCurrentUserWithClient'
 
-export type CurrentUserResult = {
-  user: User | null
-  error: AuthError | null
-}
+export type { CurrentUserResult }
 
 export async function getCurrentUser(): Promise<CurrentUserResult> {
   const supabase = createClient()
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
-
-  return {
-    user,
-    error,
-  }
+  return getCurrentUserWithClient(supabase)
 }

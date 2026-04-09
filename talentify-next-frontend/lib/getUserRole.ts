@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 
 export type UserRole = 'store' | 'talent' | 'company'
 
@@ -8,9 +9,7 @@ export async function getUserRoleInfo(
   userId: string,
 ): Promise<{ role: UserRole | null; name: string | null; isSetupComplete: boolean | null }> {
   // user_metadata に role が設定されている場合はそれを優先
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getCurrentUserWithClient(supabase)
   const metaRole = (user?.user_metadata as any)?.role as UserRole | undefined
 
   const fetchRole = (

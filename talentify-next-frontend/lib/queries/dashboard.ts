@@ -2,12 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import type { ScheduleItem } from '@/components/ScheduleCard'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import { countUnreadNotificationsByUser } from '@/lib/repositories/notifications'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 
 export async function getTalentDashboardData() {
   const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { user } = await getCurrentUser()
 
   if (!user) {
     return { pendingOffersCount: 0, unreadMessagesCount: 0, schedule: [] as ScheduleItem[] }
@@ -69,10 +68,7 @@ export async function getTalentDashboardData() {
 export async function getStoreDashboardData() {
   const supabase = createClient()
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+  const { user, error: userError } = await getCurrentUser()
 
   if (userError || !user) {
     throw new Error('failed to fetch user session')

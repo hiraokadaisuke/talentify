@@ -1,4 +1,5 @@
 import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 
 export type Attachment = {
   path: string
@@ -44,9 +45,7 @@ export async function sendOfferMessage(
     attachments: Attachment[]
   }
 ): Promise<OfferMessage> {
-  const {
-    data: { user },
-  } = await client.auth.getUser()
+  const { user } = await getCurrentUserWithClient(client)
   if (!user) throw new Error('Not authenticated')
   const { data, error } = await client
     .from('offer_messages')
@@ -82,9 +81,7 @@ export function subscribeOfferMessages(
 }
 
 export async function upsertReadReceipt(client: SupabaseClient, offerId: string) {
-  const {
-    data: { user },
-  } = await client.auth.getUser()
+  const { user } = await getCurrentUserWithClient(client)
   if (!user) return
   await client.from('offer_read_receipts').upsert(
     {
