@@ -59,6 +59,36 @@ type FindOfferByIdForAuthUserParams = {
   userId: string
 }
 
+type FindStoreByIdForAuthUserParams = {
+  storeId: string
+  userId: string
+}
+
+type FindExistingOfferForCreateParams = {
+  storeId: string
+  talentId: string
+  date: Date
+  timeRange: string
+}
+
+export type OfferCreateInput = {
+  user_id: string
+  store_id: string
+  talent_id: string
+  date: Date
+  time_range: string
+  agreed: boolean
+  message: string
+  status: OfferStatusType
+}
+
+export class OfferCreateConflictError extends Error {
+  constructor() {
+    super('offer create conflict')
+    this.name = 'OfferCreateConflictError'
+  }
+}
+
 export type OfferAccessForUpdate = {
   store_user_id: string | null
   talent_user_id: string | null
@@ -169,6 +199,65 @@ export async function findOfferByIdForAuthUser({
     invoice_amount: offer.invoice_amount,
     store_name: offer.stores?.store_name ?? null,
     talent_display_name: offer.talents?.display_name ?? offer.talents?.name ?? null,
+  }
+}
+
+export async function findStoreByIdForAuthUser({
+  storeId,
+  userId,
+}: FindStoreByIdForAuthUserParams): Promise<{ id: string; user_id: string | null } | null> {
+  const prisma = getPrismaClient()
+
+  const store = await prisma.stores.findFirst({
+    where: {
+      id: storeId,
+      user_id: userId,
+    },
+    select: {
+      id: true,
+      user_id: true,
+    },
+  })
+
+  return store
+}
+
+export async function findExistingOfferForCreate({
+  storeId,
+  talentId,
+  date,
+  timeRange,
+}: FindExistingOfferForCreateParams) {
+  const prisma = getPrismaClient()
+
+  const offer = await prisma.offers.findFirst({
+    where: {
+      store_id: storeId,
+      talent_id: talentId,
+      date,
+      time_range: timeRange,
+    },
+    orderBy: {
+      created_at: 'desc',
+    },
+  })
+
+  return offer
+}
+
+export async function createOffer(input: OfferCreateInput) {
+  const prisma = getPrismaClient()
+
+  try {
+    const offer = await prisma.offers.create({
+      data: input,
+    })
+    return offer
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new OfferCreateConflictError()
+    }
+    throw error
   }
 }
 
