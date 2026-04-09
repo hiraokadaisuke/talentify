@@ -1,16 +1,5 @@
 import type { NotificationRow } from '@/utils/notifications'
 
-jest.mock('@/utils/supabase/client', () => ({
-  createClient: jest.fn(() => ({
-    from: jest.fn(() => ({
-      update: jest.fn(() => ({
-        eq: jest.fn(),
-        in: jest.fn(),
-      })),
-    })),
-  })),
-}))
-
 test('getNotifications fetches notifications from API', async () => {
   const mockData: NotificationRow[] = [
     {
@@ -68,4 +57,58 @@ test('formatUnreadCount formats values', async () => {
   expect(formatUnreadCount(1)).toBe('1')
   expect(formatUnreadCount(98)).toBe('98')
   expect(formatUnreadCount(120)).toBe('99+')
+})
+
+test('markNotificationRead updates read state via API', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+  } as Response)
+
+  const { markNotificationRead } = await import('@/utils/notifications')
+  await markNotificationRead('notification-id')
+
+  expect(global.fetch).toHaveBeenCalledWith('/api/notifications/notification-id/read', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_read: true }),
+  })
+})
+
+test('markNotificationUnread updates unread state via API', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+  } as Response)
+
+  const { markNotificationUnread } = await import('@/utils/notifications')
+  await markNotificationUnread('notification-id')
+
+  expect(global.fetch).toHaveBeenCalledWith('/api/notifications/notification-id/read', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ is_read: false }),
+  })
+})
+
+test('markAllNotificationsRead uses API when ids exist', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+  } as Response)
+
+  const { markAllNotificationsRead } = await import('@/utils/notifications')
+  await markAllNotificationsRead(['id-1', 'id-2'])
+
+  expect(global.fetch).toHaveBeenCalledWith('/api/notifications/read-all', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ids: ['id-1', 'id-2'] }),
+  })
+})
+
+test('markAllNotificationsRead is no-op when ids are empty', async () => {
+  global.fetch = jest.fn()
+
+  const { markAllNotificationsRead } = await import('@/utils/notifications')
+  await markAllNotificationsRead([])
+
+  expect(global.fetch).not.toHaveBeenCalled()
 })

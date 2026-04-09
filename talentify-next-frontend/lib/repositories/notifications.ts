@@ -14,6 +14,21 @@ type FindNotificationsByUserParams = {
   limit?: number
 }
 
+type MarkNotificationReadParams = {
+  id: string
+  userId: string
+}
+
+type MarkNotificationUnreadParams = {
+  id: string
+  userId: string
+}
+
+type MarkAllNotificationsReadParams = {
+  userId: string
+  ids?: string[]
+}
+
 type NotificationQueryRow = {
   id: string
   user_id: string
@@ -120,4 +135,72 @@ export async function findNotificationsByUser({
       return !offerId || !hiddenOfferIds.has(offerId)
     })
     .map(toNotificationRow)
+}
+
+export async function markNotificationRead({
+  id,
+  userId,
+}: MarkNotificationReadParams): Promise<number> {
+  const prisma = getPrismaClient()
+  const now = new Date()
+
+  const result = await prisma.notifications.updateMany({
+    where: {
+      id,
+      user_id: userId,
+    },
+    data: {
+      is_read: true,
+      read_at: now,
+    },
+  })
+
+  return result.count
+}
+
+export async function markNotificationUnread({
+  id,
+  userId,
+}: MarkNotificationUnreadParams): Promise<number> {
+  const prisma = getPrismaClient()
+
+  const result = await prisma.notifications.updateMany({
+    where: {
+      id,
+      user_id: userId,
+    },
+    data: {
+      is_read: false,
+      read_at: null,
+    },
+  })
+
+  return result.count
+}
+
+export async function markAllNotificationsRead({
+  userId,
+  ids,
+}: MarkAllNotificationsReadParams): Promise<number> {
+  const prisma = getPrismaClient()
+  const now = new Date()
+
+  const idFilter =
+    Array.isArray(ids) && ids.length > 0
+      ? { id: { in: ids } }
+      : {}
+
+  const result = await prisma.notifications.updateMany({
+    where: {
+      user_id: userId,
+      ...idFilter,
+      is_read: false,
+    },
+    data: {
+      is_read: true,
+      read_at: now,
+    },
+  })
+
+  return result.count
 }
