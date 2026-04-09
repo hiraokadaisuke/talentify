@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import {
   createOffer,
   findExistingOfferForCreate,
@@ -116,7 +115,7 @@ export async function POST(req: NextRequest) {
       time_range: body.time_range,
       agreed: body.agreed,
       message: body.message ?? '',
-      status: toDbOfferStatus('pending') ?? 'pending',
+      status: 'pending',
     })
 
     // Notification creation is handled by a database trigger
