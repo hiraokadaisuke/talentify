@@ -1,3 +1,19 @@
+jest.mock('@/lib/repositories/offers', () => ({
+  findStoreOffersByAuthUser: jest.fn(),
+  OFFER_STATUS_TYPES: [
+    'draft',
+    'pending',
+    'approved',
+    'rejected',
+    'completed',
+    'offer_created',
+    'confirmed',
+    'canceled',
+    'no_show',
+    'submitted',
+  ],
+}))
+
 import { validateOfferPayload } from '@/app/api/offers/route'
 
 describe('validateOfferPayload', () => {
