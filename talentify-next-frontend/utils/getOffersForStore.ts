@@ -58,7 +58,7 @@ export async function getOffersForStore() {
     return [] as Offer[]
   }
 
-  const offers = (data ?? []) as RawOffer[]
+  const offers = (data ?? []) as unknown as RawOffer[]
 
   let invoiceMap = new Map<string, { status: string | null; payment_status: string | null }>()
   if (offers.length > 0) {
