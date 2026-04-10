@@ -20,7 +20,7 @@ export default function OfferSummaryCard({
       title={title}
       ctaHref={link}
       ctaLabel={link ? '詳細を見る' : undefined}
-      ctaVariant='outline'
+      ctaVariant='default'
     >
       <div className='space-y-3'>
         <div className='rounded-lg border border-amber-100 bg-amber-50/70 p-3'>

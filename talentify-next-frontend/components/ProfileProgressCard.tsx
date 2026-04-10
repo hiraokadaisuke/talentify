@@ -3,6 +3,7 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { AlertCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 
 export default async function ProfileProgressCard() {
   const supabase = createClient()
@@ -55,8 +56,8 @@ export default async function ProfileProgressCard() {
           </div>
         )}
 
-        <Button variant='default' size='sm' className='w-full'>
-          プロフィールを編集する
+        <Button variant='default' size='sm' className='w-full' asChild>
+          <Link href='/talent/edit'>プロフィールを編集する</Link>
         </Button>
       </CardContent>
     </Card>

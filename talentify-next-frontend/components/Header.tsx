@@ -99,7 +99,10 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   }
 
   const isLoggedIn = !!userName
-  const roleNav = sidebarRole ? ROLE_MENUS[sidebarRole] : null
+  const inferredRole =
+    sidebarRole ??
+    (pathname?.startsWith('/store') ? 'store' : pathname?.startsWith('/talent') ? 'talent' : undefined)
+  const roleNav = inferredRole ? ROLE_MENUS[inferredRole] : null
   const homeHref = roleNav?.homeHref ?? '/'
 
   const isHomeActive = !!roleNav && pathname === roleNav.homeHref

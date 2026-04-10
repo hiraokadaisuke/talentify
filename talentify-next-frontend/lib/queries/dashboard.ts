@@ -48,7 +48,9 @@ export async function getTalentDashboardData() {
         )
         .eq('talent_id', talentId)
         .eq('status', confirmedStatus)
+        .gte('date', new Date().toISOString().slice(0, 10))
         .order('date', { ascending: true })
+        .limit(5)
     : { data: [] }
 
   const schedule: ScheduleItem[] = (scheduleData ?? []).map((d: any) => ({
