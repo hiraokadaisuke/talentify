@@ -16,7 +16,6 @@ import { OfferProgressStatusIcons } from '@/components/offer/OfferProgressStatus
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import styles from '@/app/offer-management-table.module.css'
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
@@ -131,7 +130,7 @@ export default function TalentOffersPage() {
   }
 
   return (
-    <main className={`space-y-4 bg-[#f8fafc] p-4 md:p-6 ${styles.offerPage}`}>
+    <main className="space-y-4 bg-[#f8fafc] p-4 md:p-6">
       <div>
         <h1 className="text-2xl font-bold text-[#334155]">オファー管理</h1>
         <p className="mt-1 text-sm text-[#64748b]">受信したオファーと進捗を一覧で確認できます。</p>
@@ -164,11 +163,11 @@ export default function TalentOffersPage() {
         <EmptyState title="対象のオファーがありません" />
       ) : (
         <>
-          <section className={`hidden md:block ${styles.tableCard}`}>
-            <Table className={styles.offerTable}>
-              <TableHeader className={`sticky top-0 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90 ${styles.offerThead}`}>
+          <section className="hidden overflow-x-auto rounded-xl border border-[#e2e8f0] bg-white shadow-sm md:block">
+            <Table>
+              <TableHeader className="sticky top-0 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
                 <TableRow className="h-11 border-b border-[#e2e8f0] text-sm">
-                  <TableHead className={`w-[180px] px-6 text-xs font-semibold tracking-wide text-[#334155] ${styles.offerHeadCell}`} aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
+                  <TableHead className="w-[180px] px-6 text-xs font-semibold tracking-wide text-[#334155]" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
                     <button
                       type="button"
                       onClick={toggleSortOrder}
@@ -183,28 +182,28 @@ export default function TalentOffersPage() {
                       <span className="sr-only">来店日で並び替え</span>
                     </button>
                   </TableHead>
-                  <TableHead className={`min-w-[220px] px-4 text-xs font-semibold tracking-wide text-[#334155] ${styles.offerHeadCell}`}>店舗名</TableHead>
-                  <TableHead className={`w-[150px] px-4 text-xs font-semibold tracking-wide text-[#334155] ${styles.offerHeadCell}`}>現在ステータス</TableHead>
-                  <TableHead className={`min-w-[360px] px-4 text-xs font-semibold tracking-wide text-[#334155] ${styles.offerHeadCell}`}>進捗</TableHead>
-                  <TableHead className={`w-[120px] px-6 text-right text-xs font-semibold tracking-wide text-[#334155] ${styles.offerHeadCell}`}>詳細</TableHead>
+                  <TableHead className="min-w-[220px] px-4 text-xs font-semibold tracking-wide text-[#334155]">店舗名</TableHead>
+                  <TableHead className="w-[150px] px-4 text-xs font-semibold tracking-wide text-[#334155]">現在ステータス</TableHead>
+                  <TableHead className="min-w-[360px] px-4 text-xs font-semibold tracking-wide text-[#334155]">進捗</TableHead>
+                  <TableHead className="w-[120px] px-6 text-right text-xs font-semibold tracking-wide text-[#334155]">詳細</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map(o => (
                   <TableRow
                     key={o.id}
-                    className={`h-[68px] cursor-pointer border-b border-[#e2e8f0] transition-colors hover:bg-[#f8fafc] ${styles.offerBodyRow}`}
+                    className="h-[68px] cursor-pointer border-b border-[#e2e8f0] transition-colors hover:bg-[#f8fafc]"
                     onClick={() => handleRowClick(o.id)}
                   >
-                    <TableCell className={`px-6 align-middle ${styles.offerBodyCell}`}>
+                    <TableCell className="px-6 align-middle">
                       <div className="font-medium text-[#334155]">{formatVisitDate(o.date)}</div>
                     </TableCell>
-                    <TableCell className={`px-4 align-middle ${styles.offerBodyCell}`}>
+                    <TableCell className="px-4 align-middle">
                       <div className="truncate text-[#334155]" title={o.store_name ?? ''}>
                         {o.store_name ?? '-'}
                       </div>
                     </TableCell>
-                    <TableCell className={`px-4 align-middle ${styles.offerBodyCell}`}>
+                    <TableCell className="px-4 align-middle">
                       <Badge
                         variant={statusVariants[o.status ?? 'pending']}
                         className={`rounded-md px-2.5 py-1 text-[11px] font-semibold ${statusToneClasses[o.status ?? 'pending'] ?? statusToneClasses.pending}`}
@@ -212,7 +211,7 @@ export default function TalentOffersPage() {
                         {statusLabels[o.status ?? 'pending']}
                       </Badge>
                     </TableCell>
-                    <TableCell className={`px-4 align-middle ${styles.offerBodyCell}`}>
+                    <TableCell className="px-4 align-middle">
                       {CANCEL_STATUSES.has(o.status ?? '') ? (
                         <Badge variant="outline" className="border-[#7f1d1d]/35 bg-[#fef2f2] px-2.5 py-1 font-semibold text-[#7f1d1d]">
                           キャンセル済み
@@ -221,7 +220,7 @@ export default function TalentOffersPage() {
                         <OfferProgressStatusIcons steps={o.steps} badge={o.badge} />
                       )}
                     </TableCell>
-                    <TableCell className={`px-6 align-middle text-right ${styles.offerBodyCell}`}>
+                    <TableCell className="px-6 align-middle text-right">
                       <Button variant="ghost" size="sm" asChild className="text-[#2f4da0] hover:bg-[#eef2ff] hover:text-[#233a7a]">
                         <Link href={`/talent/offers/${o.id}`} className="inline-flex items-center gap-1" onClick={event => event.stopPropagation()}>
                           詳細
