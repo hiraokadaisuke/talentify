@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { getOffersForStore, Offer } from '@/utils/getOffersForStore'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TableSkeleton } from '@/components/ui/skeleton'
@@ -13,6 +14,7 @@ import { getOfferProgress } from '@/utils/offerProgress'
 import { OfferProgressStatusIcons } from '@/components/offer/OfferProgressStatusIcons'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
@@ -31,17 +33,21 @@ const statusVariants: Record<string, Parameters<typeof Badge>[0]['variant']> = {
 }
 
 const statusToneClasses: Record<string, string> = {
-  pending: 'border-amber-200 bg-amber-50 text-amber-800',
-  confirmed: 'border-blue-200 bg-blue-50 text-blue-800',
-  rejected: 'border-rose-200 bg-rose-50 text-rose-800',
-  completed: 'border-emerald-200 bg-emerald-50 text-emerald-800',
-  expired: 'border-slate-200 bg-slate-100 text-slate-700',
+  pending: 'border-[#a15c00]/45 bg-[#fff3e2] text-[#a15c00]',
+  confirmed: 'border-[#2f4da0]/45 bg-[#e9eefc] text-[#2f4da0]',
+  rejected: 'border-[#64748b]/45 bg-[#f1f5f9] text-[#64748b]',
+  completed: 'border-[#1f6b4f]/45 bg-[#e8f5ef] text-[#1f6b4f]',
+  expired: 'border-[#64748b]/45 bg-[#f1f5f9] text-[#64748b]',
 }
 
+type OfferTab = 'active' | 'history' | 'cancel'
+
 export default function StoreOffersPage() {
+  const router = useRouter()
   const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [tab, setTab] = useState<OfferTab>('active')
 
   useEffect(() => {
     const load = async () => {
@@ -81,6 +87,16 @@ export default function StoreOffersPage() {
     })
   }, [offersWithProgress, sortOrder])
 
+  const filtered = useMemo(() => {
+    if (tab === 'history') {
+      return sorted.filter(o => o.badge.label === '支払い済み' || o.badge.label === '来店完了')
+    }
+    if (tab === 'cancel') {
+      return sorted.filter(o => o.status === 'rejected' || o.status === 'expired')
+    }
+    return sorted.filter(o => ['承認待ち', '承認済み', '来店予定', 'レビュー待ち'].includes(o.badge.label))
+  }, [sorted, tab])
+
   const toggleSortOrder = () => {
     setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))
   }
@@ -95,22 +111,33 @@ export default function StoreOffersPage() {
     }
   }
 
+  const handleRowClick = (offerId: string) => {
+    router.push(`/store/offers/${offerId}`)
+  }
+
   return (
     <main className="space-y-4 p-4 md:p-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">オファー管理</h1>
         <p className="mt-1 text-sm text-slate-500">来店予定・進捗状況を一覧で確認できます。</p>
       </div>
+      <Tabs value={tab} onValueChange={value => setTab(value as OfferTab)}>
+        <TabsList className="h-11 bg-slate-100 p-1">
+          <TabsTrigger value="active" className="data-[state=active]:bg-white">進行中</TabsTrigger>
+          <TabsTrigger value="history" className="data-[state=active]:bg-white">履歴</TabsTrigger>
+          <TabsTrigger value="cancel" className="data-[state=active]:bg-white">キャンセル</TabsTrigger>
+        </TabsList>
+      </Tabs>
       {loading ? (
         <TableSkeleton rows={3} />
-      ) : sorted.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <EmptyState title="対象のオファーがありません" />
       ) : (
         <>
           <section className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm md:block">
             <Table>
-              <TableHeader className="sticky top-0 bg-slate-50">
-                <TableRow className="h-12 border-b border-slate-200 text-sm">
+              <TableHeader className="sticky top-0 bg-slate-100/95">
+                <TableRow className="h-11 border-b border-slate-300 text-sm">
                   <TableHead className="w-[180px] px-6 text-xs font-semibold tracking-wide text-slate-600" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
                     <button
                       type="button"
@@ -133,8 +160,12 @@ export default function StoreOffersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sorted.map(o => (
-                  <TableRow key={o.id} className="h-[76px] border-b border-slate-100 transition-colors hover:bg-slate-50/80">
+                {filtered.map(o => (
+                  <TableRow
+                    key={o.id}
+                    className="h-[68px] cursor-pointer border-b border-slate-300 transition-colors hover:bg-slate-100"
+                    onClick={() => handleRowClick(o.id)}
+                  >
                     <TableCell className="px-6 align-middle">
                       <div className="font-medium text-slate-900">{formatVisitDate(o.date)}</div>
                     </TableCell>
@@ -154,7 +185,7 @@ export default function StoreOffersPage() {
                     </TableCell>
                     <TableCell className="px-6 align-middle text-right">
                       <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50 hover:text-blue-800">
-                        <Link href={`/store/offers/${o.id}`} className="inline-flex items-center gap-1">
+                        <Link href={`/store/offers/${o.id}`} className="inline-flex items-center gap-1" onClick={event => event.stopPropagation()}>
                           詳細
                           <ChevronRight className="h-4 w-4" />
                         </Link>
@@ -167,8 +198,12 @@ export default function StoreOffersPage() {
           </section>
 
           <div className="md:hidden space-y-3">
-            {sorted.map(o => (
-              <div key={o.id} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            {filtered.map(o => (
+              <div
+                key={o.id}
+                className="space-y-3 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-colors hover:bg-slate-100"
+                onClick={() => handleRowClick(o.id)}
+              >
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-medium text-slate-900">{formatVisitDate(o.date)}</div>
                   <Badge variant={statusVariants[o.status ?? 'pending']} className={`rounded-md px-2.5 py-1 text-[11px] font-semibold ${statusToneClasses[o.status ?? 'pending'] ?? statusToneClasses.pending}`}>
@@ -183,7 +218,7 @@ export default function StoreOffersPage() {
                 </div>
                 <div className="flex justify-end">
                   <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50 hover:text-blue-800">
-                    <Link href={`/store/offers/${o.id}`} className="inline-flex items-center gap-1">
+                    <Link href={`/store/offers/${o.id}`} className="inline-flex items-center gap-1" onClick={event => event.stopPropagation()}>
                       詳細
                       <ChevronRight className="h-4 w-4" />
                     </Link>

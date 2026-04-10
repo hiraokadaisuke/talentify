@@ -17,9 +17,9 @@ const statusLabel: Record<OfferProgressStep['status'], string> = {
 const baseCircleStyles = 'flex h-8 w-8 items-center justify-center rounded-full'
 
 const iconContainerStyles: Record<OfferProgressStep['status'], string> = {
-  complete: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
-  current: 'bg-blue-50 text-blue-700 ring-1 ring-blue-100',
-  upcoming: 'bg-slate-100 text-slate-400 ring-1 ring-slate-200',
+  complete: 'bg-[#e8f5ef] text-[#1f6b4f] ring-1 ring-[#1f6b4f]/30',
+  current: 'bg-[#e9eefc] text-[#2f4da0] ring-1 ring-[#2f4da0]/30',
+  upcoming: 'bg-[#f1f5f9] text-[#64748b] ring-1 ring-[#cbd5e1]',
 }
 
 const iconByStatus: Record<OfferProgressStep['status'], ReactNode> = {
@@ -44,9 +44,9 @@ type OfferProgressStatusIconsProps = {
 }
 
 const badgeVariantStyles: Record<OfferProgressBadge['variant'], string> = {
-  default: 'border-blue-200 text-blue-800 bg-blue-50',
-  secondary: 'border-amber-200 text-amber-800 bg-amber-50',
-  success: 'border-emerald-200 text-emerald-800 bg-emerald-50',
+  default: 'border-[#2f4da0]/45 text-[#2f4da0] bg-[#e9eefc]',
+  secondary: 'border-[#a15c00]/45 text-[#a15c00] bg-[#fff3e2]',
+  success: 'border-[#1f6b4f]/45 text-[#1f6b4f] bg-[#e8f5ef]',
 }
 
 export function OfferProgressStatusIcons({ steps, badge, className }: OfferProgressStatusIconsProps) {
