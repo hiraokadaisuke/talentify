@@ -1,5 +1,4 @@
-import React from 'react'
-import Link from 'next/link'
+import { CircleCheckBig, Clock3 } from 'lucide-react'
 import { DashboardCard } from './ui/dashboard-card'
 import { Badge } from './ui/badge'
 
@@ -21,13 +20,28 @@ export default function OfferSummaryCard({
       title={title}
       ctaHref={link}
       ctaLabel={link ? '詳細を見る' : undefined}
+      ctaVariant='outline'
     >
-      <div className="text-sm space-y-1">
-        <div>
-          保留中: <Badge variant="secondary">{pending}</Badge>
+      <div className='space-y-3'>
+        <div className='rounded-lg border border-amber-100 bg-amber-50/70 p-3'>
+          <div className='flex items-center justify-between text-sm text-slate-600'>
+            <span className='inline-flex items-center gap-1.5 font-medium'>
+              <Clock3 className='h-4 w-4 text-amber-600' />
+              保留中
+            </span>
+            <Badge variant='secondary' className='text-sm font-semibold'>
+              {pending}
+            </Badge>
+          </div>
         </div>
-        <div>
-          承認済み: <Badge>{confirmed}</Badge>
+        <div className='rounded-lg border border-emerald-100 bg-emerald-50/70 p-3'>
+          <div className='flex items-center justify-between text-sm text-slate-600'>
+            <span className='inline-flex items-center gap-1.5 font-medium'>
+              <CircleCheckBig className='h-4 w-4 text-emerald-600' />
+              承認済み
+            </span>
+            <Badge className='text-sm font-semibold'>{confirmed}</Badge>
+          </div>
         </div>
       </div>
     </DashboardCard>
