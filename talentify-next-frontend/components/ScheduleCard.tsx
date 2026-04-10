@@ -19,7 +19,7 @@ interface ScheduleCardProps {
   items: ScheduleItem[]
 }
 
-export default function ScheduleCard({ title = '今週の予定', items }: ScheduleCardProps) {
+export default function ScheduleCard({ title = '直近の予定', items }: ScheduleCardProps) {
   return (
     <DashboardCard title={title}>
       <div className='space-y-3 text-sm'>
@@ -53,9 +53,9 @@ export default function ScheduleCard({ title = '今週の予定', items }: Sched
             {ev.href && (
               <Link
                 href={ev.href}
-                className='inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700'
+                className='inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 transition-colors hover:border-blue-300 hover:bg-blue-100'
               >
-                詳細
+                詳細を見る
                 <ChevronRight className='h-3.5 w-3.5' />
               </Link>
             )}
