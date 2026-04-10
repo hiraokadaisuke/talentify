@@ -22,9 +22,14 @@ interface MenuItem {
   label: string
 }
 
-const ROLE_MENUS: Record<'store' | 'talent', { homeHref: string; project: MenuItem[]; account: MenuItem[] }> = {
+const ROLE_MENUS: Record<
+  'store' | 'talent',
+  { homeHref: string; primaryHref?: string; primaryLabel?: string; project: MenuItem[]; account: MenuItem[] }
+> = {
   store: {
     homeHref: '/store/dashboard',
+    primaryHref: '/search',
+    primaryLabel: '演者を探す',
     project: [
       { href: '/store/offers', label: 'オファー管理' },
       { href: '/store/schedule', label: 'スケジュール管理' },
@@ -106,6 +111,9 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const homeHref = roleNav?.homeHref ?? '/'
 
   const isHomeActive = !!roleNav && pathname === roleNav.homeHref
+  const isPrimaryActive =
+    !!roleNav?.primaryHref &&
+    (pathname === roleNav.primaryHref || pathname.startsWith(`${roleNav.primaryHref}/`))
   const isProjectActive =
     !!roleNav &&
     roleNav.project.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
@@ -129,6 +137,17 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             >
               ホーム
             </Link>
+            {roleNav.primaryHref && roleNav.primaryLabel && (
+              <Link
+                href={roleNav.primaryHref}
+                className={cn(
+                  'text-sm font-medium transition-colors hover:text-primary',
+                  isPrimaryActive ? 'text-primary' : 'text-muted-foreground',
+                )}
+              >
+                {roleNav.primaryLabel}
+              </Link>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button

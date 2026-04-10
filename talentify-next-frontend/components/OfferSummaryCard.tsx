@@ -22,8 +22,8 @@ export default function OfferSummaryCard({
       ctaLabel={link ? '詳細を見る' : undefined}
       ctaVariant='default'
     >
-      <div className='space-y-3'>
-        <div className='rounded-lg border border-amber-100 bg-amber-50/70 p-3'>
+      <div className='space-y-2.5'>
+        <div className='rounded-lg border border-amber-100 bg-amber-50/70 p-2.5'>
           <div className='flex items-center justify-between text-sm text-slate-600'>
             <span className='inline-flex items-center gap-1.5 font-medium'>
               <Clock3 className='h-4 w-4 text-amber-600' />
@@ -34,7 +34,7 @@ export default function OfferSummaryCard({
             </Badge>
           </div>
         </div>
-        <div className='rounded-lg border border-emerald-100 bg-emerald-50/70 p-3'>
+        <div className='rounded-lg border border-emerald-100 bg-emerald-50/70 p-2.5'>
           <div className='flex items-center justify-between text-sm text-slate-600'>
             <span className='inline-flex items-center gap-1.5 font-medium'>
               <CircleCheckBig className='h-4 w-4 text-emerald-600' />
