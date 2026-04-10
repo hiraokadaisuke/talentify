@@ -35,12 +35,12 @@ const statusVariants: Record<string, Parameters<typeof Badge>[0]['variant']> = {
 }
 
 const statusToneClasses: Record<string, string> = {
-  pending: 'border-[#a15c00]/45 bg-[#fff3e2] text-[#a15c00]',
-  confirmed: 'border-[#2f4da0]/45 bg-[#e9eefc] text-[#2f4da0]',
-  canceled: 'border-[#b42318]/45 bg-[#fff1f0] text-[#b42318]',
-  rejected: 'border-[#64748b]/45 bg-[#f1f5f9] text-[#64748b]',
-  completed: 'border-[#1f6b4f]/45 bg-[#e8f5ef] text-[#1f6b4f]',
-  expired: 'border-[#64748b]/45 bg-[#f1f5f9] text-[#64748b]',
+  pending: 'border-[#e2e8f0] bg-white text-[#64748b]',
+  confirmed: 'border-[#2f4da0]/35 bg-[#eef2ff] text-[#2f4da0]',
+  canceled: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
+  rejected: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
+  completed: 'border-[#1f6b4f]/35 bg-[#ecfdf3] text-[#1f6b4f]',
+  expired: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
 }
 
 type OfferTab = 'active' | 'history' | 'cancel'
@@ -124,28 +124,28 @@ export default function StoreOffersPage() {
   }
 
   return (
-    <main className="space-y-4 p-4 md:p-6">
+    <main className="space-y-4 bg-[#f8fafc] p-4 md:p-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">オファー管理</h1>
-        <p className="mt-1 text-sm text-slate-500">来店予定・進捗状況を一覧で確認できます。</p>
+        <h1 className="text-2xl font-bold text-[#334155]">オファー管理</h1>
+        <p className="mt-1 text-sm text-[#64748b]">来店予定・進捗状況を一覧で確認できます。</p>
       </div>
       <Tabs value={tab} onValueChange={value => setTab(value as OfferTab)}>
         <TabsList className="h-auto rounded-none border-b border-slate-200 bg-transparent p-0">
           <TabsTrigger
             value="active"
-            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-800 data-[state=active]:border-slate-900 data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
+            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-[#64748b] transition-colors hover:text-[#334155] data-[state=active]:border-[#2f4da0] data-[state=active]:text-[#2f4da0] data-[state=active]:shadow-none"
           >
             進行中
           </TabsTrigger>
           <TabsTrigger
             value="history"
-            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-800 data-[state=active]:border-slate-900 data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
+            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-[#64748b] transition-colors hover:text-[#334155] data-[state=active]:border-[#2f4da0] data-[state=active]:text-[#2f4da0] data-[state=active]:shadow-none"
           >
             履歴
           </TabsTrigger>
           <TabsTrigger
             value="cancel"
-            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-800 data-[state=active]:border-slate-900 data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
+            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-[#64748b] transition-colors hover:text-[#334155] data-[state=active]:border-[#2f4da0] data-[state=active]:text-[#2f4da0] data-[state=active]:shadow-none"
           >
             キャンセル
           </TabsTrigger>
@@ -157,43 +157,43 @@ export default function StoreOffersPage() {
         <EmptyState title="対象のオファーがありません" />
       ) : (
         <>
-          <section className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm md:block">
+          <section className="hidden overflow-x-auto rounded-xl border border-[#e2e8f0] bg-white shadow-sm md:block">
             <Table>
               <TableHeader className="sticky top-0 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
-                <TableRow className="h-11 border-b border-slate-200 text-sm">
-                  <TableHead className="w-[180px] px-6 text-xs font-semibold tracking-wide text-slate-700" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
+                <TableRow className="h-11 border-b border-[#e2e8f0] text-sm">
+                  <TableHead className="w-[180px] px-6 text-xs font-semibold tracking-wide text-[#334155]" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
                     <button
                       type="button"
                       onClick={toggleSortOrder}
-                      className="inline-flex items-center gap-1 font-semibold text-slate-700 transition-colors hover:text-slate-900"
+                      className="inline-flex items-center gap-1 font-semibold text-[#334155] transition-colors hover:text-[#2f4da0]"
                     >
                       来店日
                       {sortOrder === 'asc' ? (
-                        <ChevronUp className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                        <ChevronUp className="h-4 w-4 text-[#2f4da0]" aria-hidden="true" />
                       ) : (
-                        <ChevronDown className="h-4 w-4 text-blue-700" aria-hidden="true" />
+                        <ChevronDown className="h-4 w-4 text-[#2f4da0]" aria-hidden="true" />
                       )}
                       <span className="sr-only">来店日で並び替え</span>
                     </button>
                   </TableHead>
-                  <TableHead className="min-w-[220px] px-4 text-xs font-semibold tracking-wide text-slate-700">演者名</TableHead>
-                  <TableHead className="w-[150px] px-4 text-xs font-semibold tracking-wide text-slate-700">現在ステータス</TableHead>
-                  <TableHead className="min-w-[360px] px-4 text-xs font-semibold tracking-wide text-slate-700">進捗</TableHead>
-                  <TableHead className="w-[120px] px-6 text-right text-xs font-semibold tracking-wide text-slate-700">詳細</TableHead>
+                  <TableHead className="min-w-[220px] px-4 text-xs font-semibold tracking-wide text-[#334155]">演者名</TableHead>
+                  <TableHead className="w-[150px] px-4 text-xs font-semibold tracking-wide text-[#334155]">現在ステータス</TableHead>
+                  <TableHead className="min-w-[360px] px-4 text-xs font-semibold tracking-wide text-[#334155]">進捗</TableHead>
+                  <TableHead className="w-[120px] px-6 text-right text-xs font-semibold tracking-wide text-[#334155]">詳細</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map(o => (
                   <TableRow
                     key={o.id}
-                    className="h-[68px] cursor-pointer border-b border-slate-300 transition-colors hover:bg-slate-100"
+                    className="h-[68px] cursor-pointer border-b border-[#e2e8f0] transition-colors hover:bg-[#f8fafc]"
                     onClick={() => handleRowClick(o.id)}
                   >
                     <TableCell className="px-6 align-middle">
-                      <div className="font-medium text-slate-900">{formatVisitDate(o.date)}</div>
+                      <div className="font-medium text-[#334155]">{formatVisitDate(o.date)}</div>
                     </TableCell>
                     <TableCell className="px-4 align-middle">
-                      <div className="truncate text-slate-900" title={o.talent_name ?? ''}>{o.talent_name ?? '-'}</div>
+                      <div className="truncate text-[#334155]" title={o.talent_name ?? ''}>{o.talent_name ?? '-'}</div>
                     </TableCell>
                     <TableCell className="px-4 align-middle">
                       <Badge
@@ -205,7 +205,7 @@ export default function StoreOffersPage() {
                     </TableCell>
                     <TableCell className="px-4 align-middle">
                       {CANCEL_STATUSES.has(o.status ?? '') ? (
-                        <Badge variant="outline" className="border-[#b42318]/45 bg-[#fff1f0] px-2.5 py-1 font-semibold text-[#b42318]">
+                        <Badge variant="outline" className="border-[#7f1d1d]/35 bg-[#fef2f2] px-2.5 py-1 font-semibold text-[#7f1d1d]">
                           キャンセル済み
                         </Badge>
                       ) : (
@@ -213,7 +213,7 @@ export default function StoreOffersPage() {
                       )}
                     </TableCell>
                     <TableCell className="px-6 align-middle text-right">
-                      <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50 hover:text-blue-800">
+                      <Button variant="ghost" size="sm" asChild className="text-[#2f4da0] hover:bg-[#eef2ff] hover:text-[#233a7a]">
                         <Link href={`/store/offers/${o.id}`} className="inline-flex items-center gap-1" onClick={event => event.stopPropagation()}>
                           詳細
                           <ChevronRight className="h-4 w-4" />
@@ -230,22 +230,22 @@ export default function StoreOffersPage() {
             {filtered.map(o => (
               <div
                 key={o.id}
-                className="space-y-3 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm transition-colors hover:bg-slate-100"
+                className="space-y-3 rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm transition-colors hover:bg-[#f8fafc]"
                 onClick={() => handleRowClick(o.id)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-slate-900">{formatVisitDate(o.date)}</div>
+                  <div className="text-sm font-medium text-[#334155]">{formatVisitDate(o.date)}</div>
                   <Badge variant={statusVariants[o.status ?? 'pending']} className={`rounded-md px-2.5 py-1 text-[11px] font-semibold ${statusToneClasses[o.status ?? 'pending'] ?? statusToneClasses.pending}`}>
                     {statusLabels[o.status ?? 'pending']}
                   </Badge>
                 </div>
-                <div className="text-base font-semibold text-slate-900" title={o.talent_name ?? ''}>
+                <div className="text-base font-semibold text-[#334155]" title={o.talent_name ?? ''}>
                   {o.talent_name ?? '-'}
                 </div>
                 <div className="-mx-1 overflow-x-auto">
                   {CANCEL_STATUSES.has(o.status ?? '') ? (
                     <div className="mx-1">
-                      <Badge variant="outline" className="border-[#b42318]/45 bg-[#fff1f0] px-2.5 py-1 font-semibold text-[#b42318]">
+                      <Badge variant="outline" className="border-[#7f1d1d]/35 bg-[#fef2f2] px-2.5 py-1 font-semibold text-[#7f1d1d]">
                         キャンセル済み
                       </Badge>
                     </div>
@@ -254,7 +254,7 @@ export default function StoreOffersPage() {
                   )}
                 </div>
                 <div className="flex justify-end">
-                  <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50 hover:text-blue-800">
+                  <Button variant="ghost" size="sm" asChild className="text-[#2f4da0] hover:bg-[#eef2ff] hover:text-[#233a7a]">
                     <Link href={`/store/offers/${o.id}`} className="inline-flex items-center gap-1" onClick={event => event.stopPropagation()}>
                       詳細
                       <ChevronRight className="h-4 w-4" />

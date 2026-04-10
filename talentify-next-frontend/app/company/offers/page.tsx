@@ -76,12 +76,12 @@ export default function CompanyOffersPage() {
   }
 
   return (
-    <main className='p-6 space-y-4'>
-      <h1 className='text-xl font-bold'>オファー管理</h1>
-      <div className='flex flex-wrap gap-2 text-sm items-end'>
+    <main className='space-y-4 bg-[#f8fafc] p-6'>
+      <h1 className='text-xl font-bold text-[#334155]'>オファー管理</h1>
+      <div className='flex flex-wrap items-end gap-2 text-sm text-[#334155]'>
         <div>
-          <label className='block'>ステータス</label>
-          <select value={status} onChange={e=>setStatus(e.target.value)} className='border rounded p-1'>
+          <label className='block text-[#64748b]'>ステータス</label>
+          <select value={status} onChange={e=>setStatus(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'>
             <option value='all'>すべて</option>
             <option value='pending'>保留中</option>
             <option value='confirmed'>承諾済み</option>
@@ -90,32 +90,32 @@ export default function CompanyOffersPage() {
           </select>
         </div>
         <div>
-          <label className='block'>名前検索</label>
-          <input type='text' value={keyword} onChange={e=>setKeyword(e.target.value)} className='border rounded p-1'/>
+          <label className='block text-[#64748b]'>名前検索</label>
+          <input type='text' value={keyword} onChange={e=>setKeyword(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'/>
         </div>
         <div>
-          <label className='block'>来店日From</label>
-          <input type='date' value={visitFrom} onChange={e=>setVisitFrom(e.target.value)} className='border rounded p-1'/>
+          <label className='block text-[#64748b]'>来店日From</label>
+          <input type='date' value={visitFrom} onChange={e=>setVisitFrom(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'/>
         </div>
         <div>
-          <label className='block'>来店日To</label>
-          <input type='date' value={visitTo} onChange={e=>setVisitTo(e.target.value)} className='border rounded p-1'/>
+          <label className='block text-[#64748b]'>来店日To</label>
+          <input type='date' value={visitTo} onChange={e=>setVisitTo(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'/>
         </div>
         <div>
-          <label className='block'>請求日From</label>
-          <input type='date' value={invoiceFrom} onChange={e=>setInvoiceFrom(e.target.value)} className='border rounded p-1'/>
+          <label className='block text-[#64748b]'>請求日From</label>
+          <input type='date' value={invoiceFrom} onChange={e=>setInvoiceFrom(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'/>
         </div>
         <div>
-          <label className='block'>請求日To</label>
-          <input type='date' value={invoiceTo} onChange={e=>setInvoiceTo(e.target.value)} className='border rounded p-1'/>
+          <label className='block text-[#64748b]'>請求日To</label>
+          <input type='date' value={invoiceTo} onChange={e=>setInvoiceTo(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'/>
         </div>
         <div>
-          <label className='block'>支払日From</label>
-          <input type='date' value={paidFrom} onChange={e=>setPaidFrom(e.target.value)} className='border rounded p-1'/>
+          <label className='block text-[#64748b]'>支払日From</label>
+          <input type='date' value={paidFrom} onChange={e=>setPaidFrom(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'/>
         </div>
         <div>
-          <label className='block'>支払日To</label>
-          <input type='date' value={paidTo} onChange={e=>setPaidTo(e.target.value)} className='border rounded p-1'/>
+          <label className='block text-[#64748b]'>支払日To</label>
+          <input type='date' value={paidTo} onChange={e=>setPaidTo(e.target.value)} className='rounded border border-[#e2e8f0] bg-white p-1 text-[#334155]'/>
         </div>
         <div className='ml-auto'>
           <Button size='sm' onClick={downloadCsv}>CSV出力</Button>
@@ -127,48 +127,48 @@ export default function CompanyOffersPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title='該当するオファーがありません' />
       ) : (
-        <Table>
+        <Table className='overflow-hidden rounded-xl border border-[#e2e8f0] bg-white'>
           <TableHeader>
-            <TableRow>
-              <TableHead>オファーID</TableHead>
-              <TableHead>タレント名</TableHead>
-              <TableHead>店舗名</TableHead>
-              <TableHead>ステータス</TableHead>
-              <TableHead>来店日</TableHead>
-              <TableHead>報酬金額</TableHead>
-              <TableHead>契約確認</TableHead>
-              <TableHead>請求済</TableHead>
-              <TableHead>支払済</TableHead>
-              <TableHead>支払日</TableHead>
+            <TableRow className='border-b border-[#e2e8f0] bg-white'>
+              <TableHead className='text-[#334155]'>オファーID</TableHead>
+              <TableHead className='text-[#334155]'>タレント名</TableHead>
+              <TableHead className='text-[#334155]'>店舗名</TableHead>
+              <TableHead className='text-[#334155]'>ステータス</TableHead>
+              <TableHead className='text-[#334155]'>来店日</TableHead>
+              <TableHead className='text-[#334155]'>報酬金額</TableHead>
+              <TableHead className='text-[#334155]'>契約確認</TableHead>
+              <TableHead className='text-[#334155]'>請求済</TableHead>
+              <TableHead className='text-[#334155]'>支払済</TableHead>
+              <TableHead className='text-[#334155]'>支払日</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.map(o => (
-              <TableRow key={o.id}>
-                <TableCell>{o.id}</TableCell>
-                <TableCell>{o.talent_name}</TableCell>
-                <TableCell>{o.store_name}</TableCell>
-                <TableCell>{statusLabels[o.status ?? 'pending']}</TableCell>
-                <TableCell>{o.date ?? ''}</TableCell>
-                <TableCell>¥{(o.invoice_amount ?? o.reward ?? 0).toLocaleString()}</TableCell>
+              <TableRow key={o.id} className='border-b border-[#e2e8f0] hover:bg-[#f8fafc]'>
+                <TableCell className='text-[#334155]'>{o.id}</TableCell>
+                <TableCell className='text-[#334155]'>{o.talent_name}</TableCell>
+                <TableCell className='text-[#334155]'>{o.store_name}</TableCell>
+                <TableCell className='text-[#334155]'>{statusLabels[o.status ?? 'pending']}</TableCell>
+                <TableCell className='text-[#334155]'>{o.date ?? ''}</TableCell>
+                <TableCell className='text-[#334155]'>¥{(o.invoice_amount ?? o.reward ?? 0).toLocaleString()}</TableCell>
                 <TableCell>
-                  {o.agreed ? <Badge>確認済</Badge> : <Badge variant='destructive'>未確認</Badge>}
+                  {o.agreed ? <Badge className='border-[#2f4da0]/35 bg-[#eef2ff] text-[#2f4da0]' variant='outline'>確認済</Badge> : <Badge variant='outline' className='border-[#e2e8f0] bg-white text-[#64748b]'>未確認</Badge>}
                 </TableCell>
                 <TableCell>
                   {o.invoice_submitted ? (
-                    <Badge className='bg-green-600'>請求済</Badge>
+                    <Badge className='border-[#2f4da0]/35 bg-[#eef2ff] text-[#2f4da0]' variant='outline'>請求済</Badge>
                   ) : (
-                    <Badge className='bg-red-600'>未請求</Badge>
+                    <Badge variant='outline' className='border-[#e2e8f0] bg-white text-[#64748b]'>未請求</Badge>
                   )}
                 </TableCell>
                 <TableCell>
                   {o.paid ? (
-                    <Badge className='bg-green-600'>支払済</Badge>
+                    <Badge className='border-[#1f6b4f]/35 bg-[#ecfdf3] text-[#1f6b4f]' variant='outline'>支払済</Badge>
                   ) : (
-                    <Badge className='bg-yellow-500 text-white'>未支払</Badge>
+                    <Badge variant='outline' className='border-[#e2e8f0] bg-white text-[#64748b]'>未支払</Badge>
                   )}
                 </TableCell>
-                <TableCell>{o.paid_at ?? ''}</TableCell>
+                <TableCell className='text-[#334155]'>{o.paid_at ?? ''}</TableCell>
               </TableRow>
             ))}
           </TableBody>

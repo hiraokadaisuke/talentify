@@ -12,29 +12,29 @@ interface OfferProgressTrackerProps {
 }
 
 const titleColorByStatus: Record<OfferProgressStep['status'], string> = {
-  complete: 'text-[#00B26F]',
-  current: 'text-[#1976D2]',
-  upcoming: 'text-slate-400',
+  complete: 'text-[#2f4da0]',
+  current: 'text-[#2f4da0]',
+  upcoming: 'text-[#64748b]',
 }
 
 const dateColorByStatus: Record<OfferProgressStep['status'], string> = {
-  complete: 'text-slate-500',
-  current: 'text-[#1976D2]',
-  upcoming: 'text-slate-400',
+  complete: 'text-[#64748b]',
+  current: 'text-[#64748b]',
+  upcoming: 'text-[#64748b]',
 }
 
 const iconStylesByStatus: Record<OfferProgressStep['status'], { outer: string; inner: string }> = {
   complete: {
-    outer: 'border-2 border-[#00B26F]',
-    inner: 'bg-[#00B26F] text-white',
+    outer: 'border-2 border-[#2f4da0]',
+    inner: 'bg-[#2f4da0] text-white',
   },
   current: {
     outer: 'border-2 border-transparent',
-    inner: 'bg-[#1976D2] text-white',
+    inner: 'bg-[#2f4da0] text-white',
   },
   upcoming: {
-    outer: 'border border-[#BDBDBD]',
-    inner: 'bg-white text-[#BDBDBD]',
+    outer: 'border border-[#e2e8f0]',
+    inner: 'bg-white text-[#94a3b8]',
   },
 }
 
@@ -46,7 +46,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-end">
-        <span className="text-xs font-medium text-slate-500">
+        <span className="text-xs font-medium text-[#64748b]">
           {completedCount}/{steps.length}ステップ完了
         </span>
       </div>
@@ -67,14 +67,14 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                   {index > 0 && (
                     <span
                       className="absolute left-0 top-7 block h-1 w-1/2 -translate-y-1/2 rounded-full"
-                      style={{ backgroundColor: leftConnectorActive ? '#1976D2' : '#E0E0E0' }}
+                      style={{ backgroundColor: leftConnectorActive ? '#2f4da0' : '#e2e8f0' }}
                       aria-hidden="true"
                     />
                   )}
                   {index < steps.length - 1 && (
                     <span
                       className="absolute right-0 top-7 block h-1 w-1/2 -translate-y-1/2 rounded-full"
-                      style={{ backgroundColor: rightConnectorActive ? '#1976D2' : '#E0E0E0' }}
+                      style={{ backgroundColor: rightConnectorActive ? '#2f4da0' : '#e2e8f0' }}
                       aria-hidden="true"
                     />
                   )}
@@ -88,7 +88,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                       className={cn(
                         'relative z-10 flex h-14 w-14 items-center justify-center rounded-full transition-all',
                         iconStyles.outer,
-                        isSelected && 'ring-2 ring-[#1976D2] ring-opacity-60 ring-offset-2',
+                        isSelected && 'ring-2 ring-[#2f4da0] ring-opacity-35 ring-offset-2',
                       )}
                     >
                       <div
