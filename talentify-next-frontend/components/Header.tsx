@@ -22,6 +22,23 @@ interface MenuItem {
   label: string
 }
 
+const PUBLIC_HEADER_PATHS = new Set([
+  '/',
+  '/about',
+  '/column',
+  '/company',
+  '/contact',
+  '/faq',
+  '/guide',
+  '/login',
+  '/manage',
+  '/news',
+  '/password-reset',
+  '/privacy',
+  '/register',
+  '/terms',
+])
+
 const GUIDE_LINKS: MenuItem[] = [
   { href: '/guide', label: 'ご利用ガイド' },
   // 将来的に /column, /news, /faq などをここへ追加してドロップダウン化できる構造
@@ -112,6 +129,16 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const inferredRole =
     sidebarRole ??
     (pathname?.startsWith('/store') ? 'store' : pathname?.startsWith('/talent') ? 'talent' : undefined)
+  const isPublicPage =
+    !inferredRole &&
+    !!pathname &&
+    (PUBLIC_HEADER_PATHS.has(pathname) ||
+      pathname.startsWith('/guide/') ||
+      pathname.startsWith('/column/') ||
+      pathname.startsWith('/news/') ||
+      pathname.startsWith('/company/') ||
+      pathname.startsWith('/faq/') ||
+      pathname.startsWith('/password-reset/'))
   const roleNav = inferredRole ? ROLE_MENUS[inferredRole] : null
   const homeHref = roleNav?.homeHref ?? '/'
 
@@ -219,6 +246,52 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        </div>
+      </header>
+    )
+  }
+
+  if (isPublicPage) {
+    return (
+      <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
+        <div className="mx-auto flex h-full max-w-5xl items-center justify-between p-4">
+          <Link href={homeHref} className="text-2xl font-bold tracking-tight">
+            Talentify
+          </Link>
+
+          <nav className="hidden md:flex justify-between items-center w-full text-sm">
+            <div className="flex space-x-6 ml-6">
+              <Link href="/about" className="hover:underline">Talentifyについて</Link>
+              <Link href="/faq" className="hover:underline">FAQ</Link>
+              <Link href="/contact" className="hover:underline">お問い合わせ</Link>
+            </div>
+
+            <div className="flex items-center space-x-2 ml-auto">
+              <span className="text-black text-sm font-normal mr-2">今すぐ無料登録♬</span>
+              <Link
+                href="/register?role=store"
+                className="rounded-full bg-[#daa520] text-white font-normal px-5 py-2 hover:brightness-110 transition"
+              >
+                店舗の方はこちら
+              </Link>
+              <Link
+                href="/register?role=talent"
+                className="rounded-full bg-[#daa520] text-white font-normal px-5 py-2 hover:brightness-110 transition"
+              >
+                演者の方はこちら
+              </Link>
+              <Link
+                href="/login"
+                className="border border-[#daa520] text-[#daa520] font-normal rounded-full px-5 py-2 hover:bg-[#fef8e7] transition"
+              >
+                ログイン
+              </Link>
+            </div>
+          </nav>
+
+          <Button asChild variant="outline" size="sm" className="ml-auto md:hidden hover:bg-muted">
+            <Link href="/login">ログイン</Link>
+          </Button>
         </div>
       </header>
     )
