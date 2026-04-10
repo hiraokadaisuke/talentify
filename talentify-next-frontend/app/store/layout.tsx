@@ -1,5 +1,6 @@
 import React from "react";
 import Header from "@/components/Header";
+import SiteFooter from "@/components/SiteFooter";
 import { createClient } from "@/lib/supabase/server";
 import { SupabaseProvider } from "@/lib/supabase/provider";
 
@@ -25,6 +26,7 @@ export default async function StoreLayout({
           <div className="flex flex-1 pt-16">
             <main className="flex-1 overflow-y-auto bg-[#f1f5f9] p-6">{children}</main>
           </div>
+          <SiteFooter />
         </SupabaseProvider>
       </body>
     </html>

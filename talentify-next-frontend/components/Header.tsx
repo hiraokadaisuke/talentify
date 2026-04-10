@@ -117,6 +117,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isProjectActive =
     !!roleNav &&
     roleNav.project.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+  const isGuideActive = pathname === '/guide'
   const navItemBaseClass =
     'relative inline-flex h-9 items-center rounded-md px-2 text-sm font-medium text-slate-600 transition-all duration-150 hover:bg-slate-100 hover:text-slate-900'
   const navItemActiveClass = 'text-primary after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary'
@@ -174,6 +175,15 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            <Link
+              href="/guide"
+              className={cn(
+                navItemBaseClass,
+                isGuideActive ? navItemActiveClass : '',
+              )}
+            >
+              ご利用ガイド
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">
