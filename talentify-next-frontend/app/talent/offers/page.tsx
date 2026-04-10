@@ -20,6 +20,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 const statusLabels: Record<string, string> = {
   pending: '保留中',
   confirmed: '承諾済',
+  canceled: 'キャンセル済み',
   rejected: '拒否',
   completed: '来店完',
   expired: '期限切れ',
@@ -28,6 +29,7 @@ const statusLabels: Record<string, string> = {
 const statusVariants: Record<string, Parameters<typeof Badge>[0]['variant']> = {
   pending: 'outline',
   confirmed: 'outline',
+  canceled: 'outline',
   rejected: 'outline',
   completed: 'outline',
   expired: 'outline',
@@ -36,12 +38,14 @@ const statusVariants: Record<string, Parameters<typeof Badge>[0]['variant']> = {
 const statusToneClasses: Record<string, string> = {
   pending: 'border-[#a15c00]/45 bg-[#fff3e2] text-[#a15c00]',
   confirmed: 'border-[#2f4da0]/45 bg-[#e9eefc] text-[#2f4da0]',
+  canceled: 'border-[#b42318]/45 bg-[#fff1f0] text-[#b42318]',
   rejected: 'border-[#64748b]/45 bg-[#f1f5f9] text-[#64748b]',
   completed: 'border-[#1f6b4f]/45 bg-[#e8f5ef] text-[#1f6b4f]',
   expired: 'border-[#64748b]/45 bg-[#f1f5f9] text-[#64748b]',
 }
 
 type OfferTab = 'active' | 'history' | 'cancel'
+const CANCEL_STATUSES = new Set(['canceled', 'rejected', 'expired'])
 
 export default function TalentOffersPage() {
   const router = useRouter()
@@ -94,13 +98,17 @@ export default function TalentOffersPage() {
   }, [offersWithProgress, sortOrder])
 
   const filtered = useMemo(() => {
+    const isCanceled = (status: string | null) => CANCEL_STATUSES.has(status ?? '')
+    const isHistory = (offer: (typeof sorted)[number]) =>
+      !isCanceled(offer.status) && offer.steps.every(step => step.status === 'complete')
+
     if (tab === 'history') {
-      return sorted.filter(o => o.badge.label === '支払い済み' || o.badge.label === '来店完了')
+      return sorted.filter(isHistory)
     }
     if (tab === 'cancel') {
-      return sorted.filter(o => o.status === 'rejected' || o.status === 'expired')
+      return sorted.filter(o => isCanceled(o.status))
     }
-    return sorted.filter(o => ['承認待ち', '承認済み', '来店予定', 'レビュー待ち'].includes(o.badge.label))
+    return sorted.filter(o => !isCanceled(o.status) && !isHistory(o))
   }, [sorted, tab])
 
   const toggleSortOrder = () => {
@@ -128,10 +136,25 @@ export default function TalentOffersPage() {
         <p className="mt-1 text-sm text-slate-500">受信したオファーと進捗を一覧で確認できます。</p>
       </div>
       <Tabs value={tab} onValueChange={value => setTab(value as OfferTab)}>
-        <TabsList className="h-11 bg-slate-100 p-1">
-          <TabsTrigger value="active" className="data-[state=active]:bg-white">進行中</TabsTrigger>
-          <TabsTrigger value="history" className="data-[state=active]:bg-white">履歴</TabsTrigger>
-          <TabsTrigger value="cancel" className="data-[state=active]:bg-white">キャンセル</TabsTrigger>
+        <TabsList className="h-auto rounded-none border-b border-slate-200 bg-transparent p-0">
+          <TabsTrigger
+            value="active"
+            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-800 data-[state=active]:border-slate-900 data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
+          >
+            進行中
+          </TabsTrigger>
+          <TabsTrigger
+            value="history"
+            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-800 data-[state=active]:border-slate-900 data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
+          >
+            履歴
+          </TabsTrigger>
+          <TabsTrigger
+            value="cancel"
+            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-slate-500 transition-colors hover:text-slate-800 data-[state=active]:border-slate-900 data-[state=active]:text-slate-900 data-[state=active]:shadow-none"
+          >
+            キャンセル
+          </TabsTrigger>
         </TabsList>
       </Tabs>
       {loading ? (
@@ -142,13 +165,13 @@ export default function TalentOffersPage() {
         <>
           <section className="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm md:block">
             <Table>
-              <TableHeader className="sticky top-0 bg-slate-100/95">
-                <TableRow className="h-11 border-b border-slate-300 text-sm">
-                  <TableHead className="w-[180px] px-6 text-xs font-semibold tracking-wide text-slate-600" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
+              <TableHeader className="sticky top-0 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
+                <TableRow className="h-11 border-b border-slate-200 text-sm">
+                  <TableHead className="w-[180px] px-6 text-xs font-semibold tracking-wide text-slate-700" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
                     <button
                       type="button"
                       onClick={toggleSortOrder}
-                      className="inline-flex items-center gap-1 font-semibold text-slate-700 hover:text-blue-700"
+                      className="inline-flex items-center gap-1 font-semibold text-slate-700 transition-colors hover:text-slate-900"
                     >
                       来店日
                       {sortOrder === 'asc' ? (
@@ -159,10 +182,10 @@ export default function TalentOffersPage() {
                       <span className="sr-only">来店日で並び替え</span>
                     </button>
                   </TableHead>
-                  <TableHead className="min-w-[220px] px-4 text-xs font-semibold tracking-wide text-slate-600">店舗名</TableHead>
-                  <TableHead className="w-[150px] px-4 text-xs font-semibold tracking-wide text-slate-600">現在ステータス</TableHead>
-                  <TableHead className="min-w-[360px] px-4 text-xs font-semibold tracking-wide text-slate-600">進捗</TableHead>
-                  <TableHead className="w-[120px] px-6 text-right text-xs font-semibold tracking-wide text-slate-600">詳細</TableHead>
+                  <TableHead className="min-w-[220px] px-4 text-xs font-semibold tracking-wide text-slate-700">店舗名</TableHead>
+                  <TableHead className="w-[150px] px-4 text-xs font-semibold tracking-wide text-slate-700">現在ステータス</TableHead>
+                  <TableHead className="min-w-[360px] px-4 text-xs font-semibold tracking-wide text-slate-700">進捗</TableHead>
+                  <TableHead className="w-[120px] px-6 text-right text-xs font-semibold tracking-wide text-slate-700">詳細</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -189,7 +212,13 @@ export default function TalentOffersPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 align-middle">
-                      <OfferProgressStatusIcons steps={o.steps} badge={o.badge} />
+                      {CANCEL_STATUSES.has(o.status ?? '') ? (
+                        <Badge variant="outline" className="border-[#b42318]/45 bg-[#fff1f0] px-2.5 py-1 font-semibold text-[#b42318]">
+                          キャンセル済み
+                        </Badge>
+                      ) : (
+                        <OfferProgressStatusIcons steps={o.steps} badge={o.badge} />
+                      )}
                     </TableCell>
                     <TableCell className="px-6 align-middle text-right">
                       <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50 hover:text-blue-800">
@@ -222,7 +251,15 @@ export default function TalentOffersPage() {
                   {o.store_name ?? '-'}
                 </div>
                 <div className="-mx-1 overflow-x-auto">
-                  <OfferProgressStatusIcons steps={o.steps} badge={o.badge} className="mx-1 min-w-[420px]" />
+                  {CANCEL_STATUSES.has(o.status ?? '') ? (
+                    <div className="mx-1">
+                      <Badge variant="outline" className="border-[#b42318]/45 bg-[#fff1f0] px-2.5 py-1 font-semibold text-[#b42318]">
+                        キャンセル済み
+                      </Badge>
+                    </div>
+                  ) : (
+                    <OfferProgressStatusIcons steps={o.steps} badge={o.badge} className="mx-1 min-w-[420px]" />
+                  )}
                 </div>
                 <div className="flex justify-end">
                   <Button variant="ghost" size="sm" asChild className="text-blue-700 hover:bg-blue-50 hover:text-blue-800">
