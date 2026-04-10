@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import NewMessageModal from '@/components/messages/NewMessageModal'
 import { findOrCreateConversation } from '@/lib/messages'
+import OfferComposerOverlay from './OfferComposerOverlay'
 
 type Talent = {
   id: string
@@ -53,6 +54,8 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const router = useRouter()
   const [messageOpen, setMessageOpen] = useState(false)
+  const [offerOpen, setOfferOpen] = useState(false)
+  const [offerSent, setOfferSent] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -107,6 +110,12 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const handleFavorite = () => {
     setIsFavorite(v => !v)
     toast.success(isFavorite ? 'お気に入りを解除しました' : 'お気に入りに追加しました')
+  }
+
+
+  const handleOfferSuccess = () => {
+    setOfferSent(true)
+    router.refresh()
   }
 
   const handleMessage = async () => {
@@ -182,9 +191,10 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                   <Button
                     className="h-11 w-full bg-slate-900 text-white hover:bg-slate-800"
                     aria-label="このキャストにオファーする"
-                    onClick={() => (window.location.href = `/talents/${id}/offer`)}
+                    onClick={() => setOfferOpen(true)}
+                    disabled={offerSent}
                   >
-                    このキャストにオファーする
+                    {offerSent ? '送信済み' : 'このキャストにオファーする'}
                   </Button>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                     {(role === 'store' || role === null) && (
@@ -297,6 +307,21 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
           </Card>
         </div>
       </main>
+
+    <OfferComposerOverlay
+      open={offerOpen}
+      onOpenChange={setOfferOpen}
+      talentId={id}
+      summary={{
+        stageName: talent.stage_name,
+        residence: talent.residence,
+        availability: talent.availability,
+        minHours: talent.min_hours,
+        transportation: talent.transportation,
+        rate: talent.rate,
+      }}
+      onSuccess={handleOfferSuccess}
+    />
     <NewMessageModal
       open={messageOpen}
       onOpenChange={setMessageOpen}
