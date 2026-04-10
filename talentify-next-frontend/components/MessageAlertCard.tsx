@@ -5,16 +5,19 @@ interface MessageAlertCardProps {
   title?: string
   count: number
   link?: string
+  className?: string
 }
 
 export default function MessageAlertCard({
   title = '新着メッセージ',
   count,
   link,
+  className,
 }: MessageAlertCardProps) {
   return (
     <DashboardCard
       title={title}
+      className={className}
       ctaHref={link}
       ctaLabel={link ? 'メッセージを見る' : undefined}
       ctaVariant='default'

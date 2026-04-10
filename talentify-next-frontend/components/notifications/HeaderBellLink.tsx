@@ -41,7 +41,7 @@ export default function HeaderBellLink() {
     <Link
       href={href}
       aria-label="通知"
-      className="relative p-2 rounded-full hover:bg-muted focus:outline-none"
+      className="relative rounded-full p-2 text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 focus:outline-none"
     >
       <Bell className="h-6 w-6" />
       {formatted && (
@@ -55,4 +55,3 @@ export default function HeaderBellLink() {
     </Link>
   )
 }
-
