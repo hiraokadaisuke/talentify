@@ -3,19 +3,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import { ArrowUpDown, ChevronRight } from 'lucide-react'
+import { toast } from 'sonner'
 import { getOffersForTalent, TalentOffer } from '@/utils/getOffersForTalent'
+import { getOfferProgress } from '@/utils/offerProgress'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
-import { toast } from 'sonner'
-import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
-import { ChevronDown, ChevronRight, ChevronUp } from 'lucide-react'
-import { getOfferProgress } from '@/utils/offerProgress'
-import { OfferProgressStatusIcons } from '@/components/offer/OfferProgressStatusIcons'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
@@ -26,41 +23,46 @@ const statusLabels: Record<string, string> = {
   expired: '期限切れ',
 }
 
-const statusVariants: Record<string, Parameters<typeof Badge>[0]['variant']> = {
-  pending: 'outline',
-  confirmed: 'outline',
-  canceled: 'outline',
-  rejected: 'outline',
-  completed: 'outline',
-  expired: 'outline',
-}
-
-const statusToneClasses: Record<string, string> = {
-  pending: 'border-[#e2e8f0] bg-white text-[#64748b]',
-  confirmed: 'border-[#2f4da0]/35 bg-[#eef2ff] text-[#2f4da0]',
-  canceled: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
-  rejected: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
-  completed: 'border-[#1f6b4f]/35 bg-[#ecfdf3] text-[#1f6b4f]',
-  expired: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
-}
-
 type OfferTab = 'active' | 'history' | 'cancel'
+type SortKey = 'visit' | 'updated' | 'created'
+
 const CANCEL_STATUSES = new Set(['canceled', 'rejected', 'expired'])
+
+const badgeToneByCategory = {
+  neutral: 'border-[#e2e8f0] bg-white text-[#64748b]',
+  active: 'border-[#2f4da0]/35 bg-[#eef2ff] text-[#2f4da0]',
+  success: 'border-[#1f6b4f]/35 bg-[#ecfdf3] text-[#1f6b4f]',
+  danger: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
+}
+
+function formatDate(value: string | null, template = 'yyyy/MM/dd (EEE)') {
+  if (!value) return '-'
+  try {
+    return format(new Date(value), template, { locale: ja })
+  } catch {
+    return '-'
+  }
+}
 
 export default function TalentOffersPage() {
   const router = useRouter()
   const [offers, setOffers] = useState<TalentOffer[]>([])
   const [loading, setLoading] = useState(true)
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [tab, setTab] = useState<OfferTab>('active')
+  const [searchWord, setSearchWord] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [sortKey, setSortKey] = useState<SortKey>('visit')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
   useEffect(() => {
     const load = async () => {
       try {
         const data = await getOffersForTalent()
         setOffers(data)
-      } catch (e) {
-        console.error('failed to load offers', e)
+      } catch (error) {
+        console.error('failed to load offers', error)
         toast.error('オファーの取得に失敗しました')
       } finally {
         setLoading(false)
@@ -77,203 +79,272 @@ export default function TalentOffersPage() {
         paid: Boolean(offer.paid),
       })
 
+      const isCanceled = CANCEL_STATUSES.has(offer.status ?? '')
+      const isHistory = !isCanceled && steps.every(step => step.status === 'complete')
+
       return {
         ...offer,
         steps,
         badge,
+        isCanceled,
+        isHistory,
       }
     })
   }, [offers])
 
-  const sorted = useMemo(() => {
-    return [...offersWithProgress].sort((a, b) => {
-      const aTime = a.date ? new Date(a.date).getTime() : sortOrder === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY
-      const bTime = b.date ? new Date(b.date).getTime() : sortOrder === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY
+  const tabCounts = useMemo(() => {
+    return {
+      active: offersWithProgress.filter(o => !o.isCanceled && !o.isHistory).length,
+      history: offersWithProgress.filter(o => o.isHistory).length,
+      cancel: offersWithProgress.filter(o => o.isCanceled).length,
+    }
+  }, [offersWithProgress])
 
-      if (sortOrder === 'asc') {
-        return aTime - bTime
-      }
-      return bTime - aTime
+  const summaryItems = useMemo(() => {
+    const activeItems = offersWithProgress.filter(o => !o.isCanceled && !o.isHistory)
+    const receivedOffers = activeItems.filter(o => (o.status ?? 'pending') === 'pending').length
+    const upcomingVisit = activeItems.filter(o => (o.status ?? 'pending') === 'confirmed').length
+    const untouchedItems = activeItems.filter(o => o.steps.some(step => step.key === 'approval' && step.status === 'current')).length
+
+    return [
+      { key: 'active', label: '進行中', count: tabCounts.active },
+      { key: 'received', label: '受信オファー', count: receivedOffers },
+      { key: 'visit', label: '来店予定', count: upcomingVisit },
+      { key: 'untouched', label: '未対応案件', count: untouchedItems },
+      { key: 'history', label: '履歴', count: tabCounts.history },
+      { key: 'cancel', label: 'キャンセル', count: tabCounts.cancel },
+    ]
+  }, [offersWithProgress, tabCounts])
+
+  const processed = useMemo(() => {
+    let rows = offersWithProgress.filter(offer => {
+      if (tab === 'history') return offer.isHistory
+      if (tab === 'cancel') return offer.isCanceled
+      return !offer.isHistory && !offer.isCanceled
     })
-  }, [offersWithProgress, sortOrder])
 
-  const filtered = useMemo(() => {
-    const isCanceled = (status: string | null) => CANCEL_STATUSES.has(status ?? '')
-    const isHistory = (offer: (typeof sorted)[number]) =>
-      !isCanceled(offer.status) && offer.steps.every(step => step.status === 'complete')
-
-    if (tab === 'history') {
-      return sorted.filter(isHistory)
+    if (searchWord.trim()) {
+      const q = searchWord.toLowerCase()
+      rows = rows.filter(o => (o.store_name ?? '').toLowerCase().includes(q))
     }
-    if (tab === 'cancel') {
-      return sorted.filter(o => isCanceled(o.status))
-    }
-    return sorted.filter(o => !isCanceled(o.status) && !isHistory(o))
-  }, [sorted, tab])
 
-  const toggleSortOrder = () => {
-    setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))
-  }
-
-  const formatVisitDate = (value: string | null) => {
-    if (!value) return '未定'
-    try {
-      return format(new Date(value), 'yyyy/MM/dd (EEE)', { locale: ja })
-    } catch (error) {
-      console.error('failed to format visit date', error)
-      return '未定'
+    if (statusFilter !== 'all') {
+      rows = rows.filter(o => (o.status ?? 'pending') === statusFilter)
     }
-  }
+
+    if (dateFrom) {
+      const from = new Date(dateFrom).getTime()
+      rows = rows.filter(o => (o.date ? new Date(o.date).getTime() >= from : false))
+    }
+
+    if (dateTo) {
+      const to = new Date(dateTo).getTime()
+      rows = rows.filter(o => (o.date ? new Date(o.date).getTime() <= to : false))
+    }
+
+    rows.sort((a, b) => {
+      const getTime = (value: string | null) => {
+        if (!value) return sortOrder === 'asc' ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY
+        return new Date(value).getTime()
+      }
+
+      const aTime = sortKey === 'created' ? getTime(a.created_at) : sortKey === 'updated' ? getTime(a.created_at) : getTime(a.date)
+      const bTime = sortKey === 'created' ? getTime(b.created_at) : sortKey === 'updated' ? getTime(b.created_at) : getTime(b.date)
+
+      return sortOrder === 'asc' ? aTime - bTime : bTime - aTime
+    })
+
+    return rows
+  }, [dateFrom, dateTo, offersWithProgress, searchWord, sortKey, sortOrder, statusFilter, tab])
 
   const handleRowClick = (offerId: string) => {
     router.push(`/talent/offers/${offerId}`)
   }
 
   return (
-    <main className="space-y-4 bg-[#f8fafc] p-4 md:p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#334155]">オファー管理</h1>
-        <p className="mt-1 text-sm text-[#64748b]">受信したオファーと進捗を一覧で確認できます。</p>
-      </div>
-      <Tabs value={tab} onValueChange={value => setTab(value as OfferTab)}>
-        <TabsList className="h-auto rounded-none border-b border-slate-200 bg-transparent p-0">
-          <TabsTrigger
-            value="active"
-            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-[#64748b] transition-colors hover:text-[#334155] data-[state=active]:border-[#2f4da0] data-[state=active]:text-[#2f4da0] data-[state=active]:shadow-none"
-          >
-            進行中
-          </TabsTrigger>
-          <TabsTrigger
-            value="history"
-            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-[#64748b] transition-colors hover:text-[#334155] data-[state=active]:border-[#2f4da0] data-[state=active]:text-[#2f4da0] data-[state=active]:shadow-none"
-          >
-            履歴
-          </TabsTrigger>
-          <TabsTrigger
-            value="cancel"
-            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 text-sm font-semibold text-[#64748b] transition-colors hover:text-[#334155] data-[state=active]:border-[#2f4da0] data-[state=active]:text-[#2f4da0] data-[state=active]:shadow-none"
-          >
-            キャンセル
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-      {loading ? (
-        <TableSkeleton rows={3} />
-      ) : filtered.length === 0 ? (
-        <EmptyState title="対象のオファーがありません" />
-      ) : (
-        <>
-          <section className="hidden overflow-x-auto rounded-xl border border-[#e2e8f0] bg-white shadow-sm md:block">
-            <Table>
-              <TableHeader className="sticky top-0 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
-                <TableRow className="h-11 border-b border-[#e2e8f0] text-sm">
-                  <TableHead className="w-[180px] px-6 text-xs font-semibold tracking-wide text-[#334155]" aria-sort={sortOrder === 'asc' ? 'ascending' : 'descending'}>
-                    <button
-                      type="button"
-                      onClick={toggleSortOrder}
-                      className="inline-flex items-center gap-1 font-semibold text-[#334155] transition-colors hover:text-[#2f4da0]"
-                    >
-                      来店日
-                      {sortOrder === 'asc' ? (
-                        <ChevronUp className="h-4 w-4 text-[#2f4da0]" aria-hidden="true" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 text-[#2f4da0]" aria-hidden="true" />
-                      )}
-                      <span className="sr-only">来店日で並び替え</span>
-                    </button>
-                  </TableHead>
-                  <TableHead className="min-w-[220px] px-4 text-xs font-semibold tracking-wide text-[#334155]">店舗名</TableHead>
-                  <TableHead className="w-[150px] px-4 text-xs font-semibold tracking-wide text-[#334155]">現在ステータス</TableHead>
-                  <TableHead className="min-w-[360px] px-4 text-xs font-semibold tracking-wide text-[#334155]">進捗</TableHead>
-                  <TableHead className="w-[120px] px-6 text-right text-xs font-semibold tracking-wide text-[#334155]">詳細</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map(o => (
-                  <TableRow
-                    key={o.id}
-                    className="h-[68px] cursor-pointer border-b border-[#e2e8f0] transition-colors hover:bg-[#f8fafc]"
-                    onClick={() => handleRowClick(o.id)}
-                  >
-                    <TableCell className="px-6 align-middle">
-                      <div className="font-medium text-[#334155]">{formatVisitDate(o.date)}</div>
-                    </TableCell>
-                    <TableCell className="px-4 align-middle">
-                      <div className="truncate text-[#334155]" title={o.store_name ?? ''}>
-                        {o.store_name ?? '-'}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-4 align-middle">
-                      <Badge
-                        variant={statusVariants[o.status ?? 'pending']}
-                        className={`rounded-md px-2.5 py-1 text-[11px] font-semibold ${statusToneClasses[o.status ?? 'pending'] ?? statusToneClasses.pending}`}
-                      >
-                        {statusLabels[o.status ?? 'pending']}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="px-4 align-middle">
-                      {CANCEL_STATUSES.has(o.status ?? '') ? (
-                        <Badge variant="outline" className="border-[#7f1d1d]/35 bg-[#fef2f2] px-2.5 py-1 font-semibold text-[#7f1d1d]">
-                          キャンセル済み
-                        </Badge>
-                      ) : (
-                        <OfferProgressStatusIcons steps={o.steps} badge={o.badge} />
-                      )}
-                    </TableCell>
-                    <TableCell className="px-6 align-middle text-right">
-                      <Button variant="ghost" size="sm" asChild className="text-[#2f4da0] hover:bg-[#eef2ff] hover:text-[#233a7a]">
-                        <Link href={`/talent/offers/${o.id}`} className="inline-flex items-center gap-1" onClick={event => event.stopPropagation()}>
-                          詳細
-                          <ChevronRight className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </section>
+    <main className="bg-[#f8fafc] p-4 text-[#334155] md:p-6">
+      <div className="mx-auto w-full max-w-7xl space-y-4">
+        <header>
+          <h1 className="text-2xl font-bold">オファー管理</h1>
+          <p className="mt-1 text-sm text-[#64748b]">受信したオファーと進捗を一覧で確認できます。</p>
+        </header>
 
-          <div className="md:hidden space-y-3">
-            {filtered.map(o => (
-              <div
-                key={o.id}
-                className="space-y-3 rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-sm transition-colors hover:bg-[#f8fafc]"
-                onClick={() => handleRowClick(o.id)}
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+          {summaryItems.map(item => (
+            <div key={item.key} className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 shadow-sm">
+              <p className="text-xs font-medium text-[#64748b]">{item.label}</p>
+              <p className="mt-1 text-2xl font-semibold text-[#334155]">{item.count}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="space-y-3 rounded-xl border border-[#e2e8f0] bg-white p-3 shadow-sm md:p-4">
+          <div className="flex flex-wrap gap-2 border-b border-[#e2e8f0] pb-2">
+            {([
+              { key: 'active', label: '進行中', count: tabCounts.active },
+              { key: 'history', label: '履歴', count: tabCounts.history },
+              { key: 'cancel', label: 'キャンセル', count: tabCounts.cancel },
+            ] as const).map(item => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setTab(item.key)}
+                className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
+                  tab === item.key
+                    ? 'border-[#2f4da0] text-[#2f4da0]'
+                    : 'border-transparent text-[#64748b] hover:text-[#334155]'
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-[#334155]">{formatVisitDate(o.date)}</div>
-                  <Badge variant={statusVariants[o.status ?? 'pending']} className={`rounded-md px-2.5 py-1 text-[11px] font-semibold ${statusToneClasses[o.status ?? 'pending'] ?? statusToneClasses.pending}`}>
-                    {statusLabels[o.status ?? 'pending']}
-                  </Badge>
-                </div>
-                <div className="text-base font-semibold text-[#334155]" title={o.store_name ?? ''}>
-                  {o.store_name ?? '-'}
-                </div>
-                <div className="-mx-1 overflow-x-auto">
-                  {CANCEL_STATUSES.has(o.status ?? '') ? (
-                    <div className="mx-1">
-                      <Badge variant="outline" className="border-[#7f1d1d]/35 bg-[#fef2f2] px-2.5 py-1 font-semibold text-[#7f1d1d]">
-                        キャンセル済み
-                      </Badge>
-                    </div>
-                  ) : (
-                    <OfferProgressStatusIcons steps={o.steps} badge={o.badge} className="mx-1 min-w-[420px]" />
-                  )}
-                </div>
-                <div className="flex justify-end">
-                  <Button variant="ghost" size="sm" asChild className="text-[#2f4da0] hover:bg-[#eef2ff] hover:text-[#233a7a]">
-                    <Link href={`/talent/offers/${o.id}`} className="inline-flex items-center gap-1" onClick={event => event.stopPropagation()}>
-                      詳細
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
+                {item.label}
+                <span className="ml-1 text-xs">{item.count}</span>
+              </button>
             ))}
           </div>
-        </>
-      )}
+
+          <div className="flex flex-wrap items-end gap-2 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-3">
+            <label className="flex min-w-[180px] flex-1 flex-col gap-1 text-xs text-[#64748b]">
+              店舗名検索
+              <input
+                value={searchWord}
+                onChange={event => setSearchWord(event.target.value)}
+                className="h-9 rounded-md border border-[#e2e8f0] bg-white px-3 text-sm text-[#334155]"
+                placeholder="店舗名で検索"
+              />
+            </label>
+            <label className="flex min-w-[140px] flex-col gap-1 text-xs text-[#64748b]">
+              ステータス
+              <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]">
+                <option value="all">すべて</option>
+                {Object.entries(statusLabels).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="flex min-w-[150px] flex-col gap-1 text-xs text-[#64748b]">
+              開始日
+              <input type="date" value={dateFrom} onChange={event => setDateFrom(event.target.value)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]" />
+            </label>
+            <label className="flex min-w-[150px] flex-col gap-1 text-xs text-[#64748b]">
+              終了日
+              <input type="date" value={dateTo} onChange={event => setDateTo(event.target.value)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]" />
+            </label>
+            <label className="flex min-w-[160px] flex-col gap-1 text-xs text-[#64748b]">
+              並び替え
+              <select value={sortKey} onChange={event => setSortKey(event.target.value as SortKey)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]">
+                <option value="visit">来店日</option>
+                <option value="updated">更新日</option>
+                <option value="created">作成日</option>
+              </select>
+            </label>
+            <button type="button" onClick={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))} className="inline-flex h-9 items-center gap-1 rounded-md border border-[#e2e8f0] bg-white px-3 text-sm font-medium text-[#334155] hover:bg-[#f1f5f9]">
+              <ArrowUpDown className="h-4 w-4" />
+              {sortOrder === 'asc' ? '昇順' : '降順'}
+            </button>
+          </div>
+
+          {loading ? (
+            <TableSkeleton rows={4} />
+          ) : processed.length === 0 ? (
+            <EmptyState title="対象のオファーがありません" />
+          ) : (
+            <>
+              <section className="hidden overflow-x-auto rounded-xl border border-[#e2e8f0] md:block">
+                <Table>
+                  <TableHeader className="bg-white">
+                    <TableRow className="h-11 border-b border-[#e2e8f0]">
+                      <TableHead className="w-[160px] px-4 text-xs font-semibold text-[#334155]">来店日</TableHead>
+                      <TableHead className="min-w-[180px] px-4 text-xs font-semibold text-[#334155]">店舗名</TableHead>
+                      <TableHead className="w-[130px] px-4 text-xs font-semibold text-[#334155]">現在ステータス</TableHead>
+                      <TableHead className="min-w-[260px] px-4 text-xs font-semibold text-[#334155]">進捗</TableHead>
+                      <TableHead className="w-[140px] px-4 text-xs font-semibold text-[#334155]">最終更新</TableHead>
+                      <TableHead className="w-[90px] px-4 text-right text-xs font-semibold text-[#334155]">詳細</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {processed.map(o => (
+                      <TableRow
+                        key={o.id}
+                        className="cursor-pointer border-b border-[#e2e8f0] hover:bg-[#f8fafc]"
+                        onClick={() => handleRowClick(o.id)}
+                        onKeyDown={event => {
+                          if (event.key === 'Enter') handleRowClick(o.id)
+                        }}
+                        tabIndex={0}
+                      >
+                        <TableCell className="px-4">{formatDate(o.date)}</TableCell>
+                        <TableCell className="px-4">
+                          <p className="truncate" title={o.store_name ?? ''}>{o.store_name ?? '-'}</p>
+                        </TableCell>
+                        <TableCell className="px-4">
+                          <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[11px] ${o.isCanceled ? badgeToneByCategory.danger : o.isHistory ? badgeToneByCategory.success : badgeToneByCategory.active}`}>
+                            {statusLabels[o.status ?? 'pending'] ?? '保留中'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-4">
+                          {o.isCanceled ? (
+                            <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[11px] ${badgeToneByCategory.danger}`}>キャンセル済み</Badge>
+                          ) : (
+                            <div className="space-y-1">
+                              <p className="text-xs font-semibold text-[#334155]">{o.badge.label}</p>
+                              <div className="flex gap-1.5">
+                                {o.steps.map(step => (
+                                  <span key={step.key} className={`h-1.5 flex-1 rounded-full ${step.status === 'complete' ? 'bg-[#1f6b4f]' : step.status === 'current' ? 'bg-[#2f4da0]' : 'bg-[#e2e8f0]'}`} />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-4 text-xs text-[#64748b]">{formatDate(o.created_at, 'yyyy/MM/dd HH:mm')}</TableCell>
+                        <TableCell className="px-4 text-right">
+                          <Link href={`/talent/offers/${o.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-[#2f4da0] hover:text-[#233a7a]" onClick={event => event.stopPropagation()}>
+                            詳細
+                            <ChevronRight className="h-4 w-4" />
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </section>
+
+              <section className="space-y-3 md:hidden">
+                {processed.map(o => (
+                  <article
+                    key={o.id}
+                    className="cursor-pointer rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-sm"
+                    onClick={() => handleRowClick(o.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold">{formatDate(o.date)}</p>
+                      <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[11px] ${o.isCanceled ? badgeToneByCategory.danger : o.isHistory ? badgeToneByCategory.success : badgeToneByCategory.active}`}>
+                        {statusLabels[o.status ?? 'pending'] ?? '保留中'}
+                      </Badge>
+                    </div>
+                    <p className="mt-2 text-base font-semibold">{o.store_name ?? '-'}</p>
+                    <p className="mt-2 text-xs font-semibold">{o.isCanceled ? 'キャンセル済み' : o.badge.label}</p>
+                    {!o.isCanceled && (
+                      <div className="mt-1 flex gap-1.5">
+                        {o.steps.map(step => (
+                          <span key={step.key} className={`h-1.5 flex-1 rounded-full ${step.status === 'complete' ? 'bg-[#1f6b4f]' : step.status === 'current' ? 'bg-[#2f4da0]' : 'bg-[#e2e8f0]'}`} />
+                        ))}
+                      </div>
+                    )}
+                    <div className="mt-3 flex items-center justify-between text-xs text-[#64748b]">
+                      <span>最終更新: {formatDate(o.created_at, 'yyyy/MM/dd HH:mm')}</span>
+                      <Link href={`/talent/offers/${o.id}`} className="inline-flex items-center gap-1 font-medium text-[#2f4da0]" onClick={event => event.stopPropagation()}>
+                        詳細
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </section>
+
+              <p className="text-right text-xs text-[#64748b]">{processed.length} 件を表示中</p>
+            </>
+          )}
+        </section>
+      </div>
     </main>
   )
 }
