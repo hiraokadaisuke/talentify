@@ -1,8 +1,5 @@
 import React from "react";
 import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
-import { SidebarProvider } from "@/components/SidebarProvider";
-import SidebarToggle from "@/components/SidebarToggle";
 import { createClient } from "@/lib/supabase/server";
 import { SupabaseProvider } from "@/lib/supabase/provider";
 
@@ -26,15 +23,7 @@ export default async function StoreLayout({
         <SupabaseProvider session={session}>
           <Header sidebarRole="store" />
           <div className="flex flex-1 pt-16">
-            <SidebarProvider>
-              <div className="hidden md:block">
-                <Sidebar role="store" collapsible />
-              </div>
-              <div className="hidden md:block">
-                <SidebarToggle />
-              </div>
-              <main className="flex-1 overflow-y-auto p-6 transition-[margin,width]">{children}</main>
-            </SidebarProvider>
+            <main className="flex-1 overflow-y-auto p-6">{children}</main>
           </div>
         </SupabaseProvider>
       </body>
