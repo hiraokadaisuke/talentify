@@ -19,6 +19,10 @@
   }
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 /* body全体の基本設定 */
 body {
   margin: 0;
