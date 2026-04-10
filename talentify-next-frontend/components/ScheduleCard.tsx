@@ -22,12 +22,12 @@ interface ScheduleCardProps {
 export default function ScheduleCard({ title = '直近の予定', items }: ScheduleCardProps) {
   return (
     <DashboardCard title={title}>
-      <div className='space-y-3 text-sm'>
+      <div className='space-y-2.5 text-sm'>
         {items.length === 0 && <p className='text-muted-foreground'>予定はありません</p>}
         {items.map((ev, i) => (
           <div
             key={i}
-            className='flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 p-3'
+            className='flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 p-2.5'
           >
             <div className='min-w-0 flex-1'>
               <div className='font-medium text-slate-800'>{formatJaDateTimeWithWeekday(ev.date)}</div>
