@@ -107,7 +107,9 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
     !!roleNav &&
     roleNav.project.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
 
-  if (roleNav && isLoggedIn) {
+  if (roleNav) {
+    const displayUserName = userName ?? 'ユーザー'
+
     return (
       <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
         <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
@@ -151,7 +153,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1 text-sm font-semibold focus:outline-none">
-                  {userName}
+                  {displayUserName}
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>

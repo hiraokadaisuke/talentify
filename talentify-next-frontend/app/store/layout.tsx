@@ -19,11 +19,11 @@ export default async function StoreLayout({
 
   return (
     <html lang="ja" className="h-full">
-      <body className="font-sans antialiased bg-white text-black min-h-screen flex flex-col">
+      <body className="font-sans antialiased bg-[#f1f5f9] text-black min-h-screen flex flex-col">
         <SupabaseProvider session={session}>
           <Header sidebarRole="store" />
           <div className="flex flex-1 pt-16">
-            <main className="flex-1 overflow-y-auto p-6">{children}</main>
+            <main className="flex-1 overflow-y-auto bg-[#f1f5f9] p-6">{children}</main>
           </div>
         </SupabaseProvider>
       </body>
