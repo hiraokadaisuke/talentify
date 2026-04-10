@@ -1,0 +1,26 @@
+.page {
+  background: #f1f5f9;
+}
+
+.pageInner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+  border: 1px solid #cbd5e1;
+  background: #e2e8f0;
+  border-radius: 8px;
+  padding: 0.875rem;
+}
+
+.filterBar input,
+.filterBar select,
+.filterBar button {
+  background: #ffffff;
+}
