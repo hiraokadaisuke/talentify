@@ -162,7 +162,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
     return (
       <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
+        <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between px-6 lg:px-8">
           <div className="flex items-center gap-5">
             <Link href={homeHref} className="text-2xl font-bold tracking-tight">
               Talentify
@@ -254,7 +254,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   if (isPublicPage) {
     return (
       <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
-        <div className="mx-auto flex h-full max-w-5xl items-center justify-between p-4">
+        <div className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-between px-6 lg:px-8">
           <Link href={homeHref} className="text-2xl font-bold tracking-tight">
             Talentify
           </Link>
@@ -299,7 +299,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
   return (
     <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
-      <div className="mx-auto flex h-full max-w-5xl items-center justify-between p-4">
+      <div className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-between px-6 lg:px-8">
         <Link href={homeHref} className="text-2xl font-bold tracking-tight">
           Talentify
         </Link>
