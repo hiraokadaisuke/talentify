@@ -3,14 +3,8 @@ export const dynamic = 'auto'
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/server';
 
-export default async function HomePage() {
-  const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
+export default function HomePage() {
   return (
     <div className="flex flex-col items-center text-gray-900 bg-white">
       {/* Hero Section */}
@@ -34,23 +28,6 @@ export default async function HomePage() {
               </Button>
             </Link>
           </div>
-          {session && (
-            <div className="mt-6 rounded-xl bg-white/90 px-4 py-3 text-gray-900 shadow-md backdrop-blur-sm">
-              <p className="mb-3 text-sm font-medium">ログイン中です。業務アプリへ移動できます。</p>
-              <div className="flex flex-col justify-center gap-2 sm:flex-row">
-                <Link href="/app/dashboard">
-                  <Button variant="outline" className="w-full border-gray-300 bg-white text-gray-900 hover:bg-gray-50 sm:w-auto">
-                    ダッシュボードへ
-                  </Button>
-                </Link>
-                <Link href="/app/offers">
-                  <Button variant="outline" className="w-full border-gray-300 bg-white text-gray-900 hover:bg-gray-50 sm:w-auto">
-                    案件管理へ
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
