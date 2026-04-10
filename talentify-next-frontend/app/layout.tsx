@@ -3,6 +3,7 @@
 import React from "react";
 import "./globals.css";
 import Header from "../components/Header";
+import SiteFooter from "../components/SiteFooter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { createClient } from "@/lib/supabase/server";
@@ -33,6 +34,7 @@ export default async function RootLayout({
           <TooltipProvider delayDuration={200} disableHoverableContent>
             <Header />
             <main className="flex-1">{children}</main>
+            <SiteFooter />
             <Toaster />
           </TooltipProvider>
         </SupabaseProvider>

@@ -2,29 +2,14 @@ export const dynamic = 'auto'
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/server';
-import { getUserRoleInfo } from '@/lib/getUserRole';
 
 export default async function HomePage() {
   const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
-  if (session) {
-    const { role, isSetupComplete } = await getUserRoleInfo(supabase, session.user.id);
-    if (role === 'store') {
-      redirect(isSetupComplete ? '/store/dashboard' : '/store/edit');
-    } else if (role === 'talent') {
-      redirect(isSetupComplete ? '/talent/dashboard' : '/talent/edit');
-    } else if (role === 'company') {
-      redirect(isSetupComplete ? '/company/dashboard' : '/company/edit');
-    } else {
-      redirect('/dashboard');
-    }
-  }
 
   return (
     <div className="flex flex-col items-center text-gray-900 bg-white">
@@ -44,11 +29,28 @@ export default async function HomePage() {
               </Button>
             </Link>
             <Link href="/register?role=talent">
-  <Button className="px-8 py-3 text-base rounded-full bg-white text-gray-900 hover:bg-gray-100 shadow-md">
-    演者として登録
-  </Button>
-</Link>
+              <Button className="px-8 py-3 text-base rounded-full bg-white text-gray-900 hover:bg-gray-100 shadow-md">
+                演者として登録
+              </Button>
+            </Link>
           </div>
+          {session && (
+            <div className="mt-6 rounded-xl bg-white/90 px-4 py-3 text-gray-900 shadow-md backdrop-blur-sm">
+              <p className="mb-3 text-sm font-medium">ログイン中です。業務アプリへ移動できます。</p>
+              <div className="flex flex-col justify-center gap-2 sm:flex-row">
+                <Link href="/app/dashboard">
+                  <Button variant="outline" className="w-full border-gray-300 bg-white text-gray-900 hover:bg-gray-50 sm:w-auto">
+                    ダッシュボードへ
+                  </Button>
+                </Link>
+                <Link href="/app/offers">
+                  <Button variant="outline" className="w-full border-gray-300 bg-white text-gray-900 hover:bg-gray-50 sm:w-auto">
+                    案件管理へ
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
