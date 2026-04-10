@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Badge } from '@/components/ui/badge'
+import styles from './page.module.css'
 
 const statusLabels: Record<string, string> = {
   pending: '保留中',
@@ -100,22 +101,6 @@ export default function TalentOffersPage() {
     }
   }, [offersWithProgress])
 
-  const summaryItems = useMemo(() => {
-    const activeItems = offersWithProgress.filter(o => !o.isCanceled && !o.isHistory)
-    const receivedOffers = activeItems.filter(o => (o.status ?? 'pending') === 'pending').length
-    const upcomingVisit = activeItems.filter(o => (o.status ?? 'pending') === 'confirmed').length
-    const untouchedItems = activeItems.filter(o => o.steps.some(step => step.key === 'approval' && step.status === 'current')).length
-
-    return [
-      { key: 'active', label: '進行中', count: tabCounts.active },
-      { key: 'received', label: '受信オファー', count: receivedOffers },
-      { key: 'visit', label: '来店予定', count: upcomingVisit },
-      { key: 'untouched', label: '未対応案件', count: untouchedItems },
-      { key: 'history', label: '履歴', count: tabCounts.history },
-      { key: 'cancel', label: 'キャンセル', count: tabCounts.cancel },
-    ]
-  }, [offersWithProgress, tabCounts])
-
   const processed = useMemo(() => {
     let rows = offersWithProgress.filter(offer => {
       if (tab === 'history') return offer.isHistory
@@ -162,21 +147,12 @@ export default function TalentOffersPage() {
   }
 
   return (
-    <main className="bg-[#f8fafc] p-4 text-[#334155] md:p-6">
-      <div className="mx-auto w-full max-w-7xl space-y-4">
+    <main className={`${styles.page} p-4 text-[#334155] md:p-6`}>
+      <div className={`${styles.pageInner} mx-auto w-full max-w-7xl`}>
         <header>
           <h1 className="text-2xl font-bold">オファー管理</h1>
           <p className="mt-1 text-sm text-[#64748b]">受信したオファーと進捗を一覧で確認できます。</p>
         </header>
-
-        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-          {summaryItems.map(item => (
-            <div key={item.key} className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 shadow-sm">
-              <p className="text-xs font-medium text-[#64748b]">{item.label}</p>
-              <p className="mt-1 text-2xl font-semibold text-[#334155]">{item.count}</p>
-            </div>
-          ))}
-        </section>
 
         <section className="space-y-3 rounded-xl border border-[#e2e8f0] bg-white p-3 shadow-sm md:p-4">
           <div className="flex flex-wrap gap-2 border-b border-[#e2e8f0] pb-2">
@@ -201,7 +177,7 @@ export default function TalentOffersPage() {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-end gap-2 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-3">
+          <div className={styles.filterBar}>
             <label className="flex min-w-[180px] flex-1 flex-col gap-1 text-xs text-[#64748b]">
               店舗名検索
               <input
