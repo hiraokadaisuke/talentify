@@ -5,16 +5,12 @@ import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { ArrowUpDown } from 'lucide-react'
-import { toast } from 'sonner'
 import { getOffersForStore, Offer } from '@/utils/getOffersForStore'
 import { getOfferProgress } from '@/utils/offerProgress'
-import { createClient } from '@/utils/supabase/client'
-import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import styles from './page.module.css'
 
 const statusLabels: Record<string, string> = {
@@ -30,7 +26,6 @@ type OfferTab = 'active' | 'history' | 'cancel'
 type SortKey = 'visit' | 'updated' | 'created'
 
 const CANCEL_STATUSES = new Set(['canceled', 'rejected', 'expired'])
-const CANCELLABLE_STATUSES = new Set(['pending', 'accepted', 'confirmed'])
 
 const badgeToneByCategory = {
   neutral: 'border-[#e2e8f0] bg-white text-[#64748b]',
@@ -49,7 +44,6 @@ function formatDate(value: string | null, template = 'yyyy/MM/dd (EEE)') {
 }
 
 export default function StoreOffersPage() {
-  const supabase = createClient()
   const router = useRouter()
   const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
@@ -145,32 +139,6 @@ export default function StoreOffersPage() {
     router.push(`/store/offers/${offerId}`)
   }
 
-  const handleCancel = async (offer: Offer) => {
-    const currentStatus = offer.status ?? 'pending'
-    if (!CANCELLABLE_STATUSES.has(currentStatus)) return
-    if (!confirm('このオファーを取り下げますか？')) return
-
-    const prevStatus = currentStatus
-    setOffers(prev => prev.map(row => (row.id === offer.id ? { ...row, status: 'canceled' } : row)))
-
-    const { error } = await supabase
-      .from('offers')
-      .update({
-        status: toDbOfferStatus('canceled'),
-        canceled_at: new Date().toISOString(),
-        canceled_by_role: 'store',
-      })
-      .eq('id', offer.id)
-
-    if (error) {
-      setOffers(prev => prev.map(row => (row.id === offer.id ? { ...row, status: prevStatus } : row)))
-      toast.error('キャンセルに失敗しました')
-      return
-    }
-
-    toast('オファーをキャンセルしました')
-  }
-
   return (
     <main className={`${styles.page} p-4 text-[#334155] md:p-6`}>
       <div className={`${styles.pageInner} mx-auto w-full max-w-7xl`}>
@@ -258,7 +226,6 @@ export default function StoreOffersPage() {
                       <TableHead className="w-[130px] px-4 text-xs font-semibold text-[#334155]">現在ステータス</TableHead>
                       <TableHead className="min-w-[260px] px-4 text-xs font-semibold text-[#334155]">進捗</TableHead>
                       <TableHead className="w-[140px] px-4 text-xs font-semibold text-[#334155]">最終更新</TableHead>
-                      <TableHead className="w-[180px] px-4 text-right text-xs font-semibold text-[#334155]">操作</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -296,23 +263,6 @@ export default function StoreOffersPage() {
                           )}
                         </TableCell>
                         <TableCell className="px-4 text-xs text-[#64748b]">{formatDate(o.created_at, 'yyyy/MM/dd HH:mm')}</TableCell>
-                        <TableCell className="px-4 text-right">
-                          {CANCELLABLE_STATUSES.has(o.status ?? 'pending') ? (
-                            <div className={styles.actionGroup} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="outline"
-                                className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
-                                onClick={() => handleCancel(o)}
-                              >
-                                キャンセル
-                              </Button>
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -343,23 +293,6 @@ export default function StoreOffersPage() {
                     )}
                     <div className="mt-3 flex items-center justify-between text-xs text-[#64748b]">
                       <span>最終更新: {formatDate(o.created_at, 'yyyy/MM/dd HH:mm')}</span>
-                    </div>
-                    <div className="mt-3">
-                      {CANCELLABLE_STATUSES.has(o.status ?? 'pending') ? (
-                        <div className={styles.actionGroup} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="outline"
-                            className="border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
-                            onClick={() => handleCancel(o)}
-                          >
-                            キャンセル
-                          </Button>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-[#64748b]">操作: -</p>
-                      )}
                     </div>
                   </article>
                 ))}
