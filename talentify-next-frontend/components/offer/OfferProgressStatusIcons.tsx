@@ -17,15 +17,15 @@ const statusLabel: Record<OfferProgressStep['status'], string> = {
 const baseCircleStyles = 'flex h-8 w-8 items-center justify-center rounded-full'
 
 const iconContainerStyles: Record<OfferProgressStep['status'], string> = {
-  complete: 'bg-[#E8F5EE] text-[#16A34A]',
-  current: 'bg-[#E8F1FD] text-[#3B82F6]',
-  upcoming: 'bg-[#EEF2F7] text-slate-400',
+  complete: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
+  current: 'bg-blue-50 text-blue-700 ring-1 ring-blue-100',
+  upcoming: 'bg-slate-100 text-slate-400 ring-1 ring-slate-200',
 }
 
 const iconByStatus: Record<OfferProgressStep['status'], ReactNode> = {
   complete: <Check className="h-4 w-4" strokeWidth={2.2} />,
   current: <ArrowRight className="h-4 w-4" strokeWidth={2.2} />,
-  upcoming: <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />,
+  upcoming: <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />,
 }
 
 const STEP_SHORT_LABELS: Record<OfferProgressStep['key'], string> = {
@@ -44,9 +44,9 @@ type OfferProgressStatusIconsProps = {
 }
 
 const badgeVariantStyles: Record<OfferProgressBadge['variant'], string> = {
-  default: 'border-blue-200 text-blue-700 bg-blue-50',
-  secondary: 'border-slate-200 text-slate-600 bg-white',
-  success: 'border-emerald-200 text-emerald-600 bg-emerald-50',
+  default: 'border-blue-200 text-blue-800 bg-blue-50',
+  secondary: 'border-amber-200 text-amber-800 bg-amber-50',
+  success: 'border-emerald-200 text-emerald-800 bg-emerald-50',
 }
 
 export function OfferProgressStatusIcons({ steps, badge, className }: OfferProgressStatusIconsProps) {
@@ -61,7 +61,7 @@ export function OfferProgressStatusIcons({ steps, badge, className }: OfferProgr
         <div className="w-full md:w-[160px]">
           <Badge
             variant="outline"
-            className={cn('w-full truncate', badgeVariantStyles[badge.variant])}
+          className={cn('w-full truncate justify-center rounded-md py-1 font-semibold', badgeVariantStyles[badge.variant])}
             title={badge.label}
           >
             {badge.label}
@@ -72,7 +72,7 @@ export function OfferProgressStatusIcons({ steps, badge, className }: OfferProgr
             <Tooltip key={step.key}>
               <TooltipTrigger asChild>
                 <span
-                  className="flex flex-col items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]/30 focus-visible:ring-offset-2"
+                  className="flex flex-col items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300/40 focus-visible:ring-offset-2"
                   tabIndex={0}
                 >
                   <span
