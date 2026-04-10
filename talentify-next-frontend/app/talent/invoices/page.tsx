@@ -15,14 +15,8 @@ import { TableSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 import { Button } from '@/components/ui/button'
-
-const statusLabels: Record<string, string> = {
-  draft: '下書き',
-  approved: '提出済み',
-  submitted: '提出済み',
-  paid: '支払完了',
-  rejected: '差し戻し',
-}
+import { Badge } from '@/components/ui/badge'
+import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
 
 export default function TalentInvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -48,7 +42,8 @@ export default function TalentInvoicesPage() {
             <TableRow>
               <TableHead>作成日</TableHead>
               <TableHead>金額</TableHead>
-              <TableHead>ステータス</TableHead>
+              <TableHead>請求書ステータス</TableHead>
+              <TableHead>支払い状態</TableHead>
               <TableHead>操作</TableHead>
             </TableRow>
           </TableHeader>
@@ -57,7 +52,14 @@ export default function TalentInvoicesPage() {
               <TableRow key={inv.id}>
                 <TableCell>{formatJaDateTimeWithWeekday(inv.created_at ?? '')}</TableCell>
                 <TableCell>¥{inv.amount.toLocaleString()}</TableCell>
-                <TableCell>{statusLabels[inv.status]}</TableCell>
+                <TableCell>
+                  <Badge variant='outline'>{getInvoiceStatusLabel(inv.status)}</Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={inv.payment_status === 'paid' ? 'success' : 'secondary'}>
+                    {getPaymentStatusLabel(inv.payment_status)}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   <Button size='sm' asChild>
                     <Link href={`/talent/invoices/${inv.id}`}>詳細</Link>

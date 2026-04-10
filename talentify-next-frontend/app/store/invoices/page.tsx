@@ -9,21 +9,18 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
+import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
 
 function renderStatus(inv: Invoice) {
-  if (inv.offers?.paid) {
-    return <Badge variant='success'>支払い完了</Badge>
-  }
-  switch (inv.status) {
-    case 'approved':
-      return <Badge variant='secondary'>提出済み</Badge>
-    case 'submitted':
-      return <Badge variant='secondary'>提出済み</Badge>
-    case 'rejected':
-      return <Badge variant='destructive'>差し戻し済み</Badge>
-    default:
-      return <Badge variant='outline'>下書き</Badge>
-  }
+  return <Badge variant='outline'>{getInvoiceStatusLabel(inv.status)}</Badge>
+}
+
+function renderPaymentStatus(inv: Invoice) {
+  return (
+    <Badge variant={inv.offers?.paid ? 'success' : 'secondary'}>
+      {getPaymentStatusLabel(inv.payment_status, inv.offers?.paid)}
+    </Badge>
+  )
 }
 
 export default function StoreInvoicesPage() {
@@ -50,7 +47,8 @@ export default function StoreInvoicesPage() {
             <TableRow>
               <TableHead>作成日</TableHead>
               <TableHead>金額</TableHead>
-              <TableHead>ステータス</TableHead>
+              <TableHead>請求書ステータス</TableHead>
+              <TableHead>支払い状態</TableHead>
               <TableHead>操作</TableHead>
             </TableRow>
           </TableHeader>
@@ -60,6 +58,7 @@ export default function StoreInvoicesPage() {
                 <TableCell>{formatJaDateTimeWithWeekday(inv.created_at ?? '')}</TableCell>
                 <TableCell>¥{inv.amount.toLocaleString('ja-JP')}</TableCell>
                 <TableCell>{renderStatus(inv)}</TableCell>
+                <TableCell>{renderPaymentStatus(inv)}</TableCell>
                 <TableCell>
                   <div className='flex gap-2'>
                     {inv.invoice_url && (

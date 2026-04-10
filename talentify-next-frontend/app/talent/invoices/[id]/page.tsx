@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
 
 const supabase = createClient()
 
@@ -28,14 +29,6 @@ interface Invoice {
   created_at: string | null
 }
 
-const statusLabels: Record<string, string> = {
-  draft: '下書き',
-  approved: '提出済み',
-  submitted: '提出済み',
-  paid: '支払い済み',
-  rejected: '差し戻し',
-}
-
 export default function TalentInvoiceDetailPage() {
   const params = useParams()
   const id = params?.id as string
@@ -50,6 +43,7 @@ export default function TalentInvoiceDetailPage() {
 
   const [saving, setSaving] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -117,6 +111,25 @@ export default function TalentInvoiceDetailPage() {
     }
   }
 
+  const handleDownload = async () => {
+    setDownloading(true)
+    const res = await fetch(`/api/invoices/${id}/pdf`)
+    setDownloading(false)
+    if (res.ok) {
+      const blob = await res.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `invoice-${id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } else {
+      toast.error('PDFのダウンロードに失敗しました')
+    }
+  }
+
   return (
     <main className="p-6 space-y-4">
       <h1 className="text-xl font-bold">請求詳細</h1>
@@ -148,11 +161,13 @@ export default function TalentInvoiceDetailPage() {
           </div>
 
           <div>
-            ステータス:{' '}
-            <Badge variant="outline">
-              {invoice.payment_status === 'paid'
-                ? '支払い済み'
-                : statusLabels[invoice.status] ?? invoice.status}
+            請求書ステータス:{' '}
+            <Badge variant="outline">{getInvoiceStatusLabel(invoice.status)}</Badge>
+          </div>
+          <div>
+            支払い状態:{' '}
+            <Badge variant={invoice.payment_status === 'paid' ? 'success' : 'secondary'}>
+              {getPaymentStatusLabel(invoice.payment_status)}
             </Badge>
           </div>
         </CardContent>
@@ -190,7 +205,11 @@ export default function TalentInvoiceDetailPage() {
           </Button>
         </div>
       )}
+
+      <Button onClick={handleDownload} disabled={downloading} variant='outline'>
+        {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+        請求書をダウンロード
+      </Button>
     </main>
   )
 }
-

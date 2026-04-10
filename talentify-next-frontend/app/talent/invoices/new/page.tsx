@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { addMonths, endOfMonth, format, parseISO, setDate } from 'date-fns'
+import { getInvoiceStatusLabel, isPaymentCompleted } from '@/lib/invoices/status'
 
 const dueDateOptions = [
   { value: 'none', label: '設定しない' },
@@ -128,16 +129,15 @@ export default function TalentInvoiceNewPage() {
     Number(extraFee || 0)
 
   const statusLabel = () => {
-    if (invoice?.payment_status === 'paid') return '支払済み'
-    if (invoice?.status === 'approved') return '提出済み'
-    return '下書き'
+    if (isPaymentCompleted(invoice?.payment_status)) return '支払済み'
+    return getInvoiceStatusLabel(invoice?.status)
   }
 
   const storeDisplayName = offer?.store?.store_name ?? ''
 
   const currentStep = () => {
-    if (invoice?.payment_status === 'paid') return 2
-    return invoice?.status === 'approved' ? 1 : 0
+    if (isPaymentCompleted(invoice?.payment_status)) return 2
+    return invoice?.status === 'submitted' || invoice?.status === 'approved' ? 1 : 0
   }
 
   const saveDraft = async () => {

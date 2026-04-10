@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
+import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
 
 const supabase = createClient()
 
@@ -23,14 +24,6 @@ interface Invoice {
   status: string
   payment_status: string | null
   created_at: string | null
-}
-
-const statusLabels: Record<string, string> = {
-  draft: '下書き',
-  approved: '提出済み',
-  submitted: '提出済み',
-  paid: '支払い済み',
-  rejected: '差し戻し',
 }
 
 export default function TalentInvoiceSubmittedPage() {
@@ -112,11 +105,12 @@ export default function TalentInvoiceSubmittedPage() {
               : '-'}
           </div>
           <div>
-            ステータス:{' '}
-            <Badge variant='outline'>
-              {invoice.payment_status === 'paid'
-                ? '支払い済み'
-                : statusLabels[invoice.status] ?? invoice.status}
+            請求書ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
+          </div>
+          <div>
+            支払い状態:{' '}
+            <Badge variant={invoice.payment_status === 'paid' ? 'success' : 'secondary'}>
+              {getPaymentStatusLabel(invoice.payment_status)}
             </Badge>
           </div>
         </CardContent>
