@@ -1,5 +1,6 @@
 import React from "react";
 import Header from "@/components/Header";
+import SiteFooter from "@/components/SiteFooter";
 import { createClient } from "@/lib/supabase/server";
 import { SupabaseProvider } from "@/lib/supabase/provider";
 
@@ -19,12 +20,15 @@ export default async function TalentLayout({
 
   return (
     <html lang="ja" className="h-full">
-      <body className="font-sans antialiased bg-[#f1f5f9] text-black min-h-screen flex flex-col">
+      <body className="font-sans antialiased bg-[#f8fafc] text-black min-h-screen flex flex-col">
         <SupabaseProvider session={session}>
           <Header sidebarRole="talent" />
-          <div className="flex flex-1 pt-16">
-            <main className="flex-1 overflow-y-auto bg-[#f1f5f9] p-6">{children}</main>
-          </div>
+          <main className="flex-1 pt-16">
+            <div className="role-page-container">
+              <div className="role-page-card">{children}</div>
+            </div>
+          </main>
+          <SiteFooter />
         </SupabaseProvider>
       </body>
     </html>
