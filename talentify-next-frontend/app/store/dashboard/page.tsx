@@ -23,8 +23,8 @@ export default async function StoreDashboard() {
           actionLabel='オファーを送ってみましょう'
         />
       ) : (
-        <div className='grid gap-4 sm:grid-cols-2'>
-          <Card className='sm:col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60'>
+        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-6'>
+          <Card className='sm:col-span-2 lg:col-span-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/60'>
               <CardHeader className='mb-0 flex items-center gap-2 p-0'>
                 <Sparkles className='h-5 w-5 text-blue-600' />
                 <CardTitle className='text-lg font-semibold text-slate-900'>
@@ -43,16 +43,15 @@ export default async function StoreDashboard() {
               </CardFooter>
           </Card>
 
-          <ScheduleCard items={schedule} />
+          <ScheduleCard items={schedule} className='lg:col-span-3' />
           <OfferSummaryCard
+            className='lg:col-span-2'
             pending={offerStats.pending ?? 0}
             confirmed={offerStats.confirmed ?? 0}
             link='/store/offers'
           />
-          <div className='sm:col-span-2'>
-            <MessageAlertCard count={unreadCount} link='/store/messages' />
-          </div>
-          <NotificationListCard title='通知（最新）' className='sm:col-span-2' />
+          <MessageAlertCard className='lg:col-span-1' count={unreadCount} link='/store/messages' />
+          <NotificationListCard title='通知（最新）' className='sm:col-span-2 lg:col-span-4' />
         </div>
       )}
     </div>

@@ -7,6 +7,7 @@ interface OfferSummaryCardProps {
   pending: number
   confirmed: number
   link?: string
+  className?: string
 }
 
 export default function OfferSummaryCard({
@@ -14,10 +15,12 @@ export default function OfferSummaryCard({
   pending,
   confirmed,
   link,
+  className,
 }: OfferSummaryCardProps) {
   return (
     <DashboardCard
       title={title}
+      className={className}
       ctaHref={link}
       ctaLabel={link ? '詳細を見る' : undefined}
       ctaVariant='default'

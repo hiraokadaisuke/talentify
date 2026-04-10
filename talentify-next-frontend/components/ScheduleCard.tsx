@@ -17,11 +17,12 @@ export interface ScheduleItem {
 interface ScheduleCardProps {
   title?: string
   items: ScheduleItem[]
+  className?: string
 }
 
-export default function ScheduleCard({ title = '直近の予定', items }: ScheduleCardProps) {
+export default function ScheduleCard({ title = '直近の予定', items, className }: ScheduleCardProps) {
   return (
-    <DashboardCard title={title}>
+    <DashboardCard title={title} className={className}>
       <div className='space-y-2.5 text-sm'>
         {items.length === 0 && <p className='text-muted-foreground'>予定はありません</p>}
         {items.map((ev, i) => (

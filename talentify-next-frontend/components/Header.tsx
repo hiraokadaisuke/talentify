@@ -117,6 +117,11 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isProjectActive =
     !!roleNav &&
     roleNav.project.some((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+  const navItemBaseClass =
+    'relative inline-flex h-9 items-center rounded-md px-2 text-sm font-medium text-slate-600 transition-all duration-150 hover:bg-slate-100 hover:text-slate-900'
+  const navItemActiveClass = 'text-primary after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary'
+  const dropdownItemClass =
+    'cursor-pointer rounded-md px-2 py-1.5 text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900'
 
   if (roleNav) {
     const displayUserName = userName ?? 'ユーザー'
@@ -131,8 +136,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <Link
               href={homeHref}
               className={cn(
-                'text-sm font-medium transition-colors hover:text-primary',
-                isHomeActive ? 'text-primary' : 'text-muted-foreground',
+                navItemBaseClass,
+                isHomeActive ? navItemActiveClass : '',
               )}
             >
               ホーム
@@ -141,8 +146,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               <Link
                 href={roleNav.primaryHref}
                 className={cn(
-                  'text-sm font-medium transition-colors hover:text-primary',
-                  isPrimaryActive ? 'text-primary' : 'text-muted-foreground',
+                  navItemBaseClass,
+                  isPrimaryActive ? navItemActiveClass : '',
                 )}
               >
                 {roleNav.primaryLabel}
@@ -152,8 +157,9 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               <DropdownMenuTrigger asChild>
                 <button
                   className={cn(
-                    'flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary',
-                    isProjectActive ? 'text-primary' : 'text-muted-foreground',
+                    navItemBaseClass,
+                    'gap-1',
+                    isProjectActive ? navItemActiveClass : '',
                   )}
                 >
                   案件管理
@@ -162,7 +168,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 {roleNav.project.map((item) => (
-                  <DropdownMenuItem asChild key={item.href}>
+                  <DropdownMenuItem asChild key={item.href} className={dropdownItemClass}>
                     <Link href={item.href}>{item.label}</Link>
                   </DropdownMenuItem>
                 ))}
@@ -174,19 +180,22 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <HeaderBellLink />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-1 text-sm font-semibold focus:outline-none">
+                <button className="flex h-9 items-center gap-1 rounded-md px-2 text-sm font-semibold text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 focus:outline-none">
                   {displayUserName}
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {roleNav.account.map((item) => (
-                  <DropdownMenuItem asChild key={item.href}>
+                  <DropdownMenuItem asChild key={item.href} className={dropdownItemClass}>
                     <Link href={item.href}>{item.label}</Link>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={handleLogout} className="text-destructive focus:text-destructive">
+                <DropdownMenuItem
+                  onSelect={handleLogout}
+                  className="cursor-pointer rounded-md px-2 py-1.5 text-destructive transition-colors duration-150 hover:bg-red-50 focus:bg-red-50 focus:text-destructive"
+                >
                   ログアウト
                 </DropdownMenuItem>
               </DropdownMenuContent>
