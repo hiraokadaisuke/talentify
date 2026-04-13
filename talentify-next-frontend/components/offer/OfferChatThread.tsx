@@ -18,6 +18,7 @@ import { MessageCircle } from 'lucide-react'
 interface OfferChatThreadProps {
   offerId: string
   currentUserId: string
+  peerUserId: string
   currentRole: 'store' | 'talent' | 'admin'
   storeName: string
   talentName: string
@@ -27,6 +28,7 @@ interface OfferChatThreadProps {
 export default function OfferChatThread({
   offerId,
   currentUserId,
+  peerUserId,
   currentRole,
   storeName,
   talentName,
@@ -212,8 +214,8 @@ export default function OfferChatThread({
           ))}
         </div>
       </div>
-      <div className="border-t border-slate-100 bg-slate-50 px-4 py-3">
-        <OfferChatInput offerId={offerId} senderRole={currentRole} onSent={handleSent} />
+      <div className="border-t border-slate-100 px-4 py-3">
+        <OfferChatInput offerId={offerId} senderRole={currentRole} receiverUserId={peerUserId} onSent={handleSent} />
       </div>
     </div>
   )
