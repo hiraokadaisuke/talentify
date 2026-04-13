@@ -22,6 +22,7 @@ type TalentOfferProgressPanelProps = {
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
     invoiceStatusLabel: string
     paymentStatusLabel: string
+    reviewCompleted: boolean
   }
   invoiceId: string | null
   paymentLink?: string
@@ -87,12 +88,20 @@ export default function TalentOfferProgressPanel({
                 : `支払い状況: ${offer.paid ? '完了' : '未完了'}`,
           }
         case 'review':
-          return { ...step, subLabel: `レビュー: ${step.status === 'complete' ? '完了' : '未実施'}` }
+          return { ...step, subLabel: `レビュー: ${offer.reviewCompleted ? 'レビュー済み' : 'レビュー未実施'}` }
         default:
           return step
       }
     })
-  }, [formattedSubmittedAt, formattedVisitDate, offer.invoiceStatusLabel, offer.paid, paymentCompletedLabel, steps])
+  }, [
+    formattedSubmittedAt,
+    formattedVisitDate,
+    offer.invoiceStatusLabel,
+    offer.paid,
+    offer.reviewCompleted,
+    paymentCompletedLabel,
+    steps,
+  ])
 
   const activeStatus: OfferProgressStatus = useMemo(() => {
     return progressSteps.find(step => step.key === activeStep)?.status ?? 'upcoming'
@@ -126,4 +135,3 @@ export default function TalentOfferProgressPanel({
     </div>
   )
 }
-

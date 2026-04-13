@@ -23,6 +23,7 @@ type StepDetailCardProps = {
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
     invoiceStatusLabel: string
     paymentStatusLabel: string
+    reviewCompleted: boolean
   }
   invoiceId: string | null
   paymentLink?: string
@@ -298,15 +299,29 @@ export default function StepDetailCard({
       }
       case 'review':
       default:
+        const reviewActions: ReactNode[] = []
+        if (offer.reviewCompleted) {
+          reviewActions.push(
+            <Button key="review" size="sm" asChild>
+              <Link href="/talent/reviews">レビューを確認する</Link>
+            </Button>,
+          )
+        }
+        reviewActions.push(
+          <Button key="message" variant="outline" size="sm" asChild>
+            <a href="#offer-messages">メッセージを送る</a>
+          </Button>,
+        )
         return {
           title: 'レビュー',
-          description: '支払いが完了すると店舗からのレビューを確認できます。フィードバックを次回に活かしましょう。',
-          badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#offer-messages">メッセージを送る</a>
-            </Button>,
-          ],
+          description: offer.reviewCompleted
+            ? '店舗レビューが投稿されています。内容を確認して次回の案件に活かしましょう。'
+            : 'まだ店舗レビューは投稿されていません。レビュー投稿後に確認できます。',
+          badge: offer.reviewCompleted
+            ? <Badge variant="success">レビュー済み</Badge>
+            : <Badge variant="outline">レビュー未実施</Badge>,
+          meta: [{ label: 'レビュー状態', value: offer.reviewCompleted ? 'レビュー済み' : 'レビュー未実施' }],
+          actions: reviewActions,
         }
     }
   }, [
@@ -321,6 +336,7 @@ export default function StepDetailCard({
     offer.invoiceStatusLabel,
     offer.paid,
     offer.paymentStatusLabel,
+    offer.reviewCompleted,
     offer.status,
     paymentCompletedLabel,
     paymentLink,

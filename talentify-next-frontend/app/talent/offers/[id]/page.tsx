@@ -28,6 +28,7 @@ export default function TalentOfferPage() {
       .select(
         `
         id,status,date,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
+        reviews(id),
         talents(stage_name,avatar_url),
         store:stores!offers_store_id_fkey(id, store_name)
       `
@@ -58,6 +59,7 @@ export default function TalentOfferPage() {
         submittedAt: data.created_at,
         paid: data.paid,
         paidAt: data.paid_at,
+        reviewCompleted: Array.isArray(data.reviews) && data.reviews.length > 0,
         invoiceStatus,
         invoiceStatusLabel: getInvoiceStatusLabel(invoice?.status),
         paymentStatusLabel: getPaymentStatusLabel(invoice?.payment_status, data.paid),
@@ -128,6 +130,7 @@ export default function TalentOfferPage() {
     status: offer.status,
     invoiceStatus: offer.invoiceStatus,
     paid: offer.paid,
+    reviewCompleted: offer.reviewCompleted,
   })
 
   return (
@@ -147,6 +150,7 @@ export default function TalentOfferPage() {
             invoiceStatus: offer.invoiceStatus,
             invoiceStatusLabel: offer.invoiceStatusLabel,
             paymentStatusLabel: offer.paymentStatusLabel,
+            reviewCompleted: offer.reviewCompleted,
           }}
           invoiceId={invoiceId}
           paymentLink={paymentLink}

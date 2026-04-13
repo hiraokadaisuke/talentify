@@ -16,6 +16,7 @@ export type TalentOffer = {
   status: string | null
   paid?: boolean | null
   invoice_status: 'not_submitted' | 'submitted' | 'paid'
+  review_completed: boolean
 }
 
 const offerRowSchema = z.object({
@@ -29,6 +30,7 @@ const offerRowSchema = z.object({
       z.object({ status: z.string().nullable(), paid_at: z.string().nullable() })
     )
     .nullable(),
+  reviews: z.array(z.object({ id: z.string() })).nullable(),
   store: z
     .object({
       id: z.string(),
@@ -46,7 +48,7 @@ export async function getOffersForTalent() {
     .from('offers')
     .select(
       `
-      id, store_id, created_at, date, status, payments(status,paid_at),
+      id, store_id, created_at, date, status, payments(status,paid_at), reviews(id),
       store:stores!offers_store_id_fkey(id, store_name, is_setup_complete)
     `
     )
@@ -85,6 +87,7 @@ export async function getOffersForTalent() {
 
   return parsed.data.map(o => {
     const paymentStatus = o.payments?.[0]?.status ?? null
+    const reviews = Array.isArray(o.reviews) ? o.reviews : []
     const invoice = invoiceMap.get(o.id)
     const invoiceStatus = deriveOfferInvoiceProgressStatus({
       invoiceStatus: invoice?.status,
@@ -103,6 +106,7 @@ export async function getOffersForTalent() {
       status: o.status,
       paid: paymentStatus === 'completed',
       invoice_status: invoiceStatus,
+      review_completed: reviews.length > 0,
     }
   }) as TalentOffer[]
 }

@@ -77,6 +77,7 @@ export default function TalentOffersPage() {
         status: offer.status ?? 'pending',
         invoiceStatus: offer.invoice_status,
         paid: Boolean(offer.paid),
+        reviewCompleted: offer.review_completed,
       })
 
       const isCanceled = CANCEL_STATUSES.has(offer.status ?? '')
