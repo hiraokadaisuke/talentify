@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 import { Loader2 } from 'lucide-react'
+import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
 
 const supabase = createClient()
 
@@ -25,6 +26,7 @@ interface Invoice {
   notes: string | null
   invoice_number: string | null
   due_date: string | null
+  payment_status: string | null
   offers: { paid: boolean | null } | null
   talents: {
     bank_name: string | null
@@ -47,16 +49,11 @@ interface RawInvoice extends Omit<Invoice, 'offers' | 'talents'> {
 }
 
 function statusLabel(inv: Invoice): string {
-  if (inv.offers?.paid) return '支払い完了'
-  switch (inv.status) {
-    case 'approved':
-    case 'submitted':
-      return '提出済み'
-    case 'rejected':
-      return '差し戻し済み'
-    default:
-      return '下書き'
-  }
+  return getInvoiceStatusLabel(inv.status)
+}
+
+function paymentStatusLabel(inv: Invoice): string {
+  return getPaymentStatusLabel(inv.payment_status, inv.offers?.paid)
 }
 
 export default function StoreInvoiceDetail() {
@@ -67,13 +64,14 @@ export default function StoreInvoiceDetail() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
   const [paying, setPaying] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
   const [downloading, setDownloading] = useState(false)
 
   const load = async () => {
     const { data } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,created_at,offer_id,offers(paid),talents:talent_id(bank_name,branch_name,account_type,account_number,account_holder)'
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,offers(paid),talents:talent_id(bank_name,branch_name,account_type,account_number,account_holder)'
       )
       .eq('id', id)
       .maybeSingle()
@@ -106,6 +104,33 @@ export default function StoreInvoiceDetail() {
       }
     } else {
       toast.error('支払いの記録に失敗しました')
+    }
+  }
+
+  const handleApprove = async () => {
+    setUpdatingStatus(true)
+    const res = await fetch(`/api/invoices/${id}/approve`, { method: 'POST' })
+    setUpdatingStatus(false)
+    if (res.ok) {
+      toast.success('請求書を承認しました')
+      await load()
+    } else {
+      toast.error('承認に失敗しました')
+    }
+  }
+
+  const handleReject = async () => {
+    const ok = window.confirm('この請求書を差し戻しますか？')
+    if (!ok) return
+
+    setUpdatingStatus(true)
+    const res = await fetch(`/api/invoices/${id}/reject`, { method: 'POST' })
+    setUpdatingStatus(false)
+    if (res.ok) {
+      toast.success('請求書を差し戻しました')
+      await load()
+    } else {
+      toast.error('差し戻しに失敗しました')
     }
   }
 
@@ -162,8 +187,14 @@ export default function StoreInvoiceDetail() {
               : '-'}
           </div>
           <div>
-            ステータス:{' '}
+            請求書ステータス:{' '}
             <Badge variant='outline'>{statusLabel(invoice)}</Badge>
+          </div>
+          <div>
+            支払い状態:{' '}
+            <Badge variant={invoice.offers?.paid ? 'success' : 'secondary'}>
+              {paymentStatusLabel(invoice)}
+            </Badge>
           </div>
           {invoice.invoice_url && (
             <div>
@@ -219,7 +250,20 @@ export default function StoreInvoiceDetail() {
         請求書をダウンロード
       </Button>
 
-      {!invoice.offers?.paid && invoice.status !== 'draft' && (
+      {invoice.status === 'submitted' && (
+        <div className='flex gap-2'>
+          <Button onClick={handleApprove} disabled={updatingStatus}>
+            {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+            承認する
+          </Button>
+          <Button onClick={handleReject} disabled={updatingStatus} variant='outline'>
+            {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+            差し戻す
+          </Button>
+        </div>
+      )}
+
+      {!invoice.offers?.paid && invoice.status === 'approved' && (
         <Button onClick={handlePay} disabled={paying}>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする
