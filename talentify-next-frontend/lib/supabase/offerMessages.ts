@@ -12,6 +12,7 @@ export type OfferMessage = {
   id: string
   offer_id: string
   sender_user: string
+  receiver_user: string
   sender_role: 'store' | 'talent' | 'admin'
   body: string | null
   attachments: Attachment[]
@@ -41,6 +42,7 @@ export async function sendOfferMessage(
   params: {
     offerId: string
     senderRole: 'store' | 'talent' | 'admin'
+    receiverUserId: string
     body: string | null
     attachments: Attachment[]
   }
@@ -52,6 +54,7 @@ export async function sendOfferMessage(
     .insert({
       offer_id: params.offerId,
       sender_user: user.id,
+      receiver_user: params.receiverUserId,
       sender_role: params.senderRole,
       body: params.body,
       attachments: params.attachments,

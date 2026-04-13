@@ -5,16 +5,18 @@ import OfferChatThread from '@/components/offer/OfferChatThread'
 type MessageCardProps = {
   offerId: string
   currentUserId: string
+  peerUserId: string
   storeName: string
   talentName: string
 }
 
-export default function MessageCard({ offerId, currentUserId, storeName, talentName }: MessageCardProps) {
+export default function MessageCard({ offerId, currentUserId, peerUserId, storeName, talentName }: MessageCardProps) {
   return (
     <div id="offer-messages" className="h-full">
       <OfferChatThread
         offerId={offerId}
         currentUserId={currentUserId}
+        peerUserId={peerUserId}
         currentRole="talent"
         storeName={storeName}
         talentName={talentName}

@@ -34,8 +34,8 @@ export default function TalentOfferPage() {
         `
         id,status,date,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
         reviews(id),
-        talents(stage_name,avatar_url),
-        store:stores!offers_store_id_fkey(id, store_name)
+        talents(stage_name,avatar_url,user_id),
+        store:stores!offers_store_id_fkey(id, store_name, user_id)
       `
       )
       .eq('id', params.id)
@@ -68,6 +68,7 @@ export default function TalentOfferPage() {
         invoiceStatus,
         invoiceStatusLabel: getInvoiceStatusLabel(invoice?.status),
         paymentStatusLabel: getPaymentStatusLabel(invoice?.payment_status, data.paid),
+        storeUserId: data.store?.user_id ?? null,
       })
       setInvoiceId(invoice?.id ?? null)
     } else {
@@ -191,6 +192,7 @@ export default function TalentOfferPage() {
           <MessageCard
             offerId={offer.id}
             currentUserId={userId}
+            peerUserId={offer.storeUserId ?? ''}
             storeName={offer.storeName}
             talentName={offer.performerName}
           />
