@@ -88,7 +88,7 @@ export default function StepDetailCard({
       case 'invoice_waiting':
         return {
           title: '請求をお待ちしています',
-          description: '出演が完了しました。次は請求書の提出を進めてください。',
+          description: '請求書がまだ作成されていません。請求書の作成・提出を進めてください。',
           badge: <Badge variant="outline">請求待ち</Badge>,
           meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
           primaryAction: <Button asChild><Link href={`/talent/invoices/new?offerId=${offer.id}`}>請求書を作成する</Link></Button>,
@@ -131,8 +131,8 @@ export default function StepDetailCard({
         }
       default:
         return {
-          title: '来店完了後に請求フローへ進みます',
-          description: '現在は請求・支払い・レビュー前のステップです。進行ステップバーで状況を確認してください。',
+          title: '請求書の準備がこれからです',
+          description: 'まだ請求書が作成されていない状態です。進行ステップバーで状況を確認してください。',
           badge: <Badge variant="outline">準備中</Badge>,
           secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }

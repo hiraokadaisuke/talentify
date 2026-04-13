@@ -25,7 +25,8 @@ export function resolveMainActionPhase({
   reviewCompleted,
 }: MainActionPhaseParams): MainActionPhase {
   const paymentDone = paid || invoiceStatus === 'paid'
-  const visitCompleted = status === 'completed'
+  const invoiceCreated = invoiceStatus !== 'not_submitted'
+  const canStartInvoiceFlow = ['accepted', 'confirmed', 'completed'].includes(status)
 
   if (paymentDone && reviewCompleted) {
     return 'completed'
@@ -42,7 +43,7 @@ export function resolveMainActionPhase({
     return role === 'store' ? 'invoice_submitted' : 'payment_waiting'
   }
 
-  if (visitCompleted && invoiceStatus === 'not_submitted') {
+  if (!invoiceCreated && canStartInvoiceFlow) {
     return 'invoice_waiting'
   }
 
