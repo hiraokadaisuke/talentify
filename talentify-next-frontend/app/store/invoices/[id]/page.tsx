@@ -100,7 +100,7 @@ export default function StoreInvoiceDetail() {
       toast.success('支払いを記録しました')
       router.refresh()
       if (invoice?.offer_id) {
-        router.push(`/store/reviews/new?offerId=${invoice.offer_id}`)
+        router.push(`/store/offers/${invoice.offer_id}`)
       }
     } else {
       toast.error('支払いの記録に失敗しました')
