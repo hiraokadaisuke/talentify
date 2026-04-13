@@ -74,8 +74,6 @@ export default function StepDetailCard({
   onDeclineOffer,
   actionLoading,
 }: StepDetailCardProps) {
-  const formattedSubmittedAt = useMemo(() => offer.submittedAt ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja }) : '未提出', [offer.submittedAt])
-  const formattedUpdatedAt = useMemo(() => format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja }), [offer.updatedAt])
   const formattedVisitDate = useMemo(() => offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定', [offer.date])
 
   const mainActionDetail = useMemo<StepDetail>(() => {
@@ -95,7 +93,6 @@ export default function StepDetailCard({
           badge: <Badge variant="outline">請求待ち</Badge>,
           meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
           primaryAction: <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/new?offerId=${offer.id}`}>請求書を作成する</Link></Button>,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'payment_waiting':
         return {
@@ -104,7 +101,6 @@ export default function StepDetailCard({
           badge: <Badge variant="outline">支払い待ち</Badge>,
           meta: [{ label: '支払い状態', value: offer.paymentStatusLabel }],
           primaryAction: invoiceId ? <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>請求書を見る</Link></Button> : paymentLink ? <Button className={primaryActionClass} asChild><Link href={paymentLink}>状況を確認する</Link></Button> : undefined,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'review_available':
         return {
@@ -113,7 +109,6 @@ export default function StepDetailCard({
           badge: <Badge variant="success">レビューあり</Badge>,
           meta: [{ label: 'レビュー状態', value: '店舗レビューあり' }],
           primaryAction: <Button className={primaryActionClass} asChild><Link href="/talent/reviews">レビューを確認する</Link></Button>,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'completed':
         return {
@@ -122,7 +117,6 @@ export default function StepDetailCard({
           badge: <Badge variant="success">全完了</Badge>,
           meta: [{ label: 'レビュー状態', value: '確認済み' }],
           primaryAction: <Button className={primaryActionClass} asChild><Link href="/talent/reviews">レビューを確認する</Link></Button>,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'payment_completed_review_waiting':
         return {
@@ -130,14 +124,12 @@ export default function StepDetailCard({
           description: '支払いは完了しています。店舗レビューの投稿をお待ちください。',
           badge: <Badge>レビュー待ち</Badge>,
           meta: [{ label: '支払い状態', value: offer.paymentStatusLabel }],
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       default:
         return {
           title: '請求書の準備がこれからです',
           description: 'まだ請求書が作成されていない状態です。進行ステップバーで状況を確認してください。',
           badge: <Badge variant="outline">準備中</Badge>,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
     }
   }, [offer.status, offer.invoiceStatus, offer.paid, offer.reviewCompleted, offer.invoiceStatusLabel, offer.paymentStatusLabel, offer.id, invoiceId, paymentLink])
@@ -153,10 +145,8 @@ export default function StepDetailCard({
         description: '店舗からオファーが届きました。内容を確認して、承諾または辞退を選択してください。',
         badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
         meta: [
-          { label: '提出日時', value: formattedSubmittedAt },
           { label: '来店予定', value: formattedVisitDate },
         ],
-        secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
       }
     }
 
@@ -168,16 +158,13 @@ export default function StepDetailCard({
         badge: status.badge,
         meta: [
           { label: 'ステータス', value: status.text },
-          { label: '最終更新', value: formattedUpdatedAt },
         ],
         primaryAction: offer.status === 'pending' && onAcceptOffer ? (
           <Button className={primaryActionClass} onClick={onAcceptOffer} disabled={actionLoading !== null}>{actionLoading === 'accept' ? '承諾中...' : '承諾'}</Button>
         ) : undefined,
         secondaryAction: offer.status === 'pending' && onDeclineOffer ? (
           <Button variant="outline" className={secondaryActionClass} onClick={onDeclineOffer} disabled={actionLoading !== null}>{actionLoading === 'decline' ? '辞退中...' : '辞退'}</Button>
-        ) : (
-          <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>
-        ),
+        ) : undefined,
       }
     }
 
@@ -187,11 +174,9 @@ export default function StepDetailCard({
       badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
       meta: [
         { label: '来店日時', value: formattedVisitDate },
-        { label: '最終更新', value: formattedUpdatedAt },
       ],
-      secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
     }
-  }, [activeStep, activeStatus, mainActionDetail, formattedSubmittedAt, formattedUpdatedAt, formattedVisitDate, offer.status, onAcceptOffer, onDeclineOffer, actionLoading])
+  }, [activeStep, activeStatus, mainActionDetail, formattedVisitDate, offer.status, onAcceptOffer, onDeclineOffer, actionLoading])
 
   return (
     <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -204,7 +189,7 @@ export default function StepDetailCard({
       </CardHeader>
       <CardContent className="space-y-4 p-4 sm:p-5">
         {detail.meta && detail.meta.length > 0 && (
-          <dl className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
+          <dl className="grid gap-3 text-sm sm:grid-cols-2">
             {detail.meta.map(item => (
               <div key={item.label} className="space-y-0.5">
                 <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{item.label}</dt>
