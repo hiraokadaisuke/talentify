@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { resolveMainActionPhase } from '@/lib/offers/mainActionPhase'
 
 type StepDetailCardProps = {
   activeStep: OfferStepKey
@@ -37,8 +38,8 @@ type StepDetail = {
   description: string
   badge?: ReactNode
   meta?: { label: string; value: string }[]
-  actions?: ReactNode[]
-  note?: ReactNode
+  primaryAction?: ReactNode
+  secondaryAction?: ReactNode
 }
 
 const statusDisplay = (status: string) => {
@@ -70,280 +71,124 @@ export default function StepDetailCard({
   onDeclineOffer,
   actionLoading,
 }: StepDetailCardProps) {
-  const formattedSubmittedAt = useMemo(() => {
-    return offer.submittedAt
-      ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
-      : '未提出'
-  }, [offer.submittedAt])
+  const formattedSubmittedAt = useMemo(() => offer.submittedAt ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja }) : '未提出', [offer.submittedAt])
+  const formattedUpdatedAt = useMemo(() => format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja }), [offer.updatedAt])
+  const formattedVisitDate = useMemo(() => offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定', [offer.date])
 
-  const formattedUpdatedAt = useMemo(() => {
-    return format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
-  }, [offer.updatedAt])
+  const mainActionDetail = useMemo<StepDetail>(() => {
+    const phase = resolveMainActionPhase({
+      role: 'talent',
+      status: offer.status,
+      invoiceStatus: offer.invoiceStatus,
+      paid: offer.paid,
+      reviewCompleted: offer.reviewCompleted,
+    })
 
-  const formattedVisitDate = useMemo(() => {
-    return offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定'
-  }, [offer.date])
-
-  const paymentCompletedLabel = useMemo(() => {
-    return offer.paidAt ? format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) : undefined
-  }, [offer.paidAt])
-
-  const detail = useMemo<StepDetail>(() => {
-    switch (activeStep) {
-      case 'offer_submitted':
+    switch (phase) {
+      case 'invoice_waiting':
         return {
-          title: 'オファー提出',
-          description: '店舗からオファーが届きました。内容を確認して、承諾または辞退を選択してください。',
-          badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
-          meta: [
-            { label: '提出日時', value: formattedSubmittedAt },
-            { label: '来店予定', value: formattedVisitDate },
-          ],
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#offer-messages">メッセージを送る</a>
-            </Button>,
-          ],
+          title: '請求をお待ちしています',
+          description: '出演が完了しました。次は請求書の提出を進めてください。',
+          badge: <Badge variant="outline">請求待ち</Badge>,
+          meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
+          primaryAction: <Button asChild><Link href={`/talent/invoices/new?offerId=${offer.id}`}>請求書を作成する</Link></Button>,
+          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
-      case 'approval': {
-        const status = statusDisplay(offer.status)
-        let description = ''
-        switch (offer.status) {
-          case 'pending':
-            description = '承諾または辞退を選択してください。追加の質問があればメッセージで確認しましょう。'
-            break
-          case 'accepted':
-            description = '承諾済みです。店舗との連絡を取り、来店日時の最終確認を行いましょう。'
-            break
-          case 'confirmed':
-            description = '承認が完了し、来店準備へ進めます。必要事項をメッセージで共有してください。'
-            break
-          case 'rejected':
-            description = 'オファーを辞退済みです。他の案件を確認しましょう。'
-            break
-          case 'canceled':
-            description = '店舗によりオファーがキャンセルされました。状況をメッセージで確認してください。'
-            break
-          default:
-            description = '承認が完了しました。次のステップに進んでください。'
-            break
-        }
-        const actions: ReactNode[] = []
-        if (offer.status === 'pending') {
-          if (onAcceptOffer) {
-            actions.push(
-              <Button
-                key="accept"
-                variant="default"
-                size="sm"
-                onClick={onAcceptOffer}
-                disabled={actionLoading !== null}
-              >
-                {actionLoading === 'accept' ? '承諾中...' : '承諾'}
-              </Button>,
-            )
-          }
-          if (onDeclineOffer) {
-            actions.push(
-              <Button
-                key="decline"
-                variant="outline"
-                size="sm"
-                onClick={onDeclineOffer}
-                disabled={actionLoading !== null}
-              >
-                {actionLoading === 'decline' ? '辞退中...' : '辞退'}
-              </Button>,
-            )
-          }
-        }
-        actions.push(
-          <Button key="message" variant="outline" size="sm" asChild>
-            <a href="#offer-messages">メッセージを送る</a>
-          </Button>,
-        )
+      case 'payment_waiting':
         return {
-          title: '承認',
-          description,
-          badge: status.badge,
-          meta: [
-            { label: 'ステータス', value: status.text },
-            { label: '最終更新', value: formattedUpdatedAt },
-          ],
-          actions,
+          title: '支払いをお待ちしています',
+          description: '店舗側での支払い処理待ちです。必要に応じて状況を確認してください。',
+          badge: <Badge variant="outline">支払い待ち</Badge>,
+          meta: [{ label: '支払い状態', value: offer.paymentStatusLabel }],
+          primaryAction: invoiceId ? <Button asChild><Link href={`/talent/invoices/${invoiceId}`}>請求書を見る</Link></Button> : paymentLink ? <Button asChild><Link href={paymentLink}>状況を確認する</Link></Button> : undefined,
+          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
-      }
-      case 'visit': {
-        let description = ''
-        if (offer.status === 'completed') {
-          description = '来店が完了しました。請求内容の作成に進みましょう。'
-        } else if (offer.status === 'confirmed') {
-          description = '来店日程が確定しています。当日の流れや準備事項を店舗と共有してください。'
-        } else if (offer.status === 'accepted') {
-          description = '承済みです。来店日時の調整を完了させ、必要事項を確認しましょう。'
-        } else if (offer.status === 'canceled') {
-          description = 'オファーがキャンセルされたため、来店は行われません。'
-        } else if (offer.status === 'rejected') {
-          description = '辞退済みのため、来店は予定されていません。'
-        } else {
-          description = '来店日時を調整し、詳細を店舗と共有しましょう。'
-        }
+      case 'review_available':
         return {
-          title: '来店実施',
-          description,
-          badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
-          meta: [
-            { label: '来店日時', value: formattedVisitDate },
-            { label: '最終更新', value: formattedUpdatedAt },
-          ],
-          actions: [
-            <Button key="message" variant="outline" size="sm" asChild>
-              <a href="#offer-messages">メッセージを送る</a>
-            </Button>,
-          ],
+          title: 'レビューが届いています',
+          description: '店舗からのレビューを確認しましょう。',
+          badge: <Badge variant="success">レビューあり</Badge>,
+          meta: [{ label: 'レビュー状態', value: '店舗レビューあり' }],
+          primaryAction: <Button asChild><Link href="/talent/reviews">レビューを確認する</Link></Button>,
+          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
-      }
-      case 'invoice': {
-        let description = ''
-        if (!invoiceId) {
-          description = '来店が完了したら請求書を作成してください。提出が完了すると店舗に通知されます。'
-        } else if (offer.invoiceStatus === 'submitted') {
-          description = '請求書を提出済みです。支払い状況が更新されるまでお待ちください。'
-        } else if (offer.invoiceStatus === 'paid') {
-          description = '支払いが完了しました。取引内容を確認し、レビューをチェックしましょう。'
-        } else {
-          description = '請求書のステータスを確認してください。必要に応じて修正を行いましょう。'
-        }
-        const actions: ReactNode[] = []
-        if (!invoiceId) {
-          actions.push(
-            <Button key="create" size="sm" asChild>
-              <Link href={`/talent/invoices/new?offerId=${offer.id}`}>請求書を作成</Link>
-            </Button>,
-          )
-        } else {
-          actions.push(
-            <Button key="view" size="sm" variant="outline" asChild>
-              <Link href={`/talent/invoices/${invoiceId}`}>請求書を確認</Link>
-            </Button>,
-          )
-        }
-        actions.push(
-          <Button key="message" variant="outline" size="sm" asChild>
-            <a href="#offer-messages">メッセージを送る</a>
-          </Button>,
-        )
-        let badge: ReactNode | undefined
-        if (offer.invoiceStatus === 'paid') {
-          badge = <Badge variant="success">支払済み</Badge>
-        } else if (offer.invoiceStatus === 'submitted') {
-          badge = <Badge>提出済み</Badge>
-        } else if (activeStatus === 'current') {
-          badge = (
-            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
-              準備中
-            </Badge>
-          )
-        }
+      case 'completed':
         return {
-          title: '請求',
-          description,
-          badge,
-          meta: [
-            { label: '請求書', value: invoiceId ? '作成済み' : '未作成' },
-            { label: 'ステータス', value: offer.invoiceStatusLabel },
-          ],
-          actions,
-          note:
-            invoiceId === null
-              ? '来店が完了してから請求書を作成してください。早めの提出で支払いもスムーズになります。'
-              : undefined,
+          title: '取引が完了しました',
+          description: 'この案件はすべてのステップが完了しています。',
+          badge: <Badge variant="success">全完了</Badge>,
+          meta: [{ label: 'レビュー状態', value: '確認済み' }],
+          primaryAction: <Button asChild><Link href="/talent/reviews">レビューを確認する</Link></Button>,
+          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
-      }
-      case 'payment': {
-        const actions: ReactNode[] = []
-        if (paymentLink) {
-          actions.push(
-            <Button key="payment" size="sm" asChild>
-              <Link href={paymentLink}>支払いを確認する</Link>
-            </Button>,
-          )
-        }
-        actions.push(
-          <Button key="message" variant="outline" size="sm" asChild>
-            <a href="#offer-messages">メッセージを送る</a>
-          </Button>,
-        )
-        let badge: ReactNode | undefined
-        if (offer.paid) {
-          badge = <Badge variant="success">完了</Badge>
-        } else if (activeStatus === 'current') {
-          badge = (
-            <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
-              支払い待ち
-            </Badge>
-          )
-        }
+      case 'payment_completed_review_waiting':
         return {
-          title: '支払い',
-          description: offer.paid
-            ? '支払いが完了しました。入金内容を確認し、レビューが届くまでお待ちください。'
-            : '請求書の支払いを待っています。状況を確認し、必要であれば店舗に連絡しましょう。',
-          badge,
-          meta: [
-            { label: '支払い状況', value: offer.paymentStatusLabel },
-            ...(paymentCompletedLabel ? [{ label: '支払い日', value: paymentCompletedLabel }] : []),
-          ],
-          actions,
+          title: '支払いが完了しました',
+          description: '支払いは完了しています。店舗レビューの投稿をお待ちください。',
+          badge: <Badge>レビュー待ち</Badge>,
+          meta: [{ label: '支払い状態', value: offer.paymentStatusLabel }],
+          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
-      }
-      case 'review':
       default:
-        const reviewActions: ReactNode[] = []
-        if (offer.reviewCompleted) {
-          reviewActions.push(
-            <Button key="review" size="sm" asChild>
-              <Link href="/talent/reviews">レビューを確認する</Link>
-            </Button>,
-          )
-        }
-        reviewActions.push(
-          <Button key="message" variant="outline" size="sm" asChild>
-            <a href="#offer-messages">メッセージを送る</a>
-          </Button>,
-        )
         return {
-          title: 'レビュー',
-          description: offer.reviewCompleted
-            ? '店舗レビューが投稿されています。内容を確認して次回の案件に活かしましょう。'
-            : 'まだ店舗レビューは投稿されていません。レビュー投稿後に確認できます。',
-          badge: offer.reviewCompleted
-            ? <Badge variant="success">レビュー済み</Badge>
-            : <Badge variant="outline">レビュー未実施</Badge>,
-          meta: [{ label: 'レビュー状態', value: offer.reviewCompleted ? 'レビュー済み' : 'レビュー未実施' }],
-          actions: reviewActions,
+          title: '来店完了後に請求フローへ進みます',
+          description: '現在は請求・支払い・レビュー前のステップです。進行ステップバーで状況を確認してください。',
+          badge: <Badge variant="outline">準備中</Badge>,
+          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
     }
-  }, [
-    activeStatus,
-    activeStep,
-    formattedSubmittedAt,
-    formattedUpdatedAt,
-    formattedVisitDate,
-    invoiceId,
-    offer.id,
-    offer.invoiceStatus,
-    offer.invoiceStatusLabel,
-    offer.paid,
-    offer.paymentStatusLabel,
-    offer.reviewCompleted,
-    offer.status,
-    paymentCompletedLabel,
-    paymentLink,
-    onAcceptOffer,
-    onDeclineOffer,
-    actionLoading,
-  ])
+  }, [offer.status, offer.invoiceStatus, offer.paid, offer.reviewCompleted, offer.invoiceStatusLabel, offer.paymentStatusLabel, offer.id, invoiceId, paymentLink])
+
+  const detail = useMemo<StepDetail>(() => {
+    if (['invoice', 'payment', 'review'].includes(activeStep)) {
+      return mainActionDetail
+    }
+
+    if (activeStep === 'offer_submitted') {
+      return {
+        title: 'オファー提出',
+        description: '店舗からオファーが届きました。内容を確認して、承諾または辞退を選択してください。',
+        badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
+        meta: [
+          { label: '提出日時', value: formattedSubmittedAt },
+          { label: '来店予定', value: formattedVisitDate },
+        ],
+        secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+      }
+    }
+
+    if (activeStep === 'approval') {
+      const status = statusDisplay(offer.status)
+      return {
+        title: '承認',
+        description: '承諾または辞退を選択し、必要に応じてメッセージで確認してください。',
+        badge: status.badge,
+        meta: [
+          { label: 'ステータス', value: status.text },
+          { label: '最終更新', value: formattedUpdatedAt },
+        ],
+        primaryAction: offer.status === 'pending' && onAcceptOffer ? (
+          <Button onClick={onAcceptOffer} disabled={actionLoading !== null}>{actionLoading === 'accept' ? '承諾中...' : '承諾'}</Button>
+        ) : undefined,
+        secondaryAction: offer.status === 'pending' && onDeclineOffer ? (
+          <Button variant="outline" onClick={onDeclineOffer} disabled={actionLoading !== null}>{actionLoading === 'decline' ? '辞退中...' : '辞退'}</Button>
+        ) : (
+          <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>
+        ),
+      }
+    }
+
+    return {
+      title: '来店実施',
+      description: '来店日時と当日の連絡事項を確認してください。',
+      badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
+      meta: [
+        { label: '来店日時', value: formattedVisitDate },
+        { label: '最終更新', value: formattedUpdatedAt },
+      ],
+      secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+    }
+  }, [activeStep, activeStatus, mainActionDetail, formattedSubmittedAt, formattedUpdatedAt, formattedVisitDate, offer.status, onAcceptOffer, onDeclineOffer, actionLoading])
 
   return (
     <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -356,7 +201,7 @@ export default function StepDetailCard({
       </CardHeader>
       <CardContent className="space-y-6 p-6">
         {detail.meta && detail.meta.length > 0 && (
-          <dl className="grid gap-4 text-sm sm:grid-cols-2">
+          <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm sm:grid-cols-2">
             {detail.meta.map(item => (
               <div key={item.label} className="space-y-1">
                 <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{item.label}</dt>
@@ -365,14 +210,10 @@ export default function StepDetailCard({
             ))}
           </dl>
         )}
-        {detail.actions && detail.actions.length > 0 && (
-          <div className="flex flex-wrap justify-end gap-2">
-            {detail.actions.map((action, index) => (
-              <div key={index} className="inline-flex">{action}</div>
-            ))}
-          </div>
-        )}
-        {detail.note && <div className="text-sm text-muted-foreground">{detail.note}</div>}
+        <div className="flex flex-wrap justify-end gap-3">
+          {detail.secondaryAction && <div className="inline-flex">{detail.secondaryAction}</div>}
+          {detail.primaryAction && <div className="inline-flex">{detail.primaryAction}</div>}
+        </div>
       </CardContent>
     </Card>
   )
