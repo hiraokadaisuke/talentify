@@ -51,7 +51,14 @@ function resolveProgressBadge({
     }
   }
 
-  if (paid || invoiceStatus === 'paid' || reviewCompleted) {
+  if (reviewCompleted) {
+    return {
+      label: 'レビュー済み',
+      variant: 'success',
+    }
+  }
+
+  if (paid || invoiceStatus === 'paid') {
     return {
       label: '支払い済み',
       variant: 'success',
