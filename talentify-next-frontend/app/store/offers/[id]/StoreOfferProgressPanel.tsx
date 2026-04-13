@@ -33,6 +33,7 @@ interface StoreOfferProgressPanelProps {
     invoiceUrl: string | null
     amount: number | null
     status: string
+    paymentStatus: string | null
   } | null
   paymentLink?: string
   cancelation: {
