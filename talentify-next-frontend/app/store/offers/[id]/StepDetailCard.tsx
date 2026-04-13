@@ -53,12 +53,10 @@ type StepDetail = {
   badge?: ReactNode
   meta?: { label: string; value: string }[]
   primaryAction?: ReactNode
-  secondaryAction?: ReactNode
   footer?: ReactNode
 }
 
 const primaryActionClass = 'h-9 bg-blue-700 px-4 text-white hover:bg-blue-800 focus-visible:ring-blue-300'
-const secondaryActionClass = 'h-9 border-slate-300 bg-white px-4 text-slate-700 hover:bg-slate-100'
 
 const statusBadge = (status: string) => {
   switch (status) {
@@ -74,6 +72,20 @@ const statusBadge = (status: string) => {
   }
 }
 
+const getStatusText = (status: string) => {
+  switch (status) {
+    case 'confirmed':
+    case 'accepted':
+      return '承認済み'
+    case 'rejected':
+      return '辞退済み'
+    case 'canceled':
+      return 'キャンセル済み'
+    default:
+      return '承認待ち'
+  }
+}
+
 export default function StepDetailCard({ activeStep, activeStatus, offer, invoice, paymentLink, cancelation }: StepDetailCardProps) {
   const router = useRouter()
 
@@ -81,12 +93,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
     router.refresh()
   }, [router])
 
-  const formattedSubmittedAt = useMemo(() => {
-    return offer.submittedAt ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja }) : '未提出'
-  }, [offer.submittedAt])
-  const formattedUpdatedAt = useMemo(() => format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja }), [offer.updatedAt])
   const formattedVisitDate = useMemo(() => offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定', [offer.date])
-  const formattedRespondDeadline = useMemo(() => offer.respondDeadline ? format(new Date(offer.respondDeadline), 'yyyy/MM/dd', { locale: ja }) : '未設定', [offer.respondDeadline])
   const paymentCompletedLabel = useMemo(() => offer.paidAt ? format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) : undefined, [offer.paidAt])
 
   const mainActionDetail = useMemo<StepDetail>(() => {
@@ -106,7 +113,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           badge: <Badge variant="outline">請求待ち</Badge>,
           meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
           primaryAction: undefined,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'invoice_submitted':
         return {
@@ -119,7 +125,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             { label: '支払い状況', value: offer.paymentStatusLabel },
           ],
           primaryAction: invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'payment_waiting':
         return {
@@ -131,7 +136,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             ...(invoice?.amount != null ? [{ label: '支払い予定額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
           ],
           primaryAction: paymentLink ? <Button className={primaryActionClass} asChild><Link href={paymentLink}>支払いを確認する</Link></Button> : invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'payment_completed_review_waiting':
         return {
@@ -150,7 +154,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
               onSubmitted={handleReviewSubmitted}
             />
           ) : undefined,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'completed':
         return {
@@ -159,7 +162,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           badge: <Badge variant="success">全完了</Badge>,
           meta: [{ label: 'レビュー状態', value: offer.reviewCompleted ? 'レビュー済み' : '未実施' }],
           primaryAction: <Button className={primaryActionClass} asChild><Link href="/store/reviews">レビューを見る</Link></Button>,
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       default:
         return {
@@ -167,7 +169,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           description: 'まだ請求書が作成されていない状態です。進行ステップバーで状況を確認してください。',
           badge: <Badge variant="outline">準備中</Badge>,
           meta: [{ label: '現在ステップ', value: activeStep }],
-          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
     }
   }, [activeStep, offer.status, offer.invoiceStatus, offer.paid, offer.reviewCompleted, offer.invoiceStatusLabel, offer.paymentStatusLabel, offer.id, offer.talentId, invoice, paymentLink, paymentCompletedLabel, handleReviewSubmitted])
@@ -192,7 +193,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
     let result: StepDetail = {
       title: '進行中',
       description: '進行ステップを確認してください。',
-      secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
     }
 
     if (activeStep === 'offer_submitted') {
@@ -201,11 +201,9 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
         description: '店舗からタレントへオファーを送信しました。返信内容はメッセージで確認できます。',
         badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
         meta: [
-          { label: '提出日時', value: formattedSubmittedAt },
           { label: 'オファー金額', value: offer.reward != null ? `¥${offer.reward.toLocaleString('ja-JP')}` : '未設定' },
           { label: '提出者', value: offer.storeName || '未設定' },
         ],
-        secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
       }
     }
 
@@ -214,11 +212,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
         title: '承認',
         description: '承認状況を確認し、必要に応じてメッセージで調整してください。',
         badge: statusBadge(offer.status),
-        meta: [
-          { label: '承認期限', value: formattedRespondDeadline },
-          { label: '最終更新', value: formattedUpdatedAt },
-        ],
-        secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+        meta: [{ label: '承認状況', value: getStatusText(offer.status) }],
       }
     }
 
@@ -229,9 +223,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
         badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
         meta: [
           { label: '来店日時', value: formattedVisitDate },
-          { label: '最終更新', value: formattedUpdatedAt },
         ],
-        secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
       }
     }
 
@@ -247,7 +239,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           ),
         }
       : result
-  }, [activeStep, activeStatus, cancelation, formattedRespondDeadline, formattedSubmittedAt, formattedUpdatedAt, formattedVisitDate, mainActionDetail, offer.id, offer.reward, offer.status, offer.storeName])
+  }, [activeStep, activeStatus, cancelation, formattedVisitDate, mainActionDetail, offer.id, offer.reward, offer.status, offer.storeName])
 
   return (
     <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -260,7 +252,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
       </CardHeader>
       <CardContent className="space-y-4 p-4 sm:p-5">
         {detail.meta && detail.meta.length > 0 && (
-          <dl className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
+          <dl className="grid gap-3 text-sm sm:grid-cols-2">
             {detail.meta.map(item => (
               <div key={item.label} className="space-y-0.5">
                 <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{item.label}</dt>
@@ -270,7 +262,6 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           </dl>
         )}
         <div className="flex flex-wrap justify-end gap-2.5">
-          {detail.secondaryAction && <div className="inline-flex">{detail.secondaryAction}</div>}
           {detail.primaryAction && <div className="inline-flex">{detail.primaryAction}</div>}
         </div>
         {detail.footer && <div className="space-y-4 border-t border-dashed border-slate-200 pt-4">{detail.footer}</div>}

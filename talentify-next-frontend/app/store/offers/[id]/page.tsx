@@ -109,9 +109,6 @@ export default async function StoreOfferPage({ params }: PageProps) {
   })
 
   const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
-  const formattedSubmittedAt = offer.submittedAt
-    ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
-    : '未提出'
 
   const statusLabel = getStatusLabel(offer.status)
   const statusClassName = getStatusBadgeClassName(offer.status)
@@ -132,15 +129,13 @@ export default async function StoreOfferPage({ params }: PageProps) {
                   <span className="text-slate-300">/</span>
                   <span>{offer.storeName || '店舗未設定'}</span>
                 </div>
-                <span className="inline-flex h-4 w-px bg-slate-200" aria-hidden="true" />
-                <span>{formattedSubmittedAt}</span>
                 <Badge className={cn('flex items-center gap-1', statusClassName)}>{statusLabel}</Badge>
               </div>
             </div>
-            <div className="text-xs text-slate-500 md:text-right">
-              <div className="font-medium text-slate-400">最終更新日時</div>
-              <div>{formattedUpdatedAt}</div>
-            </div>
+              <div className="text-xs text-slate-500 md:text-right">
+                <div className="font-medium text-slate-400">最終更新日時</div>
+                <div>{formattedUpdatedAt}</div>
+              </div>
           </div>
           </section>
 
