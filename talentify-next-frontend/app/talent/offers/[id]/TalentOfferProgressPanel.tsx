@@ -6,7 +6,6 @@ import { ja } from 'date-fns/locale'
 import type { OfferProgressStep, OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import ProgressCard from './ProgressCard'
 import StepDetailCard from './StepDetailCard'
-import MessageCard from './MessageCard'
 
 type TalentOfferProgressPanelProps = {
   steps: OfferProgressStep[]
@@ -26,12 +25,6 @@ type TalentOfferProgressPanelProps = {
   }
   invoiceId: string | null
   paymentLink?: string
-  message: {
-    offerId: string
-    currentUserId: string
-    storeName: string
-    talentName: string
-  }
   onAcceptOffer?: () => void
   onDeclineOffer?: () => void
   actionLoading?: 'accept' | 'decline' | null
@@ -43,7 +36,6 @@ export default function TalentOfferProgressPanel({
   offer,
   invoiceId,
   paymentLink,
-  message,
   onAcceptOffer,
   onDeclineOffer,
   actionLoading,
@@ -108,30 +100,18 @@ export default function TalentOfferProgressPanel({
   }, [progressSteps, activeStep])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ProgressCard steps={progressSteps} activeStep={activeStep} onStepChange={setActiveStep} />
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <StepDetailCard
-            activeStep={activeStep}
-            activeStatus={activeStatus}
-            offer={offer}
-            invoiceId={invoiceId}
-            paymentLink={paymentLink}
-            onAcceptOffer={onAcceptOffer}
-            onDeclineOffer={onDeclineOffer}
-            actionLoading={actionLoading}
-          />
-        </div>
-        <div className="lg:col-span-1">
-          <MessageCard
-            offerId={message.offerId}
-            currentUserId={message.currentUserId}
-            storeName={message.storeName}
-            talentName={message.talentName}
-          />
-        </div>
-      </div>
+      <StepDetailCard
+        activeStep={activeStep}
+        activeStatus={activeStatus}
+        offer={offer}
+        invoiceId={invoiceId}
+        paymentLink={paymentLink}
+        onAcceptOffer={onAcceptOffer}
+        onDeclineOffer={onDeclineOffer}
+        actionLoading={actionLoading}
+      />
     </div>
   )
 }
