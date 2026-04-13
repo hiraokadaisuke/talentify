@@ -7,6 +7,11 @@ import { getOfferProgress } from '@/utils/offerProgress'
 import { toast } from 'sonner'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import TalentOfferProgressPanel from './TalentOfferProgressPanel'
+import {
+  deriveOfferInvoiceProgressStatus,
+  getInvoiceStatusLabel,
+  getPaymentStatusLabel,
+} from '@/lib/invoices/status'
 
 export default function TalentOfferPage() {
   const params = useParams<{ id: string }>()
@@ -33,14 +38,14 @@ export default function TalentOfferPage() {
     if (data) {
       const { data: invoice } = await supabase
         .from('invoices')
-        .select('id,status')
+        .select('id,status,payment_status')
         .eq('offer_id', params.id)
         .maybeSingle()
-      const invoiceStatus: 'not_submitted' | 'submitted' | 'paid' = invoice
-        ? data.paid
-          ? 'paid'
-          : 'submitted'
-        : 'not_submitted'
+      const invoiceStatus = deriveOfferInvoiceProgressStatus({
+        invoiceStatus: invoice?.status,
+        invoicePaymentStatus: invoice?.payment_status,
+        offerPaid: data.paid,
+      })
       setOffer({
         id: data.id,
         status: data.status,
@@ -54,6 +59,8 @@ export default function TalentOfferPage() {
         paid: data.paid,
         paidAt: data.paid_at,
         invoiceStatus,
+        invoiceStatusLabel: getInvoiceStatusLabel(invoice?.status),
+        paymentStatusLabel: getPaymentStatusLabel(invoice?.payment_status, data.paid),
       })
       setInvoiceId(invoice?.id ?? null)
     } else {
@@ -115,7 +122,7 @@ export default function TalentOfferPage() {
   }
 
   const showActions = ['accepted', 'confirmed', 'completed'].includes(offer.status)
-  const paymentLink = showActions ? `/talent/offers/${offer.id}/payment` : undefined
+  const paymentLink = showActions && invoiceId ? `/talent/invoices/${invoiceId}` : undefined
 
   const { steps, current: currentStep } = getOfferProgress({
     status: offer.status,
@@ -138,6 +145,8 @@ export default function TalentOfferPage() {
             paid: offer.paid,
             paidAt: offer.paidAt,
             invoiceStatus: offer.invoiceStatus,
+            invoiceStatusLabel: offer.invoiceStatusLabel,
+            paymentStatusLabel: offer.paymentStatusLabel,
           }}
           invoiceId={invoiceId}
           paymentLink={paymentLink}

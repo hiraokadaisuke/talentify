@@ -1,6 +1,7 @@
 'use client'
 
 import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { deriveOfferInvoiceProgressStatus } from '@/lib/invoices/status'
 import { createClient } from '@/utils/supabase/client'
 
 const supabase = createClient()
@@ -81,11 +82,11 @@ export async function getOffersForStore() {
     const payment = Array.isArray(o.payments) ? o.payments[0] : o.payments
     const paymentStatus = payment?.status ?? null
     const invoice = invoiceMap.get(o.id)
-    const invoiceStatus: 'not_submitted' | 'submitted' | 'paid' = invoice
-      ? paymentStatus === 'completed' || invoice.payment_status === 'paid'
-        ? 'paid'
-        : 'submitted'
-      : 'not_submitted'
+    const invoiceStatus = deriveOfferInvoiceProgressStatus({
+      invoiceStatus: invoice?.status,
+      invoicePaymentStatus: invoice?.payment_status,
+      paymentStatus,
+    })
 
     const reviews = Array.isArray(o.reviews) ? o.reviews : []
 

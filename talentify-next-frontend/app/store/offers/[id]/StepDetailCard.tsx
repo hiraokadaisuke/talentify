@@ -26,6 +26,8 @@ type StepDetailCardProps = {
     paid: boolean
     paidAt: string | null
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
+    invoiceStatusLabel: string
+    paymentStatusLabel: string
     reward: number | null
     talentId: string | null
     reviewCompleted: boolean
@@ -35,6 +37,7 @@ type StepDetailCardProps = {
     invoiceUrl: string | null
     amount: number | null
     status: string
+    paymentStatus: string | null
   } | null
   paymentLink?: string
   cancelation?: {
@@ -51,12 +54,6 @@ type StepDetail = {
   actions?: ReactNode[]
   note?: ReactNode
   footer?: ReactNode
-}
-
-const invoiceStatusText: Record<'not_submitted' | 'submitted' | 'paid', string> = {
-  not_submitted: '未提出',
-  submitted: '提出済み',
-  paid: '支払済み',
 }
 
 const statusBadge = (status: string) => {
@@ -235,7 +232,7 @@ export default function StepDetailCard({
           description,
           badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
           meta: [
-            { label: '請求ステータス', value: invoiceStatusText[offer.invoiceStatus] },
+            { label: '請求ステータス', value: offer.invoiceStatusLabel },
             ...(invoice?.amount != null
               ? [{ label: '請求額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }]
               : []),
@@ -256,7 +253,7 @@ export default function StepDetailCard({
         if (paymentLink) {
           actions.push(
             <Button key="payment" size="sm" asChild>
-              <Link href={paymentLink}>支払い状況</Link>
+              <Link href={paymentLink}>支払いを確認する</Link>
             </Button>,
           )
         }
@@ -265,7 +262,7 @@ export default function StepDetailCard({
           description,
           badge: offer.paid ? <Badge variant="success">完了</Badge> : undefined,
           meta: [
-            { label: '支払い状況', value: offer.paid ? '完了' : '未完了' },
+            { label: '支払い状況', value: offer.paymentStatusLabel },
             ...(paymentCompletedLabel ? [{ label: '支払い日', value: paymentCompletedLabel }] : []),
           ],
           actions,
@@ -327,7 +324,9 @@ export default function StepDetailCard({
     invoice,
     offer.id,
     offer.invoiceStatus,
+    offer.invoiceStatusLabel,
     offer.paid,
+    offer.paymentStatusLabel,
     offer.reviewCompleted,
     offer.talentId,
     offer.reward,
