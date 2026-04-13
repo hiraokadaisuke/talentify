@@ -20,6 +20,11 @@ type ReviewDetail = {
   comment: string | null
 }
 
+type ReviewSummary = {
+  offer_id: string
+  rating: number
+}
+
 const supabase = createClient()
 
 function renderStars(rating: number) {
@@ -28,6 +33,7 @@ function renderStars(rating: number) {
 
 export default function StoreReviewsPage() {
   const [offers, setOffers] = useState<CompletedOffer[]>([])
+  const [reviewByOfferId, setReviewByOfferId] = useState<Record<string, ReviewSummary>>({})
   const [loading, setLoading] = useState(true)
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedOffer, setSelectedOffer] = useState<CompletedOffer | null>(null)
@@ -38,6 +44,24 @@ export default function StoreReviewsPage() {
     const load = async () => {
       const data = await getCompletedOffersForStore()
       setOffers(data)
+      if (data.length > 0) {
+        const offerIds = data.map((offer) => offer.id)
+        const { data: reviewData, error } = await supabase
+          .from('reviews')
+          .select('offer_id, rating')
+          .in('offer_id', offerIds)
+        if (error) {
+          console.error('failed to fetch review summary', error)
+        } else {
+          const summaryMap = (reviewData ?? []).reduce<Record<string, ReviewSummary>>((acc, item) => {
+            if (!acc[item.offer_id]) {
+              acc[item.offer_id] = item as ReviewSummary
+            }
+            return acc
+          }, {})
+          setReviewByOfferId(summaryMap)
+        }
+      }
       setLoading(false)
     }
     load()
@@ -65,9 +89,9 @@ export default function StoreReviewsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-4xl mx-auto space-y-4">
-        <h1 className="text-2xl font-bold">レビュー投稿一覧</h1>
+    <main className="min-h-screen bg-gray-100 px-4 py-10">
+      <div className="mx-auto w-full max-w-5xl">
+        <h1 className="mb-6 text-3xl font-bold tracking-tight">レビュー投稿一覧</h1>
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           {loading ? (
             <p>読み込み中...</p>
@@ -79,7 +103,7 @@ export default function StoreReviewsPage() {
                 <TableRow>
                   <TableHead>日付</TableHead>
                   <TableHead>演者</TableHead>
-                  <TableHead>レビュー</TableHead>
+                  <TableHead>評価</TableHead>
                   <TableHead>詳細</TableHead>
                 </TableRow>
               </TableHeader>
@@ -95,15 +119,29 @@ export default function StoreReviewsPage() {
                     </TableCell>
                     <TableCell>{o.talent_name || o.talent_id}</TableCell>
                     <TableCell>
-                      {o.reviewed ? (
-                        <span className="text-sm text-gray-500">レビュー済</span>
+                      {reviewByOfferId[o.id] ? (
+                        <span className="tracking-wide text-amber-500">
+                          {renderStars(reviewByOfferId[o.id].rating)}
+                        </span>
                       ) : (
                         <ReviewModal
                           offerId={o.id}
                           talentId={o.talent_id}
                           trigger={<Button size="sm">レビューする</Button>}
-                          onSubmitted={() => {
+                          onSubmitted={async () => {
                             setOffers(prev => prev.map(p => p.id === o.id ? { ...p, reviewed: true } : p))
+                            const { data: latestReview } = await supabase
+                              .from('reviews')
+                              .select('offer_id, rating')
+                              .eq('offer_id', o.id)
+                              .order('created_at', { ascending: false })
+                              .maybeSingle()
+                            if (latestReview) {
+                              setReviewByOfferId((prev) => ({
+                                ...prev,
+                                [o.id]: latestReview as ReviewSummary,
+                              }))
+                            }
                           }}
                         />
                       )}
@@ -112,7 +150,7 @@ export default function StoreReviewsPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        disabled={!o.reviewed}
+                        disabled={!reviewByOfferId[o.id]}
                         onClick={() => openDetail(o)}
                       >
                         詳細

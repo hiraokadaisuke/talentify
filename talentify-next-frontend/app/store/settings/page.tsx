@@ -23,9 +23,9 @@ export default function StoreSettingsPage() {
   const handleTodo = () => toast('準備中（PR-1では未実装）')
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-4xl mx-auto space-y-4">
-        <h1 className="text-2xl font-bold">設定</h1>
+    <main className="min-h-screen bg-gray-100 px-4 py-10">
+      <div className="mx-auto w-full max-w-5xl">
+        <h1 className="mb-6 text-3xl font-bold tracking-tight">設定</h1>
 
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
           <p className="text-sm text-muted-foreground">
@@ -36,7 +36,7 @@ export default function StoreSettingsPage() {
             ページから行ってください。
           </p>
 
-          <section className="border rounded-xl p-4 space-y-4">
+          <section className="space-y-4 rounded-xl border border-gray-200 p-4">
             <div>
               <h2 className="text-lg font-semibold">アカウント設定</h2>
               <p className="text-sm text-muted-foreground">メールやパスワードの変更は現在準備中です。</p>
@@ -63,7 +63,7 @@ export default function StoreSettingsPage() {
             </div>
           </section>
 
-          <section className="border rounded-xl p-4 space-y-4">
+          <section className="space-y-4 rounded-xl border border-gray-200 p-4">
             <div>
               <h2 className="text-lg font-semibold">通知設定</h2>
               <p className="text-sm text-muted-foreground">通知のON/OFFは現在準備中です。</p>

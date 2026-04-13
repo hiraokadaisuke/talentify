@@ -35,9 +35,9 @@ export default function StoreInvoicesPage() {
   }, [])
 
   return (
-    <main className='min-h-screen bg-gray-100 p-6'>
-      <div className='max-w-4xl mx-auto space-y-4'>
-        <h1 className='text-xl font-bold'>請求一覧</h1>
+    <main className='min-h-screen bg-gray-100 px-4 py-10'>
+      <div className='mx-auto w-full max-w-5xl'>
+        <h1 className='mb-6 text-3xl font-bold tracking-tight'>請求一覧</h1>
         <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
           {loading ? (
             <TableSkeleton rows={3} />

@@ -200,65 +200,67 @@ export default function StoreProfileEditPage() {
   if (loading) return <p className="p-4">読み込み中...</p>
 
   return (
-    <main className="bg-gray-100 px-4 py-8 sm:px-6">
-      <div className="mx-auto w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
-        {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
-        {showIncomplete && !errorMessage && (
-          <div className="rounded-lg bg-yellow-100 p-2 text-sm text-yellow-800">
-            プロフィールが未完成です
-          </div>
-        )}
-        <h1 className="text-xl font-semibold">店舗プロフィール編集</h1>
+    <main className="min-h-screen bg-gray-100 px-4 py-10">
+      <div className="mx-auto w-full max-w-5xl">
+        <h1 className="mb-6 text-3xl font-bold tracking-tight">店舗プロフィール編集</h1>
+        <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
+          {showIncomplete && !errorMessage && (
+            <div className="rounded-lg bg-yellow-100 p-2 text-sm text-yellow-800">
+              プロフィールが未完成です
+            </div>
+          )}
 
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium">店舗名（表示名）</label>
-            <Input
-              name="store_name"
-              value={profile.store_name}
-              onChange={handleChange}
-              className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium">自己紹介</label>
-            <Textarea
-              name="bio"
-              value={profile.bio}
-              onChange={handleChange}
-              rows={4}
-              className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium">アバター画像</label>
-            {avatarPreview && (
-              <img
-                src={avatarPreview}
-                alt="avatar preview"
-                className="mb-2 h-24 w-24 rounded-lg object-cover"
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium">店舗名（表示名）</label>
+              <Input
+                name="store_name"
+                value={profile.store_name}
+                onChange={handleChange}
+                className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
               />
-            )}
-            <Input
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              onChange={handleAvatar}
-              className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
-            />
-            <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
-            {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
-          </div>
+            </div>
 
-          <Button
-            onClick={handleSave}
-            className="mt-4 w-full bg-blue-600 text-white hover:bg-blue-700"
-            disabled={saving}
-          >
-            {saving ? '保存中...' : '保存する'}
-          </Button>
-        </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium">自己紹介</label>
+              <Textarea
+                name="bio"
+                value={profile.bio}
+                onChange={handleChange}
+                rows={4}
+                className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium">アバター画像</label>
+              {avatarPreview && (
+                <img
+                  src={avatarPreview}
+                  alt="avatar preview"
+                  className="mb-2 h-24 w-24 rounded-lg object-cover"
+                />
+              )}
+              <Input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handleAvatar}
+                className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
+              />
+              <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
+              {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
+            </div>
+
+            <Button
+              onClick={handleSave}
+              className="mt-4 w-full bg-blue-600 text-white hover:bg-blue-700"
+              disabled={saving}
+            >
+              {saving ? '保存中...' : '保存する'}
+            </Button>
+          </div>
+        </section>
       </div>
     </main>
   )
