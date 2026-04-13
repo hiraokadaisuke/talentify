@@ -21,6 +21,8 @@ interface StoreOfferProgressPanelProps {
     paid: boolean
     paidAt: string | null
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
+    invoiceStatusLabel: string
+    paymentStatusLabel: string
     storeName: string
     reward: number | null
     talentId: string | null
@@ -43,12 +45,6 @@ interface StoreOfferProgressPanelProps {
     storeName: string
     talentName: string
   }
-}
-
-const invoiceStatusText: Record<'not_submitted' | 'submitted' | 'paid', string> = {
-  not_submitted: '未提出',
-  submitted: '提出済み',
-  paid: '支払済み',
 }
 
 export default function StoreOfferProgressPanel({
@@ -99,7 +95,7 @@ export default function StoreOfferProgressPanel({
         case 'visit':
           return { ...step, subLabel: `来店予定: ${formattedVisitDate}` }
         case 'invoice':
-          return { ...step, subLabel: `請求状況: ${invoiceStatusText[offer.invoiceStatus]}` }
+          return { ...step, subLabel: `請求状況: ${offer.invoiceStatusLabel}` }
         case 'payment':
           return {
             ...step,
@@ -122,7 +118,7 @@ export default function StoreOfferProgressPanel({
     formattedSubmittedAt,
     formattedRespondDeadline,
     formattedVisitDate,
-    offer.invoiceStatus,
+    offer.invoiceStatusLabel,
     offer.paid,
     paymentCompletedLabel,
     offer.reviewCompleted,

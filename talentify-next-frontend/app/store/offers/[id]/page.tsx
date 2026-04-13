@@ -7,6 +7,11 @@ import { cn } from '@/lib/utils'
 import { getOfferProgress } from '@/utils/offerProgress'
 import StoreOfferProgressPanel from './StoreOfferProgressPanel'
 import { deriveActiveStep } from '@/lib/offers/deriveActiveStep'
+import {
+  deriveOfferInvoiceProgressStatus,
+  getInvoiceStatusLabel,
+  getPaymentStatusLabel,
+} from '@/lib/invoices/status'
 
 type PageProps = {
   params: { id: string }
@@ -39,15 +44,17 @@ export default async function StoreOfferPage({ params }: PageProps) {
 
   const { data: invoice } = await supabase
     .from('invoices')
-    .select('id,amount,invoice_url,status')
+    .select('id,amount,invoice_url,status,payment_status')
     .eq('offer_id', params.id)
     .maybeSingle()
 
-  const invoiceStatus: 'not_submitted' | 'submitted' | 'paid' = invoice
-    ? data.paid
-      ? 'paid'
-      : 'submitted'
-    : 'not_submitted'
+  const invoiceStatus = deriveOfferInvoiceProgressStatus({
+    invoiceStatus: invoice?.status,
+    invoicePaymentStatus: invoice?.payment_status,
+    offerPaid: data.paid,
+  })
+  const invoiceStatusLabel = getInvoiceStatusLabel(invoice?.status)
+  const paymentStatusLabel = getPaymentStatusLabel(invoice?.payment_status, data.paid)
 
   const offer = {
     id: data.id as string,
@@ -64,6 +71,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
     paid: data.paid as boolean,
     paidAt: data.paid_at as string | null,
     invoiceStatus,
+    invoiceStatusLabel,
+    paymentStatusLabel,
     reward: data.reward as number | null,
     talentId: data.talent_id as string | null,
     reviewCompleted,
@@ -75,11 +84,12 @@ export default async function StoreOfferPage({ params }: PageProps) {
         invoiceUrl: invoice.invoice_url as string | null,
         amount: invoice.amount as number | null,
         status: invoice.status as string,
+        paymentStatus: (invoice.payment_status as string | null) ?? null,
       }
     : null
 
   const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
-  const paymentLink = showActions ? `/store/offers/${params.id}/payment` : undefined
+  const paymentLink = showActions && invoice ? `/store/invoices/${invoice.id}` : undefined
 
   const { steps } = getOfferProgress({
     status: offer.status,
@@ -145,6 +155,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
             paid: offer.paid,
             paidAt: offer.paidAt,
             invoiceStatus: offer.invoiceStatus,
+            invoiceStatusLabel: offer.invoiceStatusLabel,
+            paymentStatusLabel: offer.paymentStatusLabel,
             storeName: offer.storeName,
             reward: offer.reward,
             talentId: offer.talentId,

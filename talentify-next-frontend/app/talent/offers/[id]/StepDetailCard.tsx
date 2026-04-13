@@ -21,6 +21,8 @@ type StepDetailCardProps = {
     paid: boolean
     paidAt: string | null
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
+    invoiceStatusLabel: string
+    paymentStatusLabel: string
   }
   invoiceId: string | null
   paymentLink?: string
@@ -36,12 +38,6 @@ type StepDetail = {
   meta?: { label: string; value: string }[]
   actions?: ReactNode[]
   note?: ReactNode
-}
-
-const invoiceStatusText: Record<'not_submitted' | 'submitted' | 'paid', string> = {
-  not_submitted: '未提出',
-  submitted: '提出済み',
-  paid: '支払済み',
 }
 
 const statusDisplay = (status: string) => {
@@ -227,7 +223,7 @@ export default function StepDetailCard({
         } else {
           actions.push(
             <Button key="view" size="sm" variant="outline" asChild>
-              <Link href="/talent/invoices">請求書を確認</Link>
+              <Link href={`/talent/invoices/${invoiceId}`}>請求書を確認</Link>
             </Button>,
           )
         }
@@ -254,7 +250,7 @@ export default function StepDetailCard({
           badge,
           meta: [
             { label: '請求書', value: invoiceId ? '作成済み' : '未作成' },
-            { label: 'ステータス', value: invoiceStatusText[offer.invoiceStatus] },
+            { label: 'ステータス', value: offer.invoiceStatusLabel },
           ],
           actions,
           note:
@@ -268,7 +264,7 @@ export default function StepDetailCard({
         if (paymentLink) {
           actions.push(
             <Button key="payment" size="sm" asChild>
-              <Link href={paymentLink}>支払い状況を確認</Link>
+              <Link href={paymentLink}>支払いを確認する</Link>
             </Button>,
           )
         }
@@ -294,7 +290,7 @@ export default function StepDetailCard({
             : '請求書の支払いを待っています。状況を確認し、必要であれば店舗に連絡しましょう。',
           badge,
           meta: [
-            { label: '支払い状況', value: offer.paid ? '完了' : '未完了' },
+            { label: '支払い状況', value: offer.paymentStatusLabel },
             ...(paymentCompletedLabel ? [{ label: '支払い日', value: paymentCompletedLabel }] : []),
           ],
           actions,
@@ -322,7 +318,9 @@ export default function StepDetailCard({
     invoiceId,
     offer.id,
     offer.invoiceStatus,
+    offer.invoiceStatusLabel,
     offer.paid,
+    offer.paymentStatusLabel,
     offer.status,
     paymentCompletedLabel,
     paymentLink,
@@ -363,4 +361,3 @@ export default function StepDetailCard({
     </Card>
   )
 }
-
