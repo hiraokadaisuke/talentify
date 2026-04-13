@@ -56,7 +56,7 @@ export default function OfferPaymentStatusCard({
       toast.success('支払いを記録しました')
       router.refresh()
       if (offerId) {
-        router.push(`/store/reviews/new?offerId=${offerId}`)
+        router.push(`/store/offers/${offerId}`)
       }
     } else {
       toast.error('支払いの記録に失敗しました')
