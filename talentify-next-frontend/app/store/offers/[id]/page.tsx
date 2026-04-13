@@ -12,6 +12,7 @@ import {
   getInvoiceStatusLabel,
   getPaymentStatusLabel,
 } from '@/lib/invoices/status'
+import MessageCard from './MessageCard'
 
 type PageProps = {
   params: { id: string }
@@ -116,15 +117,16 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const statusClassName = getStatusBadgeClassName(offer.status)
 
   return (
-    <div className="bg-slate-50 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:gap-8">
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
+    <div className="bg-slate-50 p-3 sm:p-5 lg:p-6">
+      <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
+        <div className="space-y-4 lg:col-span-2">
+          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-slate-900">オファー詳細</h1>
+                <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">オファー詳細</h1>
               </div>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-600">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-slate-600">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-slate-900">{offer.performerName || 'タレント未設定'}</span>
                   <span className="text-slate-300">/</span>
@@ -140,38 +142,41 @@ export default async function StoreOfferPage({ params }: PageProps) {
               <div>{formattedUpdatedAt}</div>
             </div>
           </div>
-        </section>
+          </section>
 
-        <StoreOfferProgressPanel
-          steps={steps}
-          initialActiveStep={activeStep}
-          offer={{
-            id: offer.id,
-            status: offer.status,
-            date: offer.date,
-            respondDeadline: offer.respondDeadline,
-            updatedAt: offer.updatedAt,
-            submittedAt: offer.submittedAt,
-            paid: offer.paid,
-            paidAt: offer.paidAt,
-            invoiceStatus: offer.invoiceStatus,
-            invoiceStatusLabel: offer.invoiceStatusLabel,
-            paymentStatusLabel: offer.paymentStatusLabel,
-            storeName: offer.storeName,
-            reward: offer.reward,
-            talentId: offer.talentId,
-            reviewCompleted: offer.reviewCompleted,
-          }}
-          invoice={invoiceData}
-          paymentLink={paymentLink}
-          cancelation={{ initialStatus: data.status as string, initialCanceledAt: data.canceled_at as string | null }}
-          message={{
-            offerId: offer.id,
-            currentUserId: user.id,
-            storeName: offer.storeName,
-            talentName: offer.performerName,
-          }}
-        />
+          <StoreOfferProgressPanel
+            steps={steps}
+            initialActiveStep={activeStep}
+            offer={{
+              id: offer.id,
+              status: offer.status,
+              date: offer.date,
+              respondDeadline: offer.respondDeadline,
+              updatedAt: offer.updatedAt,
+              submittedAt: offer.submittedAt,
+              paid: offer.paid,
+              paidAt: offer.paidAt,
+              invoiceStatus: offer.invoiceStatus,
+              invoiceStatusLabel: offer.invoiceStatusLabel,
+              paymentStatusLabel: offer.paymentStatusLabel,
+              storeName: offer.storeName,
+              reward: offer.reward,
+              talentId: offer.talentId,
+              reviewCompleted: offer.reviewCompleted,
+            }}
+            invoice={invoiceData}
+            paymentLink={paymentLink}
+            cancelation={{ initialStatus: data.status as string, initialCanceledAt: data.canceled_at as string | null }}
+          />
+        </div>
+        <div className="lg:sticky lg:top-6">
+          <MessageCard
+            offerId={offer.id}
+            currentUserId={user.id}
+            storeName={offer.storeName}
+            talentName={offer.performerName}
+          />
+        </div>
       </div>
     </div>
   )

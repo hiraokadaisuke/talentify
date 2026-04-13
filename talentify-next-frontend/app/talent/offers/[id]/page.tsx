@@ -6,12 +6,17 @@ import { createClient } from '@/utils/supabase/client'
 import { getOfferProgress } from '@/utils/offerProgress'
 import { toast } from 'sonner'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 import TalentOfferProgressPanel from './TalentOfferProgressPanel'
 import {
   deriveOfferInvoiceProgressStatus,
   getInvoiceStatusLabel,
   getPaymentStatusLabel,
 } from '@/lib/invoices/status'
+import MessageCard from './MessageCard'
 
 export default function TalentOfferPage() {
   const params = useParams<{ id: string }>()
@@ -125,6 +130,12 @@ export default function TalentOfferPage() {
 
   const showActions = ['accepted', 'confirmed', 'completed'].includes(offer.status)
   const paymentLink = showActions && invoiceId ? `/talent/invoices/${invoiceId}` : undefined
+  const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
+  const formattedSubmittedAt = offer.submittedAt
+    ? format(new Date(offer.submittedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
+    : '未提出'
+  const statusLabel = getStatusLabel(offer.status)
+  const statusClassName = getStatusBadgeClassName(offer.status)
 
   const { steps, current: currentStep } = getOfferProgress({
     status: offer.status,
@@ -134,37 +145,96 @@ export default function TalentOfferPage() {
   })
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:gap-8">
-        <TalentOfferProgressPanel
-          steps={steps}
-          initialActiveStep={currentStep}
-          offer={{
-            id: offer.id,
-            status: offer.status,
-            date: offer.date,
-            updatedAt: offer.updatedAt,
-            submittedAt: offer.submittedAt,
-            paid: offer.paid,
-            paidAt: offer.paidAt,
-            invoiceStatus: offer.invoiceStatus,
-            invoiceStatusLabel: offer.invoiceStatusLabel,
-            paymentStatusLabel: offer.paymentStatusLabel,
-            reviewCompleted: offer.reviewCompleted,
-          }}
-          invoiceId={invoiceId}
-          paymentLink={paymentLink}
-          message={{
-            offerId: offer.id,
-            currentUserId: userId,
-            storeName: offer.storeName,
-            talentName: offer.performerName,
-          }}
-          onAcceptOffer={handleAccept}
-          onDeclineOffer={handleDecline}
-          actionLoading={actionLoading}
-        />
+    <div className="bg-slate-50 p-3 sm:p-5 lg:p-6">
+      <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
+        <div className="space-y-4 lg:col-span-2">
+          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="space-y-2">
+                <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">オファー詳細</h1>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-slate-900">{offer.storeName || '店舗未設定'}</span>
+                    <span className="text-slate-300">/</span>
+                    <span>{offer.performerName || 'タレント未設定'}</span>
+                  </div>
+                  <span className="inline-flex h-4 w-px bg-slate-200" aria-hidden="true" />
+                  <span>{formattedSubmittedAt}</span>
+                  <Badge className={cn('flex items-center gap-1', statusClassName)}>{statusLabel}</Badge>
+                </div>
+              </div>
+              <div className="text-xs text-slate-500 md:text-right">
+                <div className="font-medium text-slate-400">最終更新日時</div>
+                <div>{formattedUpdatedAt}</div>
+              </div>
+            </div>
+          </section>
+          <TalentOfferProgressPanel
+            steps={steps}
+            initialActiveStep={currentStep}
+            offer={{
+              id: offer.id,
+              status: offer.status,
+              date: offer.date,
+              updatedAt: offer.updatedAt,
+              submittedAt: offer.submittedAt,
+              paid: offer.paid,
+              paidAt: offer.paidAt,
+              invoiceStatus: offer.invoiceStatus,
+              invoiceStatusLabel: offer.invoiceStatusLabel,
+              paymentStatusLabel: offer.paymentStatusLabel,
+              reviewCompleted: offer.reviewCompleted,
+            }}
+            invoiceId={invoiceId}
+            paymentLink={paymentLink}
+            onAcceptOffer={handleAccept}
+            onDeclineOffer={handleDecline}
+            actionLoading={actionLoading}
+          />
+        </div>
+        <div className="lg:sticky lg:top-6">
+          <MessageCard
+            offerId={offer.id}
+            currentUserId={userId}
+            storeName={offer.storeName}
+            talentName={offer.performerName}
+          />
+        </div>
       </div>
     </div>
   )
+}
+
+function getStatusLabel(status: string) {
+  switch (status) {
+    case 'accepted':
+    case 'confirmed':
+      return '承認済み'
+    case 'completed':
+      return '完了'
+    case 'rejected':
+      return '辞退済み'
+    case 'canceled':
+      return 'キャンセル'
+    case 'draft':
+      return '下書き'
+    default:
+      return '承認待ち'
+  }
+}
+
+function getStatusBadgeClassName(status: string) {
+  switch (status) {
+    case 'completed':
+    case 'confirmed':
+    case 'accepted':
+      return 'bg-emerald-500 text-white'
+    case 'draft':
+      return 'bg-slate-200 text-slate-700'
+    case 'rejected':
+    case 'canceled':
+      return 'bg-slate-300 text-slate-700'
+    default:
+      return 'bg-orange-400 text-white'
+  }
 }

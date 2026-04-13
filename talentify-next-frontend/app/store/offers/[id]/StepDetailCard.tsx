@@ -57,6 +57,9 @@ type StepDetail = {
   footer?: ReactNode
 }
 
+const primaryActionClass = 'h-9 bg-blue-700 px-4 text-white hover:bg-blue-800 focus-visible:ring-blue-300'
+const secondaryActionClass = 'h-9 border-slate-300 bg-white px-4 text-slate-700 hover:bg-slate-100'
+
 const statusBadge = (status: string) => {
   switch (status) {
     case 'confirmed':
@@ -103,7 +106,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           badge: <Badge variant="outline">請求待ち</Badge>,
           meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
           primaryAction: undefined,
-          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'invoice_submitted':
         return {
@@ -115,8 +118,8 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             ...(invoice?.amount != null ? [{ label: '請求額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
             { label: '支払い状況', value: offer.paymentStatusLabel },
           ],
-          primaryAction: invoice ? <Button asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
-          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+          primaryAction: invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
+          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'payment_waiting':
         return {
@@ -127,8 +130,8 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             { label: '支払い状況', value: offer.paymentStatusLabel },
             ...(invoice?.amount != null ? [{ label: '支払い予定額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
           ],
-          primaryAction: paymentLink ? <Button asChild><Link href={paymentLink}>支払いを確認する</Link></Button> : invoice ? <Button asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
-          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+          primaryAction: paymentLink ? <Button className={primaryActionClass} asChild><Link href={paymentLink}>支払いを確認する</Link></Button> : invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
+          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'payment_completed_review_waiting':
         return {
@@ -143,11 +146,11 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             <ReviewModal
               offerId={offer.id}
               talentId={offer.talentId}
-              trigger={<Button>レビューする</Button>}
+              trigger={<Button className={primaryActionClass}>レビューする</Button>}
               onSubmitted={handleReviewSubmitted}
             />
           ) : undefined,
-          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       case 'completed':
         return {
@@ -155,8 +158,8 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           description: 'この案件はすべてのステップが完了しています。',
           badge: <Badge variant="success">全完了</Badge>,
           meta: [{ label: 'レビュー状態', value: offer.reviewCompleted ? 'レビュー済み' : '未実施' }],
-          primaryAction: <Button asChild><Link href="/store/reviews">レビューを見る</Link></Button>,
-          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+          primaryAction: <Button className={primaryActionClass} asChild><Link href="/store/reviews">レビューを見る</Link></Button>,
+          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
       default:
         return {
@@ -164,7 +167,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           description: 'まだ請求書が作成されていない状態です。進行ステップバーで状況を確認してください。',
           badge: <Badge variant="outline">準備中</Badge>,
           meta: [{ label: '現在ステップ', value: activeStep }],
-          secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+          secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
         }
     }
   }, [activeStep, offer.status, offer.invoiceStatus, offer.paid, offer.reviewCompleted, offer.invoiceStatusLabel, offer.paymentStatusLabel, offer.id, offer.talentId, invoice, paymentLink, paymentCompletedLabel, handleReviewSubmitted])
@@ -189,7 +192,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
     let result: StepDetail = {
       title: '進行中',
       description: '進行ステップを確認してください。',
-      secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+      secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
     }
 
     if (activeStep === 'offer_submitted') {
@@ -202,7 +205,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           { label: 'オファー金額', value: offer.reward != null ? `¥${offer.reward.toLocaleString('ja-JP')}` : '未設定' },
           { label: '提出者', value: offer.storeName || '未設定' },
         ],
-        secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+        secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
       }
     }
 
@@ -215,7 +218,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           { label: '承認期限', value: formattedRespondDeadline },
           { label: '最終更新', value: formattedUpdatedAt },
         ],
-        secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+        secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
       }
     }
 
@@ -228,7 +231,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           { label: '来店日時', value: formattedVisitDate },
           { label: '最終更新', value: formattedUpdatedAt },
         ],
-        secondaryAction: <Button variant="outline" asChild><a href="#offer-messages">メッセージを送る</a></Button>,
+        secondaryAction: <Button variant="outline" className={secondaryActionClass} asChild><a href="#offer-messages">メッセージを送る</a></Button>,
       }
     }
 
@@ -247,26 +250,26 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
   }, [activeStep, activeStatus, cancelation, formattedRespondDeadline, formattedSubmittedAt, formattedUpdatedAt, formattedVisitDate, mainActionDetail, offer.id, offer.reward, offer.status, offer.storeName])
 
   return (
-    <Card className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <CardHeader className="flex flex-col gap-2 border-b border-slate-100 p-6">
+    <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <CardHeader className="flex flex-col gap-1.5 border-b border-slate-100 p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <CardTitle className="text-lg font-semibold text-slate-900">{detail.title}</CardTitle>
+          <CardTitle className="text-base font-semibold text-slate-900 sm:text-lg">{detail.title}</CardTitle>
           {detail.badge}
         </div>
-        <p className="text-sm text-muted-foreground">{detail.description}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
       </CardHeader>
-      <CardContent className="space-y-6 p-6">
+      <CardContent className="space-y-4 p-4 sm:p-5">
         {detail.meta && detail.meta.length > 0 && (
-          <dl className="grid gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm sm:grid-cols-2">
+          <dl className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm sm:grid-cols-2">
             {detail.meta.map(item => (
-              <div key={item.label} className="space-y-1">
+              <div key={item.label} className="space-y-0.5">
                 <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{item.label}</dt>
-                <dd className="text-base font-semibold text-slate-900">{item.value}</dd>
+                <dd className="text-sm font-semibold text-slate-900 sm:text-base">{item.value}</dd>
               </div>
             ))}
           </dl>
         )}
-        <div className="flex flex-wrap justify-end gap-3">
+        <div className="flex flex-wrap justify-end gap-2.5">
           {detail.secondaryAction && <div className="inline-flex">{detail.secondaryAction}</div>}
           {detail.primaryAction && <div className="inline-flex">{detail.primaryAction}</div>}
         </div>

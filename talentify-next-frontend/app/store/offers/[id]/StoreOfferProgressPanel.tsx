@@ -6,7 +6,6 @@ import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import ProgressCard from './ProgressCard'
 import StepDetailCard from './StepDetailCard'
-import MessageCard from './MessageCard'
 
 interface StoreOfferProgressPanelProps {
   steps: OfferProgressStep[]
@@ -40,12 +39,6 @@ interface StoreOfferProgressPanelProps {
     initialStatus: string
     initialCanceledAt: string | null
   }
-  message: {
-    offerId: string
-    currentUserId: string
-    storeName: string
-    talentName: string
-  }
 }
 
 export default function StoreOfferProgressPanel({
@@ -55,7 +48,6 @@ export default function StoreOfferProgressPanel({
   invoice,
   paymentLink,
   cancelation,
-  message,
 }: StoreOfferProgressPanelProps) {
   const [activeStep, setActiveStep] = useState<OfferStepKey>(initialActiveStep)
 
@@ -130,28 +122,16 @@ export default function StoreOfferProgressPanel({
   }, [progressSteps, activeStep])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ProgressCard steps={progressSteps} activeStep={activeStep} onStepChange={setActiveStep} />
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <StepDetailCard
-            activeStep={activeStep}
-            activeStatus={activeStatus}
-            offer={offer}
-            invoice={invoice}
-            paymentLink={paymentLink}
-            cancelation={cancelation}
-          />
-        </div>
-        <div className="lg:col-span-1">
-          <MessageCard
-            offerId={message.offerId}
-            currentUserId={message.currentUserId}
-            storeName={message.storeName}
-            talentName={message.talentName}
-          />
-        </div>
-      </div>
+      <StepDetailCard
+        activeStep={activeStep}
+        activeStatus={activeStatus}
+        offer={offer}
+        invoice={invoice}
+        paymentLink={paymentLink}
+        cancelation={cancelation}
+      />
     </div>
   )
 }
