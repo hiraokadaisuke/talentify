@@ -115,7 +115,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const statusClassName = getStatusBadgeClassName(offer.status)
 
   return (
-    <div className="bg-slate-50 p-3 sm:p-5 lg:p-6">
+    <div className="p-3 sm:p-5 lg:p-6">
       <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
         <div className="space-y-4 lg:col-span-2">
           <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
