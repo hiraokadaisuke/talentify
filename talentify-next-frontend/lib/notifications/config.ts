@@ -35,6 +35,25 @@ export type NotificationEvent =
       reviewId: string
       offerId: string
     }
+  | {
+      kind: 'offer_created'
+      actorName?: string | null
+      actorId?: string | null
+      offerId: string
+    }
+  | {
+      kind: 'offer_updated'
+      actorName?: string | null
+      actorId?: string | null
+      offerId: string
+      status?: string | null
+    }
+  | {
+      kind: 'offer_accepted'
+      actorName?: string | null
+      actorId?: string | null
+      offerId: string
+    }
 
 type NotificationCategory = 'announcement' | 'notification'
 
@@ -158,6 +177,61 @@ export const notificationConfig: {
       data: {
         offer_id: event.offerId,
         review_id: event.reviewId,
+      },
+    }),
+  },
+  offer_created: {
+    type: 'offer_created',
+    category: 'notification',
+    isActionable: true,
+    priority: 'high',
+    dedupeStrategy: (event) => `offer-created:${event.offerId}`,
+    build: ({ roleRootPath, event }) => ({
+      title: '新しいオファーが届きました',
+      body: '内容を確認して、回答をお願いします。',
+      actionUrl: `${roleRootPath}/offers/${event.offerId}`,
+      actionLabel: 'オファーを確認',
+      entityType: 'offer',
+      entityId: event.offerId,
+      data: {
+        offer_id: event.offerId,
+      },
+    }),
+  },
+  offer_updated: {
+    type: 'offer_updated',
+    category: 'notification',
+    isActionable: true,
+    priority: 'medium',
+    dedupeStrategy: (event) => `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
+    build: ({ roleRootPath, event }) => ({
+      title: 'オファーのステータスが更新されました',
+      body: event.status ? `現在のステータス: ${event.status}` : '最新状態を確認してください。',
+      actionUrl: `${roleRootPath}/offers/${event.offerId}`,
+      actionLabel: 'オファー詳細を見る',
+      entityType: 'offer',
+      entityId: event.offerId,
+      data: {
+        offer_id: event.offerId,
+        status: event.status ?? null,
+      },
+    }),
+  },
+  offer_accepted: {
+    type: 'offer_accepted',
+    category: 'notification',
+    isActionable: false,
+    priority: 'medium',
+    dedupeStrategy: (event) => `offer-accepted:${event.offerId}`,
+    build: ({ roleRootPath, event }) => ({
+      title: 'オファーが承認されました',
+      body: '進行中の作業内容を確認してください。',
+      actionUrl: `${roleRootPath}/offers/${event.offerId}`,
+      actionLabel: 'オファーを見る',
+      entityType: 'offer',
+      entityId: event.offerId,
+      data: {
+        offer_id: event.offerId,
       },
     }),
   },

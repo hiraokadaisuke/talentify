@@ -1,9 +1,11 @@
 import { NextRequest } from 'next/server'
 import { PUT } from '@/app/api/offers/[id]/route'
 import { findOfferAccessById, updateOfferById } from '@/lib/repositories/offers'
+import { createActionableNotification } from '@/lib/notifications/service'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 
-jest.mock('@/lib/supabase/server', () => ({
-  createClient: jest.fn(),
+jest.mock('@/lib/auth/getCurrentUser', () => ({
+  getCurrentUser: jest.fn(),
 }))
 
 jest.mock('@/lib/repositories/offers', () => ({
@@ -12,31 +14,25 @@ jest.mock('@/lib/repositories/offers', () => ({
   updateOfferById: jest.fn(),
 }))
 
-const { createClient } = jest.requireMock('@/lib/supabase/server') as {
-  createClient: jest.Mock
-}
+jest.mock('@/lib/notifications/service', () => ({
+  createActionableNotification: jest.fn(),
+}))
 
 const mockedFindOfferAccessById = findOfferAccessById as jest.MockedFunction<typeof findOfferAccessById>
 const mockedUpdateOfferById = updateOfferById as jest.MockedFunction<typeof updateOfferById>
-
-function buildSupabaseClient(userId: string | null) {
-  return {
-    client: {
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: userId ? { id: userId } : null }, error: null }),
-      },
-    },
-  }
-}
+const mockedCreateActionableNotification = createActionableNotification as jest.MockedFunction<
+  typeof createActionableNotification
+>
+const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<typeof getCurrentUser>
 
 describe('PUT /api/offers/[id]', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-default' }, error: null })
   })
 
   it('returns 404 when offer does not exist', async () => {
-    const supabase = buildSupabaseClient('u1')
-    createClient.mockResolvedValue(supabase.client)
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u1' }, error: null })
     mockedFindOfferAccessById.mockResolvedValue(null)
 
     const req = new NextRequest('http://localhost/api/offers/offer-404', {
@@ -51,8 +47,7 @@ describe('PUT /api/offers/[id]', () => {
   })
 
   it('returns 403 when user is not store/talent owner', async () => {
-    const supabase = buildSupabaseClient('u-other')
-    createClient.mockResolvedValue(supabase.client)
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-other' }, error: null })
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
       talent_user_id: 'u-talent',
@@ -70,8 +65,7 @@ describe('PUT /api/offers/[id]', () => {
   })
 
   it('returns 400 when no updatable fields are provided', async () => {
-    const supabase = buildSupabaseClient('u-store')
-    createClient.mockResolvedValue(supabase.client)
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
       talent_user_id: 'u-talent',
@@ -89,8 +83,7 @@ describe('PUT /api/offers/[id]', () => {
   })
 
   it('updates allowed fields for store owner', async () => {
-    const supabase = buildSupabaseClient('u-store')
-    createClient.mockResolvedValue(supabase.client)
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
     mockedUpdateOfferById.mockResolvedValue(1)
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
@@ -110,8 +103,7 @@ describe('PUT /api/offers/[id]', () => {
   })
 
   it('updates allowed fields for talent owner', async () => {
-    const supabase = buildSupabaseClient('u-talent')
-    createClient.mockResolvedValue(supabase.client)
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-talent' }, error: null })
     mockedUpdateOfferById.mockResolvedValue(1)
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
@@ -129,8 +121,7 @@ describe('PUT /api/offers/[id]', () => {
   })
 
   it('normalizes status before updating', async () => {
-    const supabase = buildSupabaseClient('u-store')
-    createClient.mockResolvedValue(supabase.client)
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
     mockedUpdateOfferById.mockResolvedValue(1)
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
@@ -145,5 +136,6 @@ describe('PUT /api/offers/[id]', () => {
 
     expect(res.status).toBe(200)
     expect(mockedUpdateOfferById).toHaveBeenCalledWith('offer-1', { status: 'canceled' })
+    expect(mockedCreateActionableNotification).toHaveBeenCalled()
   })
 })

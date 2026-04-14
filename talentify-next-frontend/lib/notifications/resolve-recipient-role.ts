@@ -16,6 +16,7 @@ type UserIdRow = { user_id: string | null }
 type MessageParticipantRow = { participant_user_ids: string[] | null }
 type InvoiceUserRow = { store_user_id: string | null; talent_user_id: string | null }
 type ReviewUserRow = { store_user_id: string | null; talent_user_id: string | null }
+type OfferUserRow = { store_user_id: string | null; talent_user_id: string | null }
 
 async function resolveRoleByUserId(userId: string | null | undefined): Promise<RecipientRole> {
   if (!userId) return 'unknown'
@@ -109,6 +110,29 @@ export async function resolveRecipientRole({
     if (actorId && actorId === review.talent_user_id) return resolveRoleByUserId(review.store_user_id)
 
     return resolveRoleByUserId(review.talent_user_id ?? review.store_user_id)
+  }
+
+  if (entityType === 'offer') {
+    const rows = await prisma.$queryRaw<OfferUserRow[]>`
+      SELECT
+        s.user_id AS store_user_id,
+        t.user_id AS talent_user_id
+      FROM public.offers o
+      LEFT JOIN public.stores s ON s.id = o.store_id
+      LEFT JOIN public.talents t ON t.id = o.talent_id
+      WHERE o.id = ${entityId}::uuid
+      LIMIT 1
+    `
+
+    const offer = rows[0]
+    if (!offer) return 'unknown'
+
+    if (actorId && actorId === offer.store_user_id) return resolveRoleByUserId(offer.talent_user_id)
+    if (actorId && actorId === offer.talent_user_id) return resolveRoleByUserId(offer.store_user_id)
+
+    const storeRole = await resolveRoleByUserId(offer.store_user_id)
+    if (storeRole !== 'unknown') return storeRole
+    return resolveRoleByUserId(offer.talent_user_id)
   }
 
   return 'unknown'
