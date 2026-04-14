@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import {
+  findNotificationOwner,
   markNotificationRead,
   markNotificationUnread,
 } from '@/lib/repositories/notifications'
@@ -38,10 +39,14 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       : await markNotificationUnread({ id, userId: user.id })
 
     if (updatedCount === 0) {
+      const exists = await findNotificationOwner({ id, userId: user.id })
+      if (exists) {
+        return NextResponse.json({ ok: true, updated: 0, noop: true })
+      }
       return NextResponse.json({ error: 'notification not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, updated: updatedCount, noop: false })
   } catch (error) {
     console.error('failed to update notification read state', error)
     return NextResponse.json({ error: 'failed to update notification' }, { status: 500 })

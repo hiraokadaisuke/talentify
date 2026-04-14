@@ -24,7 +24,10 @@ export function getNotificationLink(notification: NotificationRow): string {
 
   const role = resolveRoleFromNotification(notification)
   if (notification.type === 'message') return role === 'store' || role === 'talent' ? `/${role}/messages` : '/app/messages'
-  if (offerId) return `/offers/${offerId}`
+  if (offerId) {
+    if (role === 'store' || role === 'talent') return `/${role}/offers/${offerId}`
+    return `/offers/${offerId}`
+  }
   if (invoiceId) return role === 'store' || role === 'talent' ? `/${role}/invoices/${invoiceId}` : `/invoices/${invoiceId}`
   return resolveFallbackLink(notification)
 }
@@ -35,6 +38,11 @@ export function isActionRequired(notification: NotificationRow): boolean {
   if (data.category === 'announcement' || notification.entity_type === 'announcement') return false
   if (notification.entity_type === 'announcement') return false
   if (isActionRequiredNotification(notification.type)) return true
+  if (notification.type === 'offer_accepted') return false
+  if (notification.type === 'offer_updated') {
+    const status = typeof data.status === 'string' ? data.status.toLowerCase() : ''
+    return ['pending', 'offer_created', 'submitted'].includes(status)
+  }
   return notification.priority === 'high'
 }
 

@@ -68,6 +68,25 @@ type OfferVisibilityQueryRow = {
   accepted_at: Date | null
 }
 
+export async function findNotificationOwner({
+  id,
+  userId,
+}: {
+  id: string
+  userId: string
+}): Promise<boolean> {
+  const prisma = getPrismaClient()
+  const row = await prisma.notifications.findFirst({
+    where: {
+      id,
+      user_id: userId,
+    },
+    select: { id: true },
+  })
+
+  return Boolean(row)
+}
+
 function resolvePriority(value: string | null): NotificationRow['priority'] {
   return value === 'low' || value === 'high' ? value : 'medium'
 }
@@ -375,6 +394,7 @@ export async function markNotificationRead({
     where: {
       id,
       user_id: userId,
+      is_read: false,
     },
     data: {
       is_read: true,
@@ -396,6 +416,7 @@ export async function markNotificationUnread({
     where: {
       id,
       user_id: userId,
+      is_read: true,
     },
     data: {
       is_read: false,
