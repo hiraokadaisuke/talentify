@@ -31,7 +31,7 @@ export default function ChatMessageBubble({
         <div
           className={clsx(
             'rounded-2xl px-3 py-2 text-sm leading-relaxed',
-            isMine ? 'bg-[#9EEA6A] text-[#111827]' : 'bg-[#ECECEC] text-[#1F2937]',
+            isMine ? 'bg-[#06C755] text-[#062110]' : 'bg-[#E2E2E2] text-[#111827]',
           )}
         >
           {message.body && <p className="whitespace-pre-wrap break-words">{message.body}</p>}
@@ -47,7 +47,7 @@ export default function ChatMessageBubble({
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className={clsx('mt-2 block text-xs underline', isMine ? 'text-[#1F2937]' : 'text-[#374151]')}
+                className={clsx('mt-2 block text-xs underline', isMine ? 'text-[#062110]' : 'text-[#1F2937]')}
               >
                 {att.name} ({Math.round(att.size / 1024)}KB)
               </a>
