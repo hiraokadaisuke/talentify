@@ -134,15 +134,30 @@ export async function findNotificationsByUser({
 
   const unreadClause = unreadOnly ? Prisma.sql`AND is_read = false` : Prisma.empty
 
-  const actionableClause = actionableOnly
-    ? Prisma.sql`AND type = ANY (${ACTION_REQUIRED_TYPES}::public.notification_type[])`
+const actionableClause = actionableOnly
+    ? Prisma.sql`AND (
+      type = ANY (${ACTION_REQUIRED_TYPES}::public.notification_type[])
+      OR COALESCE(
+        CASE
+          WHEN jsonb_typeof(data->'is_actionable') = 'boolean' THEN (data->>'is_actionable')::boolean
+          ELSE NULL
+        END,
+        false
+      ) = true
+    )`
     : Prisma.empty
 
   const categoryClause =
     category === 'announcement'
-      ? Prisma.sql`AND COALESCE(entity_type, '') = 'announcement'`
+      ? Prisma.sql`AND (
+          COALESCE(entity_type, '') = 'announcement'
+          OR COALESCE(data->>'category', '') = 'announcement'
+        )`
       : category === 'notification'
-        ? Prisma.sql`AND COALESCE(entity_type, '') != 'announcement'`
+        ? Prisma.sql`AND (
+            COALESCE(entity_type, '') != 'announcement'
+            AND COALESCE(data->>'category', 'notification') = 'notification'
+          )`
         : Prisma.empty
 
   const rows = await prisma.$queryRaw<NotificationQueryRow[]>`
@@ -223,6 +238,65 @@ export async function createNotification({
   group_key,
 }: NotificationInsert): Promise<NotificationRow> {
   const prisma = getPrismaClient()
+  const now = new Date()
+
+  if (group_key) {
+    const mergedRows = await prisma.$queryRaw<NotificationQueryRow[]>`
+      WITH candidate AS (
+        SELECT id
+        FROM public.notifications
+        WHERE user_id = ${user_id}::uuid
+          AND type = ${type}
+          AND group_key = ${group_key}
+          AND is_read = false
+          AND (
+            (${entity_id ?? null}::text IS NULL AND entity_id IS NULL)
+            OR entity_id = ${entity_id ?? null}
+          )
+        ORDER BY created_at DESC
+        LIMIT 1
+      )
+      UPDATE public.notifications
+      SET
+        title = ${title},
+        body = ${body ?? null},
+        data = ${data ?? null}::jsonb,
+        priority = ${priority ?? 'medium'},
+        action_url = ${action_url ?? null},
+        action_label = ${action_label ?? null},
+        entity_type = ${entity_type ?? null},
+        entity_id = ${entity_id ?? null},
+        actor_name = ${actor_name ?? null},
+        expires_at = ${expires_at ?? null},
+        created_at = ${now},
+        updated_at = ${now},
+        read_at = NULL,
+        is_read = false
+      WHERE id IN (SELECT id FROM candidate)
+      RETURNING
+        id,
+        user_id,
+        type::text,
+        data,
+        title,
+        body,
+        is_read,
+        created_at,
+        read_at,
+        priority,
+        action_url,
+        action_label,
+        entity_type,
+        entity_id,
+        actor_name,
+        expires_at,
+        group_key
+    `
+
+    if (mergedRows.length > 0) {
+      return toNotificationRow(mergedRows[0])
+    }
+  }
 
   const rows = await prisma.$queryRaw<NotificationQueryRow[]>`
     INSERT INTO public.notifications (

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { createActionableNotification } from '@/lib/notifications/service'
 
 export async function POST(
   req: NextRequest,
@@ -54,19 +55,11 @@ export async function POST(
         .eq('id', invoice.talent_id)
         .single()
       if (talent?.user_id) {
-        await service.from('notifications').insert({
-          user_id: talent.user_id,
-          type: 'invoice_submitted',
-          title: '請求書が差し戻されました',
-          body: '修正内容を確認し、再提出をお願いします。',
-          priority: 'high',
-          action_url: `/talent/invoices`,
-          action_label: '再提出する',
-          entity_type: 'invoice',
-          entity_id: id,
-          actor_name: '店舗',
-          data: { invoice_id: id },
-        })
+        await createActionableNotification(
+          talent.user_id,
+          { kind: 'invoice_rejected_to_talent', invoiceId: id, actorName: '店舗' },
+          'talent',
+        )
       }
     } catch (e) {
       console.error('failed to send notification', e)

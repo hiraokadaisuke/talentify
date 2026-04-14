@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
-import { getUnreadNotificationCount, formatUnreadCount } from '@/utils/notifications'
+import { getUnreadNotificationCount, formatUnreadCount, NOTIFICATIONS_CHANGED_EVENT } from '@/utils/notifications'
 import { useUserRole } from '@/utils/useRole'
 
 const supabase = createClient()
@@ -26,9 +26,17 @@ export default function HeaderBellLink() {
         refreshCount()
       })
       .subscribe()
+    const onLocalNotificationsChanged = () => refreshCount()
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') refreshCount()
+    }
+    document.addEventListener('visibilitychange', onVisible)
     const interval = setInterval(refreshCount, 60000)
     return () => {
       supabase.removeChannel(channel)
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
+      document.removeEventListener('visibilitychange', onVisible)
       clearInterval(interval)
     }
   }, [])

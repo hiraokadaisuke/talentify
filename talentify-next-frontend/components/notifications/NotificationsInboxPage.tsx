@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   getNotifications,
+  getUnreadNotificationCount,
   markAllNotificationsRead,
   markNotificationRead,
+  NOTIFICATIONS_CHANGED_EVENT,
   NotificationRow,
 } from '@/utils/notifications'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
@@ -22,33 +24,50 @@ const PRIORITY_LABEL: Record<NotificationRow['priority'], string> = {
 export default function NotificationsInboxPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
   const [tab, setTab] = useState<TabType>('all')
+  const [unreadCount, setUnreadCount] = useState(0)
 
-  const loadNotifications = async () => {
-    const data = await getNotifications()
+  const loadNotifications = async (currentTab: TabType) => {
+    const data = await getNotifications({
+      unreadOnly: currentTab === 'unread',
+      actionableOnly: currentTab === 'action_required',
+      category: currentTab === 'announcement' ? 'announcement' : currentTab === 'all' ? undefined : 'notification',
+    })
     setItems(data)
   }
 
+  const refreshUnreadCount = async () => {
+    setUnreadCount(await getUnreadNotificationCount())
+  }
+
   useEffect(() => {
-    loadNotifications()
-  }, [])
+    loadNotifications(tab)
+  }, [tab])
 
-  const unreadCount = useMemo(() => items.filter((item) => !item.is_read).length, [items])
-
-  const filtered = useMemo(
-    () =>
-      items.filter((item) => {
-        if (tab === 'unread') return !item.is_read
-        if (tab === 'action_required') return isActionRequired(item)
-        if (tab === 'announcement') return item.entity_type === 'announcement'
-        return true
-      }),
-    [items, tab]
-  )
+  useEffect(() => {
+    refreshUnreadCount()
+    const onNotificationsChanged = () => {
+      loadNotifications(tab)
+      refreshUnreadCount()
+    }
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, onNotificationsChanged)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        loadNotifications(tab)
+        refreshUnreadCount()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, onNotificationsChanged)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [tab])
 
   const markAsRead = async (notification: NotificationRow) => {
     if (notification.is_read) return
     await markNotificationRead(notification.id)
-    setItems((prev) => prev.map((item) => (item.id === notification.id ? { ...item, is_read: true } : item)))
+    setItems((prev) => prev.map((item) => (item.id === notification.id ? { ...item, is_read: true } : item)).filter((item) => tab !== 'unread' || !item.is_read))
+    setUnreadCount((prev) => Math.max(0, prev - 1))
   }
 
   const handleRowClick = async (notification: NotificationRow) => {
@@ -59,7 +78,8 @@ export default function NotificationsInboxPage() {
   const handleMarkAll = async () => {
     const unreadIds = items.filter((item) => !item.is_read).map((item) => item.id)
     await markAllNotificationsRead(unreadIds)
-    setItems((prev) => prev.map((item) => ({ ...item, is_read: true })))
+    setItems((prev) => (tab === 'unread' ? [] : prev.map((item) => ({ ...item, is_read: true }))))
+    setUnreadCount(0)
   }
 
   const emptyStateText =
@@ -102,7 +122,7 @@ export default function NotificationsInboxPage() {
       </div>
 
       <div className="space-y-3">
-        {filtered.map((notification) => (
+        {items.map((notification) => (
           <div
             key={notification.id}
             className={`cursor-pointer rounded-lg border p-4 transition hover:bg-accent/40 ${
@@ -129,7 +149,7 @@ export default function NotificationsInboxPage() {
           </div>
         ))}
 
-        {filtered.length === 0 && (
+        {items.length === 0 && (
           <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
             {emptyStateText}
           </div>

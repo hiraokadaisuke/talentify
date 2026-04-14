@@ -35,6 +35,13 @@ type GetNotificationsOptions = {
   category?: 'announcement' | 'notification'
 }
 
+export const NOTIFICATIONS_CHANGED_EVENT = 'talentify:notifications-changed'
+
+function emitNotificationsChanged() {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new CustomEvent(NOTIFICATIONS_CHANGED_EVENT))
+}
+
 async function patchNotificationReadState(id: string, isRead: boolean): Promise<void> {
   try {
     const res = await fetch(`${API_BASE}/api/notifications/${id}/read`, {
@@ -102,10 +109,12 @@ export async function getUnreadNotificationCount(): Promise<number> {
 
 export async function markNotificationRead(id: string) {
   await patchNotificationReadState(id, true)
+  emitNotificationsChanged()
 }
 
 export async function markNotificationUnread(id: string) {
   await patchNotificationReadState(id, false)
+  emitNotificationsChanged()
 }
 
 export async function markAllNotificationsRead(ids: string[]) {
@@ -124,6 +133,7 @@ export async function markAllNotificationsRead(ids: string[]) {
   } catch (error) {
     console.error('failed to mark all notifications as read', error)
   }
+  emitNotificationsChanged()
 }
 
 export async function addNotification(payload: AddNotificationPayload) {
@@ -139,6 +149,7 @@ export async function addNotification(payload: AddNotificationPayload) {
   } catch (error) {
     console.error('failed to add notification', error)
   }
+  emitNotificationsChanged()
 }
 
 export function formatUnreadCount(count: number): string | null {
