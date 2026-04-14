@@ -180,11 +180,11 @@ export default function OfferChatThread({
   return (
     <div
       className={cn(
-        'flex h-full min-h-[420px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50/40',
+        'flex h-full min-h-[420px] flex-col overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FDFDFD]',
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-slate-200/80 bg-white/85 px-4 py-2.5">
+      <div className="flex items-center justify-between gap-3 border-b border-[#E5E7EB] bg-white px-4 py-2.5">
         <div className="flex items-center gap-2">
           <MessageCircle className="h-4.5 w-4.5 text-slate-600" aria-hidden="true" />
           <h3 className="text-sm font-semibold text-slate-900">メッセージ</h3>
@@ -194,12 +194,12 @@ export default function OfferChatThread({
             </span>
           )}
         </div>
-        <span className="text-[10px] text-slate-400 sm:text-xs">最終更新: {formatTimestamp(lastUpdatedAt)}</span>
+        <span className="text-[10px] text-[#9CA3AF] sm:text-xs">最終更新: {formatTimestamp(lastUpdatedAt)}</span>
       </div>
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto bg-[#f7f8fa] px-3 py-3"
+        className="flex-1 overflow-y-auto bg-[#F7F7F7] px-3 py-3"
         aria-live="polite"
       >
         {loading && <p className="text-sm text-slate-500">Loading...</p>}
@@ -216,7 +216,7 @@ export default function OfferChatThread({
             return (
               <div key={m.id} className="space-y-1.5">
                 {showDateSeparator && (
-                  <div className="my-1 text-center text-[11px] text-slate-400">—— {formatDaySeparator(m.created_at)} ——</div>
+                  <div className="my-1 text-center text-[11px] text-[#9CA3AF]">—— {formatDaySeparator(m.created_at)} ——</div>
                 )}
                 <ChatMessageBubble
                   message={m}
@@ -229,7 +229,7 @@ export default function OfferChatThread({
           })}
         </div>
       </div>
-      <div className="border-t border-slate-200 bg-white px-3 py-3">
+      <div className="border-t border-[#E5E7EB] bg-white px-3 py-3">
         <OfferChatInput offerId={offerId} senderRole={currentRole} receiverUserId={peerUserId} onSent={handleSent} />
       </div>
     </div>

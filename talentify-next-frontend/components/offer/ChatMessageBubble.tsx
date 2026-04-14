@@ -26,12 +26,12 @@ export default function ChatMessageBubble({
   return (
     <div className={clsx('flex', isMine ? 'justify-end' : 'justify-start')}>
       <div className={clsx('flex max-w-[72%] flex-col', isMine ? 'items-end' : 'items-start')}>
-        {!isMine && <p className="mb-1 px-1 text-[11px] font-medium text-slate-500">{senderName}</p>}
+        {!isMine && <p className="mb-1 px-1 text-[11px] font-medium text-[#6B7280]">{senderName}</p>}
 
         <div
           className={clsx(
             'rounded-2xl px-3 py-2 text-sm leading-relaxed',
-            isMine ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-900',
+            isMine ? 'bg-[#9EEA6A] text-[#111827]' : 'bg-[#ECECEC] text-[#1F2937]',
           )}
         >
           {message.body && <p className="whitespace-pre-wrap break-words">{message.body}</p>}
@@ -47,7 +47,7 @@ export default function ChatMessageBubble({
                 href={url}
                 target="_blank"
                 rel="noreferrer"
-                className={clsx('mt-2 block text-xs underline', isMine ? 'text-white' : 'text-emerald-700')}
+                className={clsx('mt-2 block text-xs underline', isMine ? 'text-[#1F2937]' : 'text-[#374151]')}
               >
                 {att.name} ({Math.round(att.size / 1024)}KB)
               </a>
@@ -55,7 +55,7 @@ export default function ChatMessageBubble({
           })}
         </div>
 
-        <p className={clsx('mt-1 px-1 text-[10px]', isMine ? 'text-right text-slate-400' : 'text-slate-400')}>
+        <p className={clsx('mt-1 px-1 text-[10px]', isMine ? 'text-right text-[#9CA3AF]' : 'text-[#9CA3AF]')}>
           {isMine && read ? `既読 ${time}` : time}
         </p>
       </div>
