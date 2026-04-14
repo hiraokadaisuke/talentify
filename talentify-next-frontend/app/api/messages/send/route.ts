@@ -5,7 +5,7 @@ import { createServiceClient } from '@/lib/supabase/service'
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
-  const { receiverUserId, body, offerId, senderUserId = 'u1' } = await req.json()
+  const { receiverUserId, body, offerId, senderUserId = 'u1', senderName } = await req.json()
 
   if (!receiverUserId || !body) {
     return NextResponse.json(
@@ -50,11 +50,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const service = createServiceClient()
+    const actorName = typeof senderName === 'string' && senderName.length > 0 ? senderName : 'お相手'
     await service.from('notifications').insert({
       user_id: receiverUserId,
       type: 'message',
-      title: '新着メッセージ',
-      data: { thread_id: thread.id, message_id: message.id },
+      title: `${actorName}さんからメッセージが届きました`,
+      body: '内容を確認して、必要であれば返信しましょう。',
+      priority: 'high',
+      action_url: '/messages',
+      action_label: 'メッセージを確認',
+      entity_type: 'message',
+      entity_id: message.id,
+      actor_name: actorName,
+      data: { thread_id: thread.id, message_id: message.id, offer_id: offerId ?? null },
     })
   } catch (e) {
     console.error('failed to insert message notification', e)

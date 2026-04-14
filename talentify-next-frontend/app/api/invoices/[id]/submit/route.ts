@@ -63,6 +63,13 @@ export async function POST(
           user_id: store.user_id,
           type: 'invoice_submitted',
           title: '請求書が提出されました',
+          body: '内容を確認して、承認または差し戻しを行ってください。',
+          priority: 'high',
+          action_url: `/store/invoices`,
+          action_label: '請求書を確認',
+          entity_type: 'invoice',
+          entity_id: id,
+          actor_name: '演者',
           data: { invoice_id: id },
         })
       }

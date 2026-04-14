@@ -65,7 +65,14 @@ export async function POST(
         await service.from('notifications').insert({
           user_id: talent.user_id,
           type: 'payment_created',
-          title: '支払いが記録されました',
+          title: '支払いが完了しました',
+          body: '支払い内容を確認し、必要に応じて明細をチェックしてください。',
+          priority: 'medium',
+          action_url: `/talent/invoices/${id}`,
+          action_label: '明細を確認',
+          entity_type: 'payment',
+          entity_id: id,
+          actor_name: '店舗',
           data: { invoice_id: id },
         })
       }

@@ -511,6 +511,14 @@ export type Database = {
           is_read: boolean
           created_at: string
           read_at: string | null
+          priority: 'low' | 'medium' | 'high'
+          action_url: string | null
+          action_label: string | null
+          entity_type: string | null
+          entity_id: string | null
+          actor_name: string | null
+          expires_at: string | null
+          group_key: string | null
         }
         Insert: {
           id?: string
@@ -531,6 +539,14 @@ export type Database = {
           is_read?: boolean
           created_at?: string
           read_at?: string | null
+          priority?: 'low' | 'medium' | 'high'
+          action_url?: string | null
+          action_label?: string | null
+          entity_type?: string | null
+          entity_id?: string | null
+          actor_name?: string | null
+          expires_at?: string | null
+          group_key?: string | null
         }
         Update: {
           id?: string
@@ -551,6 +567,14 @@ export type Database = {
           is_read?: boolean
           created_at?: string
           read_at?: string | null
+          priority?: 'low' | 'medium' | 'high'
+          action_url?: string | null
+          action_label?: string | null
+          entity_type?: string | null
+          entity_id?: string | null
+          actor_name?: string | null
+          expires_at?: string | null
+          group_key?: string | null
         }
         Relationships: []
       }

@@ -58,6 +58,13 @@ export async function POST(
           user_id: talent.user_id,
           type: 'invoice_submitted',
           title: '請求書が差し戻されました',
+          body: '修正内容を確認し、再提出をお願いします。',
+          priority: 'high',
+          action_url: `/talent/invoices`,
+          action_label: '再提出する',
+          entity_type: 'invoice',
+          entity_id: id,
+          actor_name: '店舗',
           data: { invoice_id: id },
         })
       }

@@ -6,11 +6,18 @@ import type { NotificationType } from '@/types/notifications'
 export type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
 interface AddNotificationPayload {
-  user_id: string
   type: NotificationType
   title: string
   body?: string | null
   data?: Record<string, unknown> | null
+  priority?: 'low' | 'medium' | 'high'
+  action_url?: string | null
+  action_label?: string | null
+  entity_type?: string | null
+  entity_id?: string | null
+  actor_name?: string | null
+  expires_at?: string | null
+  group_key?: string | null
 }
 
 type GetNotificationsResponse = {
@@ -19,6 +26,13 @@ type GetNotificationsResponse = {
 
 type GetUnreadCountResponse = {
   count?: number
+}
+
+type GetNotificationsOptions = {
+  limit?: number
+  unreadOnly?: boolean
+  actionableOnly?: boolean
+  category?: 'announcement' | 'notification'
 }
 
 async function patchNotificationReadState(id: string, isRead: boolean): Promise<void> {
@@ -37,12 +51,18 @@ async function patchNotificationReadState(id: string, isRead: boolean): Promise<
   }
 }
 
-export async function getNotifications(limit?: number): Promise<NotificationRow[]> {
+export async function getNotifications(options?: number | GetNotificationsOptions): Promise<NotificationRow[]> {
   try {
     const searchParams = new URLSearchParams()
-    if (typeof limit === 'number' && Number.isFinite(limit) && limit > 0) {
-      searchParams.set('limit', String(Math.floor(limit)))
+    const normalized = typeof options === 'number' ? { limit: options } : options
+
+    if (typeof normalized?.limit === 'number' && Number.isFinite(normalized.limit) && normalized.limit > 0) {
+      searchParams.set('limit', String(Math.floor(normalized.limit)))
     }
+
+    if (normalized?.unreadOnly) searchParams.set('unread_only', 'true')
+    if (normalized?.actionableOnly) searchParams.set('actionable_only', 'true')
+    if (normalized?.category) searchParams.set('category', normalized.category)
 
     const suffix = searchParams.toString()
     const res = await fetch(`${API_BASE}/api/notifications${suffix ? `?${suffix}` : ''}`)
@@ -111,13 +131,7 @@ export async function addNotification(payload: AddNotificationPayload) {
     const res = await fetch(`${API_BASE}/api/notifications`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: payload.user_id,
-        type: payload.type,
-        title: payload.title,
-        body: payload.body ?? null,
-        payload: payload.data ?? null,
-      }),
+      body: JSON.stringify(payload),
     })
     if (!res.ok) {
       console.error('failed to add notification', await res.text())

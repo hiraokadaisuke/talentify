@@ -16,6 +16,13 @@ export async function POST(req: NextRequest) {
       user_id: recipientUserId,
       type: 'review_received',
       title: 'レビューが届きました',
+      body: '内容を確認し、今後の案件に活かしましょう。',
+      priority: 'low',
+      action_url: `/talent/reviews`,
+      action_label: 'レビューを見る',
+      entity_type: 'review',
+      entity_id: reviewId,
+      actor_name: '店舗',
       data: { offer_id: offerId, review_id: reviewId },
     })
     if (error) return NextResponse.json({ error }, { status: 400 })
