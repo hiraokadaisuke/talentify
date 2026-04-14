@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { messages, threads, nextMessageId, nextThreadId, ThreadType } from '../data'
-import { createServiceClient } from '@/lib/supabase/service'
+import { createActionableNotification } from '@/lib/notifications/service'
 
 export const runtime = 'nodejs'
 
@@ -49,21 +49,17 @@ export async function POST(req: NextRequest) {
   thread.lastMessageAt = message.createdAt
 
   try {
-    const service = createServiceClient()
-    const actorName = typeof senderName === 'string' && senderName.length > 0 ? senderName : 'お相手'
-    await service.from('notifications').insert({
-      user_id: receiverUserId,
-      type: 'message',
-      title: `${actorName}さんからメッセージが届きました`,
-      body: '内容を確認して、必要であれば返信しましょう。',
-      priority: 'high',
-      action_url: '/messages',
-      action_label: 'メッセージを確認',
-      entity_type: 'message',
-      entity_id: message.id,
-      actor_name: actorName,
-      data: { thread_id: thread.id, message_id: message.id, offer_id: offerId ?? null },
-    })
+    await createActionableNotification(
+      receiverUserId,
+      {
+        kind: 'message_received',
+        actorName: senderName,
+        threadId: thread.id,
+        messageId: message.id,
+        offerId: offerId ?? null,
+      },
+      'unknown',
+    )
   } catch (e) {
     console.error('failed to insert message notification', e)
   }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { createActionableNotification } from '@/lib/notifications/service'
 
 export async function POST(
   req: NextRequest,
@@ -62,19 +63,11 @@ export async function POST(
         .eq('id', invoice.talent_id)
         .single()
       if (talent?.user_id) {
-        await service.from('notifications').insert({
-          user_id: talent.user_id,
-          type: 'payment_created',
-          title: '支払いが完了しました',
-          body: '支払い内容を確認し、必要に応じて明細をチェックしてください。',
-          priority: 'medium',
-          action_url: `/talent/invoices/${id}`,
-          action_label: '明細を確認',
-          entity_type: 'payment',
-          entity_id: id,
-          actor_name: '店舗',
-          data: { invoice_id: id },
-        })
+        await createActionableNotification(
+          talent.user_id,
+          { kind: 'payment_completed_to_talent', invoiceId: id, actorName: '店舗' },
+          'talent',
+        )
       }
     } catch (e) {
       console.error('failed to send notification', e)

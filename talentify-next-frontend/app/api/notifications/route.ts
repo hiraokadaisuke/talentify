@@ -88,6 +88,7 @@ export async function POST(req: NextRequest) {
     const {
       type,
       payload,
+      data: explicitData,
       title,
       body,
       priority,
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const normalizedPayload = payload === undefined ? null : payload
+      const normalizedPayload = explicitData === undefined ? (payload === undefined ? null : payload) : explicitData
       if (normalizedPayload !== null && !isJsonValue(normalizedPayload)) {
         return NextResponse.json({ error: 'invalid request' }, { status: 400 })
       }

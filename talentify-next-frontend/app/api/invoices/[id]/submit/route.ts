@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getSubmitStatus } from '../../utils'
+import { createActionableNotification } from '@/lib/notifications/service'
 
 export async function POST(
   req: NextRequest,
@@ -59,19 +60,11 @@ export async function POST(
         .eq('id', invoice.store_id)
         .single()
       if (store?.user_id) {
-        await service.from('notifications').insert({
-          user_id: store.user_id,
-          type: 'invoice_submitted',
-          title: '請求書が提出されました',
-          body: '内容を確認して、承認または差し戻しを行ってください。',
-          priority: 'high',
-          action_url: `/store/invoices`,
-          action_label: '請求書を確認',
-          entity_type: 'invoice',
-          entity_id: id,
-          actor_name: '演者',
-          data: { invoice_id: id },
-        })
+        await createActionableNotification(
+          store.user_id,
+          { kind: 'invoice_submitted_to_store', invoiceId: id, actorName: '演者' },
+          'store',
+        )
       }
     } catch (e) {
       console.error('failed to send notification', e)

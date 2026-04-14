@@ -11,6 +11,7 @@ import {
   getUnreadNotificationCount,
   markAllNotificationsRead,
   formatUnreadCount,
+  NOTIFICATIONS_CHANGED_EVENT,
 } from '@/utils/notifications'
 import { createClient } from '@/utils/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -35,6 +36,7 @@ export default function NotificationBell() {
 
   useEffect(() => {
     refreshCount()
+    refreshItems()
     const channel = supabase
       .channel('notifications-bell')
       .on(
@@ -46,10 +48,24 @@ export default function NotificationBell() {
         }
       )
       .subscribe()
+    const onLocalNotificationsChanged = () => {
+      refreshCount()
+      refreshItems()
+    }
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        refreshCount()
+        refreshItems()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
 
     const interval = setInterval(refreshCount, 60000)
     return () => {
       supabase.removeChannel(channel)
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
+      document.removeEventListener('visibilitychange', onVisible)
       clearInterval(interval)
     }
   }, [])
