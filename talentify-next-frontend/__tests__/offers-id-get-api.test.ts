@@ -1,6 +1,11 @@
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/offers/[id]/route'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { findOfferByIdForAuthUser } from '@/lib/repositories/offers'
+
+jest.mock('@/lib/auth/getCurrentUser', () => ({
+  getCurrentUser: jest.fn(),
+}))
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
@@ -14,19 +19,17 @@ const { createClient } = jest.requireMock('@/lib/supabase/server') as {
   createClient: jest.Mock
 }
 
+const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<typeof getCurrentUser>
 const mockedFindOfferByIdForAuthUser = findOfferByIdForAuthUser as jest.MockedFunction<typeof findOfferByIdForAuthUser>
 
 describe('GET /api/offers/[id]', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-default' }, error: null })
   })
 
   it('returns 401 when unauthenticated', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: null, error: null })
 
     const req = new NextRequest('http://localhost/api/offers/offer-1')
     const res = await GET(req, { params: { id: 'offer-1' } })
@@ -37,11 +40,7 @@ describe('GET /api/offers/[id]', () => {
   })
 
   it('returns 404 when offer is not accessible or does not exist', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'u1' } }, error: null }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u1' }, error: null })
     mockedFindOfferByIdForAuthUser.mockResolvedValue(null)
 
     const req = new NextRequest('http://localhost/api/offers/offer-404')
@@ -53,11 +52,7 @@ describe('GET /api/offers/[id]', () => {
   })
 
   it('returns offer detail for authorized user', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'u2' } }, error: null }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u2' }, error: null })
     mockedFindOfferByIdForAuthUser.mockResolvedValue({
       id: 'offer-2',
       store_id: 'store-1',
@@ -92,11 +87,7 @@ describe('GET /api/offers/[id]', () => {
   })
 
   it('returns 404 for out-of-scope user access', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'u-no-access' } }, error: null }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-no-access' }, error: null })
     mockedFindOfferByIdForAuthUser.mockResolvedValue(null)
 
     const req = new NextRequest('http://localhost/api/offers/offer-private')

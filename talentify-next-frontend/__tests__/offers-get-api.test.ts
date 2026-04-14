@@ -1,6 +1,11 @@
 import { NextRequest } from 'next/server'
 import { GET } from '@/app/api/offers/route'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { findStoreOffersByAuthUser } from '@/lib/repositories/offers'
+
+jest.mock('@/lib/auth/getCurrentUser', () => ({
+  getCurrentUser: jest.fn(),
+}))
 
 jest.mock('@/lib/supabase/server', () => ({
   createClient: jest.fn(),
@@ -26,19 +31,17 @@ const { createClient } = jest.requireMock('@/lib/supabase/server') as {
   createClient: jest.Mock
 }
 
+const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<typeof getCurrentUser>
 const mockedFindStoreOffersByAuthUser = findStoreOffersByAuthUser as jest.MockedFunction<typeof findStoreOffersByAuthUser>
 
 describe('GET /api/offers', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-default' }, error: null })
   })
 
   it('returns 401 when unauthenticated', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: null } }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: null, error: null })
 
     const req = new NextRequest('http://localhost/api/offers')
     const res = await GET(req)
@@ -52,11 +55,7 @@ describe('GET /api/offers', () => {
   })
 
   it('returns 400 for invalid status query', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u1' }, error: null })
 
     const req = new NextRequest('http://localhost/api/offers?status=invalid')
     const res = await GET(req)
@@ -70,11 +69,7 @@ describe('GET /api/offers', () => {
   })
 
   it('normalizes status query and returns offer list', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'u2' } } }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u2' }, error: null })
     mockedFindStoreOffersByAuthUser.mockResolvedValue([
       {
         id: 'offer-1',
@@ -104,11 +99,7 @@ describe('GET /api/offers', () => {
   })
 
   it('returns empty list when store is not linked', async () => {
-    createClient.mockResolvedValue({
-      auth: {
-        getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'u3' } } }),
-      },
-    })
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u3' }, error: null })
     mockedFindStoreOffersByAuthUser.mockResolvedValue([])
 
     const req = new NextRequest('http://localhost/api/offers')

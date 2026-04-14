@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createActionableNotification } from '@/lib/notifications/service'
+import { emitNotification } from '@/lib/notifications/emit'
 
 export const runtime = 'nodejs'
 
@@ -11,11 +11,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'missing fields' }, { status: 400 })
     }
 
-    await createActionableNotification(
+    await emitNotification({
       recipientUserId,
-      { kind: 'review_received', offerId, reviewId, actorName: '店舗' },
-      'talent',
-    )
+      event: { kind: 'review_received', offerId, reviewId, actorName: '店舗' },
+      recipientRole: 'talent',
+    })
 
     return NextResponse.json({ ok: true })
   } catch (e) {

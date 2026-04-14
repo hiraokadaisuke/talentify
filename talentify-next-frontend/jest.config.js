@@ -6,6 +6,7 @@ module.exports = {
     '^@utils/(.*)$': '<rootDir>/utils/$1',
     '^@types/(.*)$': '<rootDir>/types/$1'
   },
+  testPathIgnorePatterns: ['<rootDir>/e2e/'],
   globals: {
     'ts-jest': {
       tsconfig: {

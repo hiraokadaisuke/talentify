@@ -309,6 +309,21 @@ model notifications {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+
+
+model notification_idempotency_keys {
+  key               String   @db.VarChar(255)
+  user_id           String   @db.Uuid
+  endpoint          String   @db.VarChar(255)
+  response_snapshot Json
+  created_at        DateTime @default(now()) @db.Timestamptz(6)
+  expires_at        DateTime @db.Timestamptz(6)
+
+  @@id([key, user_id, endpoint])
+  @@index([user_id, expires_at], map: "idx_notification_idempo_user_expires")
+  @@schema("public")
+}
+
 model offer_messages {
   id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   offer_id      String?  @db.Uuid

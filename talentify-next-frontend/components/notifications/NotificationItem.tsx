@@ -30,6 +30,11 @@ function resolveIcon(type: string) {
   return typeIcon[prefix] || Info
 }
 
+function isResurfacedNotification(createdAt: string | null, updatedAt: string | null): boolean {
+  if (!createdAt || !updatedAt) return false
+  return new Date(updatedAt).getTime() - new Date(createdAt).getTime() > 60_000
+}
+
 export default function NotificationItem({ notification, onRead, className }: Props) {
   const router = useRouter()
   const Icon = resolveIcon(notification.type)
@@ -68,6 +73,9 @@ export default function NotificationItem({ notification, onRead, className }: Pr
           <span>
             {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: ja })}
           </span>
+          {isResurfacedNotification(notification.created_at, notification.updated_at) && (
+            <span className="text-amber-700">再通知</span>
+          )}
           <span className="ml-auto text-primary">{getActionLabel(notification)}</span>
         </div>
       </div>

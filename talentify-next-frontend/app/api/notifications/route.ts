@@ -7,6 +7,7 @@ import {
 } from '@/lib/repositories/notifications'
 import type { Json } from '@/types/supabase'
 import { isNotificationType } from '@/types/notifications'
+import { getIdempotentResponse, persistIdempotentResponse } from '@/lib/notification-idempotency'
 
 export const runtime = 'nodejs'
 
@@ -101,6 +102,11 @@ export async function POST(req: NextRequest) {
       group_key,
     } = await req.json()
 
+    const idempotent = await getIdempotentResponse(req, user.id)
+    if (idempotent) {
+      return idempotent
+    }
+
     if (!title || !isNotificationType(type)) {
       return NextResponse.json({ error: 'invalid request' }, { status: 400 })
     }
@@ -131,7 +137,9 @@ export async function POST(req: NextRequest) {
         group_key: typeof group_key === 'string' ? group_key : null,
       })
 
-      return NextResponse.json({ data })
+      const response = NextResponse.json({ data })
+      await persistIdempotentResponse(req, user.id, response)
+      return response
     } catch (error) {
       const message = error instanceof Error ? error.message : 'failed to insert notification'
       console.error('failed to insert notification', { user_id: user.id, type, error })
