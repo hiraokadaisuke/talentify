@@ -50,6 +50,7 @@ type NotificationQueryRow = {
   body: string | null
   is_read: boolean
   created_at: Date
+  updated_at: Date
   read_at: Date | null
   priority: 'low' | 'medium' | 'high'
   action_url: string | null
@@ -83,6 +84,7 @@ function toNotificationRow(row: NotificationQueryRow): NotificationRow {
     body: row.body,
     is_read: row.is_read,
     created_at: row.created_at.toISOString(),
+    updated_at: row.updated_at.toISOString(),
     read_at: row.read_at?.toISOString() ?? null,
     priority: resolvePriority(row.priority ?? (typeof rawData?.priority === 'string' ? rawData.priority : null)),
     action_url: row.action_url ?? (typeof rawData?.url === 'string' ? rawData.url : null),
@@ -134,7 +136,7 @@ export async function findNotificationsByUser({
 
   const unreadClause = unreadOnly ? Prisma.sql`AND is_read = false` : Prisma.empty
 
-const actionableClause = actionableOnly
+  const actionableClause = actionableOnly
     ? Prisma.sql`AND (
       type = ANY (${ACTION_REQUIRED_TYPES}::public.notification_type[])
       OR COALESCE(
@@ -170,6 +172,7 @@ const actionableClause = actionableOnly
       body,
       is_read,
       created_at,
+      updated_at,
       read_at,
       priority,
       action_url,
@@ -184,7 +187,7 @@ const actionableClause = actionableOnly
     ${unreadClause}
     ${actionableClause}
     ${categoryClause}
-    ORDER BY created_at DESC
+    ORDER BY updated_at DESC, created_at DESC
     ${limitClause}
   `
 
@@ -253,7 +256,7 @@ export async function createNotification({
             (${entity_id ?? null}::text IS NULL AND entity_id IS NULL)
             OR entity_id = ${entity_id ?? null}
           )
-        ORDER BY created_at DESC
+        ORDER BY updated_at DESC, created_at DESC
         LIMIT 1
       )
       UPDATE public.notifications
@@ -268,7 +271,6 @@ export async function createNotification({
         entity_id = ${entity_id ?? null},
         actor_name = ${actor_name ?? null},
         expires_at = ${expires_at ?? null},
-        created_at = ${now},
         updated_at = ${now},
         read_at = NULL,
         is_read = false
@@ -282,6 +284,7 @@ export async function createNotification({
         body,
         is_read,
         created_at,
+        updated_at,
         read_at,
         priority,
         action_url,
@@ -305,6 +308,8 @@ export async function createNotification({
       title,
       body,
       data,
+      created_at,
+      updated_at,
       priority,
       action_url,
       action_label,
@@ -320,6 +325,8 @@ export async function createNotification({
       ${title},
       ${body ?? null},
       ${data ?? null}::jsonb,
+      ${now},
+      ${now},
       ${priority ?? 'medium'},
       ${action_url ?? null},
       ${action_label ?? null},
@@ -338,6 +345,7 @@ export async function createNotification({
       body,
       is_read,
       created_at,
+      updated_at,
       read_at,
       priority,
       action_url,
@@ -371,6 +379,7 @@ export async function markNotificationRead({
     data: {
       is_read: true,
       read_at: now,
+      updated_at: now,
     },
   })
 
@@ -391,6 +400,7 @@ export async function markNotificationUnread({
     data: {
       is_read: false,
       read_at: null,
+      updated_at: new Date(),
     },
   })
 
@@ -418,6 +428,7 @@ export async function markAllNotificationsRead({
     data: {
       is_read: true,
       read_at: now,
+      updated_at: now,
     },
   })
 

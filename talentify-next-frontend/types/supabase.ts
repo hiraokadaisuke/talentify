@@ -510,6 +510,7 @@ export type Database = {
           body: string | null
           is_read: boolean
           created_at: string
+          updated_at: string
           read_at: string | null
           priority: 'low' | 'medium' | 'high'
           action_url: string | null
@@ -538,6 +539,7 @@ export type Database = {
           body?: string | null
           is_read?: boolean
           created_at?: string
+          updated_at?: string
           read_at?: string | null
           priority?: 'low' | 'medium' | 'high'
           action_url?: string | null
@@ -566,6 +568,7 @@ export type Database = {
           body?: string | null
           is_read?: boolean
           created_at?: string
+          updated_at?: string
           read_at?: string | null
           priority?: 'low' | 'medium' | 'high'
           action_url?: string | null

@@ -57,7 +57,7 @@ export async function POST(
       if (talent?.user_id) {
         await createActionableNotification(
           talent.user_id,
-          { kind: 'invoice_rejected_to_talent', invoiceId: id, actorName: '店舗' },
+          { kind: 'invoice_rejected_to_talent', invoiceId: id, actorName: '店舗', actorId: user.id },
           'talent',
         )
       }
