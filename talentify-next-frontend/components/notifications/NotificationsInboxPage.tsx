@@ -21,6 +21,13 @@ const PRIORITY_LABEL: Record<NotificationRow['priority'], string> = {
   high: '高',
 }
 
+
+function isResurfacedNotification(notification: NotificationRow): boolean {
+  const createdAt = new Date(notification.created_at).getTime()
+  const updatedAt = new Date(notification.updated_at).getTime()
+  return Number.isFinite(createdAt) && Number.isFinite(updatedAt) && updatedAt - createdAt > 60_000
+}
+
 export default function NotificationsInboxPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
   const [tab, setTab] = useState<TabType>('all')
@@ -164,6 +171,7 @@ export default function NotificationsInboxPage() {
             <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <span>{notification.actor_name || 'Talentify'}</span>
               <span>{formatJaDateTimeWithWeekday(notification.created_at)}</span>
+              {isResurfacedNotification(notification) && <span className="text-amber-700">再通知</span>}
               <span className="ml-auto text-primary">{getActionLabel(notification)}</span>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { messages, threads, nextMessageId, nextThreadId, ThreadType } from '../data'
-import { createActionableNotification } from '@/lib/notifications/service'
+import { emitNotification } from '@/lib/notifications/emit'
 
 export const runtime = 'nodejs'
 
@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
   thread.lastMessageAt = message.createdAt
 
   try {
-    await createActionableNotification(
-      receiverUserId,
-      {
+    await emitNotification({
+      recipientUserId: receiverUserId,
+      event: {
         kind: 'message_received',
         actorName: senderName,
         actorId: senderUserId,
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         messageId: message.id,
         offerId: offerId ?? null,
       },
-    )
+    })
   } catch (e) {
     console.error('failed to insert message notification', e)
   }

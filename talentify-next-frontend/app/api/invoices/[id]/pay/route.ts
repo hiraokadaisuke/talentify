@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
-import { createActionableNotification } from '@/lib/notifications/service'
+import { emitNotification } from '@/lib/notifications/emit'
 
 export async function POST(
   req: NextRequest,
@@ -63,11 +63,11 @@ export async function POST(
         .eq('id', invoice.talent_id)
         .single()
       if (talent?.user_id) {
-        await createActionableNotification(
-          talent.user_id,
-          { kind: 'payment_completed_to_talent', invoiceId: id, actorName: '店舗', actorId: user.id },
-          'talent',
-        )
+        await emitNotification({
+          recipientUserId: talent.user_id,
+          event: { kind: 'payment_completed_to_talent', invoiceId: id, actorName: '店舗', actorId: user.id },
+          recipientRole: 'talent',
+        })
       }
     } catch (e) {
       console.error('failed to send notification', e)

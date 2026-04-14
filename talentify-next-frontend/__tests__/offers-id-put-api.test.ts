@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { PUT } from '@/app/api/offers/[id]/route'
 import { findOfferAccessById, updateOfferById } from '@/lib/repositories/offers'
-import { createActionableNotification } from '@/lib/notifications/service'
+import { emitNotification } from '@/lib/notifications/emit'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 
 jest.mock('@/lib/auth/getCurrentUser', () => ({
@@ -14,15 +14,13 @@ jest.mock('@/lib/repositories/offers', () => ({
   updateOfferById: jest.fn(),
 }))
 
-jest.mock('@/lib/notifications/service', () => ({
-  createActionableNotification: jest.fn(),
+jest.mock('@/lib/notifications/emit', () => ({
+  emitNotification: jest.fn(),
 }))
 
 const mockedFindOfferAccessById = findOfferAccessById as jest.MockedFunction<typeof findOfferAccessById>
 const mockedUpdateOfferById = updateOfferById as jest.MockedFunction<typeof updateOfferById>
-const mockedCreateActionableNotification = createActionableNotification as jest.MockedFunction<
-  typeof createActionableNotification
->
+const mockedEmitNotification = emitNotification as jest.MockedFunction<typeof emitNotification>
 const mockedGetCurrentUser = getCurrentUser as jest.MockedFunction<typeof getCurrentUser>
 
 describe('PUT /api/offers/[id]', () => {
@@ -136,6 +134,6 @@ describe('PUT /api/offers/[id]', () => {
 
     expect(res.status).toBe(200)
     expect(mockedUpdateOfferById).toHaveBeenCalledWith('offer-1', { status: 'canceled' })
-    expect(mockedCreateActionableNotification).toHaveBeenCalled()
+    expect(mockedEmitNotification).toHaveBeenCalled()
   })
 })

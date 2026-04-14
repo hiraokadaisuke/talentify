@@ -8,7 +8,9 @@ import {
   OFFER_STATUS_TYPES,
   OfferCreateConflictError,
   OfferStatusType,
+  findOfferAccessById,
 } from '@/lib/repositories/offers'
+import { emitNotification } from '@/lib/notifications/emit'
 
 export const runtime = 'nodejs'
 
@@ -112,7 +114,22 @@ export async function POST(req: NextRequest) {
       status: 'pending',
     })
 
-    // Notification creation is handled by a database trigger
+    const access = await findOfferAccessById(offer.id)
+    if (access?.talent_user_id) {
+      try {
+        await emitNotification({
+          recipientUserId: access.talent_user_id,
+          event: {
+            kind: 'offer_created',
+            offerId: offer.id,
+            actorId: user.id,
+          },
+        })
+      } catch (notificationError) {
+        console.error('failed to create offer notification', notificationError)
+      }
+    }
+
     return NextResponse.json({ ok: true, offer })
   } catch (error) {
     if (error instanceof OfferCreateConflictError) {

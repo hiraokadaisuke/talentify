@@ -19,6 +19,11 @@ jest.mock('@/lib/repositories/notifications', () => ({
   markAllNotificationsRead: jest.fn(),
 }))
 
+jest.mock('@/lib/notification-idempotency', () => ({
+  getIdempotentResponse: jest.fn().mockResolvedValue(null),
+  persistIdempotentResponse: jest.fn().mockResolvedValue(undefined),
+}))
+
 const { getCurrentUser } = jest.requireMock('@/lib/auth/getCurrentUser') as {
   getCurrentUser: jest.Mock
 }

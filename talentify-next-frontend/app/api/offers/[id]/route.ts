@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import { findOfferAccessById, findOfferByIdForAuthUser, updateOfferById } from '@/lib/repositories/offers'
-import { createActionableNotification } from '@/lib/notifications/service'
+import { emitNotification } from '@/lib/notifications/emit'
 
 export async function GET(
   _req: NextRequest,
@@ -106,7 +106,7 @@ export async function PUT(
                 status: updatedStatus,
               }
 
-        await createActionableNotification(recipientUserId, event)
+        await emitNotification({ recipientUserId, event })
       } catch (notificationError) {
         console.error('failed to create offer notification', notificationError)
       }

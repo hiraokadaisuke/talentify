@@ -3,7 +3,7 @@ import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getSubmitStatus } from '../../utils'
-import { createActionableNotification } from '@/lib/notifications/service'
+import { emitNotification } from '@/lib/notifications/emit'
 
 export async function POST(
   req: NextRequest,
@@ -60,11 +60,11 @@ export async function POST(
         .eq('id', invoice.store_id)
         .single()
       if (store?.user_id) {
-        await createActionableNotification(
-          store.user_id,
-          { kind: 'invoice_submitted_to_store', invoiceId: id, actorName: '演者', actorId: user.id },
-          'store',
-        )
+        await emitNotification({
+          recipientUserId: store.user_id,
+          event: { kind: 'invoice_submitted_to_store', invoiceId: id, actorName: '演者', actorId: user.id },
+          recipientRole: 'store',
+        })
       }
     } catch (e) {
       console.error('failed to send notification', e)
