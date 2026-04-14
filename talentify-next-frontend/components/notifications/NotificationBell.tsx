@@ -94,12 +94,14 @@ export default function NotificationBell() {
       <DropdownMenuTrigger asChild>
         <button
           aria-label="通知"
+          data-testid="header-notification-bell"
           className="relative p-2 rounded-full hover:bg-muted focus:outline-none"
         >
           <Bell className="h-6 w-6" />
           {count > 0 && (
             <span
               aria-live="polite"
+              data-testid="header-notification-badge"
               className="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-xs text-white"
             >
               {formatUnreadCount(count)}

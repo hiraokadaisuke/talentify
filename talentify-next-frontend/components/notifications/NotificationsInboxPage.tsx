@@ -106,9 +106,17 @@ export default function NotificationsInboxPage() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">通知</h1>
-          <p className="text-sm text-muted-foreground">未読 {unreadCount} 件</p>
+          <p className="text-sm text-muted-foreground" data-testid="notifications-unread-count">
+            未読 {unreadCount} 件
+          </p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleMarkAll} disabled={unreadCount === 0 || isMutating}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleMarkAll}
+          disabled={unreadCount === 0 || isMutating}
+          data-testid="notifications-mark-all-read"
+        >
           一括既読
         </Button>
       </div>
@@ -125,6 +133,7 @@ export default function NotificationsInboxPage() {
             variant={tab === option.key ? 'default' : 'outline'}
             size="sm"
             onClick={() => setTab(option.key as TabType)}
+            data-testid={`notifications-tab-${option.key}`}
           >
             {option.label}
           </Button>
@@ -135,6 +144,7 @@ export default function NotificationsInboxPage() {
         {items.map((notification) => (
           <div
             key={notification.id}
+            data-testid={`notification-row-${notification.id}`}
             className={`cursor-pointer rounded-lg border p-4 transition hover:bg-accent/40 ${
               notification.is_read ? 'bg-white' : 'bg-blue-50/70 border-blue-100'
             } ${notification.priority === 'high' ? 'border-l-4 border-l-amber-500' : ''}`}

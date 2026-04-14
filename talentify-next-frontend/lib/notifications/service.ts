@@ -13,6 +13,9 @@ export async function createActionableNotification(
       if (event.kind === 'message_received') return 'message'
       if (event.kind === 'review_received') return 'review'
       if (event.kind === 'payment_completed_to_talent') return 'payment'
+      if (event.kind === 'offer_created' || event.kind === 'offer_updated' || event.kind === 'offer_accepted') {
+        return 'offer'
+      }
       return 'invoice'
     })(),
     entityId:
@@ -20,7 +23,9 @@ export async function createActionableNotification(
         ? event.messageId
         : event.kind === 'review_received'
           ? event.reviewId
-          : event.invoiceId,
+          : event.kind === 'offer_created' || event.kind === 'offer_updated' || event.kind === 'offer_accepted'
+            ? event.offerId
+            : event.invoiceId,
     actorId: event.actorId,
   })
   const finalRecipientRole = resolvedRole === 'unknown' ? (recipientRole ?? 'unknown') : resolvedRole

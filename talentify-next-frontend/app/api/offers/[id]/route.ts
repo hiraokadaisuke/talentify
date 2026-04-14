@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import { findOfferAccessById, findOfferByIdForAuthUser, updateOfferById } from '@/lib/repositories/offers'
+import { createActionableNotification } from '@/lib/notifications/service'
 
 export async function GET(
   _req: NextRequest,
@@ -86,6 +87,30 @@ export async function PUT(
     }
 
     await updateOfferById(id, updates)
+
+    const updatedStatus = typeof updates.status === 'string' ? updates.status : null
+    const recipientUserId = user.id === storeUserId ? talentUserId : storeUserId
+    if (updatedStatus && recipientUserId) {
+      try {
+        const event =
+          updatedStatus === 'accepted'
+            ? {
+                kind: 'offer_accepted' as const,
+                offerId: id,
+                actorId: user.id,
+              }
+            : {
+                kind: 'offer_updated' as const,
+                offerId: id,
+                actorId: user.id,
+                status: updatedStatus,
+              }
+
+        await createActionableNotification(recipientUserId, event)
+      } catch (notificationError) {
+        console.error('failed to create offer notification', notificationError)
+      }
+    }
 
     // Notify performer or store about status change via webhook if configured
     const webhook = process.env.NOTIFICATION_WEBHOOK_URL
