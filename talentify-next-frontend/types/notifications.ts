@@ -28,5 +28,5 @@ export function isNotificationType(value: unknown): value is NotificationType {
 }
 
 export function isActionRequiredNotification(type: NotificationType): boolean {
-  return ACTION_REQUIRED_NOTIFICATION_TYPES.includes(type)
+  return (ACTION_REQUIRED_NOTIFICATION_TYPES as readonly NotificationType[]).includes(type)
 }
