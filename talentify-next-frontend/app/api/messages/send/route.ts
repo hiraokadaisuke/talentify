@@ -54,11 +54,11 @@ export async function POST(req: NextRequest) {
       {
         kind: 'message_received',
         actorName: senderName,
+        actorId: senderUserId,
         threadId: thread.id,
         messageId: message.id,
         offerId: offerId ?? null,
       },
-      'unknown',
     )
   } catch (e) {
     console.error('failed to insert message notification', e)

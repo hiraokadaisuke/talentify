@@ -37,12 +37,20 @@ type GetNotificationsOptions = {
 
 export const NOTIFICATIONS_CHANGED_EVENT = 'talentify:notifications-changed'
 
+const inFlightReadMutations = new Set<string>()
+let markAllInFlight = false
+
 function emitNotificationsChanged() {
   if (typeof window === 'undefined') return
+  // Event is only a "re-fetch trigger". Server-side DB is source of truth.
   window.dispatchEvent(new CustomEvent(NOTIFICATIONS_CHANGED_EVENT))
 }
 
-async function patchNotificationReadState(id: string, isRead: boolean): Promise<void> {
+async function patchNotificationReadState(id: string, isRead: boolean): Promise<boolean> {
+  const lockKey = `${id}:${isRead ? 'read' : 'unread'}`
+  if (inFlightReadMutations.has(lockKey)) return false
+  inFlightReadMutations.add(lockKey)
+
   try {
     const res = await fetch(`${API_BASE}/api/notifications/${id}/read`, {
       method: 'PATCH',
@@ -52,9 +60,15 @@ async function patchNotificationReadState(id: string, isRead: boolean): Promise<
 
     if (!res.ok && res.status !== 401) {
       console.error('failed to update notification read state', await res.text())
+      return false
     }
+
+    return res.ok
   } catch (error) {
     console.error('failed to update notification read state', error)
+    return false
+  } finally {
+    inFlightReadMutations.delete(lockKey)
   }
 }
 
@@ -108,18 +122,19 @@ export async function getUnreadNotificationCount(): Promise<number> {
 }
 
 export async function markNotificationRead(id: string) {
-  await patchNotificationReadState(id, true)
-  emitNotificationsChanged()
+  const ok = await patchNotificationReadState(id, true)
+  if (ok) emitNotificationsChanged()
 }
 
 export async function markNotificationUnread(id: string) {
-  await patchNotificationReadState(id, false)
-  emitNotificationsChanged()
+  const ok = await patchNotificationReadState(id, false)
+  if (ok) emitNotificationsChanged()
 }
 
 export async function markAllNotificationsRead(ids: string[]) {
-  if (ids.length === 0) return
+  if (ids.length === 0 || markAllInFlight) return
 
+  markAllInFlight = true
   try {
     const res = await fetch(`${API_BASE}/api/notifications/read-all`, {
       method: 'PATCH',
@@ -129,11 +144,15 @@ export async function markAllNotificationsRead(ids: string[]) {
 
     if (!res.ok && res.status !== 401) {
       console.error('failed to mark all notifications as read', await res.text())
+      return
     }
+
+    if (res.ok) emitNotificationsChanged()
   } catch (error) {
     console.error('failed to mark all notifications as read', error)
+  } finally {
+    markAllInFlight = false
   }
-  emitNotificationsChanged()
 }
 
 export async function addNotification(payload: AddNotificationPayload) {
@@ -145,11 +164,13 @@ export async function addNotification(payload: AddNotificationPayload) {
     })
     if (!res.ok) {
       console.error('failed to add notification', await res.text())
+      return
     }
+
+    emitNotificationsChanged()
   } catch (error) {
     console.error('failed to add notification', error)
   }
-  emitNotificationsChanged()
 }
 
 export function formatUnreadCount(count: number): string | null {

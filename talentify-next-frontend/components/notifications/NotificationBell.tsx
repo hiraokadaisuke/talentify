@@ -75,16 +75,16 @@ export default function NotificationBell() {
   }
 
   const handleItemRead = (id: string) => {
-    setCount((c) => Math.max(0, c - 1))
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
+    refreshCount()
+    refreshItems()
   }
 
   const handleReadAll = async () => {
     const unreadIds = items.filter((n) => !n.is_read).map((n) => n.id)
     if (unreadIds.length === 0) return
     await markAllNotificationsRead(unreadIds)
-    setItems((prev) => prev.map((n) => ({ ...n, is_read: true })))
-    setCount(0)
+    await Promise.all([refreshCount(), refreshItems()])
   }
 
   const notificationsPath = role ? `/${role}/notifications` : '/notifications'

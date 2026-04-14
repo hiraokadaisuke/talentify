@@ -25,6 +25,7 @@ export default function NotificationsInboxPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
   const [tab, setTab] = useState<TabType>('all')
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isMutating, setIsMutating] = useState(false)
 
   const loadNotifications = async (currentTab: TabType) => {
     const data = await getNotifications({
@@ -64,10 +65,14 @@ export default function NotificationsInboxPage() {
   }, [tab])
 
   const markAsRead = async (notification: NotificationRow) => {
-    if (notification.is_read) return
-    await markNotificationRead(notification.id)
-    setItems((prev) => prev.map((item) => (item.id === notification.id ? { ...item, is_read: true } : item)).filter((item) => tab !== 'unread' || !item.is_read))
-    setUnreadCount((prev) => Math.max(0, prev - 1))
+    if (notification.is_read || isMutating) return
+    setIsMutating(true)
+    try {
+      await markNotificationRead(notification.id)
+      await Promise.all([loadNotifications(tab), refreshUnreadCount()])
+    } finally {
+      setIsMutating(false)
+    }
   }
 
   const handleRowClick = async (notification: NotificationRow) => {
@@ -76,10 +81,15 @@ export default function NotificationsInboxPage() {
   }
 
   const handleMarkAll = async () => {
+    if (isMutating) return
     const unreadIds = items.filter((item) => !item.is_read).map((item) => item.id)
-    await markAllNotificationsRead(unreadIds)
-    setItems((prev) => (tab === 'unread' ? [] : prev.map((item) => ({ ...item, is_read: true }))))
-    setUnreadCount(0)
+    setIsMutating(true)
+    try {
+      await markAllNotificationsRead(unreadIds)
+      await Promise.all([loadNotifications(tab), refreshUnreadCount()])
+    } finally {
+      setIsMutating(false)
+    }
   }
 
   const emptyStateText =
@@ -98,7 +108,7 @@ export default function NotificationsInboxPage() {
           <h1 className="text-2xl font-bold">通知</h1>
           <p className="text-sm text-muted-foreground">未読 {unreadCount} 件</p>
         </div>
-        <Button variant="outline" size="sm" onClick={handleMarkAll} disabled={unreadCount === 0}>
+        <Button variant="outline" size="sm" onClick={handleMarkAll} disabled={unreadCount === 0 || isMutating}>
           一括既読
         </Button>
       </div>

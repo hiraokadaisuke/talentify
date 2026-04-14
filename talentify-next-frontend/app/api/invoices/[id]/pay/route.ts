@@ -65,7 +65,7 @@ export async function POST(
       if (talent?.user_id) {
         await createActionableNotification(
           talent.user_id,
-          { kind: 'payment_completed_to_talent', invoiceId: id, actorName: '店舗' },
+          { kind: 'payment_completed_to_talent', invoiceId: id, actorName: '店舗', actorId: user.id },
           'talent',
         )
       }
