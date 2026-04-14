@@ -14,6 +14,9 @@ type CountUnreadNotificationsParams = {
 type FindNotificationsByUserParams = {
   userId: string
   limit?: number
+  unreadOnly?: boolean
+  actionableOnly?: boolean
+  category?: 'announcement' | 'notification'
 }
 
 type MarkNotificationReadParams = {
@@ -31,6 +34,13 @@ type MarkAllNotificationsReadParams = {
   ids?: string[]
 }
 
+const ACTION_REQUIRED_TYPES: NotificationType[] = [
+  'message',
+  'offer_created',
+  'offer_updated',
+  'invoice_submitted',
+]
+
 type NotificationQueryRow = {
   id: string
   user_id: string
@@ -41,18 +51,14 @@ type NotificationQueryRow = {
   is_read: boolean
   created_at: Date
   read_at: Date | null
-}
-
-type NotificationInsertQueryRow = {
-  id: string
-  user_id: string
-  type: NotificationRow['type']
-  data: Json | null
-  title: string
-  body: string | null
-  is_read: boolean
-  created_at: Date
-  read_at: Date | null
+  priority: 'low' | 'medium' | 'high'
+  action_url: string | null
+  action_label: string | null
+  entity_type: string | null
+  entity_id: string | null
+  actor_name: string | null
+  expires_at: Date | null
+  group_key: string | null
 }
 
 type OfferVisibilityQueryRow = {
@@ -61,21 +67,13 @@ type OfferVisibilityQueryRow = {
   accepted_at: Date | null
 }
 
-function toNotificationRow(row: NotificationQueryRow): NotificationRow {
-  return {
-    id: row.id,
-    user_id: row.user_id,
-    type: row.type,
-    data: row.data,
-    title: row.title,
-    body: row.body,
-    is_read: row.is_read,
-    created_at: row.created_at.toISOString(),
-    read_at: row.read_at?.toISOString() ?? null,
-  }
+function resolvePriority(value: string | null): NotificationRow['priority'] {
+  return value === 'low' || value === 'high' ? value : 'medium'
 }
 
-function toNotificationRowFromInsert(row: NotificationInsertQueryRow): NotificationRow {
+function toNotificationRow(row: NotificationQueryRow): NotificationRow {
+  const rawData = row.data && typeof row.data === 'object' && !Array.isArray(row.data) ? row.data : null
+
   return {
     id: row.id,
     user_id: row.user_id,
@@ -86,6 +84,14 @@ function toNotificationRowFromInsert(row: NotificationInsertQueryRow): Notificat
     is_read: row.is_read,
     created_at: row.created_at.toISOString(),
     read_at: row.read_at?.toISOString() ?? null,
+    priority: resolvePriority(row.priority ?? (typeof rawData?.priority === 'string' ? rawData.priority : null)),
+    action_url: row.action_url ?? (typeof rawData?.url === 'string' ? rawData.url : null),
+    action_label: row.action_label ?? (typeof rawData?.action_label === 'string' ? rawData.action_label : null),
+    entity_type: row.entity_type ?? (typeof rawData?.entity_type === 'string' ? rawData.entity_type : null),
+    entity_id: row.entity_id ?? (typeof rawData?.entity_id === 'string' ? rawData.entity_id : null),
+    actor_name: row.actor_name ?? (typeof rawData?.actor_name === 'string' ? rawData.actor_name : null),
+    expires_at: row.expires_at?.toISOString() ?? null,
+    group_key: row.group_key,
   }
 }
 
@@ -115,6 +121,9 @@ export async function countUnreadNotificationsByUser({
 export async function findNotificationsByUser({
   userId,
   limit,
+  unreadOnly,
+  actionableOnly,
+  category,
 }: FindNotificationsByUserParams): Promise<NotificationRow[]> {
   const prisma = getPrismaClient()
 
@@ -123,10 +132,43 @@ export async function findNotificationsByUser({
       ? Prisma.sql`LIMIT ${Math.floor(limit)}`
       : Prisma.empty
 
+  const unreadClause = unreadOnly ? Prisma.sql`AND is_read = false` : Prisma.empty
+
+  const actionableClause = actionableOnly
+    ? Prisma.sql`AND type = ANY (${ACTION_REQUIRED_TYPES}::public.notification_type[])`
+    : Prisma.empty
+
+  const categoryClause =
+    category === 'announcement'
+      ? Prisma.sql`AND COALESCE(entity_type, '') = 'announcement'`
+      : category === 'notification'
+        ? Prisma.sql`AND COALESCE(entity_type, '') != 'announcement'`
+        : Prisma.empty
+
   const rows = await prisma.$queryRaw<NotificationQueryRow[]>`
-    SELECT id, user_id, type::text, data, title, body, is_read, created_at, read_at
+    SELECT
+      id,
+      user_id,
+      type::text,
+      data,
+      title,
+      body,
+      is_read,
+      created_at,
+      read_at,
+      priority,
+      action_url,
+      action_label,
+      entity_type,
+      entity_id,
+      actor_name,
+      expires_at,
+      group_key
     FROM public.notifications
     WHERE user_id = ${userId}
+    ${unreadClause}
+    ${actionableClause}
+    ${categoryClause}
     ORDER BY created_at DESC
     ${limitClause}
   `
@@ -171,20 +213,73 @@ export async function createNotification({
   title,
   body,
   data,
+  priority,
+  action_url,
+  action_label,
+  entity_type,
+  entity_id,
+  actor_name,
+  expires_at,
+  group_key,
 }: NotificationInsert): Promise<NotificationRow> {
   const prisma = getPrismaClient()
 
-  const rows = await prisma.$queryRaw<NotificationInsertQueryRow[]>`
-    INSERT INTO public.notifications (user_id, type, title, body, data)
-    VALUES (${user_id}::uuid, ${type}, ${title}, ${body ?? null}, ${data ?? null}::jsonb)
-    RETURNING id, user_id, type::text, data, title, body, is_read, created_at, read_at
+  const rows = await prisma.$queryRaw<NotificationQueryRow[]>`
+    INSERT INTO public.notifications (
+      user_id,
+      type,
+      title,
+      body,
+      data,
+      priority,
+      action_url,
+      action_label,
+      entity_type,
+      entity_id,
+      actor_name,
+      expires_at,
+      group_key
+    )
+    VALUES (
+      ${user_id}::uuid,
+      ${type},
+      ${title},
+      ${body ?? null},
+      ${data ?? null}::jsonb,
+      ${priority ?? 'medium'},
+      ${action_url ?? null},
+      ${action_label ?? null},
+      ${entity_type ?? null},
+      ${entity_id ?? null},
+      ${actor_name ?? null},
+      ${expires_at ?? null},
+      ${group_key ?? null}
+    )
+    RETURNING
+      id,
+      user_id,
+      type::text,
+      data,
+      title,
+      body,
+      is_read,
+      created_at,
+      read_at,
+      priority,
+      action_url,
+      action_label,
+      entity_type,
+      entity_id,
+      actor_name,
+      expires_at,
+      group_key
   `
 
   if (rows.length === 0) {
     throw new Error('failed to insert notification')
   }
 
-  return toNotificationRowFromInsert(rows[0])
+  return toNotificationRow(rows[0])
 }
 
 export async function markNotificationRead({

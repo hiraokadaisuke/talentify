@@ -1,42 +1,5 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { getNotifications, markNotificationRead, NotificationRow } from '@/utils/notifications'
-import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
+import NotificationsInboxPage from '@/components/notifications/NotificationsInboxPage'
 
 export default function StoreNotificationsPage() {
-  const [items, setItems] = useState<NotificationRow[]>([])
-
-  useEffect(() => {
-    getNotifications().then(setItems)
-  }, [])
-
-  const handleClick = async (n: NotificationRow, href: string) => {
-    if (!n.is_read) {
-      await markNotificationRead(n.id)
-      setItems((prev) => prev.map((m) => (m.id === n.id ? { ...m, is_read: true } : m)))
-    }
-    window.location.href = href
-  }
-
-  const linkFor = (n: NotificationRow) => {
-    if (n.type === 'message') return '/store/messages'
-    const offerId = (n.data as any)?.offer_id
-    return offerId ? `/store/offers/${offerId}` : '#'
-  }
-
-  return (
-    <div className='max-w-screen-md mx-auto py-8 space-y-4'>
-      <h1 className='text-2xl font-bold'>通知一覧</h1>
-      <ul className='space-y-2'>
-        {items.map((n) => (
-          <li key={n.id} className={`p-3 border rounded hover:bg-gray-50 cursor-pointer ${!n.is_read ? 'font-semibold' : ''}`}
-              onClick={() => handleClick(n, linkFor(n))}>
-            <span>[{n.title}]（{formatJaDateTimeWithWeekday(n.created_at)}）→</span>
-          </li>
-        ))}
-      </ul>
-      {items.length === 0 && <p className='text-sm text-muted-foreground'>通知はありません</p>}
-    </div>
-  )
+  return <NotificationsInboxPage />
 }

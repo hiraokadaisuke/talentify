@@ -9,12 +9,17 @@ import type { NotificationRow } from '@/utils/notifications'
 import {
   getNotifications,
   getUnreadNotificationCount,
+  markAllNotificationsRead,
+  formatUnreadCount,
 } from '@/utils/notifications'
 import { createClient } from '@/utils/supabase/client'
+import { Button } from '@/components/ui/button'
+import { useUserRole } from '@/utils/useRole'
 
 const supabase = createClient()
 
 export default function NotificationBell() {
+  const { role } = useUserRole()
   const [count, setCount] = useState(0)
   const [items, setItems] = useState<NotificationRow[]>([])
 
@@ -24,7 +29,7 @@ export default function NotificationBell() {
   }
 
   const refreshItems = async () => {
-    const list = await getNotifications(5)
+    const list = await getNotifications({ limit: 8 })
     setItems(list)
   }
 
@@ -34,7 +39,7 @@ export default function NotificationBell() {
       .channel('notifications-bell')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        { event: '*', schema: 'public', table: 'notifications' },
         () => {
           refreshCount()
           refreshItems()
@@ -58,6 +63,16 @@ export default function NotificationBell() {
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
   }
 
+  const handleReadAll = async () => {
+    const unreadIds = items.filter((n) => !n.is_read).map((n) => n.id)
+    if (unreadIds.length === 0) return
+    await markAllNotificationsRead(unreadIds)
+    setItems((prev) => prev.map((n) => ({ ...n, is_read: true })))
+    setCount(0)
+  }
+
+  const notificationsPath = role ? `/${role}/notifications` : '/notifications'
+
   return (
     <DropdownMenu onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -69,15 +84,21 @@ export default function NotificationBell() {
           {count > 0 && (
             <span
               aria-live="polite"
-              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 px-1 text-xs text-white"
+              className="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-xs text-white"
             >
-              {count > 99 ? '99+' : count}
+              {formatUnreadCount(count)}
             </span>
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0">
-        <div className="max-h-80 overflow-y-auto p-2">
+      <DropdownMenuContent align="end" className="w-[360px] p-0">
+        <div className="flex items-center justify-between border-b px-3 py-2">
+          <p className="text-sm font-semibold">通知</p>
+          <Button variant="ghost" size="sm" onClick={handleReadAll} disabled={count === 0}>
+            すべて既読
+          </Button>
+        </div>
+        <div className="max-h-96 overflow-y-auto p-2 space-y-2">
           {items.length === 0 && (
             <p className="text-sm text-muted-foreground px-2 py-4">通知はありません</p>
           )}
@@ -87,7 +108,7 @@ export default function NotificationBell() {
         </div>
         <div className="border-t">
           <Link
-            href="/notifications"
+            href={notificationsPath}
             className="block px-3 py-2 text-center text-sm text-blue-600 hover:underline"
           >
             すべて見る
@@ -97,4 +118,3 @@ export default function NotificationBell() {
     </DropdownMenu>
   )
 }
-

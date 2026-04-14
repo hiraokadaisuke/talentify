@@ -14,7 +14,7 @@ import {
 import { Button } from './ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { getUserRoleInfo } from '@/lib/getUserRole'
-import HeaderBellLink from './notifications/HeaderBellLink'
+import NotificationBell from './notifications/NotificationBell'
 import { cn } from '@/lib/utils'
 
 interface MenuItem {
@@ -222,7 +222,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
           </div>
 
           <div className="flex items-center gap-3">
-            <HeaderBellLink />
+            <NotificationBell />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex h-9 items-center gap-1 rounded-md px-2 text-sm font-semibold text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 focus:outline-none">

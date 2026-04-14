@@ -285,14 +285,24 @@ model messages_old {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model notifications {
-  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id    String            @db.Uuid
-  type       notification_type
-  data       Json?
-  is_read    Boolean?          @default(false)
-  created_at DateTime?         @default(now()) @db.Timestamp(6)
-  read_at    DateTime?         @db.Timestamp(6)
-  updated_at DateTime          @default(now()) @db.Timestamptz(6)
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String            @db.Uuid
+  type        notification_type
+  title       String
+  body        String?
+  data        Json?
+  is_read     Boolean?          @default(false)
+  created_at  DateTime?         @default(now()) @db.Timestamp(6)
+  read_at     DateTime?         @db.Timestamp(6)
+  priority    String            @default("medium")
+  action_url  String?
+  action_label String?
+  entity_type String?
+  entity_id   String?
+  actor_name  String?
+  expires_at  DateTime?         @db.Timestamp(6)
+  group_key   String?
+  updated_at  DateTime          @default(now()) @db.Timestamptz(6)
 
   @@schema("public")
 }
