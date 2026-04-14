@@ -151,8 +151,16 @@ export default function OfferChatThread({
     if (!iso) return '-'
     try {
       return format(new Date(iso), 'yyyy/MM/dd HH:mm')
-    } catch (e) {
+    } catch {
       return '-'
+    }
+  }
+
+  const formatDaySeparator = (iso: string) => {
+    try {
+      return format(new Date(iso), 'yyyy/MM/dd')
+    } catch {
+      return ''
     }
   }
 
@@ -172,49 +180,56 @@ export default function OfferChatThread({
   return (
     <div
       className={cn(
-        'flex h-full min-h-[420px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm',
+        'flex h-full min-h-[420px] flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50/40',
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3.5">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-slate-600" aria-hidden="true" />
-            <h3 className="text-sm font-semibold text-slate-900 sm:text-base">メッセージ</h3>
-            {unreadCount > 0 && (
-              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-xs font-semibold text-white">
-                {unreadCount}
-              </span>
-            )}
-          </div>
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200/80 bg-white/85 px-4 py-2.5">
+        <div className="flex items-center gap-2">
+          <MessageCircle className="h-4.5 w-4.5 text-slate-600" aria-hidden="true" />
+          <h3 className="text-sm font-semibold text-slate-900">メッセージ</h3>
+          {unreadCount > 0 && (
+            <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-xs font-semibold text-white">
+              {unreadCount}
+            </span>
+          )}
         </div>
-        <span className="text-[11px] text-slate-400 sm:text-xs">最終更新: {formatTimestamp(lastUpdatedAt)}</span>
+        <span className="text-[10px] text-slate-400 sm:text-xs">最終更新: {formatTimestamp(lastUpdatedAt)}</span>
       </div>
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto px-4 py-3.5"
+        className="flex-1 overflow-y-auto bg-[#f7f8fa] px-3 py-3"
         aria-live="polite"
       >
-        {loading && <p>Loading...</p>}
+        {loading && <p className="text-sm text-slate-500">Loading...</p>}
         {!loading && messages.length === 0 && (
           <p className="text-center text-sm leading-relaxed text-slate-500">
             このオファーに関する連絡はまだありません。下の入力欄からメッセージを送信しましょう。
           </p>
         )}
-        <div className="flex flex-col gap-4">
-          {messages.map(m => (
-            <ChatMessageBubble
-              key={m.id}
-              message={m}
-              currentUserId={currentUserId}
-              peerLastReadAt={peerLastReadAt}
-              senderName={resolveSenderName(m)}
-            />
-          ))}
+        <div className="flex flex-col gap-2.5">
+          {messages.map((m, index) => {
+            const prev = messages[index - 1]
+            const showDateSeparator = !prev || formatDaySeparator(prev.created_at) !== formatDaySeparator(m.created_at)
+
+            return (
+              <div key={m.id} className="space-y-1.5">
+                {showDateSeparator && (
+                  <div className="my-1 text-center text-[11px] text-slate-400">—— {formatDaySeparator(m.created_at)} ——</div>
+                )}
+                <ChatMessageBubble
+                  message={m}
+                  currentUserId={currentUserId}
+                  peerLastReadAt={peerLastReadAt}
+                  senderName={resolveSenderName(m)}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
-      <div className="border-t border-slate-100 px-4 py-3">
+      <div className="border-t border-slate-200 bg-white px-3 py-3">
         <OfferChatInput offerId={offerId} senderRole={currentRole} receiverUserId={peerUserId} onSent={handleSent} />
       </div>
     </div>

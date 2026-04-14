@@ -44,23 +44,23 @@ export default function OfferChatInput({ offerId, senderRole, receiverUserId, on
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <Textarea
         value={body}
         onChange={e => setBody(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder="メッセージを入力..."
-        rows={3}
-        className="min-h-[96px] resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-inner"
+        placeholder="メッセージを入力"
+        rows={2}
+        className="min-h-[72px] resize-none rounded-3xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus-visible:border-emerald-400 focus-visible:ring-emerald-200"
       />
-      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-        <p>{receiverUserId ? 'Enter + Shift で改行、Enter で送信' : '送信先ユーザー情報を読み込み中です。'}</p>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
+        <p>{receiverUserId ? 'Shift + Enter で改行 / Enter で送信' : '送信先ユーザー情報を読み込み中です。'}</p>
         <Button
           onClick={handleSend}
           disabled={sending || !body.trim() || !receiverUserId}
-          className="rounded-full bg-slate-800 px-6 text-white hover:bg-slate-700"
+          className="rounded-full bg-emerald-500 px-5 text-white transition hover:bg-emerald-600 disabled:bg-slate-300"
         >
-          送信
+          {sending ? '送信中...' : '送信'}
         </Button>
       </div>
     </div>
