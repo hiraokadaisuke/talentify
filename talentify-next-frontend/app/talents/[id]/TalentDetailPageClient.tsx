@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
-import { MapPin, Clock3, Timer, Bus, Wallet, Share2, Heart, MessageSquare } from 'lucide-react'
+import { MapPin, Clock3, Timer, Bus, Wallet, Heart, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import NewMessageModal from '@/components/messages/NewMessageModal'
@@ -98,15 +98,6 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
     ...(Array.isArray(talent.photos) ? talent.photos : []),
   ]
 
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      toast.success('URLをコピーしました')
-    } catch {
-      toast.error('コピーに失敗しました')
-    }
-  }
-
   const handleFavorite = () => {
     setIsFavorite(v => !v)
     toast.success(isFavorite ? 'お気に入りを解除しました' : 'お気に入りに追加しました')
@@ -137,10 +128,10 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   return (
     <>
       <main className="role-page-container pt-6 pb-10">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <Card className="overflow-hidden border-slate-200 shadow-sm">
-            <CardContent className="p-4 md:p-5">
-              <div className="relative mx-auto w-full max-w-2xl aspect-[4/5] max-h-[620px] overflow-hidden rounded-2xl bg-slate-100">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch">
+          <Card className="h-full overflow-hidden border-slate-200 shadow-sm">
+            <CardContent className="flex h-full flex-col p-3.5 md:p-4">
+              <div className="relative mx-auto h-[min(65vh,680px)] w-full max-w-2xl overflow-hidden rounded-xl bg-slate-100 lg:h-full">
                 {photos.length > 0 ? (
                   <Image
                     key={photos[selectedPhoto]}
@@ -155,7 +146,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                 )}
               </div>
               {photos.length > 1 && (
-                <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-5">
+                <div className="mt-3 grid grid-cols-4 gap-1.5 sm:grid-cols-5">
                   {photos.map((src, i) => (
                     <button
                       key={i}
@@ -179,34 +170,30 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
             </CardContent>
           </Card>
 
-          <div className="space-y-4 lg:sticky lg:top-20 h-fit">
-            <Card className="border-slate-200 shadow-sm">
-              <CardContent className="space-y-5 p-5">
+          <div className="space-y-3">
+            <Card className="h-full border-slate-200 shadow-sm">
+              <CardContent className="flex h-full flex-col gap-4 p-4 md:p-4">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{talent.stage_name}</h1>
-                  {talent.profile && <p className="mt-2 text-sm text-slate-700 whitespace-pre-line">{talent.profile}</p>}
+                  <h1 className="text-2xl font-bold tracking-tight md:text-[1.75rem]">{talent.stage_name}</h1>
+                  {talent.profile && <p className="mt-1.5 text-sm leading-relaxed text-slate-700 whitespace-pre-line">{talent.profile}</p>}
                 </div>
 
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   <Button
-                    className="h-11 w-full bg-slate-900 text-white hover:bg-slate-800"
+                    className="h-10 w-full bg-slate-900 text-white hover:bg-slate-800"
                     aria-label="このキャストにオファーする"
                     onClick={() => setOfferOpen(true)}
                     disabled={offerSent}
                   >
                     {offerSent ? '送信済み' : 'このキャストにオファーする'}
                   </Button>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {(role === 'store' || role === null) && (
                       <Button variant="outline" className="w-full border-slate-300" aria-label="メッセージを送る" onClick={handleMessage}>
                         <MessageSquare className="mr-1 h-4 w-4" />
                         メッセージ
                       </Button>
                     )}
-                    <Button variant="outline" className="w-full border-slate-300" aria-label="シェア" onClick={handleShare}>
-                      <Share2 className="mr-1 h-4 w-4" />
-                      シェア
-                    </Button>
                     <Button variant="outline" className="w-full border-slate-300" aria-label="お気に入り" onClick={handleFavorite}>
                       <Heart className={clsx('mr-1 h-4 w-4', isFavorite ? 'fill-current text-red-500' : '')} />
                       お気に入り
@@ -214,7 +201,8 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                   </div>
                 </div>
 
-                <div className="space-y-3 text-sm">
+                <div className="space-y-2.5 text-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">取引条件</p>
                   {[
                     { icon: MapPin, label: '拠点地域', value: talent.residence || '要相談' },
                     { icon: Clock3, label: '出演可能時間', value: talent.availability || '要相談' },
@@ -222,13 +210,75 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                     { icon: Bus, label: '交通費', value: talent.transportation || '要相談' },
                     { icon: Wallet, label: '出演料金目安', value: talent.rate != null ? `${talent.rate.toLocaleString()}円〜` : '要相談' },
                   ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="flex items-center gap-2 border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                      <Icon className="h-4 w-4 text-slate-500" />
+                    <div key={label} className="flex items-center gap-2">
+                      <Icon className="h-4 w-4 shrink-0 text-slate-500" />
                       <span className="min-w-24 text-slate-500">{label}</span>
                       <span className="font-medium text-slate-900">{value}</span>
                     </div>
                   ))}
                 </div>
+
+                {(talent.area.length > 0 || talent.genre) && (
+                  <div className="space-y-2.5 border-t border-slate-100 pt-3">
+                    {talent.area.length > 0 && (
+                      <div>
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">対応エリア</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {talent.area.map(p => (
+                            <Badge key={p} variant="secondary" className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-700">
+                              {p}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {talent.genre && (
+                      <div>
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">ジャンル</p>
+                        <Badge variant="secondary" className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-700">
+                          {talent.genre}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {talent.notes && (
+                  <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">NG事項 / 特記事項</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-line text-slate-700">{talent.notes}</p>
+                  </div>
+                )}
+
+                {talent.media_appearance && (
+                  <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">店舗向けPR文</p>
+                    <p className="max-w-prose text-sm leading-relaxed whitespace-pre-line text-slate-700">{talent.media_appearance}</p>
+                  </div>
+                )}
+
+                {(talent.twitter || talent.instagram || talent.youtube) && (
+                  <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">SNS</p>
+                    <div className="flex gap-3 text-base text-slate-700">
+                      {talent.twitter && (
+                        <a href={talent.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="hover:text-slate-900">
+                          <FaTwitter />
+                        </a>
+                      )}
+                      {talent.instagram && (
+                        <a href={talent.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-slate-900">
+                          <FaInstagram />
+                        </a>
+                      )}
+                      {talent.youtube && (
+                        <a href={talent.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="hover:text-slate-900">
+                          <FaYoutube />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -238,73 +288,6 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
               </Button>
             )}
           </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {(talent.area.length > 0 || talent.genre) && (
-            <Card className="border-slate-200 shadow-sm">
-              <CardContent className="space-y-4 p-5">
-                {talent.area.length > 0 && (
-                  <div>
-                    <p className="mb-2 text-sm font-semibold text-slate-800">対応エリア</p>
-                    <div className="flex flex-wrap gap-2">
-                      {talent.area.map(p => (
-                        <Badge key={p} variant="secondary" className="rounded-full border border-slate-200 bg-slate-50 text-slate-700">
-                          {p}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {talent.genre && (
-                  <div>
-                    <p className="mb-2 text-sm font-semibold text-slate-800">ジャンル</p>
-                    <Badge variant="secondary" className="rounded-full border border-slate-200 bg-slate-50 text-slate-700">
-                      {talent.genre}
-                    </Badge>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {(talent.twitter || talent.instagram || talent.youtube) && (
-            <Card className="border-slate-200 shadow-sm">
-              <CardContent className="p-5">
-                <p className="mb-2 text-sm font-semibold text-slate-800">SNS</p>
-                <div className="flex gap-4 text-xl text-slate-700">
-                  {talent.twitter && (
-                    <a href={talent.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="hover:text-slate-900">
-                      <FaTwitter />
-                    </a>
-                  )}
-                  {talent.instagram && (
-                    <a href={talent.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-slate-900">
-                      <FaInstagram />
-                    </a>
-                  )}
-                  {talent.youtube && (
-                    <a href={talent.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="hover:text-slate-900">
-                      <FaYoutube />
-                    </a>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card className="border-slate-200 shadow-sm md:col-span-2">
-            <CardContent className="grid gap-6 p-5 md:grid-cols-2 text-sm">
-              <div>
-                <p className="font-semibold text-slate-800">NG事項 / 特記事項</p>
-                <p className="mt-2 whitespace-pre-line text-slate-700">{talent.notes ? talent.notes : '特にありません'}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-slate-800">来店実績 / PR文</p>
-                <p className="mt-2 whitespace-pre-line text-slate-700">{talent.media_appearance ? talent.media_appearance : '準備中'}</p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </main>
 
