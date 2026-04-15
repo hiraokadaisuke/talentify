@@ -27,6 +27,10 @@ type OfferComposerOverlayProps = {
 }
 
 const supabase = createClient()
+const TIME_OPTIONS = Array.from({ length: 18 }, (_, i) => {
+  const hour = i + 6
+  return `${String(hour).padStart(2, '0')}:00`
+})
 
 export default function OfferComposerOverlay({
   open,
@@ -38,15 +42,25 @@ export default function OfferComposerOverlay({
   const [isMobile, setIsMobile] = useState(false)
   const [message, setMessage] = useState('')
   const [visitDate, setVisitDate] = useState('')
-  const [timeRange, setTimeRange] = useState('')
+  const [startTime, setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
+  const [reward, setReward] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false)
 
   const dirty = useMemo(
-    () => message.trim().length > 0 || visitDate.length > 0 || timeRange.trim().length > 0 || agreed,
-    [agreed, message, timeRange, visitDate]
+    () =>
+      message.trim().length > 0 ||
+      visitDate.length > 0 ||
+      startTime.length > 0 ||
+      endTime.length > 0 ||
+      reward.length > 0 ||
+      agreed,
+    [agreed, endTime, message, reward, startTime, visitDate]
   )
+
+  const timeRange = startTime && endTime ? `${startTime}〜${endTime}` : ''
 
   useEffect(() => {
     const updateViewport = () => {
@@ -60,7 +74,9 @@ export default function OfferComposerOverlay({
   const resetForm = () => {
     setMessage('')
     setVisitDate('')
-    setTimeRange('')
+    setStartTime('')
+    setEndTime('')
+    setReward('')
     setAgreed(false)
     setDiscardConfirmOpen(false)
     setSubmitting(false)
@@ -78,6 +94,10 @@ export default function OfferComposerOverlay({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (submitting) return
+    if (startTime >= endTime) {
+      toast.error('希望時間帯の終了時刻は開始時刻より後を選択してください')
+      return
+    }
 
     setSubmitting(true)
 
@@ -107,6 +127,7 @@ export default function OfferComposerOverlay({
         talent_id: talentId,
         date: visitDate,
         time_range: timeRange,
+        reward: reward.trim() ? Number(reward) : null,
         agreed,
         message,
       }),
@@ -151,8 +172,8 @@ export default function OfferComposerOverlay({
 
             <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
               <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-4 md:px-5">
-                <section className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm">
-                  <p className="text-xs font-semibold text-slate-600">オファー対象</p>
+                <section className="space-y-2 rounded-xl border border-slate-200 bg-slate-100/80 p-3.5 text-sm shadow-sm">
+                  <p className="text-xs font-semibold tracking-wide text-slate-600">オファー対象</p>
                   <SummaryRow label="キャスト名" value={summary.stageName} />
                   <SummaryRow label="拠点地域" value={summary.residence || '要相談'} />
                   <SummaryRow label="出演可能時間" value={summary.availability || '要相談'} />
@@ -164,14 +185,54 @@ export default function OfferComposerOverlay({
                   />
                 </section>
 
-                <section className="space-y-4">
+                <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">希望日</label>
                     <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} />
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">希望時間帯</label>
-                    <Input value={timeRange} onChange={e => setTimeRange(e.target.value)} placeholder="例: 10:00~" />
+                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                      <select
+                        value={startTime}
+                        onChange={e => setStartTime(e.target.value)}
+                        className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-500 focus:outline-none"
+                        required
+                      >
+                        <option value="">開始</option>
+                        {TIME_OPTIONS.map(option => (
+                          <option key={`start-${option}`} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-sm text-slate-500">〜</span>
+                      <select
+                        value={endTime}
+                        onChange={e => setEndTime(e.target.value)}
+                        className="h-10 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-slate-500 focus:outline-none"
+                        required
+                      >
+                        <option value="">終了</option>
+                        {TIME_OPTIONS.map(option => (
+                          <option key={`end-${option}`} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">提示金額（円）</label>
+                    <Input
+                      type="number"
+                      min={0}
+                      step={1000}
+                      inputMode="numeric"
+                      value={reward}
+                      onChange={e => setReward(e.target.value)}
+                      placeholder="例: 30000"
+                    />
                   </div>
                   <div className="flex items-center gap-2">
                     <input
@@ -198,10 +259,16 @@ export default function OfferComposerOverlay({
               </div>
 
               <footer className="sticky bottom-0 flex items-center justify-end gap-2 border-t border-slate-200 bg-white px-4 py-3 md:px-5">
-                <Button type="button" variant="outline" onClick={requestClose} disabled={submitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={requestClose}
+                  disabled={submitting}
+                  className="border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                >
                   キャンセル
                 </Button>
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting} className="bg-blue-600 text-white hover:bg-blue-700">
                   {submitting ? '送信中...' : 'オファー送信'}
                 </Button>
               </footer>
