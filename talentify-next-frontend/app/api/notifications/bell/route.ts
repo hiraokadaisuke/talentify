@@ -14,22 +14,6 @@ const bellFilter = {
 
 type BellFailureStage = 'getCurrentUser' | 'fetchUnreadCount' | 'fetchNotificationsList'
 
-function toErrorDetails(error: unknown) {
-  if (error instanceof Error) {
-    return {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-    }
-  }
-
-  return {
-    message: String(error),
-    stack: undefined,
-    name: undefined,
-  }
-}
-
 function logBellFailure({
   stage,
   error,
@@ -44,7 +28,9 @@ function logBellFailure({
     userId,
     bellFilter,
     limit: BELL_LIMIT,
-    error: toErrorDetails(error),
+    error,
+    message: error instanceof Error ? error.message : null,
+    stack: error instanceof Error ? error.stack : null,
   })
 }
 
@@ -53,7 +39,9 @@ export async function GET() {
 
   try {
     const currentUserResult = await getCurrentUser()
-    console.info('[notifications][api][bell] getCurrentUser result', currentUserResult)
+    console.info('[auth][debug]', {
+      user: currentUserResult.user,
+    })
     user = currentUserResult.user
   } catch (error) {
     logBellFailure({
@@ -75,6 +63,9 @@ export async function GET() {
 
   let count = 0
   try {
+    console.info('[notifications][count][before]', {
+      userId: user.id,
+    })
     count = await countUnreadNotificationsByUser({ userId: user.id, ...bellFilter })
   } catch (error) {
     logBellFailure({
@@ -87,6 +78,10 @@ export async function GET() {
 
   let items: Awaited<ReturnType<typeof findNotificationsByUser>> = []
   try {
+    console.info('[notifications][list][before]', {
+      userId: user.id,
+      limit: BELL_LIMIT,
+    })
     items = await findNotificationsByUser({ userId: user.id, limit: BELL_LIMIT, ...bellFilter })
   } catch (error) {
     logBellFailure({
