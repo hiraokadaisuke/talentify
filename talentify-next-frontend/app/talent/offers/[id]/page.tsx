@@ -184,6 +184,7 @@ export default function TalentOfferPage() {
               invoiceStatusLabel: offer.invoiceStatusLabel,
               paymentStatusLabel: offer.paymentStatusLabel,
               reviewCompleted: offer.reviewCompleted,
+              message: offer.message,
             }}
             invoiceId={invoiceId}
             paymentLink={paymentLink}
