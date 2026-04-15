@@ -3,12 +3,8 @@
 import { FormEvent, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { getRedirectUrl } from '@/lib/getRedirectUrl'
-
-const supabase = createClient()
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -29,26 +25,19 @@ export default function RegisterForm() {
   const [confirmError, setConfirmError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const getSignUpErrorMessage = (code?: string, message?: string) => {
-    const normalizedCode = code?.toLowerCase() ?? ''
-    const normalizedMessage = message?.toLowerCase() ?? ''
-
-    if (
-      normalizedCode.includes('over_email_send_rate_limit') ||
-      normalizedMessage.includes('rate limit')
-    ) {
-      return '確認メールの送信回数が上限に達しました。しばらく時間をおいてから再度お試しください。'
+  const getSignUpErrorMessage = (code?: string) => {
+    switch (code) {
+      case 'RATE_LIMITED':
+        return '確認メールの送信回数が上限に達しました。しばらく時間をおいてから再度お試しください。'
+      case 'EMAIL_ALREADY_EXISTS':
+        return 'このメールアドレスは既に登録されています'
+      case 'INVALID_EMAIL':
+        return 'メールアドレスの形式が正しくありません'
+      case 'INVALID_INPUT':
+        return '入力内容を確認してください'
+      default:
+        return '登録に失敗しました。時間をおいて再度お試しください。'
     }
-
-    if (normalizedMessage.includes('already')) {
-      return 'このメールアドレスは既に登録されています'
-    }
-
-    if (normalizedMessage.includes('invalid')) {
-      return 'メールアドレスの形式が正しくありません'
-    }
-
-    return '登録に失敗しました。時間をおいて再度お試しください。'
   }
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
@@ -97,21 +86,22 @@ export default function RegisterForm() {
         return
       }
 
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          // The role is passed via query parameter so the callback can
-          // create the appropriate profile on the server.
-          emailRedirectTo: getRedirectUrl(role),
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email,
+          password,
+          role,
+        }),
       })
 
-      if (signUpError) {
-        console.error('signUp error:', signUpError)
-        setGlobalError(
-          getSignUpErrorMessage(signUpError.code, signUpError.message)
-        )
+      const payload = await response.json().catch(() => null)
+
+      if (!response.ok || !payload?.ok) {
+        setGlobalError(getSignUpErrorMessage(payload?.error?.code))
         return
       }
 

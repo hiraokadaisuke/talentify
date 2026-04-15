@@ -11,6 +11,37 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+
+      users: {
+        Row: {
+          id: string
+          auth_user_id: string | null
+          email: string | null
+          role: string | null
+          status: 'pending_email_verification' | 'onboarding' | 'active' | 'suspended'
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          auth_user_id?: string | null
+          email?: string | null
+          role?: string | null
+          status?: 'pending_email_verification' | 'onboarding' | 'active' | 'suspended'
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          auth_user_id?: string | null
+          email?: string | null
+          role?: string | null
+          status?: 'pending_email_verification' | 'onboarding' | 'active' | 'suspended'
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       stores: {
         Row: {
           avatar_url: string | null
