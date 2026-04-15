@@ -19,6 +19,25 @@ function jsonResponse(status: number, body: ResendResponse) {
   return NextResponse.json(body, { status })
 }
 
+
+type AppUserLookupRow = {
+  status?: string | null
+  role?: string | null
+} | null
+
+function toAppUserLookupRow(value: unknown): AppUserLookupRow {
+  if (!value || typeof value !== 'object') {
+    return null
+  }
+
+  const candidate = value as { status?: unknown; role?: unknown }
+
+  return {
+    status: typeof candidate.status === 'string' ? candidate.status : null,
+    role: typeof candidate.role === 'string' ? candidate.role : null,
+  }
+}
+
 function resolveEmailRedirect(role?: string) {
   if (role) {
     return getRedirectUrl(role)
@@ -58,7 +77,7 @@ export async function POST(req: NextRequest) {
   const requestedRole = parsed.data.role
 
   const service = createServiceClient()
-  const { data: appUser, error: appUserError } = await service
+  const { data: appUserData, error: appUserError } = await service
     .from('users' as any)
     .select('status, role')
     .ilike('email', email)
@@ -72,6 +91,8 @@ export async function POST(req: NextRequest) {
       message: '確認メールの再送に失敗しました',
     })
   }
+
+  const appUser = toAppUserLookupRow(appUserData)
 
   const appUserRole = toSignupRole(appUser?.role)
   const role = requestedRole ?? appUserRole
