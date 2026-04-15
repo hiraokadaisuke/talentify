@@ -39,7 +39,11 @@ function isPriority(value: unknown): value is 'low' | 'medium' | 'high' {
 
 export async function GET(req: NextRequest) {
   try {
-    const { user } = await getCurrentUser()
+    const currentUserResult = await getCurrentUser()
+    console.info('[auth][debug]', {
+      user: currentUserResult.user,
+    })
+    const { user } = currentUserResult
 
     if (!user) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -51,6 +55,9 @@ export async function GET(req: NextRequest) {
     })
 
     if (countFilter.unreadCountOnly) {
+      console.info('[notifications][count][before]', {
+        userId: user.id,
+      })
       const count = await countUnreadNotificationsByUser({
         userId: user.id,
         actionableOnly: countFilter.actionableOnly,
@@ -85,6 +92,11 @@ export async function GET(req: NextRequest) {
       })
     }
 
+    console.info('[notifications][list][before]', {
+      userId: user.id,
+      limit: limit ?? null,
+    })
+
     const data = await findNotificationsByUser({
       userId: user.id,
       limit,
@@ -97,14 +109,22 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ data })
   } catch (error) {
-    console.error('failed to fetch notifications', error)
+    console.error('failed to fetch notifications', {
+      error,
+      message: error instanceof Error ? error.message : null,
+      stack: error instanceof Error ? error.stack : null,
+    })
     return NextResponse.json({ error: 'failed to fetch notifications' }, { status: 500 })
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { user } = await getCurrentUser()
+    const currentUserResult = await getCurrentUser()
+    console.info('[auth][debug]', {
+      user: currentUserResult.user,
+    })
+    const { user } = currentUserResult
 
     if (!user) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -166,11 +186,21 @@ export async function POST(req: NextRequest) {
       return response
     } catch (error) {
       const message = error instanceof Error ? error.message : 'failed to insert notification'
-      console.error('failed to insert notification', { user_id: user.id, type, error })
+      console.error('failed to insert notification', {
+        user_id: user.id,
+        type,
+        error,
+        message: error instanceof Error ? error.message : null,
+        stack: error instanceof Error ? error.stack : null,
+      })
       return NextResponse.json({ error: message }, { status: 400 })
     }
   } catch (error) {
-    console.error('failed to insert notification', error)
+    console.error('failed to insert notification', {
+      error,
+      message: error instanceof Error ? error.message : null,
+      stack: error instanceof Error ? error.stack : null,
+    })
     return NextResponse.json({ error: 'invalid request' }, { status: 400 })
   }
 }
