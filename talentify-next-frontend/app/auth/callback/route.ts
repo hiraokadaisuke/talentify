@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { upsertAppUser } from '@/lib/auth/app-user'
+import { getAppUserByAuthUserId, upsertAppUser } from '@/lib/auth/app-user'
 import { SIGNUP_ROLES, type SignupRole } from '@/lib/auth/signup'
 
 function toSignupRole(value: string | undefined): SignupRole | undefined {
@@ -34,10 +34,19 @@ export async function GET(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const roleFromMetadata = toSignupRole((user?.user_metadata as { role?: string } | undefined)?.role)
-  const role = toSignupRole(roleParam) ?? roleFromMetadata
+  const existingAppUser = user?.id
+    ? await getAppUserByAuthUserId(user.id).catch((fetchError) => {
+        console.error('failed to fetch app user on callback', fetchError)
+        return null
+      })
+    : null
 
-  if (user?.id && user?.email && role) {
+  const roleFromMetadata = toSignupRole((user?.user_metadata as { role?: string } | undefined)?.role)
+  const roleFromExisting = toSignupRole(existingAppUser?.role)
+  const roleFromQuery = toSignupRole(roleParam)
+  const role = roleFromMetadata ?? roleFromExisting ?? roleFromQuery
+
+  if (user?.id && user?.email) {
     try {
       await upsertAppUser({
         authUserId: user.id,

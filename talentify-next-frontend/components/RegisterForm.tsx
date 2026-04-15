@@ -15,11 +15,12 @@ export default function RegisterForm() {
       ? roleParam
       : null
 
-  const [role] = useState(initialRole)
+  const role = initialRole
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [globalError, setGlobalError] = useState<string | null>(null)
+  const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [confirmError, setConfirmError] = useState<string | null>(null)
@@ -49,6 +50,7 @@ export default function RegisterForm() {
 
     setIsSubmitting(true)
     setGlobalError(null)
+    setRateLimitError(null)
     setEmailError(null)
     setPasswordError(null)
     setConfirmError(null)
@@ -101,14 +103,20 @@ export default function RegisterForm() {
       const payload = await response.json().catch(() => null)
 
       if (!response.ok || !payload?.ok) {
-        setGlobalError(getSignUpErrorMessage(payload?.error?.code))
+        const message = getSignUpErrorMessage(payload?.error?.code)
+
+        if (payload?.error?.code === 'RATE_LIMITED' || response.status === 429) {
+          setRateLimitError(message)
+        } else {
+          setGlobalError(message)
+        }
+
         return
       }
 
       // ✅ メール送信成功 → check-email に遷移
       router.push('/check-email')
-    } catch (e) {
-      console.error('signUp failed:', e)
+    } catch {
       setGlobalError('通信に失敗しました。インターネット接続をご確認ください')
     } finally {
       setIsSubmitting(false)
@@ -120,6 +128,11 @@ export default function RegisterForm() {
       <h1 className="text-2xl font-bold">新規登録</h1>
 
       {globalError && <p className="text-red-600">{globalError}</p>}
+      {rateLimitError && (
+        <p className="text-amber-700" role="alert" aria-live="polite">
+          {rateLimitError}
+        </p>
+      )}
 
       <form onSubmit={handleRegister} className="space-y-6">
         <div>
