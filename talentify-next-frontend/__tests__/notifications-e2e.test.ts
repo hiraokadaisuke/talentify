@@ -137,17 +137,17 @@ describe('notifications quality e2e', () => {
 
     await getNotificationsRoute(new NextRequest('http://localhost/api/notifications'))
     expect(findNotificationsByUser).toHaveBeenLastCalledWith(
-      expect.objectContaining({ unreadOnly: false, actionableOnly: false, category: undefined }),
+      expect.objectContaining({ unreadOnly: false, actionableOnly: false }),
     )
 
     await getNotificationsRoute(new NextRequest('http://localhost/api/notifications?unread_only=true'))
     expect(findNotificationsByUser).toHaveBeenLastCalledWith(
-      expect.objectContaining({ unreadOnly: true, actionableOnly: false, category: undefined }),
+      expect.objectContaining({ unreadOnly: true, actionableOnly: false }),
     )
 
     await getNotificationsRoute(new NextRequest('http://localhost/api/notifications?actionable_only=true'))
     expect(findNotificationsByUser).toHaveBeenLastCalledWith(
-      expect.objectContaining({ unreadOnly: false, actionableOnly: true, category: undefined }),
+      expect.objectContaining({ unreadOnly: false, actionableOnly: true }),
     )
 
     await getNotificationsRoute(new NextRequest('http://localhost/api/notifications?category=announcement'))
@@ -229,5 +229,24 @@ describe('notifications quality e2e', () => {
     const refreshed = await patchNotificationReadRoute(readReq, { params: Promise.resolve({ id: 'n1' }) })
 
     await expect(refreshed.json()).resolves.toMatchObject({ ok: true, updated: 1 })
+  })
+
+  it('H. unread list includes offer_created/payment_created without category/actionable constraints', async () => {
+    findNotificationsByUser.mockResolvedValue([
+      buildNotification({ id: 'offer-1', type: 'offer_created', is_read: false, entity_type: 'offer' }),
+      buildNotification({ id: 'payment-1', type: 'payment_created', is_read: false, entity_type: 'payment' }),
+    ])
+
+    const listReq = new NextRequest('http://localhost/api/notifications?unread_only=true')
+    const listRes = await getNotificationsRoute(listReq)
+    const listBody = await listRes.json()
+
+    expect(listBody.data.map((item: NotificationRow) => item.type)).toEqual([
+      'offer_created',
+      'payment_created',
+    ])
+    expect(findNotificationsByUser).toHaveBeenCalledWith(
+      expect.objectContaining({ unreadOnly: true, actionableOnly: false }),
+    )
   })
 })

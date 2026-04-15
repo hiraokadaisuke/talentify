@@ -8,6 +8,7 @@ import {
 import type { Json } from '@/types/supabase'
 import { isNotificationType } from '@/types/notifications'
 import { getIdempotentResponse, persistIdempotentResponse } from '@/lib/notification-idempotency'
+import { buildNotificationCountFilter, buildNotificationListFilter } from '@/lib/notifications/inbox-filters'
 
 export const runtime = 'nodejs'
 
@@ -45,10 +46,15 @@ export async function GET(req: NextRequest) {
     }
 
     const params = req.nextUrl.searchParams
-    const unreadCountOnly = params.get('unread_count') === 'true'
+    const countFilter = buildNotificationCountFilter({
+      unreadCountOnly: params.get('unread_count') === 'true',
+    })
 
-    if (unreadCountOnly) {
+    if (countFilter.unreadCountOnly) {
       const count = await countUnreadNotificationsByUser({ userId: user.id })
+      if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
+        console.info('[notifications][api][count]', { userId: user.id, countFilter, count })
+      }
       return NextResponse.json({ count })
     }
 
@@ -59,17 +65,30 @@ export async function GET(req: NextRequest) {
         ? Math.floor(parsedLimit)
         : undefined
 
-    const unreadOnly = params.get('unread_only') === 'true'
-    const actionableOnly = params.get('actionable_only') === 'true'
-    const category = params.get('category')
+    const listFilter = buildNotificationListFilter({
+      unreadOnly: params.get('unread_only') === 'true',
+      actionableOnly: params.get('actionable_only') === 'true',
+      category: params.get('category'),
+    })
+
+    if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
+      console.info('[notifications][api][request]', {
+        userId: user.id,
+        searchParams: Object.fromEntries(params.entries()),
+        limit,
+        listFilter,
+      })
+    }
 
     const data = await findNotificationsByUser({
       userId: user.id,
       limit,
-      unreadOnly,
-      actionableOnly,
-      category: category === 'announcement' || category === 'notification' ? category : undefined,
+      ...listFilter,
     })
+
+    if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
+      console.info('[notifications][api][response]', { userId: user.id, resultCount: data.length, listFilter })
+    }
 
     return NextResponse.json({ data })
   } catch (error) {

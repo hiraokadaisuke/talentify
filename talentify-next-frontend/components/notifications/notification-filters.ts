@@ -1,3 +1,4 @@
+import { buildUnreadNotificationFilter } from '@/lib/notifications/inbox-filters'
 import type { GetNotificationsOptions } from '@/utils/notifications'
 
 export type NotificationInboxTab = 'all' | 'unread' | 'action_required' | 'announcement'
@@ -5,7 +6,7 @@ export type NotificationInboxTab = 'all' | 'unread' | 'action_required' | 'annou
 export function buildNotificationFilter(tab: NotificationInboxTab): GetNotificationsOptions {
   switch (tab) {
     case 'unread':
-      return { unreadOnly: true }
+      return buildUnreadNotificationFilter()
     case 'action_required':
       return { actionableOnly: true }
     case 'announcement':

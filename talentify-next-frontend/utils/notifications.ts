@@ -86,6 +86,12 @@ export async function getNotifications(options?: number | GetNotificationsOption
     if (normalized?.category) searchParams.set('category', normalized.category)
 
     const suffix = searchParams.toString()
+    if (process.env.NEXT_PUBLIC_NOTIFICATIONS_DEBUG_LOG === 'true') {
+      console.info('[notifications][client][query]', {
+        options: normalized ?? null,
+        queryString: suffix,
+      })
+    }
     const res = await fetch(`${API_BASE}/api/notifications${suffix ? `?${suffix}` : ''}`)
 
     if (!res.ok) {

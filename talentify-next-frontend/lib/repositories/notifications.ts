@@ -62,12 +62,6 @@ type NotificationQueryRow = {
   group_key: string | null
 }
 
-type OfferVisibilityQueryRow = {
-  id: string
-  status: string | null
-  accepted_at: Date | null
-}
-
 export async function findNotificationOwner({
   id,
   userId,
@@ -114,12 +108,6 @@ function toNotificationRow(row: NotificationQueryRow): NotificationRow {
     expires_at: row.expires_at?.toISOString() ?? null,
     group_key: row.group_key,
   }
-}
-
-function getOfferId(data: Json | null): string | null {
-  if (!data || Array.isArray(data) || typeof data !== 'object') return null
-  const offerId = data.offer_id
-  return typeof offerId === 'string' ? offerId : null
 }
 
 export async function countUnreadNotificationsByUser({
@@ -210,38 +198,15 @@ export async function findNotificationsByUser({
     ${limitClause}
   `
 
-  if (rows.length === 0) {
-    return []
-  }
-
-  const offerIds = rows
-    .map((row) => getOfferId(row.data))
-    .filter((offerId): offerId is string => typeof offerId === 'string')
-
-  if (offerIds.length === 0) {
-    return rows.map(toNotificationRow)
-  }
-
-  const offers = await prisma.$queryRaw<OfferVisibilityQueryRow[]>`
-    SELECT id, status::text, accepted_at
-    FROM public.offers
-    WHERE id = ANY (${offerIds}::uuid[])
-  `
-
-  const hiddenOfferIds = new Set(
-    offers.filter((offer) => offer.status === 'canceled' && !offer.accepted_at).map((offer) => offer.id)
-  )
-
-  if (hiddenOfferIds.size === 0) {
-    return rows.map(toNotificationRow)
-  }
-
-  return rows
-    .filter((row) => {
-      const offerId = getOfferId(row.data)
-      return !offerId || !hiddenOfferIds.has(offerId)
+  if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
+    console.info('[notifications][repository][find]', {
+      userId,
+      filter: { unreadOnly: Boolean(unreadOnly), actionableOnly: Boolean(actionableOnly), category: category ?? null },
+      resultCount: rows.length,
     })
-    .map(toNotificationRow)
+  }
+
+  return rows.map(toNotificationRow)
 }
 
 export async function createNotification({
