@@ -193,7 +193,7 @@ export default function MessagesPage({ role, type }: { role: UserRole; type: 'di
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          receiverUser: activeThread.partnerId,
+          receiverUserId: activeThread.partnerId,
           body: newMsg.body,
           ...(type === 'offer' ? { offerId: activeThread.id } : {}),
         }),

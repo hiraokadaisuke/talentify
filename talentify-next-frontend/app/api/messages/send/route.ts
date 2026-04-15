@@ -5,7 +5,9 @@ import { emitNotification } from '@/lib/notifications/emit'
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
-  const { receiverUserId, body, offerId, senderUserId = 'u1', senderName } = await req.json()
+  const payload = await req.json()
+  const receiverUserId = payload.receiverUserId ?? payload.receiverUser
+  const { body, offerId, senderUserId = 'u1', senderName } = payload
 
   if (!receiverUserId || !body) {
     return NextResponse.json(

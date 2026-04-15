@@ -1,7 +1,8 @@
 import { Prisma } from '@prisma/client'
 import { getPrismaClient } from '@/lib/prisma'
-import type { Database, Json } from '@/types/supabase'
+import type { Database } from '@/types/supabase'
 import type { NotificationType } from '@/types/notifications'
+import { mapNotificationQueryRowToRow, type NotificationQueryRow } from '@/lib/notifications/notification-row-mapper'
 
 type NotificationRow = Database['public']['Tables']['notifications']['Row']
 type NotificationInsert = Database['public']['Tables']['notifications']['Insert']
@@ -41,26 +42,6 @@ const ACTION_REQUIRED_TYPES: NotificationType[] = [
   'invoice_submitted',
 ]
 
-type NotificationQueryRow = {
-  id: string
-  user_id: string
-  type: NotificationRow['type']
-  data: Json | null
-  title: string
-  body: string | null
-  is_read: boolean
-  created_at: Date
-  updated_at: Date
-  read_at: Date | null
-  priority: 'low' | 'medium' | 'high'
-  action_url: string | null
-  action_label: string | null
-  entity_type: string | null
-  entity_id: string | null
-  actor_name: string | null
-  expires_at: Date | null
-  group_key: string | null
-}
 
 export async function findNotificationOwner({
   id,
@@ -79,35 +60,6 @@ export async function findNotificationOwner({
   })
 
   return Boolean(row)
-}
-
-function resolvePriority(value: string | null): NotificationRow['priority'] {
-  return value === 'low' || value === 'high' ? value : 'medium'
-}
-
-function toNotificationRow(row: NotificationQueryRow): NotificationRow {
-  const rawData = row.data && typeof row.data === 'object' && !Array.isArray(row.data) ? row.data : null
-
-  return {
-    id: row.id,
-    user_id: row.user_id,
-    type: row.type,
-    data: row.data,
-    title: row.title,
-    body: row.body,
-    is_read: row.is_read,
-    created_at: row.created_at.toISOString(),
-    updated_at: row.updated_at.toISOString(),
-    read_at: row.read_at?.toISOString() ?? null,
-    priority: resolvePriority(row.priority ?? (typeof rawData?.priority === 'string' ? rawData.priority : null)),
-    action_url: row.action_url ?? (typeof rawData?.url === 'string' ? rawData.url : null),
-    action_label: row.action_label ?? (typeof rawData?.action_label === 'string' ? rawData.action_label : null),
-    entity_type: row.entity_type ?? (typeof rawData?.entity_type === 'string' ? rawData.entity_type : null),
-    entity_id: row.entity_id ?? (typeof rawData?.entity_id === 'string' ? rawData.entity_id : null),
-    actor_name: row.actor_name ?? (typeof rawData?.actor_name === 'string' ? rawData.actor_name : null),
-    expires_at: row.expires_at?.toISOString() ?? null,
-    group_key: row.group_key,
-  }
 }
 
 export async function countUnreadNotificationsByUser({
@@ -206,7 +158,7 @@ export async function findNotificationsByUser({
     })
   }
 
-  return rows.map(toNotificationRow)
+  return rows.map(mapNotificationQueryRowToRow)
 }
 
 export async function createNotification({
@@ -281,7 +233,7 @@ export async function createNotification({
     `
 
     if (mergedRows.length > 0) {
-      return toNotificationRow(mergedRows[0])
+      return mapNotificationQueryRowToRow(mergedRows[0])
     }
   }
 
@@ -345,7 +297,7 @@ export async function createNotification({
     throw new Error('failed to insert notification')
   }
 
-  return toNotificationRow(rows[0])
+  return mapNotificationQueryRowToRow(rows[0])
 }
 
 export async function markNotificationRead({

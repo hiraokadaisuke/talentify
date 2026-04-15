@@ -18,7 +18,7 @@ export async function sendMessage(conversationId: string, body: string) {
   const res = await fetch('/api/messages/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ receiverUser: conversationId, body })
+    body: JSON.stringify({ receiverUserId: conversationId, receiverUser: conversationId, body })
   })
   if (!res.ok) {
     throw new Error('failed to send message')
