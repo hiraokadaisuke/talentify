@@ -8,6 +8,7 @@ import NotificationItem from './NotificationItem'
 import type { NotificationRow } from '@/utils/notifications'
 import {
   getBellNotifications,
+  getUnreadNotificationCount,
   markAllNotificationsRead,
   formatUnreadCount,
   NOTIFICATIONS_CHANGED_EVENT,
@@ -39,6 +40,8 @@ export default function NotificationBell() {
       if (!(error instanceof NotificationsFetchError)) {
         console.error('failed to refresh bell notifications', error)
       }
+      const fallbackCount = await getUnreadNotificationCount()
+      setCount(fallbackCount)
       setLoadError('通知の取得に失敗しました')
     } finally {
       setIsLoading(false)

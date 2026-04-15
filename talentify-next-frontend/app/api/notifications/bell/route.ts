@@ -9,9 +9,44 @@ const BELL_LIMIT = 8
 const bellFilter = {
   unreadOnly: true,
   actionableOnly: false,
-  includeExpired: false,
   category: undefined,
 } as const
+
+type BellFailureStage = 'getCurrentUser' | 'fetchUnreadCount' | 'fetchNotificationsList'
+
+function toErrorDetails(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    }
+  }
+
+  return {
+    message: String(error),
+    stack: undefined,
+    name: undefined,
+  }
+}
+
+function logBellFailure({
+  stage,
+  error,
+  userId,
+}: {
+  stage: BellFailureStage
+  error: unknown
+  userId?: string
+}) {
+  console.error('[notifications][api][bell] failed', {
+    stage,
+    userId,
+    bellFilter,
+    limit: BELL_LIMIT,
+    error: toErrorDetails(error),
+  })
+}
 
 export async function GET() {
   let user: { id?: string } | null = null
@@ -21,8 +56,8 @@ export async function GET() {
     console.info('[notifications][api][bell] getCurrentUser result', currentUserResult)
     user = currentUserResult.user
   } catch (error) {
-    console.error('[notifications][api][bell] failed to get current user', { error })
-    console.error('failed to fetch bell notifications', {
+    logBellFailure({
+      stage: 'getCurrentUser',
       error,
       userId: user?.id,
     })
@@ -42,14 +77,10 @@ export async function GET() {
   try {
     count = await countUnreadNotificationsByUser({ userId: user.id, ...bellFilter })
   } catch (error) {
-    console.error('[notifications][api][bell] failed to fetch unread count', {
+    logBellFailure({
+      stage: 'fetchUnreadCount',
       error,
       userId: user.id,
-      bellFilter,
-    })
-    console.error('failed to fetch bell notifications', {
-      error,
-      userId: user?.id,
     })
     return NextResponse.json({ error: 'failed to fetch bell notifications' }, { status: 500 })
   }
@@ -58,15 +89,10 @@ export async function GET() {
   try {
     items = await findNotificationsByUser({ userId: user.id, limit: BELL_LIMIT, ...bellFilter })
   } catch (error) {
-    console.error('[notifications][api][bell] failed to fetch notifications list', {
+    logBellFailure({
+      stage: 'fetchNotificationsList',
       error,
       userId: user.id,
-      bellFilter,
-      limit: BELL_LIMIT,
-    })
-    console.error('failed to fetch bell notifications', {
-      error,
-      userId: user?.id,
     })
     return NextResponse.json({ error: 'failed to fetch bell notifications' }, { status: 500 })
   }
