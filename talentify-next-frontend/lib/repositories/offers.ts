@@ -77,6 +77,7 @@ export type OfferCreateInput = {
   talent_id: string
   date: Date
   time_range: string
+  reward?: number | null
   agreed: boolean
   message: string
   status: OfferStatusType
