@@ -77,7 +77,7 @@ export async function upsertAppUser(params: UpsertAppUserParams) {
     throw error
   }
 
-  const { data: existing, error: selectError } = await service
+  const { data: existingRecord, error: selectError } = await service
     .from('users' as any)
     .select('id')
     .eq('auth_user_id', params.authUserId)
@@ -87,7 +87,7 @@ export async function upsertAppUser(params: UpsertAppUserParams) {
     throw selectError
   }
 
-  const existingId = (existing as { id?: string } | null)?.id
+  const existingId = (existingRecord as { id?: string } | null)?.id
 
   if (existingId) {
     const { error: updateError } = await service
