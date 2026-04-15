@@ -3,6 +3,16 @@ import { createMiddlewareClient } from '@/lib/supabase/server'
 import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export async function middleware(req: NextRequest) {
+  /**
+   * Next step (status-based route guard):
+   * - pending_email_verification: keep only verification / resend surfaces
+   * - onboarding: force /{role}/edit flows
+   * - active: allow dashboards/features
+   * - suspended: force suspended page
+   *
+   * Auth callback currently promotes pending_email_verification -> onboarding,
+   * while active/suspended are intentionally not rolled back by callback re-entry.
+   */
   if (req.nextUrl.pathname.startsWith('/auth/callback')) {
     return NextResponse.next()
   }

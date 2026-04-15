@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getRedirectUrl } from '@/lib/getRedirectUrl'
+import { upsertAppUser } from '@/lib/auth/app-user'
 import {
   mapSupabaseSignUpError,
   signUpSchema,
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   const supabase = createClient()
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -74,6 +75,21 @@ export async function POST(req: NextRequest) {
     }
 
     return errorResponse(400, code, '登録に失敗しました')
+  }
+
+  // signup 時点で app users を pending に合わせておく。
+  // callback が複数回呼ばれても status の巻き戻りは upsert 側で吸収する。
+  if (data.user?.id && data.user.email) {
+    try {
+      await upsertAppUser({
+        authUserId: data.user.id,
+        email: data.user.email,
+        role,
+        status: 'pending_email_verification',
+      })
+    } catch (appUserError) {
+      console.error('failed to upsert app user on signup', appUserError)
+    }
   }
 
   return NextResponse.json(
