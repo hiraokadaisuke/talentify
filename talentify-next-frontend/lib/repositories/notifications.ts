@@ -51,6 +51,7 @@ type NotificationQueryFilter = {
   actionableOnly?: boolean
   category?: 'announcement' | 'notification'
   includeExpired?: boolean
+  type?: NotificationType
 }
 
 type NotificationsColumnAvailability = {
@@ -106,6 +107,10 @@ async function getNotificationsColumnAvailability(): Promise<NotificationsColumn
   const missingColumns = NOTIFICATIONS_OPTIONAL_COLUMNS.filter(
     (column) => !existing.has(column),
   )
+  console.info('[notifications][repository] notifications schema introspection result', {
+    columns: notificationsColumnAvailabilityCache,
+    missingColumns,
+  })
   if (missingColumns.length > 0) {
     console.warn('[notifications][repository] notifications schema is missing columns', {
       missingColumns,
@@ -120,11 +125,16 @@ function buildNotificationQueryClauses({
   actionableOnly,
   category,
   includeExpired,
-}: NotificationQueryFilter, columns: NotificationsColumnAvailability) {
-  const unreadClause = unreadOnly ? Prisma.sql`AND is_read = false` : Prisma.empty
+  type,
+}: NotificationQueryFilter, columns: NotificationsColumnAvailability): Prisma.Sql[] {
+  const conditions: Prisma.Sql[] = []
 
-  const actionableClause = actionableOnly
-    ? Prisma.sql`AND (
+  if (unreadOnly) {
+    conditions.push(Prisma.sql`is_read = false`)
+  }
+
+  if (actionableOnly) {
+    conditions.push(Prisma.sql`(
       type = ANY (${ACTION_REQUIRED_TYPES}::public.notification_type[])
       OR COALESCE(
         CASE
@@ -133,36 +143,68 @@ function buildNotificationQueryClauses({
         END,
         false
       ) = true
-    )`
-    : Prisma.empty
+    )`)
+  }
 
-  const categoryClause =
-    category === 'announcement'
-      ? Prisma.sql`AND (
-          ${
-            columns.entity_type
-              ? Prisma.sql`COALESCE(entity_type, '') = 'announcement'`
-              : Prisma.sql`false`
-          }
-          OR COALESCE(data->>'category', '') = 'announcement'
-        )`
-      : category === 'notification'
-        ? Prisma.sql`AND (
-            ${
-              columns.entity_type
-                ? Prisma.sql`COALESCE(entity_type, '') != 'announcement'`
-                : Prisma.sql`true`
-            }
-            AND COALESCE(data->>'category', 'notification') = 'notification'
-          )`
-        : Prisma.empty
+  if (category === 'announcement') {
+    if (columns.entity_type) {
+      conditions.push(Prisma.sql`(
+        COALESCE(entity_type, '') = 'announcement'
+        OR COALESCE(data->>'category', '') = 'announcement'
+      )`)
+    } else {
+      conditions.push(Prisma.sql`COALESCE(data->>'category', '') = 'announcement'`)
+    }
+  }
 
-  const expiresClause =
-    includeExpired === false && columns.expires_at
-      ? Prisma.sql`AND (expires_at IS NULL OR expires_at > NOW())`
-      : Prisma.empty
+  if (category === 'notification') {
+    if (columns.entity_type) {
+      conditions.push(Prisma.sql`(
+        COALESCE(entity_type, '') != 'announcement'
+        AND COALESCE(data->>'category', 'notification') = 'notification'
+      )`)
+    } else {
+      conditions.push(Prisma.sql`COALESCE(data->>'category', 'notification') = 'notification'`)
+    }
+  }
 
-  return { unreadClause, actionableClause, categoryClause, expiresClause }
+  if (includeExpired === false && columns.expires_at) {
+    conditions.push(Prisma.sql`(expires_at IS NULL OR expires_at > NOW())`)
+  }
+
+  if (type) {
+    conditions.push(Prisma.sql`type = ${type}::public.notification_type`)
+  }
+
+  return conditions
+}
+
+function hasMissingNotificationColumns(columns: NotificationsColumnAvailability): boolean {
+  return NOTIFICATIONS_OPTIONAL_COLUMNS.some((column) => !columns[column])
+}
+
+function buildNotificationsOrderByClause({
+  columns,
+  useFallbackQuery,
+}: {
+  columns: NotificationsColumnAvailability
+  useFallbackQuery: boolean
+}): Prisma.Sql {
+  if (!useFallbackQuery && columns.priority) {
+    return Prisma.sql`
+      ORDER BY
+        CASE priority
+          WHEN 'high' THEN 2
+          WHEN 'medium' THEN 1
+          WHEN 'low' THEN 0
+          ELSE 1
+        END DESC,
+        updated_at DESC,
+        created_at DESC
+    `
+  }
+
+  return Prisma.sql`ORDER BY updated_at DESC, created_at DESC`
 }
 
 
@@ -194,26 +236,25 @@ export async function countUnreadNotificationsByUser({
 }: CountUnreadNotificationsParams): Promise<number> {
   const prisma = getPrismaClient()
   const columns = await getNotificationsColumnAvailability()
-  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses(
+  const conditions = buildNotificationQueryClauses(
     {
       unreadOnly: true,
       actionableOnly,
       category,
       includeExpired,
+      type,
     },
     columns,
   )
-  const typeClause = type ? Prisma.sql`AND type = ${type}::public.notification_type` : Prisma.empty
+  const whereClause = Prisma.sql`
+    WHERE user_id = ${userId}
+    ${conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, Prisma.sql` AND `)}` : Prisma.empty}
+  `
 
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
     SELECT COUNT(*)::bigint AS count
     FROM public.notifications
-    WHERE user_id = ${userId}
-    ${unreadClause}
-    ${actionableClause}
-    ${categoryClause}
-    ${expiresClause}
-    ${typeClause}
+    ${whereClause}
   `
   const rawCount = rows[0]?.count
   const count = typeof rawCount === 'bigint' ? Number(rawCount) : Number(rawCount ?? 0)
@@ -245,13 +286,14 @@ export async function findNotificationsByUser({
 }: FindNotificationsByUserParams): Promise<NotificationRow[]> {
   const prisma = getPrismaClient()
   const columns = await getNotificationsColumnAvailability()
+  const useFallbackQuery = hasMissingNotificationColumns(columns)
 
   const limitClause =
     typeof limit === 'number' && Number.isFinite(limit) && limit > 0
       ? Prisma.sql`LIMIT ${Math.floor(limit)}`
       : Prisma.empty
 
-  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses(
+  const conditions = buildNotificationQueryClauses(
     {
       unreadOnly,
       actionableOnly,
@@ -260,6 +302,15 @@ export async function findNotificationsByUser({
     },
     columns,
   )
+  const whereClause = Prisma.sql`
+    WHERE user_id = ${userId}
+    ${conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, Prisma.sql` AND `)}` : Prisma.empty}
+  `
+  const orderByClause = buildNotificationsOrderByClause({ columns, useFallbackQuery })
+
+  if (useFallbackQuery) {
+    console.warn('[notifications][repository] using fallback notifications list query due to missing columns')
+  }
 
   const rows = await prisma.$queryRaw<NotificationQueryRow[]>`
     SELECT
@@ -290,12 +341,8 @@ export async function findNotificationsByUser({
       },
       ${columns.group_key ? Prisma.sql`group_key` : Prisma.sql`NULL::text AS group_key`}
     FROM public.notifications
-    WHERE user_id = ${userId}
-    ${unreadClause}
-    ${actionableClause}
-    ${categoryClause}
-    ${expiresClause}
-    ORDER BY updated_at DESC, created_at DESC
+    ${whereClause}
+    ${orderByClause}
     ${limitClause}
   `
 
