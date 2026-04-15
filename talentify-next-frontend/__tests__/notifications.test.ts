@@ -54,6 +54,74 @@ test('getNotifications fetches notifications from API', async () => {
   expect(global.fetch).toHaveBeenCalledWith('/api/notifications?limit=5')
 })
 
+test('getNotifications builds unread-only query without actionable/category constraints', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ data: [] }),
+  } as Response)
+
+  const { getNotifications } = await import('@/utils/notifications')
+  await getNotifications({ unreadOnly: true })
+
+  expect(global.fetch).toHaveBeenCalledWith('/api/notifications?unread_only=true')
+})
+
+test('getNotifications returns unread offer_created/payment_created even when not actionable', async () => {
+  const mockData: NotificationRow[] = [
+    {
+      id: 'offer-1',
+      user_id: 'user1',
+      type: 'offer_created',
+      title: 'offer',
+      body: null,
+      created_at: '2026-01-01T00:00:00.000Z',
+      updated_at: '2026-01-01T00:00:00.000Z',
+      is_read: false,
+      data: { is_actionable: false },
+      read_at: null,
+      priority: 'medium',
+      action_url: null,
+      action_label: null,
+      entity_type: 'offer',
+      entity_id: 'offer-1',
+      actor_name: null,
+      expires_at: null,
+      group_key: null,
+    },
+    {
+      id: 'payment-1',
+      user_id: 'user1',
+      type: 'payment_created',
+      title: 'payment',
+      body: null,
+      created_at: '2026-01-02T00:00:00.000Z',
+      updated_at: '2026-01-02T00:00:00.000Z',
+      is_read: false,
+      data: { is_actionable: false },
+      read_at: null,
+      priority: 'medium',
+      action_url: null,
+      action_label: null,
+      entity_type: 'payment',
+      entity_id: 'payment-1',
+      actor_name: null,
+      expires_at: null,
+      group_key: null,
+    },
+  ]
+
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ data: mockData }),
+  } as Response)
+
+  const { getNotifications } = await import('@/utils/notifications')
+  const data = await getNotifications({ unreadOnly: true })
+
+  expect(data.map((item) => item.type)).toEqual(['offer_created', 'payment_created'])
+  expect(global.fetch).toHaveBeenCalledWith('/api/notifications?unread_only=true')
+})
+
 test('getUnreadNotificationCount returns unread count from API', async () => {
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,

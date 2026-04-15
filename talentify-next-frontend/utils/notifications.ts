@@ -28,7 +28,7 @@ type GetUnreadCountResponse = {
   count?: number
 }
 
-type GetNotificationsOptions = {
+export type GetNotificationsOptions = {
   limit?: number
   unreadOnly?: boolean
   actionableOnly?: boolean

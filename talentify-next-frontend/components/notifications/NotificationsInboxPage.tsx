@@ -12,8 +12,7 @@ import {
 } from '@/utils/notifications'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 import { getActionLabel, getNotificationLink, isActionRequired } from './notification-meta'
-
-type TabType = 'all' | 'unread' | 'action_required' | 'announcement'
+import { buildNotificationFilter, type NotificationInboxTab } from './notification-filters'
 
 const PRIORITY_LABEL: Record<NotificationRow['priority'], string> = {
   low: '低',
@@ -30,16 +29,12 @@ function isResurfacedNotification(notification: NotificationRow): boolean {
 
 export default function NotificationsInboxPage() {
   const [items, setItems] = useState<NotificationRow[]>([])
-  const [tab, setTab] = useState<TabType>('all')
+  const [tab, setTab] = useState<NotificationInboxTab>('all')
   const [unreadCount, setUnreadCount] = useState(0)
   const [isMutating, setIsMutating] = useState(false)
 
-  const loadNotifications = async (currentTab: TabType) => {
-    const data = await getNotifications({
-      unreadOnly: currentTab === 'unread',
-      actionableOnly: currentTab === 'action_required',
-      category: currentTab === 'announcement' ? 'announcement' : currentTab === 'all' ? undefined : 'notification',
-    })
+  const loadNotifications = async (currentTab: NotificationInboxTab) => {
+    const data = await getNotifications(buildNotificationFilter(currentTab))
     setItems(data)
   }
 
@@ -139,7 +134,7 @@ export default function NotificationsInboxPage() {
             key={option.key}
             variant={tab === option.key ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setTab(option.key as TabType)}
+            onClick={() => setTab(option.key as NotificationInboxTab)}
             data-testid={`notifications-tab-${option.key}`}
           >
             {option.label}

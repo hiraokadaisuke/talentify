@@ -142,7 +142,7 @@ describe('notifications quality e2e', () => {
 
     await getNotificationsRoute(new NextRequest('http://localhost/api/notifications?unread_only=true'))
     expect(findNotificationsByUser).toHaveBeenLastCalledWith(
-      expect.objectContaining({ unreadOnly: true, actionableOnly: false }),
+      expect.objectContaining({ unreadOnly: true, actionableOnly: false, category: undefined }),
     )
 
     await getNotificationsRoute(new NextRequest('http://localhost/api/notifications?actionable_only=true'))
