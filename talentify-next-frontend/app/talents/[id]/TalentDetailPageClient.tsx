@@ -127,8 +127,8 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
 
   return (
     <>
-      <main className="role-page-container pt-6 pb-10">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch">
+      <main className="min-h-[calc(100vh-4rem)] bg-[#f1f5f9] px-3 pt-6 pb-10 sm:px-5 lg:px-6">
+        <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch">
           <Card className="h-full overflow-hidden border-slate-200 shadow-sm">
             <CardContent className="flex h-full flex-col p-3.5 md:p-4">
               <div className="relative mx-auto h-[min(65vh,680px)] w-full max-w-2xl overflow-hidden rounded-xl bg-slate-100 lg:h-full">
@@ -180,7 +180,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
 
                 <div className="space-y-2">
                   <Button
-                    className="h-10 w-full bg-slate-900 text-white hover:bg-slate-800"
+                    className="h-10 w-full bg-slate-900 text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md active:translate-y-0 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
                     aria-label="このキャストにオファーする"
                     onClick={() => setOfferOpen(true)}
                     disabled={offerSent}
@@ -189,12 +189,22 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
                   </Button>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {(role === 'store' || role === null) && (
-                      <Button variant="outline" className="w-full border-slate-300" aria-label="メッセージを送る" onClick={handleMessage}>
+                      <Button
+                        variant="outline"
+                        className="w-full border-slate-300 bg-white transition-all duration-150 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm active:translate-y-0 focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-1"
+                        aria-label="メッセージを送る"
+                        onClick={handleMessage}
+                      >
                         <MessageSquare className="mr-1 h-4 w-4" />
                         メッセージ
                       </Button>
                     )}
-                    <Button variant="outline" className="w-full border-slate-300" aria-label="お気に入り" onClick={handleFavorite}>
+                    <Button
+                      variant="outline"
+                      className="w-full border-slate-300 bg-white transition-all duration-150 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm active:translate-y-0 focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-1"
+                      aria-label="お気に入り"
+                      onClick={handleFavorite}
+                    >
                       <Heart className={clsx('mr-1 h-4 w-4', isFavorite ? 'fill-current text-red-500' : '')} />
                       お気に入り
                     </Button>
