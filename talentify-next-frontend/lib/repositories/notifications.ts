@@ -10,6 +10,9 @@ type NotificationInsert = Database['public']['Tables']['notifications']['Insert'
 type CountUnreadNotificationsParams = {
   userId: string
   type?: NotificationType
+  actionableOnly?: boolean
+  category?: 'announcement' | 'notification'
+  includeExpired?: boolean
 }
 
 type FindNotificationsByUserParams = {
@@ -18,6 +21,7 @@ type FindNotificationsByUserParams = {
   unreadOnly?: boolean
   actionableOnly?: boolean
   category?: 'announcement' | 'notification'
+  includeExpired?: boolean
 }
 
 type MarkNotificationReadParams = {
@@ -42,57 +46,19 @@ const ACTION_REQUIRED_TYPES: NotificationType[] = [
   'invoice_submitted',
 ]
 
-
-export async function findNotificationOwner({
-  id,
-  userId,
-}: {
-  id: string
-  userId: string
-}): Promise<boolean> {
-  const prisma = getPrismaClient()
-  const row = await prisma.notifications.findFirst({
-    where: {
-      id,
-      user_id: userId,
-    },
-    select: { id: true },
-  })
-
-  return Boolean(row)
+type NotificationQueryFilter = {
+  unreadOnly?: boolean
+  actionableOnly?: boolean
+  category?: 'announcement' | 'notification'
+  includeExpired?: boolean
 }
 
-export async function countUnreadNotificationsByUser({
-  userId,
-  type,
-}: CountUnreadNotificationsParams): Promise<number> {
-  const prisma = getPrismaClient()
-
-  const count = await prisma.notifications.count({
-    where: {
-      user_id: userId,
-      is_read: false,
-      ...(type ? { type } : {}),
-    },
-  })
-
-  return count
-}
-
-export async function findNotificationsByUser({
-  userId,
-  limit,
+function buildNotificationQueryClauses({
   unreadOnly,
   actionableOnly,
   category,
-}: FindNotificationsByUserParams): Promise<NotificationRow[]> {
-  const prisma = getPrismaClient()
-
-  const limitClause =
-    typeof limit === 'number' && Number.isFinite(limit) && limit > 0
-      ? Prisma.sql`LIMIT ${Math.floor(limit)}`
-      : Prisma.empty
-
+  includeExpired,
+}: NotificationQueryFilter) {
   const unreadClause = unreadOnly ? Prisma.sql`AND is_read = false` : Prisma.empty
 
   const actionableClause = actionableOnly
@@ -121,6 +87,100 @@ export async function findNotificationsByUser({
           )`
         : Prisma.empty
 
+  const expiresClause =
+    includeExpired === false ? Prisma.sql`AND (expires_at IS NULL OR expires_at > NOW())` : Prisma.empty
+
+  return { unreadClause, actionableClause, categoryClause, expiresClause }
+}
+
+
+export async function findNotificationOwner({
+  id,
+  userId,
+}: {
+  id: string
+  userId: string
+}): Promise<boolean> {
+  const prisma = getPrismaClient()
+  const row = await prisma.notifications.findFirst({
+    where: {
+      id,
+      user_id: userId,
+    },
+    select: { id: true },
+  })
+
+  return Boolean(row)
+}
+
+export async function countUnreadNotificationsByUser({
+  userId,
+  type,
+  actionableOnly,
+  category,
+  includeExpired,
+}: CountUnreadNotificationsParams): Promise<number> {
+  const prisma = getPrismaClient()
+  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses({
+    unreadOnly: true,
+    actionableOnly,
+    category,
+    includeExpired,
+  })
+  const typeClause = type ? Prisma.sql`AND type = ${type}::public.notification_type` : Prisma.empty
+
+  const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
+    SELECT COUNT(*)::bigint AS count
+    FROM public.notifications
+    WHERE user_id = ${userId}
+    ${unreadClause}
+    ${actionableClause}
+    ${categoryClause}
+    ${expiresClause}
+    ${typeClause}
+  `
+  const rawCount = rows[0]?.count
+  const count = typeof rawCount === 'bigint' ? Number(rawCount) : Number(rawCount ?? 0)
+
+  if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
+    console.info('[notifications][repository][countUnread]', {
+      userId,
+      filter: {
+        type: type ?? null,
+        unreadOnly: true,
+        actionableOnly: Boolean(actionableOnly),
+        category: category ?? null,
+        includeExpired: includeExpired !== false,
+      },
+      count,
+    })
+  }
+
+  return count
+}
+
+export async function findNotificationsByUser({
+  userId,
+  limit,
+  unreadOnly,
+  actionableOnly,
+  category,
+  includeExpired,
+}: FindNotificationsByUserParams): Promise<NotificationRow[]> {
+  const prisma = getPrismaClient()
+
+  const limitClause =
+    typeof limit === 'number' && Number.isFinite(limit) && limit > 0
+      ? Prisma.sql`LIMIT ${Math.floor(limit)}`
+      : Prisma.empty
+
+  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses({
+    unreadOnly,
+    actionableOnly,
+    category,
+    includeExpired,
+  })
+
   const rows = await prisma.$queryRaw<NotificationQueryRow[]>`
     SELECT
       id,
@@ -146,6 +206,7 @@ export async function findNotificationsByUser({
     ${unreadClause}
     ${actionableClause}
     ${categoryClause}
+    ${expiresClause}
     ORDER BY updated_at DESC, created_at DESC
     ${limitClause}
   `
@@ -153,7 +214,12 @@ export async function findNotificationsByUser({
   if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
     console.info('[notifications][repository][find]', {
       userId,
-      filter: { unreadOnly: Boolean(unreadOnly), actionableOnly: Boolean(actionableOnly), category: category ?? null },
+      filter: {
+        unreadOnly: Boolean(unreadOnly),
+        actionableOnly: Boolean(actionableOnly),
+        category: category ?? null,
+        includeExpired: includeExpired !== false,
+      },
       resultCount: rows.length,
     })
   }

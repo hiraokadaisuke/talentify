@@ -28,11 +28,23 @@ type GetUnreadCountResponse = {
   count?: number
 }
 
+type GetBellNotificationsResponse = {
+  count?: number
+  items?: NotificationRow[]
+}
+
+export class NotificationsFetchError extends Error {}
+
 export type GetNotificationsOptions = {
   limit?: number
   unreadOnly?: boolean
   actionableOnly?: boolean
   category?: 'announcement' | 'notification'
+}
+
+export type NotificationBellPayload = {
+  count: number
+  items: NotificationRow[]
 }
 
 export const NOTIFICATIONS_CHANGED_EVENT = 'talentify:notifications-changed'
@@ -73,40 +85,36 @@ async function patchNotificationReadState(id: string, isRead: boolean): Promise<
 }
 
 export async function getNotifications(options?: number | GetNotificationsOptions): Promise<NotificationRow[]> {
-  try {
-    const searchParams = new URLSearchParams()
-    const normalized = typeof options === 'number' ? { limit: options } : options
+  const searchParams = new URLSearchParams()
+  const normalized = typeof options === 'number' ? { limit: options } : options
 
-    if (typeof normalized?.limit === 'number' && Number.isFinite(normalized.limit) && normalized.limit > 0) {
-      searchParams.set('limit', String(Math.floor(normalized.limit)))
-    }
-
-    if (normalized?.unreadOnly) searchParams.set('unread_only', 'true')
-    if (normalized?.actionableOnly) searchParams.set('actionable_only', 'true')
-    if (normalized?.category) searchParams.set('category', normalized.category)
-
-    const suffix = searchParams.toString()
-    if (process.env.NEXT_PUBLIC_NOTIFICATIONS_DEBUG_LOG === 'true') {
-      console.info('[notifications][client][query]', {
-        options: normalized ?? null,
-        queryString: suffix,
-      })
-    }
-    const res = await fetch(`${API_BASE}/api/notifications${suffix ? `?${suffix}` : ''}`)
-
-    if (!res.ok) {
-      if (res.status !== 401) {
-        console.error('failed to fetch notifications', await res.text())
-      }
-      return []
-    }
-
-    const payload = (await res.json()) as GetNotificationsResponse
-    return Array.isArray(payload.data) ? payload.data : []
-  } catch (error) {
-    console.error('failed to fetch notifications', error)
-    return []
+  if (typeof normalized?.limit === 'number' && Number.isFinite(normalized.limit) && normalized.limit > 0) {
+    searchParams.set('limit', String(Math.floor(normalized.limit)))
   }
+
+  if (normalized?.unreadOnly) searchParams.set('unread_only', 'true')
+  if (normalized?.actionableOnly) searchParams.set('actionable_only', 'true')
+  if (normalized?.category) searchParams.set('category', normalized.category)
+
+  const suffix = searchParams.toString()
+  if (process.env.NEXT_PUBLIC_NOTIFICATIONS_DEBUG_LOG === 'true') {
+    console.info('[notifications][client][query]', {
+      options: normalized ?? null,
+      queryString: suffix,
+    })
+  }
+  const res = await fetch(`${API_BASE}/api/notifications${suffix ? `?${suffix}` : ''}`)
+
+  if (!res.ok) {
+    if (res.status !== 401) {
+      const body = await res.text()
+      console.error('failed to fetch notifications', body)
+    }
+    throw new NotificationsFetchError('failed to fetch notifications')
+  }
+
+  const payload = (await res.json()) as GetNotificationsResponse
+  return Array.isArray(payload.data) ? payload.data : []
 }
 
 export async function getUnreadNotificationCount(): Promise<number> {
@@ -124,6 +132,23 @@ export async function getUnreadNotificationCount(): Promise<number> {
   } catch (error) {
     console.error('failed to fetch unread notifications count', error)
     return 0
+  }
+}
+
+export async function getBellNotifications(): Promise<NotificationBellPayload> {
+  const res = await fetch(`${API_BASE}/api/notifications/bell`)
+  if (!res.ok) {
+    if (res.status !== 401) {
+      const body = await res.text()
+      console.error('failed to fetch bell notifications', body)
+    }
+    throw new NotificationsFetchError('failed to fetch bell notifications')
+  }
+
+  const payload = (await res.json()) as GetBellNotificationsResponse
+  return {
+    count: typeof payload.count === 'number' ? payload.count : 0,
+    items: Array.isArray(payload.items) ? payload.items : [],
   }
 }
 
