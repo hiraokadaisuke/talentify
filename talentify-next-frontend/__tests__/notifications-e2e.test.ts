@@ -249,4 +249,17 @@ describe('notifications quality e2e', () => {
       expect.objectContaining({ unreadOnly: true, actionableOnly: false }),
     )
   })
+
+  it('I. link/action fallback stays safe when action_url and entity references are missing', () => {
+    const broken = buildNotification({
+      type: 'offer_created',
+      action_url: 'https://unsafe.example.com/x',
+      data: { recipient_role: 'talent', actor_name: '' },
+      entity_id: null,
+      actor_name: null,
+    })
+
+    expect(getNotificationLink(broken)).toBe('/talent/notifications')
+    expect(isActionRequired(broken)).toBe(true)
+  })
 })
