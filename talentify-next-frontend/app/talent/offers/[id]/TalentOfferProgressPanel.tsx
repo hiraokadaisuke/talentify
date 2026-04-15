@@ -6,6 +6,7 @@ import { ja } from 'date-fns/locale'
 import type { OfferProgressStep, OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import ProgressCard from './ProgressCard'
 import StepDetailCard from './StepDetailCard'
+import SubmittedOfferContentCard from './SubmittedOfferContentCard'
 
 type TalentOfferProgressPanelProps = {
   steps: OfferProgressStep[]
@@ -14,6 +15,8 @@ type TalentOfferProgressPanelProps = {
     id: string
     status: string
     date: string | null
+    timeRange: string | null
+    reward: number | null
     updatedAt: string
     submittedAt: string | null
     paid: boolean
@@ -22,6 +25,7 @@ type TalentOfferProgressPanelProps = {
     invoiceStatusLabel: string
     paymentStatusLabel: string
     reviewCompleted: boolean
+    message: string | null
   }
   invoiceId: string | null
   paymentLink?: string
@@ -102,6 +106,15 @@ export default function TalentOfferProgressPanel({
   return (
     <div className="space-y-4">
       <ProgressCard steps={progressSteps} activeStep={activeStep} onStepChange={setActiveStep} />
+      <SubmittedOfferContentCard
+        submittedOffer={{
+          preferredDate: offer.date,
+          preferredTimeRange: offer.timeRange,
+          reward: offer.reward,
+          transportationFee: null,
+          message: offer.message,
+        }}
+      />
       <StepDetailCard
         activeStep={activeStep}
         activeStatus={activeStatus}

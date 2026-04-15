@@ -32,7 +32,7 @@ export default function TalentOfferPage() {
       .from('offers')
       .select(
         `
-        id,status,date,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
+        id,status,date,time_range,reward,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
         reviews(id),
         talents(stage_name,avatar_url,user_id),
         store:stores!offers_store_id_fkey(id, store_name, user_id)
@@ -56,6 +56,8 @@ export default function TalentOfferPage() {
         id: data.id,
         status: data.status,
         date: data.date,
+        timeRange: data.time_range,
+        reward: data.reward,
         message: data.message,
         performerName: data.talents?.stage_name || '',
         performerAvatarUrl: data.talents?.avatar_url || null,
@@ -172,6 +174,8 @@ export default function TalentOfferPage() {
               id: offer.id,
               status: offer.status,
               date: offer.date,
+              timeRange: offer.timeRange,
+              reward: offer.reward,
               updatedAt: offer.updatedAt,
               submittedAt: offer.submittedAt,
               paid: offer.paid,
