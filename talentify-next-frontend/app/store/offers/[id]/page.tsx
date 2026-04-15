@@ -29,7 +29,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     .from('offers')
     .select(
       `
-      id,status,date,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,
+      id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,
       reviews(id), talents(stage_name,avatar_url,user_id),
       store:stores!offers_store_id_fkey(id, store_name, user_id)
     `
@@ -63,7 +63,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     date: data.date as string,
     respondDeadline: data.respond_deadline as string | null,
     submittedAt: data.created_at as string | null,
-    message: data.message as string,
+    message: data.message as string | null,
     performerName: data.talents?.stage_name || '',
     performerAvatarUrl: data.talents?.avatar_url || null,
     acceptedAt: data.accepted_at as string | null,
@@ -75,6 +75,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     invoiceStatusLabel,
     paymentStatusLabel,
     reward: data.reward as number | null,
+    timeRange: data.time_range as string | null,
     talentId: data.talent_id as string | null,
     reviewCompleted,
     talentUserId: data.talents?.user_id as string | null,
@@ -157,6 +158,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
               paymentStatusLabel: offer.paymentStatusLabel,
               storeName: offer.storeName,
               reward: offer.reward,
+              timeRange: offer.timeRange,
+              originalMessage: offer.message,
               talentId: offer.talentId,
               reviewCompleted: offer.reviewCompleted,
             }}
