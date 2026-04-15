@@ -29,5 +29,8 @@ export function buildNotificationCountFilter(input: { unreadCountOnly?: boolean 
   return {
     unreadCountOnly: input.unreadCountOnly === true,
     unreadOnly: true as const,
+    actionableOnly: false as const,
+    includeExpired: false as const,
+    category: undefined as NotificationCategoryFilter | undefined,
   }
 }

@@ -9,6 +9,9 @@ describe('notifications inbox shared filters', () => {
     expect(buildNotificationCountFilter({ unreadCountOnly: true })).toEqual({
       unreadCountOnly: true,
       unreadOnly: true,
+      actionableOnly: false,
+      includeExpired: false,
+      category: undefined,
     })
   })
 

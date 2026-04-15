@@ -7,11 +7,11 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from '@/compon
 import NotificationItem from './NotificationItem'
 import type { NotificationRow } from '@/utils/notifications'
 import {
-  getNotifications,
-  getUnreadNotificationCount,
+  getBellNotifications,
   markAllNotificationsRead,
   formatUnreadCount,
   NOTIFICATIONS_CHANGED_EVENT,
+  NotificationsFetchError,
 } from '@/utils/notifications'
 import { createClient } from '@/utils/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -23,45 +23,52 @@ export default function NotificationBell() {
   const { role } = useUserRole()
   const [count, setCount] = useState(0)
   const [items, setItems] = useState<NotificationRow[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
-  const refreshCount = async () => {
-    const c = await getUnreadNotificationCount()
-    setCount(c)
-  }
-
-  const refreshItems = async () => {
-    const list = await getNotifications({ limit: 8 })
-    setItems(list)
+  const refreshBell = async (options?: { silent?: boolean }) => {
+    if (!options?.silent) {
+      setIsLoading(true)
+    }
+    setLoadError(null)
+    try {
+      const payload = await getBellNotifications()
+      setCount(payload.count)
+      setItems(payload.items)
+    } catch (error) {
+      if (!(error instanceof NotificationsFetchError)) {
+        console.error('failed to refresh bell notifications', error)
+      }
+      setLoadError('通知の取得に失敗しました')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
-    refreshCount()
-    refreshItems()
+    refreshBell()
     const channel = supabase
       .channel('notifications-bell')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notifications' },
         () => {
-          refreshCount()
-          refreshItems()
+          refreshBell({ silent: true })
         }
       )
       .subscribe()
     const onLocalNotificationsChanged = () => {
-      refreshCount()
-      refreshItems()
+      refreshBell({ silent: true })
     }
     window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
     const onVisible = () => {
       if (document.visibilityState === 'visible') {
-        refreshCount()
-        refreshItems()
+        refreshBell({ silent: true })
       }
     }
     document.addEventListener('visibilitychange', onVisible)
 
-    const interval = setInterval(refreshCount, 60000)
+    const interval = setInterval(() => refreshBell({ silent: true }), 60000)
     return () => {
       supabase.removeChannel(channel)
       window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
@@ -71,20 +78,19 @@ export default function NotificationBell() {
   }, [])
 
   const handleOpenChange = (open: boolean) => {
-    if (open) refreshItems()
+    if (open) refreshBell({ silent: true })
   }
 
   const handleItemRead = (id: string) => {
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
-    refreshCount()
-    refreshItems()
+    refreshBell({ silent: true })
   }
 
   const handleReadAll = async () => {
     const unreadIds = items.filter((n) => !n.is_read).map((n) => n.id)
     if (unreadIds.length === 0) return
     await markAllNotificationsRead(unreadIds)
-    await Promise.all([refreshCount(), refreshItems()])
+    await refreshBell({ silent: true })
   }
 
   const notificationsPath = role ? `/${role}/notifications` : '/notifications'
@@ -117,12 +123,23 @@ export default function NotificationBell() {
           </Button>
         </div>
         <div className="max-h-96 overflow-y-auto p-2 space-y-2">
-          {items.length === 0 && (
+          {isLoading && <p className="text-sm text-muted-foreground px-2 py-4">読み込み中...</p>}
+          {!isLoading && loadError && (
+            <div className="px-2 py-4 space-y-2">
+              <p className="text-sm text-destructive">{loadError}</p>
+              <Button variant="outline" size="sm" onClick={() => refreshBell()}>
+                再読み込み
+              </Button>
+            </div>
+          )}
+          {!isLoading && !loadError && items.length === 0 && (
             <p className="text-sm text-muted-foreground px-2 py-4">通知はありません</p>
           )}
-          {items.map((n) => (
+          {!isLoading &&
+            !loadError &&
+            items.map((n) => (
             <NotificationItem key={n.id} notification={n} onRead={handleItemRead} />
-          ))}
+            ))}
         </div>
         <div className="border-t">
           <Link

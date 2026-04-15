@@ -51,7 +51,12 @@ export async function GET(req: NextRequest) {
     })
 
     if (countFilter.unreadCountOnly) {
-      const count = await countUnreadNotificationsByUser({ userId: user.id })
+      const count = await countUnreadNotificationsByUser({
+        userId: user.id,
+        actionableOnly: countFilter.actionableOnly,
+        category: countFilter.category,
+        includeExpired: countFilter.includeExpired,
+      })
       if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
         console.info('[notifications][api][count]', { userId: user.id, countFilter, count })
       }

@@ -135,6 +135,52 @@ test('getUnreadNotificationCount returns unread count from API', async () => {
   expect(count).toBe(3)
 })
 
+test('getBellNotifications returns count and items from API', async () => {
+  const mockData: NotificationRow[] = [
+    {
+      id: '1',
+      user_id: 'user1',
+      type: 'offer_created',
+      title: 'offer',
+      body: 'body',
+      created_at: '2026-01-01T00:00:00.000Z',
+      updated_at: '2026-01-01T00:00:00.000Z',
+      is_read: false,
+      data: null,
+      read_at: null,
+      priority: 'medium',
+      action_url: null,
+      action_label: null,
+      entity_type: null,
+      entity_id: null,
+      actor_name: null,
+      expires_at: null,
+      group_key: null,
+    },
+  ]
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ count: 1, items: mockData }),
+  } as Response)
+
+  const { getBellNotifications } = await import('@/utils/notifications')
+  const payload = await getBellNotifications()
+
+  expect(global.fetch).toHaveBeenCalledWith('/api/notifications/bell')
+  expect(payload).toEqual({ count: 1, items: mockData })
+})
+
+test('getNotifications throws on HTTP error', async () => {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: false,
+    status: 500,
+    text: async () => 'boom',
+  } as Response)
+
+  const { getNotifications, NotificationsFetchError } = await import('@/utils/notifications')
+  await expect(getNotifications()).rejects.toBeInstanceOf(NotificationsFetchError)
+})
+
 test('formatUnreadCount formats values', async () => {
   const { formatUnreadCount } = await import('@/utils/notifications')
   expect(formatUnreadCount(0)).toBeNull()
