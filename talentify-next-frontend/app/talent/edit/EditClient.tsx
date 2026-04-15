@@ -7,6 +7,9 @@ import { createClient } from '@/utils/supabase/client'
 import { isProfileComplete } from '@/utils/isProfileComplete'
 import { s, n, j } from '@/utils/nullSafe'
 import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
 
 const prefectures = [
   '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
@@ -340,344 +343,355 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
   if (loading) return <p className="p-4">読み込み中...</p>
 
+  const fieldClassName = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
+  const sectionClassName = 'space-y-4'
+
   return (
-    <main className="max-w-2xl mx-auto p-6 space-y-6">
-      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
-      {showIncomplete && !errorMessage && (
-        <div className="rounded bg-yellow-100 p-2 text-yellow-800">
-          プロフィールが未完成です
-        </div>
-      )}
-      <h1 className="text-2xl font-bold">演者プロフィール編集</h1>
+    <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto w-full max-w-3xl">
+        <header className="mb-6 sm:mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">演者プロフィール編集</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            プロフィールを充実させると、案件掲載時に見つけてもらいやすくなります。
+          </p>
+        </header>
 
-      {/* チェックリスト */}
-      <section className="p-4 bg-gray-100 rounded">
-        <h2 className="font-semibold mb-2">公開の最低条件（MVP）</h2>
-        <ul className="space-y-1 text-sm">
-          <li className="flex items-center">
-            <span className={`${requirements.stage_name ? 'text-green-500' : 'text-red-500'} mr-2`}>
-              {requirements.stage_name ? '✓' : '✕'}
-            </span>
-            ステージ名
-          </li>
-          <li className="flex items-center">
-            <span className={`${requirements.genre ? 'text-green-500' : 'text-red-500'} mr-2`}>
-              {requirements.genre ? '✓' : '✕'}
-            </span>
-            ジャンル
-          </li>
-          <li className="flex items-center">
-            <span className={`${requirements.area ? 'text-green-500' : 'text-red-500'} mr-2`}>
-              {requirements.area ? '✓' : '✕'}
-            </span>
-            エリア
-          </li>
-          <li className="flex items-center">
-            <span className={`${requirements.rate ? 'text-green-500' : 'text-red-500'} mr-2`}>
-              {requirements.rate ? '✓' : '✕'}
-            </span>
-            報酬
-          </li>
-          <li className="flex items-center">
-            <span className={`${requirements.bioOrProfile ? 'text-green-500' : 'text-red-500'} mr-2`}>
-              {requirements.bioOrProfile ? '✓' : '✕'}
-            </span>
-            自己紹介（20文字以上）
-          </li>
-          <li className="flex items-center">
-            <span className={`${requirements.avatar ? 'text-green-500' : 'text-red-500'} mr-2`}>
-              {requirements.avatar ? '✓' : '✕'}
-            </span>
-            プロフィール画像
-          </li>
-        </ul>
-      </section>
+        <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:space-y-8 sm:p-8">
+          {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
 
-      {/* 基本情報 */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">基本情報</h2>
-        <div>
-          <label className="block font-semibold">本名<span className="text-red-500 ml-1">*</span></label>
-          <input
-            type="text"
-            name="name"
-            value={profile.name ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            placeholder="例：山田花子"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold">芸名<span className="text-red-500 ml-1">*</span></label>
-          <input
-            type="text"
-            name="stage_name"
-            value={profile.stage_name ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            placeholder="例：ハナコ"
-          />
-          {errors.stage_name && <p className="text-red-500 text-sm">{errors.stage_name}</p>}
-        </div>
-        <p className="text-sm text-gray-500">※自己紹介（bio）とプロフィールのどちらか一方を20文字以上入力してください。</p>
-        <div>
-          <label className="block font-semibold">自己紹介（bio）<span className="text-red-500 ml-1">*</span></label>
-          <textarea
-            name="bio"
-            maxLength={300}
-            value={profile.bio ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            rows={4}
-            placeholder="例：イベント出演経験があります..."
-          />
-          {errors.bio && <p className="text-red-500 text-sm">{errors.bio}</p>}
-        </div>
-        <div>
-          <label className="block font-semibold">プロフィール詳細<span className="text-red-500 ml-1">*</span></label>
-          <textarea
-            name="profile"
-            maxLength={500}
-            value={profile.profile ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            rows={4}
-            placeholder="経歴や活動内容などを詳しく書いてください"
-          />
-          {errors.profile && <p className="text-red-500 text-sm">{errors.profile}</p>}
-        </div>
-        <div>
-          <label className="block font-semibold">拠点地域</label>
-          <select
-            name="residence"
-            value={profile.residence ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">選択してください</option>
-            {prefectures.map(p => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block font-semibold mb-1">対応エリア<span className="text-red-500 ml-1">*</span></label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {profile.area.map((a, idx) => (
-              <span key={idx} className="flex items-center bg-blue-100 px-2 py-1 rounded">
-                {a}
-                <button type="button" onClick={() => removeArea(idx)} className="ml-1 text-red-500">×</button>
-                <button type="button" onClick={() => moveArea(idx, idx - 1)} className="ml-1 text-xs">↑</button>
-                <button type="button" onClick={() => moveArea(idx, idx + 1)} className="ml-1 text-xs">↓</button>
-              </span>
-            ))}
-          </div>
-          <select onChange={handleAddArea} className="p-2 border rounded">
-            <option value="">エリアを追加</option>
-            {prefectures
-              .filter(p => !profile.area.includes(p))
-              .map(p => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-          </select>
-          {errors.area && <p className="text-red-500 text-sm mt-1">{errors.area}</p>}
-          <p className="text-sm text-gray-500 mt-1">例：関東一円／東海 など</p>
-        </div>
-        <div>
-          <label className="block font-semibold">ジャンル<span className="text-red-500 ml-1">*</span></label>
-          <select
-            name="genre"
-            value={profile.genre ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">選択してください</option>
-            {GENRE_OPTIONS.map(g => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
-          </select>
-          {errors.genre && <p className="text-red-500 text-sm">{errors.genre}</p>}
-        </div>
-      </section>
-
-      {/* 出演条件 */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">出演条件</h2>
-        <div>
-          <label className="block font-semibold">出演可能時間帯</label>
-          <input
-            type="text"
-            name="availability"
-            value={profile.availability ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            placeholder="例: 10:00〜18:00"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold">最低拘束時間</label>
-          <select
-            name="min_hours"
-            value={profile.min_hours ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">選択してください</option>
-            {minHourOptions.map(o => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block font-semibold mb-1">交通費扱い</label>
-          <label className="mr-4 text-sm">
-            <input
-              type="radio"
-              name="transportation"
-              value="込み"
-              checked={profile.transportation === '込み'}
-              onChange={handleChange}
-              className="mr-1"
-            />
-            込み
-          </label>
-          <label className="text-sm">
-            <input
-              type="radio"
-              name="transportation"
-              value="別途"
-              checked={profile.transportation === '別途'}
-              onChange={handleChange}
-              className="mr-1"
-            />
-            別途
-          </label>
-        </div>
-        <div>
-          <label className="block font-semibold">出演料金目安<span className="text-red-500 ml-1">*</span></label>
-          <input
-            type="number"
-            name="rate"
-            value={profile.rate ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            placeholder="例：5000"
-          />
-          {errors.rate && <p className="text-red-500 text-sm">{errors.rate}</p>}
-        </div>
-        <div>
-          <label className="block font-semibold">NG事項・特記事項<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
-          <textarea
-            name="notes"
-            value={profile.notes ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            rows={3}
-          />
-        </div>
-      </section>
-
-      {/* 実績・PR */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">実績・PR</h2>
-        <div>
-          <label className="block font-semibold">来店実績<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
-          <textarea
-            name="achievements"
-            value={profile.achievements ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            rows={3}
-          />
-        </div>
-        <div>
-          <label className="block font-semibold">動画URL<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
-          <input
-            type="url"
-            name="video_url"
-            value={profile.video_url ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold">プロフィール画像<span className="text-red-500 ml-1">*</span></label>
-          {avatarPreview && (
-            <img
-              src={avatarPreview}
-              alt="avatar preview"
-              className="w-24 h-24 object-cover mb-2"
-            />
+          {showIncomplete && !errorMessage && (
+            <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-900">
+              <p className="font-medium">プロフィールが未完成です</p>
+              <p className="mt-1 text-yellow-800">公開条件の必須項目を入力すると、プロフィールを公開できます。</p>
+            </div>
           )}
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={handleAvatar}
-          />
-          <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
-          {errors.avatar_url && <p className="text-red-500 text-sm">{errors.avatar_url}</p>}
-        </div>
-        <div>
-          <label className="block font-semibold">写真追加</label>
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            multiple
-            onChange={handlePhotos}
-          />
-        </div>
-      </section>
 
-      {/* SNSリンク */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">SNSリンク</h2>
-        <div>
-          <label className="block font-semibold">X (旧Twitter)<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
-          <input
-            type="url"
-            name="twitterUrl"
-            value={profile.twitterUrl ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold">Instagram<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
-          <input
-            type="url"
-            name="instagramUrl"
-            value={profile.instagramUrl ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold">YouTube<span className="text-gray-500 ml-1 text-sm">(任意)</span></label>
-          <input
-            type="url"
-            name="youtubeUrl"
-            value={profile.youtubeUrl ?? ''}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
-      </section>
+          <section className="rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
+            <h2 className="mb-3 text-base font-semibold text-gray-900">公開の最低条件（MVP）</h2>
+            <ul className="space-y-2 text-sm text-gray-700">
+              {[
+                { key: 'stage_name', label: 'ステージ名', done: requirements.stage_name },
+                { key: 'genre', label: 'ジャンル', done: requirements.genre },
+                { key: 'area', label: 'エリア', done: requirements.area },
+                { key: 'rate', label: '報酬', done: requirements.rate },
+                { key: 'bioOrProfile', label: '自己紹介またはプロフィール（20文字以上）', done: requirements.bioOrProfile },
+                { key: 'avatar', label: 'プロフィール画像', done: requirements.avatar },
+              ].map((item) => (
+                <li key={item.key} className="flex items-center gap-3 rounded-lg bg-white px-3 py-2">
+                  <span
+                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold ${
+                      item.done
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-rose-100 text-rose-700'
+                    }`}
+                    aria-hidden
+                  >
+                    {item.done ? '✓' : '×'}
+                  </span>
+                  <span>{item.label}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-      >
-        {saving ? '保存中...' : '保存する'}
-      </button>
+          <section className={sectionClassName}>
+            <h2 className="text-xl font-semibold">基本情報</h2>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">本名<span className="ml-1 text-red-500">*</span></label>
+              <Input
+                type="text"
+                name="name"
+                value={profile.name ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                placeholder="例：山田花子"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">芸名<span className="ml-1 text-red-500">*</span></label>
+              <Input
+                type="text"
+                name="stage_name"
+                value={profile.stage_name ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                placeholder="例：ハナコ"
+              />
+              {errors.stage_name && <p className="text-sm text-red-500">{errors.stage_name}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">自己紹介（bio）<span className="ml-1 text-red-500">*</span></label>
+              <p className="text-sm text-gray-500">
+                自己紹介（bio）とプロフィール詳細のどちらか一方を20文字以上入力してください。
+              </p>
+              <Textarea
+                name="bio"
+                maxLength={300}
+                value={profile.bio ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                rows={4}
+                placeholder="例：イベント出演経験があります..."
+              />
+              {errors.bio && <p className="text-sm text-red-500">{errors.bio}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">プロフィール詳細<span className="ml-1 text-red-500">*</span></label>
+              <Textarea
+                name="profile"
+                maxLength={500}
+                value={profile.profile ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                rows={4}
+                placeholder="経歴や活動内容などを詳しく書いてください"
+              />
+              {errors.profile && <p className="text-sm text-red-500">{errors.profile}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">拠点地域</label>
+              <select
+                name="residence"
+                value={profile.residence ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+              >
+                <option value="">選択してください</option>
+                {prefectures.map(p => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">対応エリア<span className="ml-1 text-red-500">*</span></label>
+              <div className="flex flex-wrap gap-2">
+                {profile.area.map((a, idx) => (
+                  <span key={idx} className="flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700">
+                    {a}
+                    <button type="button" onClick={() => removeArea(idx)} className="ml-2 text-red-500">×</button>
+                    <button type="button" onClick={() => moveArea(idx, idx - 1)} className="ml-1 text-xs text-gray-600">↑</button>
+                    <button type="button" onClick={() => moveArea(idx, idx + 1)} className="ml-1 text-xs text-gray-600">↓</button>
+                  </span>
+                ))}
+              </div>
+              <select onChange={handleAddArea} className={fieldClassName}>
+                <option value="">エリアを追加</option>
+                {prefectures
+                  .filter(p => !profile.area.includes(p))
+                  .map(p => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+              </select>
+              {errors.area && <p className="text-sm text-red-500">{errors.area}</p>}
+              <p className="text-sm text-gray-500">例：関東一円／東海 など</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">ジャンル<span className="ml-1 text-red-500">*</span></label>
+              <select
+                name="genre"
+                value={profile.genre ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+              >
+                <option value="">選択してください</option>
+                {GENRE_OPTIONS.map(g => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+              {errors.genre && <p className="text-sm text-red-500">{errors.genre}</p>}
+            </div>
+          </section>
+
+          <section className={sectionClassName}>
+            <h2 className="text-xl font-semibold">出演条件</h2>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">出演可能時間帯</label>
+              <Input
+                type="text"
+                name="availability"
+                value={profile.availability ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                placeholder="例: 10:00〜18:00"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">最低拘束時間</label>
+              <select
+                name="min_hours"
+                value={profile.min_hours ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+              >
+                <option value="">選択してください</option>
+                {minHourOptions.map(o => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">交通費扱い</label>
+              <div className="flex items-center gap-6 rounded-lg border border-gray-200 px-3 py-2">
+                <label className="text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name="transportation"
+                    value="込み"
+                    checked={profile.transportation === '込み'}
+                    onChange={handleChange}
+                    className="mr-2"
+                  />
+                  込み
+                </label>
+                <label className="text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name="transportation"
+                    value="別途"
+                    checked={profile.transportation === '別途'}
+                    onChange={handleChange}
+                    className="mr-2"
+                  />
+                  別途
+                </label>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">出演料金目安<span className="ml-1 text-red-500">*</span></label>
+              <Input
+                type="number"
+                name="rate"
+                value={profile.rate ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                placeholder="例：5000"
+              />
+              {errors.rate && <p className="text-sm text-red-500">{errors.rate}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">NG事項・特記事項<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
+              <Textarea
+                name="notes"
+                value={profile.notes ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                rows={3}
+              />
+            </div>
+          </section>
+
+          <section className={sectionClassName}>
+            <h2 className="text-xl font-semibold">実績・PR</h2>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">来店実績<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
+              <Textarea
+                name="achievements"
+                value={profile.achievements ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+                rows={3}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">動画URL<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
+              <Input
+                type="url"
+                name="video_url"
+                value={profile.video_url ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">プロフィール画像<span className="ml-1 text-red-500">*</span></label>
+              <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4">
+                {avatarPreview && (
+                  <img
+                    src={avatarPreview}
+                    alt="avatar preview"
+                    className="mb-3 h-24 w-24 rounded-lg object-cover"
+                  />
+                )}
+                <Input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleAvatar}
+                  className={fieldClassName}
+                />
+                <p className="mt-2 text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
+                {errors.avatar_url && <p className="mt-1 text-sm text-red-500">{errors.avatar_url}</p>}
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">写真追加</label>
+              <Input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                multiple
+                onChange={handlePhotos}
+                className={fieldClassName}
+              />
+            </div>
+          </section>
+
+          <section className={sectionClassName}>
+            <h2 className="text-xl font-semibold">SNSリンク</h2>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">X (旧Twitter)<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
+              <Input
+                type="url"
+                name="twitterUrl"
+                value={profile.twitterUrl ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">Instagram<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
+              <Input
+                type="url"
+                name="instagramUrl"
+                value={profile.instagramUrl ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">YouTube<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
+              <Input
+                type="url"
+                name="youtubeUrl"
+                value={profile.youtubeUrl ?? ''}
+                onChange={handleChange}
+                className={fieldClassName}
+              />
+            </div>
+          </section>
+
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="mt-2 h-11 w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {saving ? '保存中...' : '保存する'}
+          </Button>
+        </section>
+      </div>
     </main>
   )
 }
