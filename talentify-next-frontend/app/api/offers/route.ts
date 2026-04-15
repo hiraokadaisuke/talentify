@@ -21,12 +21,13 @@ export interface OfferPayload {
   talent_id: string
   date: string
   time_range: string
+  reward?: number | null
   agreed: boolean
   message?: string
 }
 
 export function validateOfferPayload(payload: OfferPayload): string | null {
-  const { store_id, talent_id, date, time_range, agreed } = payload
+  const { store_id, talent_id, date, time_range, reward, agreed } = payload
   if (!store_id || !talent_id || !date || !time_range) {
     return 'missing fields'
   }
@@ -39,6 +40,9 @@ export function validateOfferPayload(payload: OfferPayload): string | null {
   }
   if (typeof time_range !== 'string' || time_range.trim() === '') {
     return 'invalid time_range'
+  }
+  if (reward != null && (!Number.isFinite(reward) || reward < 0)) {
+    return 'invalid reward'
   }
   return null
 }
@@ -109,6 +113,7 @@ export async function POST(req: NextRequest) {
       talent_id: body.talent_id,
       date: offerDate,
       time_range: body.time_range,
+      reward: body.reward ?? null,
       agreed: body.agreed,
       message: body.message ?? '',
       status: 'pending',
