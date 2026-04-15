@@ -248,7 +248,7 @@ export async function countUnreadNotificationsByUser({
   )
   const whereClause = Prisma.sql`
     WHERE user_id = ${userId}
-    ${conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, Prisma.sql` AND `)}` : Prisma.empty}
+    ${conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, ' AND ')}` : Prisma.empty}
   `
 
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
@@ -304,7 +304,7 @@ export async function findNotificationsByUser({
   )
   const whereClause = Prisma.sql`
     WHERE user_id = ${userId}
-    ${conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, Prisma.sql` AND `)}` : Prisma.empty}
+    ${conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, ' AND ')}` : Prisma.empty}
   `
   const orderByClause = buildNotificationsOrderByClause({ columns, useFallbackQuery })
 
