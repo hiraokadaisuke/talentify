@@ -115,7 +115,8 @@ export default function RegisterForm() {
       }
 
       // ✅ メール送信成功 → check-email に遷移
-      router.push('/check-email')
+      const nextParams = new URLSearchParams({ email, role })
+      router.push(`/check-email?${nextParams.toString()}`)
     } catch {
       setGlobalError('通信に失敗しました。インターネット接続をご確認ください')
     } finally {

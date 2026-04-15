@@ -19,11 +19,15 @@ function parseHashParams(hashValue: string) {
 export default function AuthErrorCard({ initialErrorCode, initialError }: AuthErrorCardProps) {
   const [hashErrorCode, setHashErrorCode] = useState<string | null>(null)
   const [hashError, setHashError] = useState<string | null>(null)
+  const [emailFromQuery, setEmailFromQuery] = useState<string | null>(null)
 
   useEffect(() => {
     const params = parseHashParams(window.location.hash)
     setHashErrorCode(params.get('error_code'))
     setHashError(params.get('error'))
+
+    const queryParams = new URLSearchParams(window.location.search)
+    setEmailFromQuery(queryParams.get('email'))
   }, [])
 
   const effectiveErrorCode = hashErrorCode ?? initialErrorCode ?? undefined
@@ -40,6 +44,10 @@ export default function AuthErrorCard({ initialErrorCode, initialError }: AuthEr
 
     return '時間をおいて再度お試しいただくか、確認メールを再送して最新のリンクからアクセスしてください。'
   }, [effectiveError, effectiveErrorCode])
+
+  const resendHref = emailFromQuery
+    ? `/check-email?email=${encodeURIComponent(emailFromQuery)}&from=auth-error`
+    : '/check-email?from=auth-error'
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-64px)] w-full max-w-3xl items-center justify-center px-4 py-12">
@@ -62,7 +70,7 @@ export default function AuthErrorCard({ initialErrorCode, initialError }: AuthEr
               <Link href="/register">新規登録へ</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/check-email">確認メール再送の案内へ</Link>
+              <Link href={resendHref}>確認メール再送の案内へ</Link>
             </Button>
           </div>
 
