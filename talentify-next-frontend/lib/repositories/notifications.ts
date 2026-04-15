@@ -53,12 +53,74 @@ type NotificationQueryFilter = {
   includeExpired?: boolean
 }
 
+type NotificationsColumnAvailability = {
+  priority: boolean
+  action_url: boolean
+  action_label: boolean
+  entity_type: boolean
+  entity_id: boolean
+  actor_name: boolean
+  expires_at: boolean
+  group_key: boolean
+}
+
+const NOTIFICATIONS_OPTIONAL_COLUMNS = [
+  'priority',
+  'action_url',
+  'action_label',
+  'entity_type',
+  'entity_id',
+  'actor_name',
+  'expires_at',
+  'group_key',
+] as const
+
+let notificationsColumnAvailabilityCache: NotificationsColumnAvailability | null = null
+
+async function getNotificationsColumnAvailability(): Promise<NotificationsColumnAvailability> {
+  if (notificationsColumnAvailabilityCache) {
+    return notificationsColumnAvailabilityCache
+  }
+
+  const prisma = getPrismaClient()
+  const rows = await prisma.$queryRaw<Array<{ column_name: string }>>`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'notifications'
+      AND column_name = ANY (${NOTIFICATIONS_OPTIONAL_COLUMNS}::text[])
+  `
+
+  const existing = new Set(rows.map((row) => row.column_name))
+  notificationsColumnAvailabilityCache = {
+    priority: existing.has('priority'),
+    action_url: existing.has('action_url'),
+    action_label: existing.has('action_label'),
+    entity_type: existing.has('entity_type'),
+    entity_id: existing.has('entity_id'),
+    actor_name: existing.has('actor_name'),
+    expires_at: existing.has('expires_at'),
+    group_key: existing.has('group_key'),
+  }
+
+  const missingColumns = NOTIFICATIONS_OPTIONAL_COLUMNS.filter(
+    (column) => !existing.has(column),
+  )
+  if (missingColumns.length > 0) {
+    console.warn('[notifications][repository] notifications schema is missing columns', {
+      missingColumns,
+    })
+  }
+
+  return notificationsColumnAvailabilityCache
+}
+
 function buildNotificationQueryClauses({
   unreadOnly,
   actionableOnly,
   category,
   includeExpired,
-}: NotificationQueryFilter) {
+}: NotificationQueryFilter, columns: NotificationsColumnAvailability) {
   const unreadClause = unreadOnly ? Prisma.sql`AND is_read = false` : Prisma.empty
 
   const actionableClause = actionableOnly
@@ -77,18 +139,28 @@ function buildNotificationQueryClauses({
   const categoryClause =
     category === 'announcement'
       ? Prisma.sql`AND (
-          COALESCE(entity_type, '') = 'announcement'
+          ${
+            columns.entity_type
+              ? Prisma.sql`COALESCE(entity_type, '') = 'announcement'`
+              : Prisma.sql`false`
+          }
           OR COALESCE(data->>'category', '') = 'announcement'
         )`
       : category === 'notification'
         ? Prisma.sql`AND (
-            COALESCE(entity_type, '') != 'announcement'
+            ${
+              columns.entity_type
+                ? Prisma.sql`COALESCE(entity_type, '') != 'announcement'`
+                : Prisma.sql`true`
+            }
             AND COALESCE(data->>'category', 'notification') = 'notification'
           )`
         : Prisma.empty
 
   const expiresClause =
-    includeExpired === false ? Prisma.sql`AND (expires_at IS NULL OR expires_at > NOW())` : Prisma.empty
+    includeExpired === false && columns.expires_at
+      ? Prisma.sql`AND (expires_at IS NULL OR expires_at > NOW())`
+      : Prisma.empty
 
   return { unreadClause, actionableClause, categoryClause, expiresClause }
 }
@@ -121,12 +193,16 @@ export async function countUnreadNotificationsByUser({
   includeExpired,
 }: CountUnreadNotificationsParams): Promise<number> {
   const prisma = getPrismaClient()
-  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses({
-    unreadOnly: true,
-    actionableOnly,
-    category,
-    includeExpired,
-  })
+  const columns = await getNotificationsColumnAvailability()
+  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses(
+    {
+      unreadOnly: true,
+      actionableOnly,
+      category,
+      includeExpired,
+    },
+    columns,
+  )
   const typeClause = type ? Prisma.sql`AND type = ${type}::public.notification_type` : Prisma.empty
 
   const rows = await prisma.$queryRaw<Array<{ count: bigint | number }>>`
@@ -168,18 +244,22 @@ export async function findNotificationsByUser({
   includeExpired,
 }: FindNotificationsByUserParams): Promise<NotificationRow[]> {
   const prisma = getPrismaClient()
+  const columns = await getNotificationsColumnAvailability()
 
   const limitClause =
     typeof limit === 'number' && Number.isFinite(limit) && limit > 0
       ? Prisma.sql`LIMIT ${Math.floor(limit)}`
       : Prisma.empty
 
-  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses({
-    unreadOnly,
-    actionableOnly,
-    category,
-    includeExpired,
-  })
+  const { unreadClause, actionableClause, categoryClause, expiresClause } = buildNotificationQueryClauses(
+    {
+      unreadOnly,
+      actionableOnly,
+      category,
+      includeExpired,
+    },
+    columns,
+  )
 
   const rows = await prisma.$queryRaw<NotificationQueryRow[]>`
     SELECT
@@ -193,14 +273,22 @@ export async function findNotificationsByUser({
       created_at,
       updated_at,
       read_at,
-      priority,
-      action_url,
-      action_label,
-      entity_type,
-      entity_id,
-      actor_name,
-      expires_at,
-      group_key
+      ${
+        columns.priority
+          ? Prisma.sql`priority`
+          : Prisma.sql`'medium'::text AS priority`
+      },
+      ${columns.action_url ? Prisma.sql`action_url` : Prisma.sql`NULL::text AS action_url`},
+      ${columns.action_label ? Prisma.sql`action_label` : Prisma.sql`NULL::text AS action_label`},
+      ${columns.entity_type ? Prisma.sql`entity_type` : Prisma.sql`NULL::text AS entity_type`},
+      ${columns.entity_id ? Prisma.sql`entity_id` : Prisma.sql`NULL::text AS entity_id`},
+      ${columns.actor_name ? Prisma.sql`actor_name` : Prisma.sql`NULL::text AS actor_name`},
+      ${
+        columns.expires_at
+          ? Prisma.sql`expires_at`
+          : Prisma.sql`NULL::timestamptz AS expires_at`
+      },
+      ${columns.group_key ? Prisma.sql`group_key` : Prisma.sql`NULL::text AS group_key`}
     FROM public.notifications
     WHERE user_id = ${userId}
     ${unreadClause}
