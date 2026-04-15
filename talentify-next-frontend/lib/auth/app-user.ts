@@ -48,11 +48,13 @@ export async function upsertAppUser(params: UpsertAppUserParams) {
     throw selectError
   }
 
-  if (existing?.id) {
+  const existingId = (existing as { id?: string } | null)?.id
+
+  if (existingId) {
     const { error: updateError } = await service
       .from('users' as any)
       .update(record)
-      .eq('id', existing.id)
+      .eq('id', existingId)
 
     if (updateError) {
       throw updateError
