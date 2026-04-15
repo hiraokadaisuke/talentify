@@ -115,4 +115,35 @@ test.describe('notifications e2e', () => {
     await page.getByTestId(`notification-row-${seeded.id}`).click()
     await expect(page).toHaveURL(/\/offers\//)
   })
+
+  test('G. 未読タブ: 未読件数がある場合は一覧に offer/payment が表示され空状態を出さない', async ({ page, request }) => {
+    await ensureLoggedIn(page)
+    const offerSeeded = await seedNotification(request, {
+      title: `Unread offer ${uniqueKey('offer')}`,
+      groupKey: uniqueKey('offer-group'),
+    })
+    const paymentResponse = await request.post('/api/notifications', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Idempotency-Key': uniqueKey('seed-payment'),
+      },
+      data: {
+        type: 'payment_created',
+        title: `Unread payment ${uniqueKey('payment')}`,
+        body: 'E2E payment body',
+        entity_type: 'payment',
+        entity_id: uniqueKey('payment-id'),
+        data: { payment_id: uniqueKey('payment-data-id') },
+      },
+    })
+    expect(paymentResponse.ok()).toBeTruthy()
+
+    await page.goto('/talent/notifications')
+    await page.getByTestId('notifications-tab-unread').click()
+
+    const badgeCount = await unreadCount(page)
+    expect(badgeCount).toBeGreaterThan(0)
+    await expect(page.getByTestId(`notification-row-${offerSeeded.id}`)).toBeVisible()
+    await expect(page.getByText('未読通知はありません')).toHaveCount(0)
+  })
 })
