@@ -1,11 +1,12 @@
 import Link from 'next/link'
 
 const footerLinks = [
-  { href: '/guide', label: 'ご利用ガイド' },
+  { href: '/store', label: '店舗向け' },
+  { href: '/register?role=talent', label: '演者向け' },
   { href: '/faq', label: 'よくある質問' },
-  { href: '/news', label: 'お知らせ' },
-  { href: '/pricing', label: '料金' },
+  { href: '/login', label: 'ログイン' },
   { href: '/company', label: '会社概要' },
+  { href: '/privacy', label: 'プライバシーポリシー' },
 ]
 
 export default function SiteFooter() {

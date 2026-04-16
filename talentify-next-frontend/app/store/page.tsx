@@ -48,9 +48,14 @@ export default function StoreLandingPage() {
       <div className="sticky top-16 z-20 border-b border-zinc-200/80 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3">
           <p className="text-xs font-medium tracking-[0.16em] text-zinc-500 sm:text-sm">STORE LP</p>
-          <Link href="/register?role=store">
-            <Button className="h-10 rounded-full px-5 text-xs font-semibold sm:text-sm">無料で店舗登録</Button>
-          </Link>
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <Link href="/" className="text-zinc-600 hover:underline">トップへ戻る</Link>
+            <Link href="/register?role=talent" className="hidden text-zinc-600 hover:underline sm:inline">演者向け</Link>
+            <Link href="/login" className="hidden text-zinc-600 hover:underline sm:inline">ログイン</Link>
+            <Link href="/register?role=store">
+              <Button className="h-10 rounded-full px-5 text-xs font-semibold sm:text-sm">無料登録</Button>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -83,6 +88,11 @@ export default function StoreLandingPage() {
                 無料で店舗登録
               </Button>
             </Link>
+            <div className="mt-4">
+              <Link href="/" className="text-sm text-white/90 underline-offset-4 hover:underline">
+                ブランドトップへ戻る
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -207,6 +217,17 @@ export default function StoreLandingPage() {
           </Link>
         </div>
       </section>
+      <section className="border-t border-zinc-200 bg-white px-6 py-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-600">
+          <Link href="/store" className="hover:underline">店舗向け</Link>
+          <Link href="/register?role=talent" className="hover:underline">演者向け</Link>
+          <Link href="/faq" className="hover:underline">よくある質問</Link>
+          <Link href="/login" className="hover:underline">ログイン</Link>
+          <Link href="/company" className="hover:underline">会社概要</Link>
+          <Link href="/privacy" className="hover:underline">プライバシーポリシー</Link>
+        </div>
+      </section>
+
     </main>
   )
 }

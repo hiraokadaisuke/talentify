@@ -35,13 +35,13 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    if (pathname.startsWith('/store') && role !== 'store') {
+    if (pathname.startsWith('/store/') && role !== 'store') {
       const redirectUrl = req.nextUrl.clone()
       redirectUrl.pathname = role ? `/${role}/dashboard` : '/login'
       return NextResponse.redirect(redirectUrl)
     }
 
-    if (pathname.startsWith('/talent') && role !== 'talent') {
+    if (pathname.startsWith('/talent/') && role !== 'talent') {
       const redirectUrl = req.nextUrl.clone()
       redirectUrl.pathname = role ? `/${role}/dashboard` : '/login'
       return NextResponse.redirect(redirectUrl)
@@ -54,7 +54,7 @@ export async function middleware(req: NextRequest) {
 
   if (
     !session &&
-    ['/app', '/dashboard', '/store', '/talent', '/profile', '/messages', '/manage'].some(
+    ['/app', '/dashboard', '/store/', '/talent/', '/profile', '/messages', '/manage'].some(
       (p) => pathname.startsWith(p)
     )
   ) {

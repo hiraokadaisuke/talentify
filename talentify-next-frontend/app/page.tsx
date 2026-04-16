@@ -11,8 +11,8 @@ const branchCards = [
     title: '店舗向け',
     description:
       '演者選定から依頼、当日の進行管理まで。店舗の運用を1つにまとめて、機会損失を減らします。',
-    href: '/register?role=store',
-    cta: '無料で店舗登録',
+    href: '/store',
+    cta: '店舗向けページを見る',
     benefits: ['演者を探したい', '条件を整理して依頼したい', '管理をまとめたい'],
   },
   {
@@ -98,9 +98,9 @@ export default function HomePage() {
               依頼条件の整理から連絡・実績管理まで、1つの流れで進められます。
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/register?role=store">
+              <Link href="/store">
                 <Button className="h-12 w-full rounded-full bg-white px-8 text-sm font-semibold text-zinc-900 hover:bg-white/90 sm:w-auto">
-                  無料で店舗登録
+                  店舗向けページを見る
                 </Button>
               </Link>
               <Link href="/register?role=talent">
@@ -329,6 +329,14 @@ export default function HomePage() {
               <Button variant="outline" className="h-14 w-full rounded-full border-zinc-400 px-10 text-base font-semibold text-zinc-900 hover:bg-zinc-100 sm:w-auto">
                 無料で演者登録
               </Button>
+            </Link>
+          </div>
+          <div className="mt-5 flex flex-col items-center gap-2 text-sm sm:flex-row sm:justify-center sm:gap-4">
+            <Link href="/store" className="text-zinc-700 underline-offset-4 hover:underline">
+              まず店舗向けページを見る
+            </Link>
+            <Link href="/register?role=talent" className="text-zinc-700 underline-offset-4 hover:underline">
+              まず演者向けページを見る
             </Link>
           </div>
         </div>
