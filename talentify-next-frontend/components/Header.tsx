@@ -36,12 +36,12 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/password-reset',
   '/privacy',
   '/register',
+  '/store',
   '/terms',
 ])
 
 const GUIDE_LINKS: MenuItem[] = [
   { href: '/guide', label: 'ご利用ガイド' },
-  // 将来的に /column, /news, /faq などをここへ追加してドロップダウン化できる構造
 ]
 
 const ROLE_MENUS: Record<
@@ -128,7 +128,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isLoggedIn = !!userName
   const inferredRole =
     sidebarRole ??
-    (pathname?.startsWith('/store') ? 'store' : pathname?.startsWith('/talent') ? 'talent' : undefined)
+    (pathname?.startsWith('/store/') ? 'store' : pathname?.startsWith('/talent/') ? 'talent' : undefined)
   const isPublicPage =
     !inferredRole &&
     !!pathname &&
@@ -167,35 +167,20 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <Link href={homeHref} className="text-2xl font-bold tracking-tight">
               Talentify
             </Link>
-            <Link
-              href={homeHref}
-              className={cn(
-                navItemBaseClass,
-                isHomeActive ? navItemActiveClass : '',
-              )}
-            >
+            <Link href={homeHref} className={cn(navItemBaseClass, isHomeActive ? navItemActiveClass : '')}>
               ホーム
             </Link>
             {roleNav.primaryHref && roleNav.primaryLabel && (
               <Link
                 href={roleNav.primaryHref}
-                className={cn(
-                  navItemBaseClass,
-                  isPrimaryActive ? navItemActiveClass : '',
-                )}
+                className={cn(navItemBaseClass, isPrimaryActive ? navItemActiveClass : '')}
               >
                 {roleNav.primaryLabel}
               </Link>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  className={cn(
-                    navItemBaseClass,
-                    'gap-1',
-                    isProjectActive ? navItemActiveClass : '',
-                  )}
-                >
+                <button className={cn(navItemBaseClass, 'gap-1', isProjectActive ? navItemActiveClass : '')}>
                   案件管理
                   <ChevronDown className="h-4 w-4" />
                 </button>
@@ -212,10 +197,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               href={primaryGuideLink.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(
-                navItemBaseClass,
-                isGuideActive ? navItemActiveClass : '',
-              )}
+              className={cn(navItemBaseClass, isGuideActive ? navItemActiveClass : '')}
             >
               {primaryGuideLink.label}
             </Link>
@@ -254,44 +236,31 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   if (isPublicPage) {
     return (
       <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
-        <div className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-between px-6 lg:px-8">
+        <div className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href={homeHref} className="text-2xl font-bold tracking-tight">
             Talentify
           </Link>
 
-          <nav className="hidden md:flex justify-between items-center w-full text-sm">
-            <div className="flex space-x-6 ml-6">
-              <Link href="/about" className="hover:underline">Talentifyについて</Link>
-              <Link href="/faq" className="hover:underline">FAQ</Link>
-              <Link href="/contact" className="hover:underline">お問い合わせ</Link>
-            </div>
-
-            <div className="flex items-center space-x-2 ml-auto">
-              <span className="text-black text-sm font-normal mr-2">今すぐ無料登録♬</span>
-              <Link
-                href="/register?role=store"
-                className="rounded-full bg-[#daa520] text-white font-normal px-5 py-2 hover:brightness-110 transition"
-              >
-                店舗の方はこちら
-              </Link>
-              <Link
-                href="/register?role=talent"
-                className="rounded-full bg-[#daa520] text-white font-normal px-5 py-2 hover:brightness-110 transition"
-              >
-                演者の方はこちら
-              </Link>
-              <Link
-                href="/login"
-                className="border border-[#daa520] text-[#daa520] font-normal rounded-full px-5 py-2 hover:bg-[#fef8e7] transition"
-              >
-                ログイン
-              </Link>
-            </div>
+          <nav className="hidden md:flex items-center gap-5 text-sm text-slate-700">
+            <Link href="/store" className="hover:text-slate-900 hover:underline">店舗向け</Link>
+            <Link href="/register?role=talent" className="hover:text-slate-900 hover:underline">演者向け</Link>
+            <Link href="/login" className="hover:text-slate-900 hover:underline">ログイン</Link>
+            <Link
+              href="/register"
+              className="rounded-full bg-[#daa520] px-5 py-2 font-semibold text-white transition hover:brightness-110"
+            >
+              無料登録
+            </Link>
           </nav>
 
-          <Button asChild variant="outline" size="sm" className="ml-auto md:hidden hover:bg-muted">
-            <Link href="/login">ログイン</Link>
-          </Button>
+          <div className="flex items-center gap-2 md:hidden">
+            <Button asChild variant="outline" size="sm">
+              <Link href="/store">店舗向け</Link>
+            </Button>
+            <Button asChild size="sm" className="bg-[#daa520] hover:brightness-110">
+              <Link href="/register">無料登録</Link>
+            </Button>
+          </div>
         </div>
       </header>
     )
