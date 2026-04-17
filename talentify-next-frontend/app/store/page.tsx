@@ -60,8 +60,8 @@ const featureCards = [
 ]
 
 const lpImages = {
-  heroMain: '/images/lp/store/store-hero-main.jpg',
-  operation: '/images/lp/store/store-operation.jpg',
+  heroMain: '/images/lp/store/store-hero-main.png',
+  operation: '/images/lp/store/store-operation.png',
 }
 
 export default function StoreLandingPage() {

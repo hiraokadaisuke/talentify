@@ -53,8 +53,8 @@ const steps = [
 ]
 
 const lpImages = {
-  heroMain: '/images/lp/talent/talent-hero-main.jpg',
-  activity: '/images/lp/talent/talent-activity.jpg',
+  heroMain: '/images/lp/talent/talent-hero-main.png',
+  activity: '/images/lp/talent/talent-activity.png',
 }
 
 export default function TalentLandingPage() {
