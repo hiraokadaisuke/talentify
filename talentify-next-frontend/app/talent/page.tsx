@@ -26,21 +26,21 @@ const featureCards = [
     label: 'プロフィール',
     title: '自分の強みを、きちんと伝える。',
     description: '活動領域・得意ジャンル・過去実績を整理して、初見でも伝わる状態をつくります。',
-    image: '/images/point1.png',
+    image: '/images/ui/ui-profile.png',
     alt: 'プロフィールを整理するUIイメージ',
   },
   {
     label: 'オファー確認',
     title: '条件を整理して、迷わず進める。',
     description: '日程・報酬・条件をまとめて確認。認識違いを減らし、判断を早くできます。',
-    image: '/images/point2.png',
+    image: '/images/ui/ui-offer-received.png',
     alt: 'オファー条件を確認するUIイメージ',
   },
   {
     label: '実績管理',
     title: '活動の履歴を、次の案件につなげる。',
     description: '毎回の活動を記録として残し、積み上がる信頼を次の機会に変えていけます。',
-    image: '/images/point3.png',
+    image: '/images/ui/ui-history.png',
     alt: '実績履歴を蓄積するUIイメージ',
   },
 ]
@@ -53,8 +53,8 @@ const steps = [
 ]
 
 const lpImages = {
-  heroMain: '/images/hero-bg.png',
-  activity: '/images/hero-bg.png',
+  heroMain: '/images/lp/talent/talent-hero-main.jpg',
+  activity: '/images/lp/talent/talent-activity.jpg',
 }
 
 export default function TalentLandingPage() {

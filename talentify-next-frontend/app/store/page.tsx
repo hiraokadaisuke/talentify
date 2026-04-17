@@ -40,28 +40,28 @@ const featureCards = [
     label: 'マッチング',
     title: '最適な演者が見つかる',
     description: '条件に合う候補を一覧で比較。感覚ではなく情報で選べます。',
-    image: '/images/point1.png',
+    image: '/images/ui/ui-talent-list.png',
     alt: '演者候補を比較するダミー画面',
   },
   {
     label: 'オファー',
     title: '条件を整理して依頼できる',
     description: '日程・予算・要件を整理して送信。確認の往復を減らせます。',
-    image: '/images/point2.png',
+    image: '/images/ui/ui-offer-create.png',
     alt: '依頼条件をまとめるダミー画面',
   },
   {
     label: '管理',
     title: 'やり取りを一元化',
     description: '誰が何を合意したかを見える化。引き継ぎもスムーズです。',
-    image: '/images/point3.png',
+    image: '/images/ui/ui-message.png',
     alt: '案件管理のダミー画面',
   },
 ]
 
 const lpImages = {
-  heroMain: '/images/hero-bg.png',
-  operation: '/images/hero-bg.png',
+  heroMain: '/images/lp/store/store-hero-main.jpg',
+  operation: '/images/lp/store/store-operation.jpg',
 }
 
 export default function StoreLandingPage() {
