@@ -39,9 +39,9 @@ const featureItems = [
 ]
 
 const lpImages = {
-  heroMain: '/images/hero-bg.png',
-  concept: '/images/hero-bg.png',
-  matchingOverview: '/images/point1.png',
+  heroMain: '/images/lp/common/common-hero-main.jpg',
+  concept: '/images/lp/common/common-concept.jpg',
+  matchingOverview: '/images/ui/ui-matching-overview.png',
 }
 
 export default function HomePage() {
