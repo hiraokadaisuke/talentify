@@ -37,6 +37,7 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/privacy',
   '/register',
   '/store',
+  '/talent',
   '/terms',
 ])
 
@@ -242,11 +243,11 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
           </Link>
 
           <nav className="hidden md:flex items-center gap-5 text-sm text-slate-700">
-            <Link href="/store" className="hover:text-slate-900 hover:underline">店舗向け</Link>
-            <Link href="/register?role=talent" className="hover:text-slate-900 hover:underline">演者向け</Link>
+            <Link href="/store" className={cn(pathname === '/store' ? 'font-semibold text-slate-900 underline' : 'hover:text-slate-900 hover:underline')}>店舗向け</Link>
+            <Link href="/talent" className={cn(pathname === '/talent' ? 'font-semibold text-slate-900 underline' : 'hover:text-slate-900 hover:underline')}>演者向け</Link>
             <Link href="/login" className="hover:text-slate-900 hover:underline">ログイン</Link>
             <Link
-              href="/register"
+              href="/register?role=talent"
               className="rounded-full bg-[#daa520] px-5 py-2 font-semibold text-white transition hover:brightness-110"
             >
               無料登録
@@ -257,8 +258,11 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <Button asChild variant="outline" size="sm">
               <Link href="/store">店舗向け</Link>
             </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/talent">演者向け</Link>
+            </Button>
             <Button asChild size="sm" className="bg-[#daa520] hover:brightness-110">
-              <Link href="/register">無料登録</Link>
+              <Link href="/register?role=talent">無料登録</Link>
             </Button>
           </div>
         </div>
