@@ -80,13 +80,6 @@ export default function TalentLandingPage() {
                 </Button>
               </Link>
             </div>
-
-            <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/90">
-              <Link href="/" className="underline-offset-4 hover:underline">トップへ戻る</Link>
-              <Link href="/store" className="underline-offset-4 hover:underline">店舗向け</Link>
-              <Link href="/login" className="underline-offset-4 hover:underline">ログイン</Link>
-              <Link href="/register?role=talent" className="underline-offset-4 hover:underline">無料登録</Link>
-            </div>
           </div>
         </div>
       </section>

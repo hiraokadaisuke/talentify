@@ -226,17 +226,6 @@ export default function StoreLandingPage() {
           </Link>
         </div>
       </section>
-      <section className="border-t border-zinc-200 bg-white px-6 py-8">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-600">
-          <Link href="/store" className="hover:underline">店舗向け</Link>
-          <Link href="/register?role=talent" className="hover:underline">演者向け</Link>
-          <Link href="/faq" className="hover:underline">よくある質問</Link>
-          <Link href="/login" className="hover:underline">ログイン</Link>
-          <Link href="/company" className="hover:underline">会社概要</Link>
-          <Link href="/privacy" className="hover:underline">プライバシーポリシー</Link>
-        </div>
-      </section>
-
     </main>
   )
 }

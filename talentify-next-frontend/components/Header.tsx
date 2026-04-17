@@ -235,6 +235,21 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   }
 
   if (isPublicPage) {
+    const publicLinks = [
+      { href: '/store', label: '店舗向け' },
+      { href: '/talent', label: '演者向け' },
+      { href: '/login', label: 'ログイン' },
+      { href: '/register', label: '無料登録' },
+    ]
+
+    const getPublicLinkClass = (href: string) => {
+      const isActive = pathname === href || (href !== '/' && pathname?.startsWith(`${href}/`))
+      return cn(
+        'text-sm transition-colors',
+        isActive ? 'font-semibold text-slate-900 underline underline-offset-4' : 'text-slate-700 hover:text-slate-900 hover:underline',
+      )
+    }
+
     return (
       <header className="fixed top-0 w-full h-16 bg-white shadow-sm z-[var(--z-header)]">
         <div className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -242,28 +257,26 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             Talentify
           </Link>
 
-          <nav className="hidden md:flex items-center gap-5 text-sm text-slate-700">
-            <Link href="/store" className={cn(pathname === '/store' ? 'font-semibold text-slate-900 underline' : 'hover:text-slate-900 hover:underline')}>店舗向け</Link>
-            <Link href="/talent" className={cn(pathname === '/talent' ? 'font-semibold text-slate-900 underline' : 'hover:text-slate-900 hover:underline')}>演者向け</Link>
-            <Link href="/login" className="hover:text-slate-900 hover:underline">ログイン</Link>
-            <Link
-              href="/register?role=talent"
-              className="rounded-full bg-[#daa520] px-5 py-2 font-semibold text-white transition hover:brightness-110"
-            >
-              無料登録
-            </Link>
+          <nav className="hidden md:flex items-center gap-5">
+            {publicLinks.map((link) => (
+              <Link key={link.href} href={link.href} className={getPublicLinkClass(link.href)}>
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
-          <div className="flex items-center gap-2 md:hidden">
-            <Button asChild variant="outline" size="sm">
-              <Link href="/store">店舗向け</Link>
-            </Button>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/talent">演者向け</Link>
-            </Button>
-            <Button asChild size="sm" className="bg-[#daa520] hover:brightness-110">
-              <Link href="/register?role=talent">無料登録</Link>
-            </Button>
+          <div className="flex items-center gap-1 md:hidden">
+            {publicLinks.map((link) => (
+              <Button
+                key={link.href}
+                asChild
+                size="sm"
+                variant={link.href === '/register' ? 'default' : 'outline'}
+                className={link.href === '/register' ? 'px-3' : 'px-2.5'}
+              >
+                <Link href={link.href}>{link.label}</Link>
+              </Button>
+            ))}
           </div>
         </div>
       </header>
