@@ -16,7 +16,24 @@ const solutions = [
   '履歴と実績が自動で残る',
 ]
 
-const benefits = ['依頼の手間が減る', 'ミスが減る', '再現性が生まれる', '成果につながる']
+const benefits = [
+  {
+    title: '依頼の手間が減る',
+    description: '条件整理と連絡の流れが揃い、準備時間を短縮できます。',
+  },
+  {
+    title: 'ミスが減る',
+    description: '必要情報がまとまり、確認漏れや認識違いを防げます。',
+  },
+  {
+    title: '再現性が生まれる',
+    description: '案件履歴が残るため、担当が変わっても同じ品質で運用できます。',
+  },
+  {
+    title: '成果につながる',
+    description: '改善の判断材料が蓄積され、次の施策に活かせます。',
+  },
+]
 
 const featureCards = [
   {
@@ -45,20 +62,6 @@ const featureCards = [
 export default function StoreLandingPage() {
   return (
     <main className="bg-[#f5f4f1] text-zinc-900">
-      <div className="sticky top-16 z-20 border-b border-zinc-200/80 bg-white/90 px-4 py-3 backdrop-blur sm:px-6">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3">
-          <p className="text-xs font-medium tracking-[0.16em] text-zinc-500 sm:text-sm">STORE LP</p>
-          <div className="flex items-center gap-2 text-xs sm:text-sm">
-            <Link href="/" className="text-zinc-600 hover:underline">トップへ戻る</Link>
-            <Link href="/register?role=talent" className="hidden text-zinc-600 hover:underline sm:inline">演者向け</Link>
-            <Link href="/login" className="hidden text-zinc-600 hover:underline sm:inline">ログイン</Link>
-            <Link href="/register?role=store">
-              <Button className="h-10 rounded-full px-5 text-xs font-semibold sm:text-sm">無料登録</Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
       <section className="relative isolate overflow-hidden">
         <Image
           src="/images/hero-bg.png"
@@ -67,7 +70,8 @@ export default function StoreLandingPage() {
           priority
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/55" />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/38 to-black/18" />
         <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
           <div className="max-w-3xl text-white">
             <p className="text-xs uppercase tracking-[0.2em] text-white/70">For Pachinko Stores</p>
@@ -126,10 +130,15 @@ export default function StoreLandingPage() {
       <section className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
         <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">ベネフィット</p>
         <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">運用の質が変わる</h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map((item) => (
-            <div key={item} className="border-t-2 border-zinc-900 bg-white p-5 text-sm font-medium leading-7 sm:text-base">
-              {item}
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {benefits.map((item, index) => (
+            <div
+              key={item.title}
+              className="rounded-xl border border-zinc-200 bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:p-7"
+            >
+              <p className="text-xs font-semibold tracking-[0.16em] text-zinc-500">POINT {index + 1}</p>
+              <p className="mt-3 text-lg font-semibold leading-8 text-zinc-900">{item.title}</p>
+              <p className="mt-3 text-sm leading-7 text-zinc-600">{item.description}</p>
             </div>
           ))}
         </div>
@@ -141,19 +150,17 @@ export default function StoreLandingPage() {
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">必要な機能だけ、明確に。</h2>
           <div className="mt-10 space-y-10">
             {featureCards.map((feature) => (
-              <div key={feature.label} className="grid gap-6 border border-zinc-200 p-4 sm:p-6 lg:grid-cols-[0.95fr_1.2fr] lg:items-center">
+              <div key={feature.label} className="grid gap-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 sm:p-6 lg:grid-cols-[0.95fr_1.2fr] lg:items-center">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">{feature.label}</p>
                   <h3 className="mt-3 text-2xl font-semibold sm:text-3xl">{feature.title}</h3>
                   <p className="mt-4 text-sm leading-7 text-zinc-700 sm:text-base">{feature.description}</p>
                 </div>
-                <Image
-                  src={feature.image}
-                  alt={feature.alt}
-                  width={1400}
-                  height={900}
-                  className="h-[220px] w-full border border-zinc-200 object-cover sm:h-[320px]"
-                />
+                <div className="rounded-xl border border-zinc-200 bg-white p-2 sm:p-3">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-zinc-100">
+                    <Image src={feature.image} alt={feature.alt} fill className="object-cover" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -193,19 +200,21 @@ export default function StoreLandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-16 text-center sm:py-20">
+      <section className="mx-auto w-full max-w-6xl px-6 py-20 text-center sm:py-24">
         <p className="text-sm text-zinc-600">準備できた店舗から、成果の差が生まれています。</p>
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-zinc-600 sm:text-base">
+          まずは無料で始めて、運用の変化を確認できます。
+        </p>
         <Link href="/register?role=store" className="mt-5 inline-flex">
-          <Button className="h-12 rounded-full px-8 text-sm font-semibold sm:text-base">無料で店舗登録</Button>
+          <Button className="h-[54px] rounded-full px-9 text-sm font-semibold sm:h-14 sm:px-10 sm:text-base">無料で店舗登録</Button>
         </Link>
       </section>
 
       <section className="bg-zinc-950 px-6 py-20 text-white sm:py-24">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-semibold leading-tight sm:text-5xl">
-            今までのやり方を続けますか？
-            <br className="hidden sm:block" />
-            それとも、もっと効率的な運用に変えますか？
+          <h2 className="text-2xl font-semibold leading-snug sm:text-5xl sm:leading-tight">
+            今までのやり方を続けますか。
+            <span className="block sm:inline sm:pl-2">それとも、もっと効率的な運用に変えますか。</span>
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
             依頼の属人化を終わらせるなら、最初の一歩は登録です。無料ですぐに始められます。
