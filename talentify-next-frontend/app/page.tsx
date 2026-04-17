@@ -38,11 +38,17 @@ const featureItems = [
   },
 ]
 
+const lpImages = {
+  heroMain: '/images/hero-bg.png',
+  concept: '/images/hero-bg.png',
+  matchingOverview: '/images/point1.png',
+}
+
 export default function HomePage() {
   return (
     <main className="bg-white pt-16 text-zinc-900">
       <section className="relative isolate min-h-[72vh] overflow-hidden">
-        <Image src="/images/hero-bg.png" alt="店舗と演者が活躍する現場イメージ" fill priority className="object-cover" />
+        <Image src={lpImages.heroMain} alt="店舗と演者が活躍する現場イメージ" fill priority className="object-cover" />
         <div className="absolute inset-0 bg-black/55" />
 
         <div className="relative mx-auto flex min-h-[72vh] w-full max-w-6xl items-end px-6 pb-12 pt-24 sm:pb-20 sm:pt-28">
@@ -80,6 +86,11 @@ export default function HomePage() {
         <p className="mt-5 max-w-3xl text-sm leading-7 text-zinc-700 sm:text-base sm:leading-8">
           店舗は依頼しやすく、演者は選ばれやすく。Talentifyは、双方の成果につながる導線を整えます。
         </p>
+        <div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-3 sm:p-4">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+            <Image src={lpImages.concept} alt="ブランドコンセプトを表すイメージ" fill className="object-cover" />
+          </div>
+        </div>
       </section>
 
       <section className="bg-[#f8f7f4] py-16 sm:py-20">
@@ -93,6 +104,11 @@ export default function HomePage() {
                 <p className="mt-3 text-sm leading-7 text-zinc-700 sm:text-base">{item.description}</p>
               </article>
             ))}
+          </div>
+          <div className="mt-8 rounded-2xl border border-zinc-200 bg-zinc-50 p-3 sm:p-4">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+              <Image src={lpImages.matchingOverview} alt="マッチングの概要イメージ" fill className="object-contain p-3 sm:p-4" />
+            </div>
           </div>
         </div>
       </section>

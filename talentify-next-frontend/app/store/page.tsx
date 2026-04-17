@@ -59,12 +59,17 @@ const featureCards = [
   },
 ]
 
+const lpImages = {
+  heroMain: '/images/hero-bg.png',
+  operation: '/images/hero-bg.png',
+}
+
 export default function StoreLandingPage() {
   return (
     <main className="bg-[#f5f4f1] text-zinc-900">
       <section className="relative isolate overflow-hidden">
         <Image
-          src="/images/hero-bg.png"
+          src={lpImages.heroMain}
           alt="来店イベントの現場イメージ"
           fill
           priority
@@ -156,9 +161,9 @@ export default function StoreLandingPage() {
                   <h3 className="mt-3 text-2xl font-semibold sm:text-3xl">{feature.title}</h3>
                   <p className="mt-4 text-sm leading-7 text-zinc-700 sm:text-base">{feature.description}</p>
                 </div>
-                <div className="rounded-xl border border-zinc-200 bg-white p-2 sm:p-3">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-zinc-100">
-                    <Image src={feature.image} alt={feature.alt} fill className="object-cover" />
+                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-2 sm:p-3">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+                    <Image src={feature.image} alt={feature.alt} fill className="object-contain p-3 sm:p-4" />
                   </div>
                 </div>
               </div>
@@ -195,6 +200,11 @@ export default function StoreLandingPage() {
             <div className="border border-white/20 p-5">
               <p className="text-3xl font-semibold">運用基盤化</p>
               <p className="mt-2 text-sm text-white/80">担当者変更があっても、同じ品質で依頼を継続できます。</p>
+            </div>
+          </div>
+          <div className="mt-6 rounded-2xl border border-white/20 bg-white/5 p-3 sm:p-4">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-white/20 bg-zinc-900/60">
+              <Image src={lpImages.operation} alt="店舗運用のイメージ写真" fill className="object-cover" />
             </div>
           </div>
         </div>
