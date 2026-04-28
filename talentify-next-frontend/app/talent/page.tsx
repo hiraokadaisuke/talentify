@@ -59,10 +59,10 @@ const lpImages = {
 
 export default function TalentLandingPage() {
   return (
-    <main className="bg-[#f6f5f2] pt-16 text-zinc-900">
+    <main className="bg-white pt-16 text-[#1a1a1a]">
       <section className="relative isolate overflow-hidden">
-        <Image src={lpImages.heroMain} alt="演者の活動現場イメージ" fill priority className="object-cover" />
-        <div className="absolute inset-0 bg-black/55" />
+        <Image src={lpImages.heroMain} alt="演者の活動現場イメージ" fill priority className="object-cover brightness-110 contrast-110" />
+        <div className="absolute inset-0 bg-[#111]/35" />
 
         <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
           <div className="max-w-3xl text-white">
@@ -80,7 +80,7 @@ export default function TalentLandingPage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href="/register?role=talent" className="inline-flex">
-                <Button className="h-12 rounded-full bg-white px-8 text-sm font-semibold text-zinc-900 hover:bg-white/90 sm:h-14 sm:text-base">
+                <Button className="h-12 rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:text-base">
                   無料で演者登録
                 </Button>
               </Link>
@@ -99,13 +99,13 @@ export default function TalentLandingPage() {
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-24">
+      <section className="bg-gray-50 py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-6">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">解決</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">Talentifyなら、活動がつながる。</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {solutions.map((item) => (
-              <div key={item} className="border border-zinc-200 bg-[#f7f7f5] p-5 text-sm leading-7 sm:text-base">・{item}</div>
+              <div key={item} className="border border-zinc-200 bg-white p-5 text-sm leading-7 sm:text-base">・{item}</div>
             ))}
           </div>
         </div>
@@ -116,12 +116,12 @@ export default function TalentLandingPage() {
         <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">活動の価値が、正しく積み上がる。</h2>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {benefits.map((item) => (
-            <div key={item} className="border-t-2 border-zinc-900 bg-white p-5 text-sm font-medium leading-7 sm:text-base">{item}</div>
+            <div key={item} className="border-t-2 border-red-500 bg-white p-5 text-sm font-medium leading-7 sm:text-base">{item}</div>
           ))}
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-24">
+      <section className="bg-gray-50 py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-6">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">機能</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">必要な機能だけ、明確に。</h2>
@@ -154,26 +154,26 @@ export default function TalentLandingPage() {
         </div>
       </section>
 
-      <section className="bg-[#111111] py-16 text-white sm:py-24">
+      <section className="bg-gray-50 py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-white/60">信頼 / 将来性</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">信頼 / 将来性</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">活動を続けるほど、信頼は積み上がる。</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="border border-white/20 p-5">
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
               <p className="text-2xl font-semibold">活動基盤になる</p>
-              <p className="mt-2 text-sm text-white/80">単発で終わらない導線をつくり、継続案件につながる状態へ。</p>
+              <p className="mt-2 text-sm text-zinc-700">単発で終わらない導線をつくり、継続案件につながる状態へ。</p>
             </div>
-            <div className="border border-white/20 p-5">
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
               <p className="text-2xl font-semibold">実績が資産になる</p>
-              <p className="mt-2 text-sm text-white/80">プロフィールと履歴が残ることで、次の案件で選ばれやすくなります。</p>
+              <p className="mt-2 text-sm text-zinc-700">プロフィールと履歴が残ることで、次の案件で選ばれやすくなります。</p>
             </div>
-            <div className="border border-white/20 p-5">
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
               <p className="text-2xl font-semibold">見つけてもらえる</p>
-              <p className="mt-2 text-sm text-white/80">営業だけに頼らず、継続的に機会へ届く導線を保てます。</p>
+              <p className="mt-2 text-sm text-zinc-700">営業だけに頼らず、継続的に機会へ届く導線を保てます。</p>
             </div>
           </div>
-          <div className="mt-6 rounded-2xl border border-white/20 bg-white/5 p-3 sm:p-4">
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-white/20 bg-zinc-900/60">
+          <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-3 sm:p-4">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
               <Image src={lpImages.activity} alt="演者活動のイメージ写真" fill className="object-cover" />
             </div>
           </div>
@@ -186,18 +186,18 @@ export default function TalentLandingPage() {
           プロフィールを整えるだけでも、次の案件につながる準備になります。
         </p>
         <Link href="/register?role=talent" className="mt-6 inline-flex">
-          <Button className="h-12 rounded-full px-8 text-sm font-semibold sm:text-base">無料で演者登録</Button>
+          <Button className="h-12 rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:text-base">無料で演者登録</Button>
         </Link>
       </section>
 
-      <section className="bg-zinc-950 px-6 py-20 text-white sm:py-24">
+      <section className="bg-[#111] px-6 py-20 text-white sm:py-24">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-semibold leading-tight sm:text-5xl">見つけてもらえる活動は、ここから始まる。</h2>
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
             営業だけに頼らず、プロフィール・実績・信頼を積み上げる活動へ。
           </p>
           <Link href="/register?role=talent" className="mt-8 inline-flex">
-            <Button className="h-12 rounded-full bg-white px-8 text-sm font-semibold text-zinc-900 hover:bg-white/90 sm:h-14 sm:text-base">
+            <Button className="h-12 rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:text-base">
               無料で演者登録
             </Button>
           </Link>

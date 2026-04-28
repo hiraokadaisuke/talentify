@@ -66,17 +66,17 @@ const lpImages = {
 
 export default function StoreLandingPage() {
   return (
-    <main className="bg-[#f5f4f1] text-zinc-900">
+    <main className="bg-white text-[#1a1a1a]">
       <section className="relative isolate overflow-hidden">
         <Image
           src={lpImages.heroMain}
           alt="来店イベントの現場イメージ"
           fill
           priority
-          className="object-cover"
+          className="object-cover brightness-110 contrast-110"
         />
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/38 to-black/18" />
+        <div className="absolute inset-0 bg-[#111]/35" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#111]/40 via-[#111]/35 to-[#111]/20" />
         <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
           <div className="max-w-3xl text-white">
             <p className="text-xs uppercase tracking-[0.2em] text-white/70">For Pachinko Stores</p>
@@ -93,7 +93,7 @@ export default function StoreLandingPage() {
               依頼条件の整理からやり取り、実績管理まで一元化できます。
             </p>
             <Link href="/register?role=store" className="mt-8 inline-flex">
-              <Button className="h-12 rounded-full bg-white px-8 text-sm font-semibold text-zinc-900 hover:bg-white/90 sm:h-14 sm:text-base">
+              <Button className="h-12 rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:text-base">
                 無料で店舗登録
               </Button>
             </Link>
@@ -118,13 +118,13 @@ export default function StoreLandingPage() {
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-24">
+      <section className="bg-gray-50 py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-6">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">解決</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">Talentifyならすべて解決</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {solutions.map((item) => (
-              <div key={item} className="border border-zinc-200 bg-[#f7f7f5] p-5 text-sm leading-7 sm:text-base">
+              <div key={item} className="border border-zinc-200 bg-white p-5 text-sm leading-7 sm:text-base">
                 ・{item}
               </div>
             ))}
@@ -149,13 +149,13 @@ export default function StoreLandingPage() {
         </div>
       </section>
 
-      <section className="bg-white py-16 sm:py-24">
+      <section className="bg-gray-50 py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-6">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">機能</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">必要な機能だけ、明確に。</h2>
           <div className="mt-10 space-y-10">
             {featureCards.map((feature) => (
-              <div key={feature.label} className="grid gap-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 sm:p-6 lg:grid-cols-[0.95fr_1.2fr] lg:items-center">
+              <div key={feature.label} className="grid gap-6 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 lg:grid-cols-[0.95fr_1.2fr] lg:items-center">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">{feature.label}</p>
                   <h3 className="mt-3 text-2xl font-semibold sm:text-3xl">{feature.title}</h3>
@@ -184,26 +184,26 @@ export default function StoreLandingPage() {
         </div>
       </section>
 
-      <section className="bg-[#111111] py-16 text-white sm:py-24">
+      <section className="bg-gray-50 py-16 sm:py-24">
         <div className="mx-auto w-full max-w-6xl px-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-white/60">信頼</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">信頼</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">導入の不安を、数字と運用で解消。</h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="border border-white/20 p-5">
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
               <p className="text-3xl font-semibold">導入相談 無料</p>
-              <p className="mt-2 text-sm text-white/80">初期費用0円。まずは運用に合うか確認できます。</p>
+              <p className="mt-2 text-sm text-zinc-700">初期費用0円。まずは運用に合うか確認できます。</p>
             </div>
-            <div className="border border-white/20 p-5">
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
               <p className="text-3xl font-semibold">履歴を蓄積</p>
-              <p className="mt-2 text-sm text-white/80">案件ごとの条件・評価が残るため、次回判断が早くなります。</p>
+              <p className="mt-2 text-sm text-zinc-700">案件ごとの条件・評価が残るため、次回判断が早くなります。</p>
             </div>
-            <div className="border border-white/20 p-5">
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
               <p className="text-3xl font-semibold">運用基盤化</p>
-              <p className="mt-2 text-sm text-white/80">担当者変更があっても、同じ品質で依頼を継続できます。</p>
+              <p className="mt-2 text-sm text-zinc-700">担当者変更があっても、同じ品質で依頼を継続できます。</p>
             </div>
           </div>
-          <div className="mt-6 rounded-2xl border border-white/20 bg-white/5 p-3 sm:p-4">
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-white/20 bg-zinc-900/60">
+          <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-3 sm:p-4">
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
               <Image src={lpImages.operation} alt="店舗運用のイメージ写真" fill className="object-cover" />
             </div>
           </div>
@@ -216,11 +216,11 @@ export default function StoreLandingPage() {
           まずは無料で始めて、運用の変化を確認できます。
         </p>
         <Link href="/register?role=store" className="mt-5 inline-flex">
-          <Button className="h-[54px] rounded-full px-9 text-sm font-semibold sm:h-14 sm:px-10 sm:text-base">無料で店舗登録</Button>
+          <Button className="h-[54px] rounded-full bg-red-500 px-9 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:px-10 sm:text-base">無料で店舗登録</Button>
         </Link>
       </section>
 
-      <section className="bg-zinc-950 px-6 py-20 text-white sm:py-24">
+      <section className="bg-[#111] px-6 py-20 text-white sm:py-24">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-2xl font-semibold leading-snug sm:text-5xl sm:leading-tight">
             今までのやり方を続けますか。
@@ -230,7 +230,7 @@ export default function StoreLandingPage() {
             依頼の属人化を終わらせるなら、最初の一歩は登録です。無料ですぐに始められます。
           </p>
           <Link href="/register?role=store" className="mt-8 inline-flex">
-            <Button className="h-12 rounded-full bg-white px-8 text-sm font-semibold text-zinc-900 hover:bg-white/90 sm:h-14 sm:text-base">
+            <Button className="h-12 rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:text-base">
               無料で店舗登録
             </Button>
           </Link>
