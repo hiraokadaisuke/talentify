@@ -158,6 +158,10 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const dropdownItemClass =
     'cursor-pointer rounded-md px-2 py-1.5 text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900'
 
+  if (pathname === '/') {
+    return null
+  }
+
   if (roleNav) {
     const displayUserName = userName ?? 'ユーザー'
 
