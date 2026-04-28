@@ -8,4 +8,9 @@ export type PublicTalent = {
   rate: number | null
   bio: string | null
   display_name?: string | null
+  affiliation?: string | null
+  agency?: string | null
+  company_name?: string | null
+  capabilities?: string[] | null
+  skills?: string[] | null
 }
