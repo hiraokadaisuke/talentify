@@ -46,10 +46,10 @@ const lpImages = {
 
 export default function HomePage() {
   return (
-    <main className="bg-white pt-16 text-zinc-900">
+    <main className="bg-white pt-16 text-[#1a1a1a]">
       <section className="relative isolate min-h-[72vh] overflow-hidden">
-        <Image src={lpImages.heroMain} alt="複数人で盛り上がるイベント会場のイメージ" fill priority className="object-cover" />
-        <div className="absolute inset-0 bg-black/35" />
+        <Image src={lpImages.heroMain} alt="複数人で盛り上がるイベント会場のイメージ" fill priority className="object-cover brightness-110 contrast-110" />
+        <div className="absolute inset-0 bg-[#111]/35" />
 
         <div className="relative mx-auto flex min-h-[72vh] w-full max-w-6xl items-end px-6 pb-12 pt-24 sm:pb-20 sm:pt-28">
           <div className="max-w-xl text-left text-white">
@@ -68,7 +68,7 @@ export default function HomePage() {
               </Link>
               <Link href="/store">
                 <Button
-                  className="h-12 w-full rounded-2xl border border-white/80 bg-white px-6 py-3 text-sm font-semibold text-zinc-950 hover:bg-zinc-100 sm:w-auto"
+                  className="h-12 w-full rounded-2xl bg-red-500 px-6 py-3 text-sm font-semibold text-white hover:bg-red-600 sm:w-auto"
                 >
                   店舗で依頼する
                 </Button>
@@ -90,7 +90,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#f8f7f4] py-16 sm:py-20">
+      <section className="bg-gray-50 py-16 sm:py-20">
         <div className="mx-auto w-full max-w-6xl px-6">
           <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Feature Highlights</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">必要な価値だけ、短く伝える。</h2>
@@ -110,30 +110,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-zinc-950 py-20 text-white sm:py-24" id="branch">
+      <section className="bg-white py-20 sm:py-24" id="branch">
         <div className="mx-auto w-full max-w-6xl px-6">
-          <p className="text-xs uppercase tracking-[0.24em] text-white/60">Branch</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Branch</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">どちらに進むかを、ここで決める。</h2>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-white/80 sm:text-base sm:leading-8">
+          <p className="mt-4 max-w-3xl text-sm leading-7 text-zinc-700 sm:text-base sm:leading-8">
             詳しい説明は各ページにまとめています。あなたに合う入口から進んでください。
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {branchCards.map((card) => (
-              <article key={card.title} className="border border-white/15 bg-white/[0.06] p-7 backdrop-blur-sm sm:p-9">
-                <p className="text-xs uppercase tracking-[0.2em] text-white/60">{card.eyebrow}</p>
+              <article key={card.title} className="rounded-2xl border border-zinc-200 bg-gray-50 p-7 sm:p-9">
+                <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">{card.eyebrow}</p>
                 <h3 className="mt-3 text-2xl font-semibold">{card.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-white/85">{card.description}</p>
-                <ul className="mt-5 space-y-2 text-sm text-white/90">
+                <p className="mt-4 text-sm leading-7 text-zinc-700">{card.description}</p>
+                <ul className="mt-5 space-y-2 text-sm text-zinc-700">
                   {card.benefits.map((benefit) => (
                     <li key={benefit} className="flex items-start gap-2">
-                      <span aria-hidden className="mt-1 text-[10px] text-white/60">●</span>
+                      <span aria-hidden className="mt-1 text-[10px] text-red-500">●</span>
                       <span>{benefit}</span>
                     </li>
                   ))}
                 </ul>
                 <Link href={card.href} className="mt-6 inline-block">
-                  <Button className="h-11 rounded-full bg-white px-6 text-sm font-semibold text-zinc-950 hover:bg-white/90">
+                  <Button className="h-11 rounded-full bg-red-500 px-6 text-sm font-semibold text-white hover:bg-red-600">
                     {card.cta}
                   </Button>
                 </Link>
@@ -143,21 +143,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-20 sm:py-24">
-        <div className="border border-zinc-200 bg-[#faf9f7] px-6 py-12 text-center sm:px-12 sm:py-14">
-          <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Final CTA</p>
+      <section className="bg-[#111] px-6 py-20 text-white sm:py-24">
+        <div className="mx-auto max-w-6xl border border-white/10 bg-white/5 px-6 py-12 text-center sm:px-12 sm:py-14">
+          <p className="text-xs uppercase tracking-[0.24em] text-white/70">Final CTA</p>
           <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">まずは自分に合うページから。</h2>
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-zinc-700 sm:text-base sm:leading-8">
+          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/80 sm:text-base sm:leading-8">
             詳しい使い方や登録の流れは、それぞれのページで確認できます。
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
             <Link href="/store">
-              <Button className="h-12 w-full rounded-full bg-zinc-900 px-8 text-sm font-semibold text-white hover:bg-zinc-800 sm:w-auto">
+              <Button className="h-12 w-full rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:w-auto">
                 店舗向けページを見る
               </Button>
             </Link>
             <Link href="/talent">
-              <Button variant="outline" className="h-12 w-full rounded-full border-zinc-400 px-8 text-sm font-semibold text-zinc-900 hover:bg-zinc-100 sm:w-auto">
+              <Button className="h-12 w-full rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:w-auto">
                 演者向けページを見る
               </Button>
             </Link>
