@@ -48,32 +48,29 @@ export default function HomePage() {
   return (
     <main className="bg-white pt-16 text-zinc-900">
       <section className="relative isolate min-h-[72vh] overflow-hidden">
-        <Image src={lpImages.heroMain} alt="店舗と演者が活躍する現場イメージ" fill priority className="object-cover" />
-        <div className="absolute inset-0 bg-black/55" />
+        <Image src={lpImages.heroMain} alt="複数人で盛り上がるイベント会場のイメージ" fill priority className="object-cover" />
+        <div className="absolute inset-0 bg-black/35" />
 
         <div className="relative mx-auto flex min-h-[72vh] w-full max-w-6xl items-end px-6 pb-12 pt-24 sm:pb-20 sm:pt-28">
-          <div className="max-w-3xl text-white">
-            <p className="text-xs uppercase tracking-[0.24em] text-white/70">Talentify Brand Top</p>
-            <h1 className="mt-4 text-3xl font-semibold leading-tight sm:text-6xl sm:leading-[1.1]">
-              店舗と演者をつなぐ。
-              <br />
-              次の一歩を、ここで選ぶ。
+          <div className="max-w-xl text-left text-white">
+            <p className="text-xs uppercase tracking-[0.24em] text-white/75">Talentify Brand Top</p>
+            <h1 className="mt-4 text-3xl font-semibold leading-[1.3] sm:text-6xl sm:leading-[1.18]">
+              集客が動く。現場が変わる。
             </h1>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/90 sm:text-lg sm:leading-8">
-              Talentifyは、来店演者マッチングのためのサービスです。まずはあなたの立場に合うページから進んでください。
+            <p className="mt-5 max-w-xl text-sm leading-8 text-white/90 sm:text-lg sm:leading-9">
+              来店演者マッチングサービスです。あなたの立場に合わせてご利用ください。
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/store">
-                <Button className="h-12 w-full rounded-full bg-white px-8 text-sm font-semibold text-zinc-900 hover:bg-white/90 sm:w-auto">
-                  店舗向けページを見る
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link href="/talent">
+                <Button className="h-12 w-full rounded-2xl bg-red-500 px-6 py-3 text-sm font-semibold text-white hover:bg-red-600 sm:w-auto">
+                  演者を探す
                 </Button>
               </Link>
-              <Link href="/talent">
+              <Link href="/store">
                 <Button
-                  variant="outline"
-                  className="h-12 w-full rounded-full border-white/70 bg-transparent px-8 text-sm font-semibold text-white hover:bg-white/10 sm:w-auto"
+                  className="h-12 w-full rounded-2xl border border-white/80 bg-white px-6 py-3 text-sm font-semibold text-zinc-950 hover:bg-zinc-100 sm:w-auto"
                 >
-                  演者向けページを見る
+                  店舗で依頼する
                 </Button>
               </Link>
             </div>
