@@ -80,7 +80,7 @@ export default function CalendarSearchPage() {
           <Button type='submit'>検索</Button>
         </div>
       </form>
-      <TalentList talents={results} />
+      <TalentList talents={results} totalCount={results.length} />
     </main>
   )
 }
