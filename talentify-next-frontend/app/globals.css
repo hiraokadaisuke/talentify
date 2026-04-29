@@ -41,3 +41,118 @@ body {
     padding-top: env(safe-area-inset-top);
   }
 }
+
+.talentify-brand-word {
+  margin: 0;
+  font-size: clamp(54px, 6vw, 104px);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  color: #fff;
+  transform: rotate(-3deg) skewX(-8deg);
+  transform-origin: left center;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.68), 0 12px 30px rgba(0, 0, 0, 0.82), 0 0 22px rgba(255, 255, 255, 0.22);
+}
+
+.talentify-hero-copy {
+  position: relative;
+  z-index: 2;
+  margin-top: 14px;
+  font-size: clamp(56px, 6.8vw, 112px);
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.91;
+  color: #fff;
+  transform: rotate(-3deg) skewX(-4deg);
+  transform-origin: left center;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.65), 0 10px 22px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 255, 255, 0.18);
+}
+
+.talentify-hero-copy-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.talentify-hero-copy-white {
+  color: #fff;
+}
+
+.talentify-hero-copy-fever {
+  display: inline-block;
+  margin-left: 0.05em;
+  background: linear-gradient(90deg, #fff200 0%, #ffb000 28%, #ff4b2b 55%, #ff2d8f 82%, #d94cff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 5px 0 rgba(0, 0, 0, 0.7)) drop-shadow(0 12px 22px rgba(255, 45, 143, 0.35));
+  transform: scale(1.1) rotate(2deg);
+  transform-origin: left bottom;
+}
+
+.talentify-hero-subcopy {
+  position: relative;
+  z-index: 2;
+  margin-top: 30px;
+  font-size: clamp(24px, 2.4vw, 40px);
+  font-weight: 800;
+  line-height: 1.38;
+  letter-spacing: -0.02em;
+  color: #fff;
+  transform: rotate(-3deg);
+  text-shadow: 0 3px 0 rgba(0, 0, 0, 0.6), 0 8px 18px rgba(0, 0, 0, 0.65);
+}
+
+.talentify-hero-subcopy span {
+  color: #ff2d8f;
+  text-shadow: 0 0 12px rgba(255, 45, 143, 0.45), 0 3px 0 rgba(0, 0, 0, 0.7);
+}
+
+.talentify-hero-copy-glow {
+  position: absolute;
+  z-index: 1;
+  left: -18%;
+  top: -18%;
+  width: min(860px, 120%);
+  aspect-ratio: 1.2 / 1;
+  background: radial-gradient(circle at 32% 35%, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.56) 34%, rgba(0, 0, 0, 0.15) 62%, rgba(0, 0, 0, 0) 100%);
+  filter: blur(6px);
+}
+
+@media (max-width: 1024px) {
+  .talentify-hero-copy {
+    font-size: clamp(44px, 7vw, 80px);
+  }
+}
+
+@media (max-width: 768px) {
+  .talentify-brand-word {
+    font-size: clamp(44px, 12vw, 68px);
+    transform: rotate(-2deg) skewX(-5deg);
+  }
+
+  .talentify-hero-copy {
+    margin-top: 10px;
+    font-size: clamp(38px, 11vw, 58px);
+    line-height: 0.96;
+    transform: rotate(-1.5deg) skewX(-2deg);
+  }
+
+  .talentify-hero-copy-line {
+    white-space: normal;
+  }
+
+  .talentify-hero-subcopy {
+    margin-top: 24px;
+    font-size: clamp(20px, 5.8vw, 30px);
+    line-height: 1.35;
+    transform: rotate(-1.5deg);
+  }
+
+  .talentify-hero-copy-glow {
+    left: -24%;
+    top: -22%;
+    width: 140%;
+  }
+}
