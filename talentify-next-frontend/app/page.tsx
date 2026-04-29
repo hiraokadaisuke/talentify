@@ -223,21 +223,21 @@ export default function HomePage() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-[radial-gradient(ellipse_at_bottom,rgba(0,0,0,.88)_20%,rgba(0,0,0,0)_75%)]" />
         <div className="pointer-events-none absolute inset-0 bg-black/30" />
 
-        <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.2fr_.95fr] lg:items-center lg:px-8">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-pink-300">Talentify</p>
-            <h1 className="mt-4 text-5xl font-black leading-[0.95] tracking-tight drop-shadow-[0_10px_30px_rgba(0,0,0,.95)] sm:text-6xl lg:text-8xl">
-              お店も、ファンも、
-              <br />
-              もっと
-              <span className="inline-block -rotate-[4deg] bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 bg-clip-text pl-1 text-transparent [text-shadow:0_2px_0_rgba(0,0,0,.65),0_0_35px_rgba(255,90,120,.5)]">
-                熱狂！
+        <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.26fr_.94fr] lg:items-center lg:px-8">
+          <div className="relative z-10 pt-3 sm:pt-6 lg:pt-10">
+            <div aria-hidden className="talentify-hero-copy-glow" />
+            <p className="talentify-brand-word">Talentify</p>
+            <h1 className="talentify-hero-copy" aria-label="お店も、ファンも、もっと熱狂！">
+              <span className="talentify-hero-copy-line talentify-hero-copy-white">お店も、ファンも、</span>
+              <span className="talentify-hero-copy-line talentify-hero-copy-white">
+                もっと
+                <span className="talentify-hero-copy-fever">熱狂！</span>
               </span>
             </h1>
-            <p className="mt-5 text-lg font-semibold leading-relaxed text-white/90 sm:text-2xl">
-              タレント × <span className="text-pink-400">店舗</span> × ファンをつなぐ
+            <p className="talentify-hero-subcopy">
+              タレント × <span>店舗</span> × ファンをつなぐ
               <br />
-              エンタメ<span className="text-pink-400">特化</span>型プラットフォーム
+              エンタメ<span>特化</span>型プラットフォーム
             </p>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-3">
