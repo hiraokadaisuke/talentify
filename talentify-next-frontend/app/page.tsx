@@ -179,7 +179,7 @@ function FeatureMock({ type }: { type: string }) {
 
 export default function HomePage() {
   return (
-    <main className="relative overflow-hidden bg-[#05050d] pt-24 text-white">
+    <main className="relative overflow-hidden bg-[#05050d] text-white">
       <div className="pointer-events-none absolute inset-0">
         <NeonParticle className="left-[-10%] top-20 h-56 w-56 bg-fuchsia-500/35" />
         <NeonParticle className="right-[-5%] top-40 h-64 w-64 bg-cyan-400/30" />
@@ -187,7 +187,7 @@ export default function HomePage() {
         <NeonParticle className="bottom-32 right-1/4 h-72 w-72 bg-orange-500/20" />
       </div>
 
-      <section className="fixed left-0 right-0 top-0 z-40 border-b border-white/10 bg-black/65 backdrop-blur-md">
+      <section className="absolute left-0 right-0 top-0 z-40 border-b border-white/10 bg-black">
         <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 text-xl font-black italic tracking-tight">
             <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-yellow-300 via-pink-500 to-blue-500 shadow-[0_0_22px_rgba(236,72,153,.7)]" />
@@ -217,115 +217,42 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="top" className="relative isolate overflow-hidden pb-16 pt-8 sm:pt-12">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(236,72,153,.35),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(56,189,248,.3),transparent_38%),radial-gradient(circle_at_65%_55%,rgba(250,204,21,.2),transparent_45%),radial-gradient(circle_at_15%_75%,rgba(168,85,247,.22),transparent_40%),linear-gradient(180deg,#04040a_0%,#070716_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(130deg,transparent_0%,rgba(255,0,170,.18)_34%,transparent_40%),linear-gradient(110deg,transparent_8%,rgba(59,130,246,.22)_42%,transparent_50%),linear-gradient(160deg,transparent_0%,rgba(251,146,60,.18)_28%,transparent_45%)] opacity-80" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-[radial-gradient(ellipse_at_bottom,rgba(0,0,0,.88)_20%,rgba(0,0,0,0)_75%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-black/30" />
-
-        <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.26fr_.94fr] lg:items-center lg:px-8">
-          <div className="relative z-10 pt-3 sm:pt-6 lg:pt-10">
-            <div aria-hidden className="talentify-hero-copy-glow" />
-            <p className="talentify-brand-word">Talentify</p>
-            <h1 className="talentify-hero-copy" aria-label="お店も、ファンも、もっと熱狂！">
-              <span className="talentify-hero-copy-line talentify-hero-copy-white">お店も、ファンも、</span>
-              <span className="talentify-hero-copy-line talentify-hero-copy-white">
-                もっと
-                <span className="talentify-hero-copy-fever">熱狂！</span>
-              </span>
-            </h1>
-            <p className="talentify-hero-subcopy">
-              タレント × <span>店舗</span> × ファンをつなぐ
-              <br />
-              エンタメ<span>特化</span>型プラットフォーム
-            </p>
-
-            <div className="mt-7 grid gap-3 sm:grid-cols-3">
+      <section
+        id="top"
+        className="talentify-hero relative isolate overflow-hidden pb-16 pt-20 sm:pt-24"
+        style={{
+          backgroundImage: "url('/images/lp/talentify/hero-main.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center right',
+          backgroundRepeat: 'no-repeat',
+          minHeight: '80vh',
+        }}
+      >
+        <div
+          className="hero-overlay pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 30%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0) 70%)',
+          }}
+        />
+        <div className="hero-inner relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="hero-left relative z-10 mx-auto mt-[180px] max-w-[560px] md:ml-[80px] md:mt-[260px] md:mx-0">
+            <div className="flex flex-col gap-4 sm:flex-row">
               {heroMiniCards.map((card) => (
-                <article key={card.title} className="rounded-3xl border border-white/80 bg-white p-4 text-slate-900 shadow-[0_10px_32px_rgba(0,0,0,.35)]">
+                <article key={card.title} className="group rounded-2xl border border-white/90 bg-white p-4 text-slate-900 shadow-lg transition duration-300 hover:-translate-y-1">
                   <div className={`mb-3 h-1.5 rounded-full bg-gradient-to-r ${card.accent}`} />
                   <p className="text-sm font-black">{card.title}</p>
                   <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-700">{card.description}</p>
                 </article>
               ))}
             </div>
-
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              <Link href="/contact?type=document" className="rounded-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-500 px-6 py-4 text-center text-lg font-black text-slate-900 shadow-[0_10px_30px_rgba(250,204,21,.45)] transition hover:scale-[1.02]">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <Link href="/contact?type=document" className="min-h-14 rounded-full bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-500 px-6 py-4 text-center text-lg font-black text-slate-900 shadow-[0_12px_28px_rgba(250,204,21,.5)] transition duration-300 hover:scale-[1.03]">
                 ⬇ 資料ダウンロード
               </Link>
-              <Link href="/contact" className="rounded-full border-2 border-pink-400 bg-white px-6 py-4 text-center text-lg font-black text-pink-600 shadow-[0_10px_30px_rgba(236,72,153,.3)] transition hover:scale-[1.02]">
+              <Link href="/contact" className="min-h-14 rounded-full border-2 border-pink-400 bg-white px-6 py-4 text-center text-lg font-black text-pink-600 shadow-[0_12px_28px_rgba(236,72,153,.35)] transition duration-300 hover:scale-[1.03]">
                 💬 無料で相談してみる
               </Link>
-            </div>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-xl pb-8">
-            <div className="absolute -left-6 -top-6 h-28 w-28 rounded-full bg-fuchsia-500/40 blur-2xl" />
-            <div className="absolute -bottom-6 right-0 h-28 w-28 rounded-full bg-cyan-400/35 blur-2xl" />
-            {Array.from({ length: 18 }).map((_, idx) => (
-              <span
-                key={idx}
-                className="absolute block h-2 w-2 rotate-12 bg-pink-300/70"
-                style={{ left: `${(idx * 17) % 95}%`, top: `${(idx * 31) % 90}%` }}
-              />
-            ))}
-
-            <div className="hero-visual relative min-h-[540px] overflow-visible border border-white/20 bg-gradient-to-br from-fuchsia-900/70 via-indigo-900/60 to-slate-900 p-4 shadow-[0_18px_48px_rgba(0,0,0,.45)] sm:p-6">
-              <div
-                className="absolute inset-0 opacity-60"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 15% 20%, rgba(255,255,255,.25) 0%, transparent 35%), url('/images/lp/talentify/stage-bg.png')",
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
-              <div className="relative">
-                <div className="hero-cast-placeholder relative h-[430px] overflow-hidden bg-[radial-gradient(circle_at_50%_20%,rgba(255,135,214,.45),transparent_35%),radial-gradient(circle_at_10%_75%,rgba(59,130,246,.45),transparent_40%),linear-gradient(160deg,#2b0b3e_0%,#15214f_48%,#3f0f31_100%)] shadow-[0_0_45px_rgba(236,72,153,.45)]">
-                  <div className="absolute inset-0 bg-[url('/images/lp/talentify/hero-cast.png')] bg-cover bg-center opacity-80" />
-                  <div className="absolute bottom-0 left-[8%] h-[46%] w-[18%] rounded-t-[80px] bg-black/55" />
-                  <div className="absolute bottom-0 left-[28%] h-[58%] w-[20%] rounded-t-[90px] bg-black/65" />
-                  <div className="absolute bottom-0 left-[48%] h-[70%] w-[23%] rounded-t-[100px] bg-black/75" />
-                  <div className="absolute bottom-0 left-[73%] h-[52%] w-[18%] rounded-t-[80px] bg-black/60" />
-                  <div className="absolute left-4 top-4 rounded-full bg-pink-500 px-4 py-1 text-sm font-black">本日来店！</div>
-                  <div className="absolute bottom-3 left-4 rounded-full bg-black/55 px-3 py-1 text-xs font-bold">演者ビジュアル（差し替え可）</div>
-                </div>
-
-                <div className="hero-phone-mock absolute -bottom-2 right-[-2%] w-[240px] rotate-[8deg] rounded-[2.3rem] border-[6px] border-slate-900 bg-black p-3 shadow-[0_30px_50px_rgba(0,0,0,.75)] sm:w-[270px]">
-                  <div className="mx-auto mb-2 h-1.5 w-14 rounded-full bg-white/35" />
-                  <div className="relative overflow-hidden rounded-[1.7rem] border border-white/10 bg-[#0a0a12] p-3">
-                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(140deg,rgba(255,255,255,.15),transparent_45%)]" />
-                    <div className="pointer-events-none absolute inset-0 bg-[url('/images/lp/talentify/hero-phone.png')] bg-cover bg-center opacity-30" />
-                    <p className="text-sm font-black text-white">Talentify</p>
-                    <p className="mt-2 rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 p-2 text-center text-3xl font-black">本日来店！</p>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {Array.from({ length: 4 }).map((_, idx) => (
-                        <span key={idx} className="h-10 rounded-lg bg-white/12" />
-                      ))}
-                    </div>
-                    <p className="mt-3 text-xs font-bold text-white/90">スケジュール</p>
-                    <div className="mt-1 rounded-lg bg-white/8 px-2 py-1 text-xs">
-                      <p>10:00 来店</p>
-                      <p>15:00 トークイベント</p>
-                    </div>
-                    <div className="mt-3 flex justify-between rounded-full bg-white/10 px-4 py-2">
-                      <span className="h-2 w-2 rounded-full bg-pink-400" />
-                      <span className="h-2 w-2 rounded-full bg-cyan-400" />
-                      <span className="h-2 w-2 rounded-full bg-yellow-300" />
-                      <span className="h-2 w-2 rounded-full bg-violet-400" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="hero-yellow-badge absolute -right-4 top-24 rounded-[45%] bg-yellow-300 px-4 py-6 text-center text-sm font-black text-slate-900 shadow-[0_10px_25px_rgba(250,204,21,.45)] sm:-right-8">
-                  ファンが集まり、
-                  <br />
-                  賑わいが続く
-                  <br />
-                  お店へ！
-                </div>
-              </div>
             </div>
           </div>
         </div>
