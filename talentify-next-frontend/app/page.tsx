@@ -264,23 +264,23 @@ export default function HomePage() {
 </section>
 
 {/* HEROカード：スマホ・タブレット用 */}
-<section className="bg-black px-4 pb-4 pt-4 sm:px-5 lg:hidden">
+<section className="bg-black px-4 pb-2 pt-2 sm:px-5 lg:hidden">
   <div className="mx-auto w-full max-w-[430px] md:max-w-5xl">
-  <div className="grid gap-3 md:grid-cols-3 md:gap-4">
+  <div className="grid gap-2 md:grid-cols-3 md:gap-4">
     {heroMiniCards.map((card) => (
       <article
         key={card.title}
-        className={`rounded-2xl border-2 ${card.border} bg-white p-4 text-slate-900 shadow-[0_14px_32px_rgba(0,0,0,.45)]`}
+        className={`rounded-2xl border-2 ${card.border} bg-white p-3 text-slate-900 shadow-[0_10px_22px_rgba(0,0,0,.35)] md:p-5`}
       >
-        <div className="flex items-center gap-3">
-          <span className={`grid h-9 w-9 place-items-center rounded-full bg-gradient-to-r ${card.color} text-lg font-black text-white`}>
+        <div className="flex items-center gap-2">
+          <span className={`grid h-7 w-7 place-items-center rounded-full bg-gradient-to-r ${card.color} text-sm font-black text-white md:h-9 md:w-9 md:text-lg`}>
             {card.icon}
           </span>
-          <p className={`text-sm font-black sm:text-base ${card.titleColor}`}>
+          <p className={`text-[12px] font-black leading-tight sm:text-sm md:text-base ${card.titleColor}`}>
             {card.title}
           </p>
         </div>
-        <p className="mt-2 text-xs font-bold leading-relaxed text-slate-700 sm:text-sm">
+        <p className="mt-2 hidden text-xs font-bold leading-relaxed text-slate-700 md:block md:text-sm">
           {card.description}
         </p>
       </article>
@@ -290,26 +290,26 @@ export default function HomePage() {
 </section>
 
 {/* HERO下CTA */}
-<section className="relative z-30 -mt-10 bg-black px-4 pb-10 pt-2 sm:-mt-12 sm:px-5 md:-mt-20 lg:-mt-24 lg:px-8">
+<section className="relative z-30 -mt-4 bg-black px-4 pb-7 pt-3 sm:-mt-6 sm:px-5 md:-mt-20 lg:-mt-24 lg:px-8">
   <div className="mx-auto w-full max-w-[430px] md:max-w-5xl lg:max-w-[1500px]">
-    <div className="mx-auto flex w-full max-w-[360px] flex-col items-center justify-center gap-3 md:max-w-[1180px] md:flex-row md:gap-6">
+    <div className="mx-auto mt-1 flex w-full max-w-[340px] flex-col items-center justify-center gap-2 md:mt-0 md:max-w-[1180px] md:flex-row md:gap-6">
       <Link
         href="/contact?type=document"
-        className="flex min-h-[68px] w-full max-w-[360px] items-center justify-center gap-3 rounded-full border-2 border-white bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 px-6 py-3 text-center font-black text-slate-900 shadow-[0_0_24px_rgba(250,204,21,.45)] transition hover:scale-[1.02] md:h-[82px] md:max-w-[520px] md:gap-5 md:px-10"
+        className="flex h-12 w-full max-w-[340px] items-center justify-center gap-2 rounded-full border-2 border-white bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 px-4 text-center font-black text-slate-900 shadow-[0_0_18px_rgba(250,204,21,.4)] transition hover:scale-[1.02] md:h-[82px] md:max-w-[520px] md:gap-5 md:px-10"
       >
           <span className="leading-tight">
-          <span className="block text-xs sm:text-sm md:text-base">＼3分でわかる！／</span>
-          <span className="block text-lg sm:text-xl md:text-2xl">資料ダウンロード</span>
+          <span className="block text-[10px] md:text-base">＼3分でわかる！／</span>
+          <span className="block text-sm md:text-2xl">資料ダウンロード</span>
         </span>
-        <span className="text-2xl md:text-4xl">⇩</span>
+        <span className="text-lg md:text-4xl">⇩</span>
       </Link>
 
       <Link
         href="/contact"
-        className="flex min-h-[68px] w-full max-w-[360px] items-center justify-center gap-3 rounded-full border-2 border-pink-400 bg-white px-6 py-3 text-center font-black text-pink-600 shadow-[0_0_24px_rgba(236,72,153,.35)] transition hover:scale-[1.02] md:h-[82px] md:max-w-[520px] md:gap-5 md:px-10"
+        className="flex h-12 w-full max-w-[340px] items-center justify-center gap-2 rounded-full border-2 border-pink-400 bg-white px-4 text-center font-black text-pink-600 shadow-[0_0_18px_rgba(236,72,153,.3)] transition hover:scale-[1.02] md:h-[82px] md:max-w-[520px] md:gap-5 md:px-10"
       >
-        <span className="text-lg sm:text-xl md:text-2xl">無料で相談してみる</span>
-        <span className="text-2xl md:text-4xl">☏</span>
+        <span className="text-sm md:text-2xl">無料で相談してみる</span>
+        <span className="text-lg md:text-4xl">☏</span>
       </Link>
     </div>
   </div>
@@ -318,7 +318,7 @@ export default function HomePage() {
      {/* ABOUT + FEATURES */}
 <section
   id="about"
-  className="relative mt-2 overflow-hidden bg-black px-4 py-12 sm:px-5 sm:py-14 lg:px-8 lg:py-16"
+  className="relative mt-6 overflow-hidden bg-black px-4 py-12 sm:mt-8 sm:px-5 sm:py-14 lg:mt-2 lg:px-8 lg:py-16"
 >
   <div
     className="absolute inset-0 opacity-90"
