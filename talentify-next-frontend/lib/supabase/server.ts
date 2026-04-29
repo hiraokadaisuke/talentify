@@ -19,11 +19,11 @@ export function createClient() {
       get(name: string) {
         return cookieStore.get(name)?.value
       },
-      set(name: string, value: string, options: CookieOptions) {
-        cookieStore.set({ name, value, ...options })
+      set() {
+        // Server Component では cookie を変更できないため何もしない
       },
-      remove(name: string, options: CookieOptions) {
-        cookieStore.set({ name, value: '', ...options })
+      remove() {
+        // Server Component では cookie を変更できないため何もしない
       },
     },
   })
