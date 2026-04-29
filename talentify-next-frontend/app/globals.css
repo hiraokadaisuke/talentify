@@ -36,6 +36,20 @@ body {
   z-index: var(--z-toast);
 }
 
+.talentify-hero {
+  min-height: 720px;
+}
+
+@media (max-width: 767px) {
+  .talentify-hero {
+    background-position: 65% center !important;
+  }
+
+  .talentify-hero .hero-overlay {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)) !important;
+  }
+}
+
 @supports (padding: max(0px)) {
   .toast-top {
     padding-top: env(safe-area-inset-top);
