@@ -213,8 +213,58 @@ export default function HomePage() {
   </div>
 </header>
 
-      {/* HERO */}
-      <section id="top" className="relative bg-black pt-[78px] sm:pt-[86px]">
+      {/* HERO（スマホ） */}
+      <section id="top" className="relative overflow-hidden bg-black pt-[78px] sm:pt-[86px] md:hidden">
+        <div className="relative mx-auto w-full max-w-[430px]">
+          <img
+            src="/images/lp/sm-hero.png"
+            alt="お店も、ファンも、もっと熱狂。Talentify"
+            className="h-[620px] w-full object-cover object-top"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/90" />
+          <div className="absolute inset-x-0 bottom-0 px-4 pb-5">
+            <div className="mx-auto flex w-full max-w-[350px] flex-col gap-2">
+              <Link
+                href="/contact?type=document"
+                className="flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-yellow-300 to-orange-400 text-sm font-black text-black shadow-lg"
+              >
+                資料ダウンロード
+              </Link>
+              <Link
+                href="/contact"
+                className="flex h-12 items-center justify-center rounded-2xl border border-pink-300/70 bg-white text-sm font-black text-pink-500 shadow-lg"
+              >
+                無料で相談してみる
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HEROカード（スマホ） */}
+      <section className="mx-auto mt-3 mb-8 w-full max-w-[390px] space-y-2 px-4 md:hidden">
+        {heroMiniCards.map((card) => (
+          <article
+            key={card.title}
+            className={`rounded-2xl border-2 ${card.border} bg-white px-3 py-2 text-slate-900 shadow-[0_10px_22px_rgba(0,0,0,.35)]`}
+          >
+            <div className="flex items-center gap-2">
+              <span className={`grid h-6 w-6 place-items-center rounded-full bg-gradient-to-r ${card.color} text-xs font-black text-white`}>
+                {card.icon}
+              </span>
+              <p className={`text-[11px] font-black leading-tight ${card.titleColor}`}>
+                {card.title}
+              </p>
+            </div>
+            <p className="hidden">
+              {card.description}
+            </p>
+          </article>
+        ))}
+      </section>
+
+      {/* HERO（PC/タブレット） */}
+      <section className="relative hidden bg-black md:block md:pt-[86px]">
         <div className="mx-auto w-full max-w-[1500px]">
           <img
             src="/images/lp/hero.png"
@@ -263,34 +313,8 @@ export default function HomePage() {
 </div>
 </section>
 
-{/* HEROカード：スマホ・タブレット用 */}
-<section className="bg-black px-4 pb-2 pt-2 sm:px-5 lg:hidden">
-  <div className="mx-auto w-full max-w-[430px] md:max-w-5xl">
-  <div className="grid gap-2 md:grid-cols-3 md:gap-4">
-    {heroMiniCards.map((card) => (
-      <article
-        key={card.title}
-        className={`rounded-2xl border-2 ${card.border} bg-white p-3 text-slate-900 shadow-[0_10px_22px_rgba(0,0,0,.35)] md:p-5`}
-      >
-        <div className="flex items-center gap-2">
-          <span className={`grid h-7 w-7 place-items-center rounded-full bg-gradient-to-r ${card.color} text-sm font-black text-white md:h-9 md:w-9 md:text-lg`}>
-            {card.icon}
-          </span>
-          <p className={`text-[12px] font-black leading-tight sm:text-sm md:text-base ${card.titleColor}`}>
-            {card.title}
-          </p>
-        </div>
-        <p className="mt-2 hidden text-xs font-bold leading-relaxed text-slate-700 md:block md:text-sm">
-          {card.description}
-        </p>
-      </article>
-    ))}
-  </div>
-  </div>
-</section>
-
 {/* HERO下CTA */}
-<section className="relative z-30 -mt-4 bg-black px-4 pb-7 pt-3 sm:-mt-6 sm:px-5 md:-mt-20 lg:-mt-24 lg:px-8">
+<section className="relative z-30 hidden bg-black px-4 pb-7 pt-3 sm:px-5 md:-mt-20 md:block lg:-mt-24 lg:px-8">
   <div className="mx-auto w-full max-w-[430px] md:max-w-5xl lg:max-w-[1500px]">
     <div className="mx-auto mt-1 flex w-full max-w-[340px] flex-col items-center justify-center gap-2 md:mt-0 md:max-w-[1180px] md:flex-row md:gap-6">
       <Link
@@ -318,7 +342,7 @@ export default function HomePage() {
      {/* ABOUT + FEATURES */}
 <section
   id="about"
-  className="relative mt-6 overflow-hidden bg-black px-4 py-12 sm:mt-8 sm:px-5 sm:py-14 lg:mt-2 lg:px-8 lg:py-16"
+  className="relative mt-6 overflow-hidden bg-black px-4 py-12 sm:mt-8 sm:px-5 sm:py-14 md:pt-8 lg:mt-2 lg:px-8 lg:py-16"
 >
   <div
     className="absolute inset-0 opacity-90"
