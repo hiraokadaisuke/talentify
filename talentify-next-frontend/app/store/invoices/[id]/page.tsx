@@ -28,7 +28,8 @@ interface Invoice {
   due_date: string | null
   payment_status: string | null
   offers: { paid: boolean | null } | null
-  talents: {
+  talent_id: string | null
+  payout: {
     bank_name: string | null
     branch_name: string | null
     account_type: string | null
@@ -37,15 +38,8 @@ interface Invoice {
   } | null
 }
 
-interface RawInvoice extends Omit<Invoice, 'offers' | 'talents'> {
+interface RawInvoice extends Omit<Invoice, 'offers' | 'payout'> {
   offers: { paid: boolean | null }[] | null
-  talents: {
-    bank_name: string | null
-    branch_name: string | null
-    account_type: string | null
-    account_number: string | null
-    account_holder: string | null
-  }[] | null
 }
 
 function statusLabel(inv: Invoice): string {
@@ -71,19 +65,32 @@ export default function StoreInvoiceDetail() {
     const { data } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,offers(paid),talents:talent_id(bank_name,branch_name,account_type,account_number,account_holder)'
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid)'
       )
       .eq('id', id)
       .maybeSingle()
     const raw = data as unknown as RawInvoice | null
-    const normalized = raw
-      ? {
-          ...raw,
-          offers: Array.isArray(raw.offers) ? raw.offers[0] ?? null : raw.offers,
-          talents: Array.isArray(raw.talents) ? raw.talents[0] ?? null : raw.talents,
-        }
-      : null
-    setInvoice(normalized)
+    if (!raw) {
+      setInvoice(null)
+      setLoading(false)
+      return
+    }
+
+    let payout: Invoice['payout'] = null
+    if (raw.talent_id) {
+      const { data: payoutData } = await supabase
+        .from('talent_payout_accounts')
+        .select('bank_name,branch_name,account_type,account_number,account_holder')
+        .eq('talent_id', raw.talent_id)
+        .maybeSingle()
+      payout = payoutData ?? null
+    }
+
+    setInvoice({
+      ...raw,
+      offers: Array.isArray(raw.offers) ? raw.offers[0] ?? null : raw.offers,
+      payout,
+    })
     setLoading(false)
   }
 
@@ -158,7 +165,7 @@ export default function StoreInvoiceDetail() {
 
   const baseFee =
     invoice.amount - (invoice.transport_fee ?? 0) - (invoice.extra_fee ?? 0)
-  const bank = invoice.talents
+  const bank = invoice.payout
   const hasBankInfo = bank
     ? [
         bank.bank_name,

@@ -19,8 +19,7 @@ export async function GET(
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .select(`
-        id, amount, transport_fee, extra_fee, invoice_number, due_date, created_at, store_id, talent_id,
-        talents:talent_id(bank_name, branch_name, account_type, account_number, account_holder)
+        id, amount, transport_fee, extra_fee, invoice_number, due_date, created_at, store_id, talent_id
       `)
       .eq('id', id)
       .single<{
@@ -33,13 +32,6 @@ export async function GET(
         created_at: string | null
         store_id: string
         talent_id: string
-        talents: {
-          bank_name: string | null
-          branch_name: string | null
-          account_type: string | null
-          account_number: string | null
-          account_holder: string | null
-        } | null
       }>()
     if (invError || !invoice) {
       return NextResponse.json({ error: 'invoice_not_found' }, { status: 404 })
@@ -62,6 +54,12 @@ export async function GET(
     if (!authorized) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
+
+    const { data: payout } = await supabase
+      .from('talent_payout_accounts')
+      .select('bank_name, branch_name, account_type, account_number, account_holder')
+      .eq('talent_id', invoice.talent_id)
+      .maybeSingle()
 
     const pdfDoc = await PDFDocument.create()
     const page = pdfDoc.addPage()
@@ -93,11 +91,11 @@ export async function GET(
     drawLine(`合計金額: ${toYen(invoice.amount)}`)
     blank()
     drawLine('振込先情報:')
-    drawLine(`銀行名: ${invoice.talents?.bank_name ?? ''}`)
-    drawLine(`支店名: ${invoice.talents?.branch_name ?? ''}`)
-    drawLine(`口座種別: ${invoice.talents?.account_type ?? ''}`)
-    drawLine(`口座番号: ${invoice.talents?.account_number ?? ''}`)
-    drawLine(`口座名義: ${invoice.talents?.account_holder ?? ''}`)
+    drawLine(`銀行名: ${payout?.bank_name ?? ''}`)
+    drawLine(`支店名: ${payout?.branch_name ?? ''}`)
+    drawLine(`口座種別: ${payout?.account_type ?? ''}`)
+    drawLine(`口座番号: ${payout?.account_number ?? ''}`)
+    drawLine(`口座名義: ${payout?.account_holder ?? ''}`)
 
     const pdfBytes = await pdfDoc.save()
 

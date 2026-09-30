@@ -724,24 +724,67 @@ export type Database = {
         }
         Relationships: []
       }
-      talents: {
+      talent_payout_accounts: {
         Row: {
           account_holder: string | null
           account_number: string | null
           account_type: string | null
+          bank_name: string | null
+          branch_name: string | null
+          talent_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          account_type?: string | null
+          bank_name?: string | null
+          branch_name?: string | null
+          talent_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          account_type?: string | null
+          bank_name?: string | null
+          branch_name?: string | null
+          talent_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_payout_accounts_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: true
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_payout_accounts_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: true
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      talents: {
+        Row: {
           achievements: string | null
           agency_name: string | null
           area: string | null
           availability: string | null
           avatar_url: string | null
-          bank_name: string | null
           bio: string | null
           bio_certifications: string | null
           bio_hobby: string | null
           bio_others: string | null
           birthdate: string | null
           birthplace: string | null
-          branch_name: string | null
           created_at: string | null
           display_name: string | null
           experience_years: number | null
@@ -778,22 +821,17 @@ export type Database = {
           youtube_url: string | null
         }
         Insert: {
-          account_holder?: string | null
-          account_number?: string | null
-          account_type?: string | null
           achievements?: string | null
           agency_name?: string | null
           area?: string | null
           availability?: string | null
           avatar_url?: string | null
-          bank_name?: string | null
           bio?: string | null
           bio_certifications?: string | null
           bio_hobby?: string | null
           bio_others?: string | null
           birthdate?: string | null
           birthplace?: string | null
-          branch_name?: string | null
           created_at?: string | null
           display_name?: string | null
           experience_years?: number | null
@@ -830,22 +868,17 @@ export type Database = {
           youtube_url?: string | null
         }
         Update: {
-          account_holder?: string | null
-          account_number?: string | null
-          account_type?: string | null
           achievements?: string | null
           agency_name?: string | null
           area?: string | null
           availability?: string | null
           avatar_url?: string | null
-          bank_name?: string | null
           bio?: string | null
           bio_certifications?: string | null
           bio_hobby?: string | null
           bio_others?: string | null
           birthdate?: string | null
           birthplace?: string | null
-          branch_name?: string | null
           created_at?: string | null
           display_name?: string | null
           experience_years?: number | null
