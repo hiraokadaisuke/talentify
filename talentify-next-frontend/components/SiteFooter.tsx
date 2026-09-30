@@ -2,8 +2,8 @@ import Link from 'next/link'
 
 const footerLinks = [
   { href: '/', label: 'サービス' },
-  { href: '/store', label: '店舗向け' },
-  { href: '/talent', label: '演者向け' },
+  { href: '/#for-store', label: '店舗向け' },
+  { href: '/#for-talent', label: '演者向け' },
   { href: '/guide', label: 'ご利用ガイド' },
   { href: '/faq', label: 'よくある質問' },
   { href: '/login', label: 'ログイン' },

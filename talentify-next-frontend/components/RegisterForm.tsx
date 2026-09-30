@@ -41,6 +41,52 @@ export default function RegisterForm() {
     }
   }
 
+  if (!role) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] bg-[#05050d] px-5 pb-16 pt-28 text-white">
+        <div className="mx-auto w-full max-w-2xl">
+          <div className="text-center">
+            <Link href="/" className="inline-flex">
+              <img src="/images/lp/logo.png" alt="Talentify" className="h-10 w-auto" />
+            </Link>
+            <h1 className="mt-7 text-3xl font-black sm:text-4xl">新規登録</h1>
+            <p className="mt-3 text-sm font-medium leading-7 text-white/65">
+              利用する立場を選んでください。登録後の画面と機能が自動で切り替わります。
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <Link
+              href="/register?role=store"
+              className="rounded-3xl border border-orange-300/30 bg-gradient-to-br from-orange-500/20 to-pink-500/10 p-6 transition hover:-translate-y-1 hover:border-orange-300/60"
+            >
+              <p className="text-xs font-black tracking-[0.18em] text-orange-300">FOR STORES</p>
+              <h2 className="mt-3 text-2xl font-black">店舗として登録</h2>
+              <p className="mt-3 text-sm font-medium leading-7 text-white/65">
+                演者検索・オファー・案件管理を利用する店舗向けアカウントです。
+              </p>
+            </Link>
+            <Link
+              href="/register?role=talent"
+              className="rounded-3xl border border-sky-300/30 bg-gradient-to-br from-sky-500/20 to-blue-500/10 p-6 transition hover:-translate-y-1 hover:border-sky-300/60"
+            >
+              <p className="text-xs font-black tracking-[0.18em] text-sky-300">FOR TALENTS</p>
+              <h2 className="mt-3 text-2xl font-black">演者として登録</h2>
+              <p className="mt-3 text-sm font-medium leading-7 text-white/65">
+                プロフィール・予定・オファー・請求管理を利用する演者向けアカウントです。
+              </p>
+            </Link>
+          </div>
+
+          <p className="mt-7 text-center text-sm text-white/65">
+            すでにアカウントをお持ちの方は{' '}
+            <Link href="/login" className="font-black text-white underline underline-offset-4">ログイン</Link>
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
@@ -125,8 +171,14 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="max-w-md mx-auto p-6 space-y-6">
-      <h1 className="text-2xl font-bold">新規登録</h1>
+    <div className="min-h-[calc(100vh-4rem)] bg-[#05050d] px-5 pb-16 pt-28 text-white">
+      <div className="mx-auto max-w-md rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-2xl sm:p-8">
+      <p className="text-xs font-black tracking-[0.18em] text-pink-300">
+        {role === 'store' ? 'FOR STORES' : role === 'talent' ? 'FOR TALENTS' : 'ACCOUNT'}
+      </p>
+      <h1 className="mt-2 text-2xl font-black">
+        {role === 'store' ? '店舗アカウント登録' : role === 'talent' ? '演者アカウント登録' : '新規登録'}
+      </h1>
 
       {globalError && <p className="text-red-600">{globalError}</p>}
       {rateLimitError && (
@@ -137,7 +189,7 @@ export default function RegisterForm() {
 
       <form onSubmit={handleRegister} className="space-y-6">
         <div>
-          <label className="block font-medium">メールアドレス</label>
+          <label className="block font-medium text-white/80">メールアドレス</label>
           <Input
             type="email"
             value={email}
@@ -150,7 +202,7 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <label className="block font-medium">パスワード</label>
+          <label className="block font-medium text-white/80">パスワード</label>
           <Input
             type="password"
             value={password}
@@ -165,7 +217,7 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <label className="block font-medium">パスワード（確認）</label>
+          <label className="block font-medium text-white/80">パスワード（確認）</label>
           <Input
             type="password"
             value={confirm}
@@ -182,12 +234,16 @@ export default function RegisterForm() {
         </Button>
       </form>
 
-      <p className="text-sm text-center">
+      <p className="text-sm text-center text-white/65">
         すでにアカウントをお持ちの方は{' '}
-        <Link href="/login" className="text-blue-600 underline">
+        <Link href="/login" className="font-black text-white underline underline-offset-4">
           ログイン
         </Link>
       </p>
+      <p className="text-center text-xs text-white/45">
+        <Link href="/register" className="hover:text-white">登録種別を選び直す</Link>
+      </p>
+      </div>
     </div>
   )
 }

@@ -105,7 +105,7 @@ const ctaCards = [
   },
   {
     icon: '🎤',
-    title: 'タレント登録はこちら',
+    title: '演者登録はこちら',
     subtitle: 'タレントとして始める',
     href: '/register?role=talent',
     className: 'from-sky-400 to-blue-600 text-white',
@@ -192,22 +192,23 @@ export default function HomePage() {
       <Link href="#top" className="hover:text-pink-300">TOP</Link>
       <Link href="#about" className="hover:text-pink-300">Talentifyとは</Link>
       <Link href="#features" className="hover:text-pink-300">機能紹介</Link>
-      <Link href="#benefits" className="hover:text-pink-300">導入メリット</Link>
+      <Link href="#for-store" className="hover:text-pink-300">店舗向け</Link>
+      <Link href="#for-talent" className="hover:text-pink-300">演者向け</Link>
       <Link href="/guide" className="hover:text-pink-300">ご利用ガイド</Link>
     </nav>
 
     <div className="hidden items-center gap-4 lg:flex">
       <Link
-        href="/contact?type=document"
-        className="rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 px-7 py-4 text-sm font-black text-white shadow-[0_0_22px_rgba(14,165,233,.45)] transition hover:scale-105"
+        href="/login"
+        className="rounded-xl border border-white/35 bg-white/10 px-7 py-4 text-sm font-black text-white shadow-[0_0_18px_rgba(255,255,255,.12)] transition hover:scale-105 hover:bg-white/15"
       >
-        資料ダウンロード
+        ログイン
       </Link>
       <Link
-        href="/contact"
+        href="#register"
         className="rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 px-7 py-4 text-sm font-black text-white shadow-[0_0_22px_rgba(236,72,153,.45)] transition hover:scale-105"
       >
-        お問い合わせ
+        新規登録
       </Link>
     </div>
   </div>
@@ -225,16 +226,19 @@ export default function HomePage() {
           <div className="absolute inset-x-0 bottom-0 px-4 pb-5">
             <div className="mx-auto flex w-full max-w-[350px] flex-col gap-2">
               <Link
-                href="/contact?type=document"
+                href="/register?role=store"
                 className="flex h-12 items-center justify-center rounded-2xl bg-gradient-to-r from-yellow-300 to-orange-400 text-sm font-black text-black shadow-lg"
               >
-                資料ダウンロード
+                店舗として無料登録
               </Link>
               <Link
-                href="/contact"
-                className="flex h-12 items-center justify-center rounded-2xl border border-pink-300/70 bg-white text-sm font-black text-pink-500 shadow-lg"
+                href="/register?role=talent"
+                className="flex h-12 items-center justify-center rounded-2xl border border-sky-300/70 bg-white text-sm font-black text-sky-600 shadow-lg"
               >
-                無料で相談してみる
+                演者として無料登録
+              </Link>
+              <Link href="/login" className="py-1 text-center text-xs font-black text-white/80 underline underline-offset-4">
+                すでに登録済みの方はログイン
               </Link>
             </div>
           </div>
@@ -318,22 +322,25 @@ export default function HomePage() {
   <div className="mx-auto w-full max-w-[430px] md:max-w-5xl lg:max-w-[1500px]">
     <div className="mx-auto mt-1 flex w-full max-w-[340px] flex-col items-center justify-center gap-2 md:mt-0 md:max-w-[1180px] md:flex-row md:gap-6">
       <Link
-        href="/contact?type=document"
+        href="/register?role=store"
         className="flex h-12 w-full max-w-[340px] items-center justify-center gap-2 rounded-full border-2 border-white bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 px-4 text-center font-black text-slate-900 shadow-[0_0_18px_rgba(250,204,21,.4)] transition hover:scale-[1.02] md:h-[82px] md:max-w-[520px] md:gap-5 md:px-10"
       >
-          <span className="leading-tight">
-          <span className="block text-[10px] md:text-base">＼3分でわかる！／</span>
-          <span className="block text-sm md:text-2xl">資料ダウンロード</span>
+        <span className="leading-tight">
+          <span className="block text-[10px] md:text-base">＼店舗の方はこちら／</span>
+          <span className="block text-sm md:text-2xl">店舗として無料登録</span>
         </span>
-        <span className="text-lg md:text-4xl">⇩</span>
+        <span className="text-lg md:text-4xl">→</span>
       </Link>
 
       <Link
-        href="/contact"
-        className="flex h-12 w-full max-w-[340px] items-center justify-center gap-2 rounded-full border-2 border-pink-400 bg-white px-4 text-center font-black text-pink-600 shadow-[0_0_18px_rgba(236,72,153,.3)] transition hover:scale-[1.02] md:h-[82px] md:max-w-[520px] md:gap-5 md:px-10"
+        href="/register?role=talent"
+        className="flex h-12 w-full max-w-[340px] items-center justify-center gap-2 rounded-full border-2 border-sky-400 bg-white px-4 text-center font-black text-sky-600 shadow-[0_0_18px_rgba(14,165,233,.3)] transition hover:scale-[1.02] md:h-[82px] md:max-w-[520px] md:gap-5 md:px-10"
       >
-        <span className="text-sm md:text-2xl">無料で相談してみる</span>
-        <span className="text-lg md:text-4xl">☏</span>
+        <span className="leading-tight">
+          <span className="block text-[10px] md:text-base">＼演者の方はこちら／</span>
+          <span className="block text-sm md:text-2xl">演者として無料登録</span>
+        </span>
+        <span className="text-lg md:text-4xl">→</span>
       </Link>
     </div>
   </div>
@@ -449,7 +456,7 @@ export default function HomePage() {
 >
   <div className="mx-auto w-full max-w-[430px] md:max-w-5xl lg:max-w-[1500px]">
     <div className="grid gap-6 lg:grid-cols-2">
-      <article className="relative overflow-hidden rounded-3xl bg-white p-4 text-slate-900 shadow-[0_16px_36px_rgba(236,72,153,.22)] md:min-h-[430px] md:rounded-none md:p-0">
+      <article id="for-store" className="scroll-mt-28 relative overflow-hidden rounded-3xl bg-white p-4 text-slate-900 shadow-[0_16px_36px_rgba(236,72,153,.22)] md:min-h-[430px] md:rounded-none md:p-0">
         <div className="absolute left-0 top-0 z-30 h-14 w-[58%] bg-pink-500 [clip-path:polygon(0_0,100%_0,90%_100%,0_100%)]">
           <p className="pl-8 pt-4 text-sm font-black text-white">
             店舗担当者にとって
@@ -498,7 +505,7 @@ export default function HomePage() {
         </div>
       </article>
 
-      <article className="relative overflow-hidden rounded-3xl bg-white p-4 text-slate-900 shadow-[0_16px_36px_rgba(14,165,233,.22)] md:min-h-[430px] md:rounded-none md:p-0">
+      <article id="for-talent" className="scroll-mt-28 relative overflow-hidden rounded-3xl bg-white p-4 text-slate-900 shadow-[0_16px_36px_rgba(14,165,233,.22)] md:min-h-[430px] md:rounded-none md:p-0">
         <div className="absolute left-0 top-0 z-30 h-14 w-[62%] bg-sky-500 [clip-path:polygon(0_0,100%_0,90%_100%,0_100%)]">
           <p className="pl-8 pt-4 text-sm font-black text-white">
             演者にとって
@@ -551,7 +558,7 @@ export default function HomePage() {
 </section>
 
       {/* CTA */}
-      <section className="relative overflow-hidden bg-black px-4 py-12 sm:px-5 sm:py-14 lg:px-8">
+      <section id="register" className="scroll-mt-28 relative overflow-hidden bg-black px-4 py-12 sm:px-5 sm:py-14 lg:px-8">
   <div
     className="absolute inset-0 opacity-70"
     style={{
@@ -569,30 +576,28 @@ export default function HomePage() {
 
     <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-3 md:mt-9 md:max-w-none md:gap-5 md:grid-cols-2 lg:grid-cols-4">
 
-      {/* 資料DL */}
+      {/* ログイン */}
       <Link
-        href="/contact?type=document"
-        className="group relative flex min-h-[130px] items-center justify-between overflow-hidden rounded-[1.4rem] border-2 border-white bg-gradient-to-r from-yellow-300 to-orange-400 px-5 py-5 text-slate-900 shadow-[0_0_22px_rgba(250,204,21,.35)] transition hover:-translate-y-1 md:min-h-[150px] md:rounded-[2rem] md:px-7 md:py-6"
+        href="/login"
+        className="group relative flex min-h-[130px] items-center justify-between overflow-hidden rounded-[1.4rem] border-2 border-white bg-white px-5 py-5 text-slate-900 shadow-[0_0_22px_rgba(255,255,255,.18)] transition hover:-translate-y-1 md:min-h-[150px] md:rounded-[2rem] md:px-7 md:py-6"
       >
         <div>
-          <p className="text-sm font-black">＼まずは3分でわかる！／</p>
-          <p className="mt-2 text-xl font-black md:text-2xl">資料ダウンロード</p>
+          <p className="text-sm font-black">＼すでに登録済みの方／</p>
+          <p className="mt-2 text-xl font-black md:text-2xl">ログイン</p>
         </div>
-
-        <FileText className="absolute right-6 top-6 h-9 w-9 text-slate-900/80" />
+        <span className="absolute right-6 top-6 text-4xl">↗</span>
       </Link>
 
-      {/* 相談 */}
+      {/* ガイド */}
       <Link
-        href="/contact"
+        href="/guide"
         className="group relative flex min-h-[130px] items-center justify-between rounded-[1.4rem] border-2 border-pink-400 bg-white px-5 py-5 text-pink-600 shadow-[0_0_22px_rgba(236,72,153,.3)] transition hover:-translate-y-1 md:min-h-[150px] md:rounded-[2rem] md:px-7 md:py-6"
       >
         <div>
-          <p className="text-sm font-black">導入のご相談はこちら</p>
-          <p className="mt-2 text-xl font-black md:text-2xl">無料で相談してみる</p>
+          <p className="text-sm font-black">使い方を確認する</p>
+          <p className="mt-2 text-xl font-black md:text-2xl">ご利用ガイド</p>
         </div>
-
-        <MessageCircle className="absolute right-6 top-6 h-9 w-9 text-pink-500/80" />
+        <FileText className="absolute right-6 top-6 h-9 w-9 text-pink-500/80" />
       </Link>
 
       {/* 店舗 */}
@@ -617,8 +622,8 @@ export default function HomePage() {
         className="group relative flex min-h-[130px] items-center justify-between rounded-[1.4rem] bg-gradient-to-r from-cyan-400 to-blue-600 px-5 py-5 text-white shadow-[0_0_22px_rgba(14,165,233,.3)] transition hover:-translate-y-1 md:min-h-[150px] md:rounded-[2rem] md:px-7 md:py-6"
       >
         <div>
-          <p className="text-sm font-black">＼タレントとして始める／</p>
-          <p className="mt-2 text-xl font-black md:text-2xl">タレント登録はこちら</p>
+          <p className="text-sm font-black">＼演者として始める／</p>
+          <p className="mt-2 text-xl font-black md:text-2xl">演者登録はこちら</p>
           <p className="mt-2 border-t border-white/35 pt-2 text-xs font-bold md:mt-3 md:text-sm">
             活動の場を広げよう！
           </p>
