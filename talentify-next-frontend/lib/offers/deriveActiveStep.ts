@@ -22,7 +22,7 @@ export function deriveActiveStep({
 }: DeriveActiveStepParams): OfferStepKey {
   if (reviewedAt) return 'review'
   if (paidAt || paid || invoiceStatus === 'paid') return 'payment'
-  if (status === 'completed') return 'visit'
+  if (status === 'completed') return 'payment'
   if (status === 'confirmed' || status === 'accepted') return 'visit'
   if (invoiceStatus === 'submitted') return 'invoice'
   return 'approval'

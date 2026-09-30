@@ -323,6 +323,7 @@ model offers {
   time_range          String?
   invoice_url         String?
   accepted_at         DateTime?             @db.Timestamptz(6)
+  visit_completed_at  DateTime?             @db.Timestamptz(6)
   canceled_at         DateTime?             @db.Timestamptz(6)
   canceled_by_role    String?
   invoices            invoices?

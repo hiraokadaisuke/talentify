@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
@@ -12,6 +12,7 @@ import { ja } from 'date-fns/locale'
 import CancelOfferSection from './CancelOfferSection'
 import ReviewModal from '@/components/modals/ReviewModal'
 import { resolveMainActionPhase } from '@/lib/offers/mainActionPhase'
+import { toast } from 'sonner'
 
 type StepDetailCardProps = {
   activeStep: OfferStepKey
@@ -88,10 +89,30 @@ const getStatusText = (status: string) => {
 
 export default function StepDetailCard({ activeStep, activeStatus, offer, invoice, paymentLink, cancelation }: StepDetailCardProps) {
   const router = useRouter()
+  const [visitCompleting, setVisitCompleting] = useState(false)
 
   const handleReviewSubmitted = useCallback(() => {
     router.refresh()
   }, [router])
+
+  const handleVisitComplete = useCallback(async () => {
+    setVisitCompleting(true)
+    try {
+      const res = await fetch(`/api/offers/${offer.id}/visit-complete`, { method: 'POST' })
+      const result = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(result?.message || '来店完了の記録に失敗しました')
+      }
+
+      toast.success('来店完了を記録しました')
+      router.refresh()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '来店完了の記録に失敗しました')
+    } finally {
+      setVisitCompleting(false)
+    }
+  }, [offer.id, router])
 
   const formattedVisitDate = useMemo(() => offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定', [offer.date])
   const paymentCompletedLabel = useMemo(() => offer.paidAt ? format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) : undefined, [offer.paidAt])
@@ -127,9 +148,11 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
         }
       case 'payment_waiting':
         return {
-          title: '取引が締結されました',
-          description: '見積内容で条件が確定し、取引締結書兼請求書が発行されています。来店後、支払いを進めてください。',
-          badge: <Badge variant="success">締結済み</Badge>,
+          title: offer.status === 'completed' ? '来店が完了しました' : '取引が締結されました',
+          description: offer.status === 'completed'
+            ? '来店完了を確認しました。締結書兼請求書を確認し、支払いを進めてください。'
+            : '見積内容で条件が確定し、取引締結書兼請求書が発行されています。来店後、支払いを進めてください。',
+          badge: <Badge variant="success">{offer.status === 'completed' ? '来店完了' : '締結済み'}</Badge>,
           meta: [
             { label: '支払い状況', value: offer.paymentStatusLabel },
             ...(invoice?.amount != null ? [{ label: '支払い予定額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
@@ -220,11 +243,20 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
     if (activeStep === 'visit') {
       result = {
         title: '来店実施',
-        description: '来店日時と当日の連絡事項を確認してください。',
+        description: '来店日時と当日の連絡事項を確認し、来店後に完了を記録してください。',
         badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
         meta: [
           { label: '来店日時', value: formattedVisitDate },
         ],
+        primaryAction: offer.status === 'confirmed' ? (
+          <Button
+            className={primaryActionClass}
+            onClick={() => void handleVisitComplete()}
+            disabled={visitCompleting}
+          >
+            {visitCompleting ? '記録中...' : '来店完了にする'}
+          </Button>
+        ) : undefined,
       }
     }
 
@@ -240,7 +272,7 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           ),
         }
       : result
-  }, [activeStep, activeStatus, cancelation, formattedVisitDate, mainActionDetail, offer.id, offer.reward, offer.status, offer.storeName])
+  }, [activeStep, activeStatus, cancelation, formattedVisitDate, handleVisitComplete, mainActionDetail, offer.id, offer.reward, offer.status, offer.storeName, visitCompleting])
 
   return (
     <Card className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">

@@ -27,7 +27,7 @@ interface Invoice {
   invoice_number: string | null
   due_date: string | null
   payment_status: string | null
-  offers: { paid: boolean | null } | null
+  offers: { paid: boolean | null; status: string | null } | null
   talent_id: string | null
   payout: {
     bank_name: string | null
@@ -39,7 +39,7 @@ interface Invoice {
 }
 
 interface RawInvoice extends Omit<Invoice, 'offers' | 'payout'> {
-  offers: { paid: boolean | null }[] | null
+  offers: { paid: boolean | null; status: string | null }[] | null
 }
 
 function statusLabel(inv: Invoice): string {
@@ -65,7 +65,7 @@ export default function StoreInvoiceDetail() {
     const { data } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid)'
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid,status)'
       )
       .eq('id', id)
       .maybeSingle()
@@ -110,7 +110,8 @@ export default function StoreInvoiceDetail() {
         router.push(`/store/offers/${invoice.offer_id}`)
       }
     } else {
-      toast.error('支払いの記録に失敗しました')
+      const result = await res.json().catch(() => null)
+      toast.error(result?.message || '支払いの記録に失敗しました')
     }
   }
 
@@ -273,11 +274,17 @@ export default function StoreInvoiceDetail() {
         </div>
       )}
 
-      {!invoice.offers?.paid && isContracted && (
+      {!invoice.offers?.paid && isContracted && invoice.offers?.status === 'completed' && (
         <Button onClick={handlePay} disabled={paying}>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする
         </Button>
+      )}
+
+      {!invoice.offers?.paid && isContracted && invoice.offers?.status !== 'completed' && (
+        <div className='rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600'>
+          来店完了を記録すると、支払い完了の操作ができるようになります。
+        </div>
       )}
     </main>
   )

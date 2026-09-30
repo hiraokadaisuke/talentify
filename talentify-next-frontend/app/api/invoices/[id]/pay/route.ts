@@ -41,6 +41,26 @@ export async function POST(
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
+    const { data: offerState, error: offerStateError } = await service
+      .from('offers')
+      .select('status,visit_completed_at')
+      .eq('id', invoice.offer_id)
+      .single()
+
+    if (offerStateError || !offerState) {
+      return NextResponse.json({ error: 'offer_not_found' }, { status: 404 })
+    }
+
+    if (offerState.status !== 'completed' || !offerState.visit_completed_at) {
+      return NextResponse.json(
+        {
+          error: 'visit_not_completed',
+          message: '来店完了を記録してから支払いを完了してください',
+        },
+        { status: 409 },
+      )
+    }
+
     const { paid_at } = await req.json().catch(() => ({}))
     const paidTime = paid_at ?? new Date().toISOString()
 
@@ -52,7 +72,7 @@ export async function POST(
 
     const { error: offerError } = await service
       .from('offers')
-      .update({ paid: true, paid_at: paidTime, status: 'completed' })
+      .update({ paid: true, paid_at: paidTime })
       .eq('id', invoice.offer_id)
     if (offerError) throw offerError
 

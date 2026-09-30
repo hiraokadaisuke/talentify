@@ -233,7 +233,7 @@ function getStatusLabel(status: string) {
     case 'confirmed':
       return '締結済み'
     case 'completed':
-      return '完了'
+      return '来店完了'
     case 'rejected':
       return '辞退済み'
     case 'canceled':
