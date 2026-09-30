@@ -92,7 +92,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
   const validate = (p: typeof profile) => {
     const err: Record<string, string> = {}
-    if (!s(p.name).trim()) err.name = '本名は必須です'\n    if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
+    if (!s(p.name).trim()) err.name = '本名は必須です'
+    if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
     if (!s(p.genre).trim()) err.genre = 'ジャンルは必須です'
     if (p.area.length === 0) err.area = 'エリアは1つ以上選択してください'
     if (n(p.rate) <= 0) err.rate = '報酬は0より大きい数値を入力してください'
