@@ -98,7 +98,9 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     const err: Record<string, string> = {}
     if (!s(p.name).trim()) err.name = '本名は必須です'
     if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
-    if (p.phone_contact_allowed && !s(p.phone).trim()) err.phone = '電話対応を許可するには電話番号が必要です'
+    const normalizedPhone = s(p.phone).replace(/\D/g, '')
+    if (p.phone && !/^\d{10,11}$/.test(normalizedPhone)) err.phone = '電話番号は10〜11桁で入力してください'
+    if (p.phone_contact_allowed && !normalizedPhone) err.phone = '電話対応を許可するには電話番号が必要です'
     if (!s(p.genre).trim()) err.genre = 'ジャンルは必須です'
     if (p.area.length === 0) err.area = 'エリアは1つ以上選択してください'
     if (n(p.rate) <= 0) err.rate = '報酬は0より大きい数値を入力してください'
@@ -303,7 +305,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         user_id: user.id,
         name: profile.name.trim(),
         stage_name: profile.stage_name,
-        phone: profile.phone || null,
+        phone: profile.phone ? profile.phone.replace(/\D/g, '') : null,
         preferred_contact_method: profile.preferred_contact_method,
         phone_contact_allowed: profile.phone_contact_allowed,
         phone_available_hours: profile.phone_contact_allowed ? (profile.phone_available_hours || null) : null,
@@ -533,11 +535,14 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
               <label className="block text-sm font-medium text-gray-800">登録電話番号</label>
               <Input
                 type="tel"
+                inputMode="tel"
+                name="phone"
                 value={profile.phone}
-                disabled
+                onChange={handleChange}
                 className={fieldClassName}
+                placeholder="例：09012345678"
               />
-              <p className="text-sm text-gray-500">登録時の電話番号です。電話対応を許可した案件でのみホール側に表示します。</p>
+              <p className="text-sm text-gray-500">登録時の電話番号です。変更もできます。電話対応を許可した案件でのみホール側に表示します。</p>
               {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
             </div>
             <div className="space-y-2">
