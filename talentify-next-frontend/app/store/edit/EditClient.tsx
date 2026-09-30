@@ -162,6 +162,7 @@ export default function StoreProfileEditPage() {
         avatar_url: avatarUrl || null,
         user_id: user.id,
         is_setup_complete: true,
+        is_profile_complete: true,
       }
 
       const { error } = await supabase

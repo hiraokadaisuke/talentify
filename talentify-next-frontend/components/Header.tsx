@@ -227,8 +227,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   if (isPublicPage) {
     const publicLinks = [
       { href: '/', label: 'サービス' },
-      { href: '/store', label: '店舗向け' },
-      { href: '/talent', label: '演者向け' },
+      { href: '/#for-store', label: '店舗向け' },
+      { href: '/#for-talent', label: '演者向け' },
       { href: '/guide', label: 'ご利用ガイド' },
     ]
 

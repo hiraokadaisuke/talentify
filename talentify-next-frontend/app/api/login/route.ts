@@ -9,20 +9,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
   }
 
-  const { email, password } = await req.json()
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  const body = await req.json().catch(() => null)
+  const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : ''
+  const password = typeof body?.password === 'string' ? body.password : ''
 
-  if (error || !data.session) {
-    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+  if (!email || !password) {
+    return NextResponse.json({ error: 'Invalid credentials' }, { status: 400 })
   }
 
-  const { error: setError } = await supabase.auth.setSession({
-    access_token: data.session.access_token,
-    refresh_token: data.session.refresh_token,
-  })
-  if (setError) {
-    return NextResponse.json({ error: setError.message }, { status: 500 })
+  const supabase = createClient()
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+
+  if (error || !data.user) {
+    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
   }
 
   return NextResponse.json({ success: true })

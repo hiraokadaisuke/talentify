@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
-import { ArrowDownToLine, FileUp, Search, ChevronLeft } from 'lucide-react'
+import { ArrowDownToLine, Search, ChevronLeft } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { ListSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -368,19 +368,14 @@ export default function MessagesPage({
                     {type === 'offer' ? `ステータス: ${offerInfo?.status ?? '確認中'} / 最終返信: ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}` : `最終返信: ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}`}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  {type === 'offer' ? (
-                    <>
-                      <button type="button" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">オファー内容を見る</button>
-                      <button type="button" className="hidden rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 sm:inline-flex">条件変更</button>
-                    </>
-                  ) : (
-                    <>
-                      <button type="button" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50">プロフィールを見る</button>
-                      <button type="button" className="hidden rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 sm:inline-flex">オファー作成</button>
-                    </>
-                  )}
-                </div>
+                {type === 'offer' && activeId && (
+                  <Link
+                    href={`/${role}/offers/${activeId}`}
+                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50"
+                  >
+                    オファー内容を見る
+                  </Link>
+                )}
               </header>
 
               {type === 'offer' && (
@@ -427,9 +422,6 @@ export default function MessagesPage({
 
               <div className="border-t border-gray-200 bg-white p-3">
                 <div className="flex items-end gap-2 rounded-2xl border border-gray-200 bg-white p-2">
-                  <button type="button" disabled className="rounded-lg p-2 text-gray-400 disabled:cursor-not-allowed" title="添付機能は今後対応予定です">
-                    <FileUp className="h-5 w-5" />
-                  </button>
                   <textarea
                     value={input}
                     onChange={e => setInput(e.target.value)}

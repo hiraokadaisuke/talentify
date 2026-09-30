@@ -1,70 +1,106 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@/lib/supabase/server'
-import { getUserRoleInfo } from '@/lib/getUserRole'
+import { getUserRoleInfo, type UserRole } from '@/lib/getUserRole'
+
+function homeForRole(role: UserRole | null) {
+  if (role === 'store') return '/store/dashboard'
+  if (role === 'talent') return '/talent/dashboard'
+  if (role === 'company') return '/company/offers'
+  return '/account/role'
+}
+
+function onboardingForRole(role: UserRole | null) {
+  if (role === 'store') return '/store/edit'
+  if (role === 'talent') return '/talent/edit'
+  if (role === 'company') return '/company/edit'
+  return '/account/role'
+}
+
+function redirectWithCookies(req: NextRequest, res: NextResponse, path: string) {
+  const url = req.nextUrl.clone()
+  url.pathname = path
+  url.search = ''
+  const redirect = NextResponse.redirect(url)
+  res.cookies.getAll().forEach(({ name, value }) => redirect.cookies.set(name, value))
+  return redirect
+}
 
 export async function middleware(req: NextRequest) {
-  /**
-   * Next step (status-based route guard):
-   * - pending_email_verification: keep only verification / resend surfaces
-   * - onboarding: force /{role}/edit flows
-   * - active: allow dashboards/features
-   * - suspended: force suspended page
-   *
-   * Auth callback currently promotes pending_email_verification -> onboarding,
-   * while active/suspended are intentionally not rolled back by callback re-entry.
-   */
-  if (req.nextUrl.pathname.startsWith('/auth/callback')) {
+  const { pathname } = req.nextUrl
+
+  if (
+    pathname.startsWith('/auth/callback') ||
+    pathname.startsWith('/auth/recovery')
+  ) {
     return NextResponse.next()
   }
 
-  const res = NextResponse.next()
-
+  const res = NextResponse.next({ request: req })
   const supabase = createMiddlewareClient(req, res)
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const { pathname } = req.nextUrl
+  const protectedPath = [
+    '/dashboard',
+    '/app',
+    '/store/',
+    '/talent/',
+    '/company/',
+    '/messages',
+    '/account/',
+  ].some((prefix) => pathname.startsWith(prefix))
 
-  if (session?.user) {
-    const { role } = await getUserRoleInfo(supabase, session.user.id)
-
-    if ((role === 'store' || role === 'talent') && pathname.startsWith('/messages')) {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = `/${role}${pathname}`
-      return NextResponse.redirect(redirectUrl)
-    }
-
-    if (pathname.startsWith('/store/') && role !== 'store') {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = role ? `/${role}/dashboard` : '/login'
-      return NextResponse.redirect(redirectUrl)
-    }
-
-    if (pathname.startsWith('/talent/') && role !== 'talent') {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = role ? `/${role}/dashboard` : '/login'
-      return NextResponse.redirect(redirectUrl)
-    }
-  }
-
-  if (pathname === '/' && !session) {
-    return res
-  }
-
-  if (
-    !session &&
-    ['/app', '/dashboard', '/store/', '/talent/', '/messages'].some(
-      (p) => pathname.startsWith(p)
-    )
-  ) {
+  if (!user) {
+    if (!protectedPath || pathname === '/') return res
     const loginUrl = req.nextUrl.clone()
     loginUrl.pathname = '/login'
     loginUrl.searchParams.set('redirectedFrom', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  return res  // ← ここが重要。resを返すことでCookieが保存される
+  const { role, isSetupComplete, status } = await getUserRoleInfo(supabase, user.id)
+
+  if (status === 'suspended' && pathname !== '/account/suspended') {
+    return redirectWithCookies(req, res, '/account/suspended')
+  }
+
+  if (!role) {
+    if (pathname === '/account/role') return res
+    if (protectedPath) return redirectWithCookies(req, res, '/account/role')
+    return res
+  }
+
+  if (pathname === '/account/role' || pathname === '/account/suspended') {
+    return redirectWithCookies(req, res, homeForRole(role))
+  }
+
+  if ((status === 'onboarding' || !isSetupComplete) && protectedPath) {
+    const onboardingPath = onboardingForRole(role)
+    if (!pathname.startsWith(onboardingPath)) {
+      return redirectWithCookies(req, res, onboardingPath)
+    }
+  }
+
+  if ((role === 'store' || role === 'talent') && pathname.startsWith('/messages')) {
+    return redirectWithCookies(req, res, `/${role}${pathname}`)
+  }
+
+  if (pathname.startsWith('/store/') && role !== 'store') {
+    return redirectWithCookies(req, res, homeForRole(role))
+  }
+  if (pathname.startsWith('/talent/') && role !== 'talent') {
+    return redirectWithCookies(req, res, homeForRole(role))
+  }
+  if (pathname.startsWith('/company/') && role !== 'company') {
+    return redirectWithCookies(req, res, homeForRole(role))
+  }
+
+  if (pathname.startsWith('/app')) {
+    return redirectWithCookies(req, res, '/dashboard')
+  }
+
+  return res
 }
 
 export const config = {
@@ -74,6 +110,8 @@ export const config = {
     '/app/:path*',
     '/store/:path*',
     '/talent/:path*',
+    '/company/:path*',
     '/messages/:path*',
+    '/account/:path*',
   ],
 }

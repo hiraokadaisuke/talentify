@@ -10,15 +10,20 @@ export default function DashboardRedirectPage() {
 
   useEffect(() => {
     if (loading) return
+
+    if (!role) {
+      router.replace('/account/role')
+      return
+    }
     if (role === 'store') {
       router.replace(isSetupComplete ? '/store/dashboard' : '/store/edit')
-    } else if (role === 'talent') {
-      router.replace(isSetupComplete ? '/talent/dashboard' : '/talent/edit')
-    } else if (role === 'company') {
-      router.replace(isSetupComplete ? '/company/dashboard' : '/company/edit')
-    } else {
-      router.replace('/')
+      return
     }
+    if (role === 'talent') {
+      router.replace(isSetupComplete ? '/talent/dashboard' : '/talent/edit')
+      return
+    }
+    router.replace(isSetupComplete ? '/company/offers' : '/company/edit')
   }, [role, isSetupComplete, loading, router])
 
   return null

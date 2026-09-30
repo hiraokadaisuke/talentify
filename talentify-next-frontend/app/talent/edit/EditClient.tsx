@@ -92,7 +92,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
   const validate = (p: typeof profile) => {
     const err: Record<string, string> = {}
-    if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
+    if (!s(p.name).trim()) err.name = '本名は必須です'\n    if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
     if (!s(p.genre).trim()) err.genre = 'ジャンルは必須です'
     if (p.area.length === 0) err.area = 'エリアは1つ以上選択してください'
     if (n(p.rate) <= 0) err.rate = '報酬は0より大きい数値を入力してください'
@@ -260,10 +260,6 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       let avatarUrl = profile.avatar_url
       if (avatarFile) {
         avatarUrl = await uploadImage(avatarFile, userId, 'avatar')
-        await supabase
-          .from('talents' as any)
-          .update({ avatar_url: avatarUrl })
-          .eq('user_id', userId);
         setProfile((p) => ({ ...p, avatar_url: avatarUrl }))
       }
 
@@ -294,12 +290,13 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       })
 
       const updateData = {
-        name: profile.name,
+        user_id: user.id,
+        name: profile.name.trim(),
         stage_name: profile.stage_name,
         ...(profile.bio && { bio: profile.bio }),
         ...(profile.profile && { profile: profile.profile }),
         ...(profile.residence && { residence: profile.residence }),
-        ...(profile.area.length > 0 && { area: profile.area }),
+        ...(profile.area.length > 0 && { area: JSON.stringify(profile.area) }),
         ...(profile.genre && { genre: profile.genre }),
         ...(profile.availability && { availability: profile.availability }),
         ...(profile.min_hours && { min_hours: profile.min_hours }),
@@ -308,7 +305,8 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         ...(profile.notes && { notes: profile.notes }),
         ...(profile.achievements && { media_appearance: profile.achievements }),
         ...(profile.video_url && { video_url: profile.video_url }),
-        ...(photoUrls.length > 0 && { photos: photoUrls }),
+        avatar_url: avatarUrl || null,
+        photos: photoUrls.length > 0 ? [...profile.photos, ...photoUrls] : profile.photos,
         ...(profile.twitterUrl && { twitter_url: profile.twitterUrl }),
         ...(profile.instagramUrl && { instagram_url: profile.instagramUrl }),
         ...(profile.youtubeUrl && { youtube_url: profile.youtubeUrl }),
@@ -320,8 +318,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
       const { error } = await supabase
         .from('talents' as any)
-        .update(updateData)
-        .eq('user_id', user.id)
+        .upsert(updateData, { onConflict: 'user_id' })
 
       if (error) throw error
 
@@ -407,6 +404,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                 className={fieldClassName}
                 placeholder="例：山田花子"
               />
+              {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
             </div>
 
             <div className="space-y-1.5">

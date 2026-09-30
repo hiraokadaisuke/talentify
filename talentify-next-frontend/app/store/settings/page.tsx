@@ -1,97 +1,27 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
-import { ToggleRow } from '@/components/settings/ToggleRow'
 import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
 
 export default function StoreSettingsPage() {
-  const [saving, setSaving] = useState(false)
-  const [notifications, setNotifications] = useState({
-    offer: false,
-    message: false,
-  })
-
-  const handleSave = async () => {
-    setSaving(true)
-    await new Promise((r) => setTimeout(r, 500))
-    toast('（PR-1では）設定は未保存です/TODO')
-    setSaving(false)
-  }
-
-  const handleTodo = () => toast('準備中（PR-1では未実装）')
-
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-10">
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto w-full max-w-3xl">
         <h1 className="mb-6 text-3xl font-bold tracking-tight">設定</h1>
-
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
-          <p className="text-sm text-muted-foreground">
-            店舗情報の変更は
-            <Link href="/store/edit" className="underline">
-              「店舗情報」
-            </Link>
-            ページから行ってください。
-          </p>
-
-          <section className="space-y-4 rounded-xl border border-gray-200 p-4">
-            <div>
-              <h2 className="text-lg font-semibold">アカウント設定</h2>
-              <p className="text-sm text-muted-foreground">メールやパスワードの変更は現在準備中です。</p>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <p className="text-sm">メール変更</p>
-                  <p className="text-xs text-muted-foreground">この項目は今後有効になります（準備中）</p>
-                </div>
-                <Button variant="outline" onClick={handleTodo}>
-                  変更
-                </Button>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <p className="text-sm">パスワード変更</p>
-                  <p className="text-xs text-muted-foreground">この項目は今後有効になります（準備中）</p>
-                </div>
-                <Button variant="outline" onClick={handleTodo}>
-                  変更
-                </Button>
-              </div>
-            </div>
-          </section>
-
-          <section className="space-y-4 rounded-xl border border-gray-200 p-4">
-            <div>
-              <h2 className="text-lg font-semibold">通知設定</h2>
-              <p className="text-sm text-muted-foreground">通知のON/OFFは現在準備中です。</p>
-            </div>
-            <div className="divide-y">
-              <ToggleRow
-                id="store-notif-offer"
-                label="オファー通知"
-                description="この項目は今後有効になります（準備中）"
-                checked={notifications.offer}
-                onCheckedChange={(v) => setNotifications({ ...notifications, offer: v })}
-              />
-              <ToggleRow
-                id="store-notif-message"
-                label="メッセージ通知"
-                description="この項目は今後有効になります（準備中）"
-                checked={notifications.message}
-                onCheckedChange={(v) => setNotifications({ ...notifications, message: v })}
-              />
-            </div>
-          </section>
-
-          <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? '保存中...' : '保存'}
+        <div className="space-y-4">
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold">店舗プロフィール</h2>
+            <p className="mt-2 text-sm text-gray-600">店舗名・紹介文・画像などを変更します。</p>
+            <Button asChild className="mt-4">
+              <Link href="/store/edit">店舗情報を編集</Link>
             </Button>
-          </div>
-        </section>
+          </section>
+          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold">パスワード</h2>
+            <p className="mt-2 text-sm text-gray-600">登録メールアドレスへ安全な再設定リンクを送信します。</p>
+            <Button asChild variant="outline" className="mt-4">
+              <Link href="/password-reset">パスワードを再設定</Link>
+            </Button>
+          </section>
+        </div>
       </div>
     </main>
   )

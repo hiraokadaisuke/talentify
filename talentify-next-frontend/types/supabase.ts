@@ -936,6 +936,36 @@ export type Database = {
           },
         ]
       }
+      users: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          email: string
+          id: string
+          role: string | null
+          status: Database["public"]["Enums"]["user_status"]
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          email: string
+          id?: string
+          role?: string | null
+          status?: Database["public"]["Enums"]["user_status"]
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
+          email?: string
+          id?: string
+          role?: string | null
+          status?: Database["public"]["Enums"]["user_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_talent_profiles: {
@@ -1042,6 +1072,11 @@ export type Database = {
         | "canceled"
         | "no_show"
         | "submitted"
+      user_status:
+        | "pending_email_verification"
+        | "onboarding"
+        | "active"
+        | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1196,6 +1231,12 @@ export const Constants = {
         "canceled",
         "no_show",
         "submitted",
+      ],
+      user_status: [
+        "pending_email_verification",
+        "onboarding",
+        "active",
+        "suspended",
       ],
     },
   },

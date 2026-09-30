@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const SIGNUP_ROLES = ['talent', 'store', 'company'] as const
+export const SIGNUP_ROLES = ['talent', 'store'] as const
 export const signUpSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
@@ -25,14 +25,11 @@ export function mapSupabaseSignUpError(
   if (code.includes('over_email_send_rate_limit') || message.includes('rate limit')) {
     return 'RATE_LIMITED'
   }
-
   if (message.includes('already') || message.includes('registered')) {
     return 'EMAIL_ALREADY_EXISTS'
   }
-
   if (message.includes('invalid') && message.includes('email')) {
     return 'INVALID_EMAIL'
   }
-
   return 'SIGNUP_FAILED'
 }

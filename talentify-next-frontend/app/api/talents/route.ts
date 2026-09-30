@@ -3,28 +3,20 @@ import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { isProfileComplete } from '@/utils/isProfileComplete'
 
 export async function GET() {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('talents')
-    .select('*')
-
+  const supabase = createClient()
+  const { data, error } = await supabase.from('talents').select('*')
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return Response.json({ error: error.message }, { status: 500 })
   }
-
-  return new Response(JSON.stringify(data), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  })
+  return Response.json(data)
 }
 
 export async function POST(req: Request) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const body = await req.json()
+  const { user } = await getCurrentUser()
+
+  if (!user) return Response.json({ error: 'unauthenticated' }, { status: 401 })
 
   const {
     name,
@@ -42,33 +34,19 @@ export async function POST(req: Request) {
     bio = '',
   } = body
 
+  const normalizedArea = Array.isArray(area) ? JSON.stringify(area) : area
   const isComplete = isProfileComplete({
-    stage_name,
-    genre,
-    area,
-    rate,
-    bio,
-    profile,
-    avatar_url,
+    stage_name, genre, area, rate, bio, profile, avatar_url,
   })
-
-  const { user } = await getCurrentUser()
-
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'unauthenticated' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
 
   const { data, error } = await supabase
     .from('talents')
-    .insert({
+    .upsert({
       user_id: user.id,
       name,
       profile,
       social_links,
-      area,
+      area: normalizedArea,
       skills,
       experience_years,
       avatar_url,
@@ -78,19 +56,12 @@ export async function POST(req: Request) {
       stage_name,
       genre,
       bio,
+      is_setup_complete: true,
       is_profile_complete: isComplete,
-    })
+    }, { onConflict: 'user_id' })
     .select()
+    .single()
 
-  if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-
-  return new Response(JSON.stringify(data), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' },
-  })
+  if (error) return Response.json({ error: error.message }, { status: 500 })
+  return Response.json(data, { status: 201 })
 }

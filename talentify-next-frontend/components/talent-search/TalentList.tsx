@@ -22,16 +22,11 @@ export default function TalentList({ talents, totalCount }: TalentListProps) {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4">
         <p className="text-sm text-gray-700">検索結果：{totalCount}件</p>
-        <div className="flex h-9 min-w-28 items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 px-3 text-xs text-gray-400">
-          並び替え（準備中）
-        </div>
       </div>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-        {talents.map(t => (
-          <TalentCard key={t.id} talent={t} />
-        ))}
+        {talents.map(t => <TalentCard key={t.id} talent={t} />)}
       </div>
     </>
   )

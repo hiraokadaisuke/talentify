@@ -157,35 +157,17 @@ datasource db {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 /// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
 // model users {
-// @@schema("auth")
-// }
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  auth_user_id String      @unique(map: "users_auth_user_id_key") @db.Uuid
+  email        String
+  role         String?
+  status       user_status @default(pending_email_verification)
+  created_at   DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime    @default(now()) @db.Timestamptz(6)
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
-// model webauthn_challenges {
-// @@schema("auth")
-// }
-
-/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
-// model webauthn_credentials {
-// @@schema("auth")
-// }
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model companies {
-  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id           String?   @db.Uuid
-  company_name      String?
-  address           String?
-  tel               String?
-  description       String?
-  created_at        DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime? @default(now()) @db.Timestamptz(6)
-  avatar_url        String?
-  is_setup_complete Boolean?  @default(false)
-  display_name      String?
-  talents           talents[]
-
+  @@index([email], map: "idx_users_email")
+  @@index([role], map: "idx_users_role")
+  @@index([status], map: "idx_users_status")
   @@schema("public")
 }
 
@@ -211,7 +193,7 @@ model invoices {
   stores         stores?        @relation(fields: [store_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_store_id")
   talents        talents?       @relation(fields: [talent_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_talent_id")
 
-  @@index([offer_id], map: "idx_invoices_offer_id")
+  @@index([offer_id], map: "idx_invoices_offer_id")\n  @@index([store_id], map: "idx_invoices_store_id")\n  @@index([talent_id], map: "idx_invoices_talent_id")
   @@schema("public")
 }
 
@@ -350,7 +332,7 @@ model offers {
 
   @@index([status], map: "idx_offers_status")
   @@index([store_id], map: "idx_offers_store_id")
-  @@index([talent_id], map: "idx_offers_talent_id")
+  @@index([talent_id], map: "idx_offers_talent_id")\n  @@index([user_id], map: "idx_offers_user_id")
   @@schema("public")
 }
 
@@ -386,7 +368,7 @@ model reviews {
   talents          talents?  @relation(fields: [talent_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_reviews_talent_id")
 
   @@unique([offer_id, store_id], map: "uniq_offer_store_review")
-  @@index([talent_id], map: "idx_reviews_talent_id")
+  @@index([talent_id], map: "idx_reviews_talent_id")\n  @@index([store_id], map: "idx_reviews_store_id")
   @@schema("public")
 }
 
@@ -474,7 +456,7 @@ model talents {
   area                          String?
   video_url                     String?
   rating                        Decimal?                        @db.Decimal
-  user_id                       String?                         @unique(map: "talents_user_id_unique_not_null_idx", where: raw("(user_id IS NOT NULL)")) @db.Uuid
+  user_id                       String?                         @unique(map: "talents_user_id_unique") @db.Uuid
   company_id                    String?                         @db.Uuid
   stage_name                    String?
   display_name                  String?
@@ -518,7 +500,7 @@ model talents {
 
   @@index([area], map: "idx_talents_area")
   @@index([genre], map: "idx_talents_genre")
-  @@index([is_profile_complete], map: "idx_talents_is_profile_complete")
+  @@index([is_profile_complete], map: "idx_talents_is_profile_complete")\n  @@index([company_id], map: "idx_talents_company_id")
   @@schema("public")
 }
 

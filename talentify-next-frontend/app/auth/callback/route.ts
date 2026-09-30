@@ -3,11 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getAppUserByAuthUserId, upsertAppUser } from '@/lib/auth/app-user'
 import { SIGNUP_ROLES, type SignupRole } from '@/lib/auth/signup'
 
-function toSignupRole(value: string | undefined): SignupRole | undefined {
-  if (!value) {
-    return undefined
-  }
-
+function toSignupRole(value: string | null | undefined): SignupRole | undefined {
+  if (!value) return undefined
   return SIGNUP_ROLES.includes(value as SignupRole)
     ? (value as SignupRole)
     : undefined
@@ -16,17 +13,16 @@ function toSignupRole(value: string | undefined): SignupRole | undefined {
 export async function GET(req: NextRequest) {
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
-  const roleParam = url.searchParams.get('role') ?? undefined
+  const roleFromQuery = toSignupRole(url.searchParams.get('role'))
 
   if (!code) {
     return NextResponse.redirect(new URL('/auth/error', url))
   }
 
   const supabase = createClient()
-
   const { error } = await supabase.auth.exchangeCodeForSession(code)
   if (error) {
-    console.error('exchange error:', error)
+    console.error('auth code exchange failed', error)
     return NextResponse.redirect(new URL('/auth/error', url))
   }
 
@@ -34,39 +30,32 @@ export async function GET(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const existingAppUser = user?.id
-    ? await getAppUserByAuthUserId(user.id).catch((fetchError) => {
-        console.error('failed to fetch app user on callback', fetchError)
-        return null
-      })
-    : null
-
-  const roleFromMetadata = toSignupRole((user?.user_metadata as { role?: string } | undefined)?.role)
-  const roleFromExisting = toSignupRole(existingAppUser?.role)
-  const roleFromQuery = toSignupRole(roleParam)
-  const role = roleFromMetadata ?? roleFromExisting ?? roleFromQuery
-
-  if (user?.id && user?.email) {
-    try {
-      await upsertAppUser({
-        authUserId: user.id,
-        email: user.email,
-        role,
-        status: 'onboarding',
-      })
-    } catch (appUserError) {
-      console.error('failed to upsert app user on callback', appUserError)
-    }
+  if (!user?.id || !user.email) {
+    return NextResponse.redirect(new URL('/auth/error', url))
   }
 
-  const redirect =
-    role === 'store'
-      ? '/store/edit'
-      : role === 'talent'
-      ? '/talent/edit'
-      : role === 'company'
-      ? '/company/edit'
-      : '/dashboard'
+  try {
+    const existing = await getAppUserByAuthUserId(user.id)
+    const existingRole = toSignupRole(existing?.role)
+    const role = existingRole ?? roleFromQuery
 
-  return NextResponse.redirect(new URL(redirect, url))
+    await upsertAppUser({
+      authUserId: user.id,
+      email: user.email,
+      role,
+      status: 'onboarding',
+    })
+
+    const target =
+      role === 'store'
+        ? '/store/edit'
+        : role === 'talent'
+          ? '/talent/edit'
+          : '/account/role'
+
+    return NextResponse.redirect(new URL(target, url))
+  } catch (appUserError) {
+    console.error('failed to sync app user on callback', appUserError)
+    return NextResponse.redirect(new URL('/auth/error', url))
+  }
 }
