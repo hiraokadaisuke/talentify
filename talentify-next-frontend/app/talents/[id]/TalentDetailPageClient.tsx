@@ -62,6 +62,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
   const { role, loading: roleLoading } = useUserRole()
   const [selectedPhoto, setSelectedPhoto] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [favoriteLoading, setFavoriteLoading] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const router = useRouter()
   const [offerOpen, setOfferOpen] = useState(false)
@@ -95,6 +96,32 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
     }
   }, [id, supabase, initialTalent])
 
+  useEffect(() => {
+    if (!userId || role !== 'store' || !id) return
+
+    let cancelled = false
+    setFavoriteLoading(true)
+
+    fetch(`/api/store/favorites/${id}`)
+      .then(async res => {
+        if (!res.ok) throw new Error('お気に入り状態を取得できませんでした')
+        return res.json()
+      })
+      .then(data => {
+        if (!cancelled) setIsFavorite(Boolean(data.isFavorite))
+      })
+      .catch(error => {
+        console.error(error)
+      })
+      .finally(() => {
+        if (!cancelled) setFavoriteLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [id, role, userId])
+
   if (loadingTalent || roleLoading) return <div>読み込み中...</div>
   if (!talent) return <div>タレントが見つかりませんでした</div>
 
@@ -103,9 +130,36 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
     ...(Array.isArray(talent.photos) ? talent.photos : []),
   ]
 
-  const handleFavorite = () => {
-    setIsFavorite(v => !v)
-    toast.success(isFavorite ? 'お気に入りを解除しました' : 'お気に入りに追加しました')
+  const handleFavorite = async () => {
+    if (!userId) {
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+      return
+    }
+
+    if (role !== 'store') {
+      toast.error('お気に入りは店舗アカウントで利用できます')
+      return
+    }
+
+    setFavoriteLoading(true)
+    try {
+      const res = await fetch(`/api/store/favorites/${id}`, {
+        method: isFavorite ? 'DELETE' : 'POST',
+      })
+      const result = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(result?.error || 'お気に入りの更新に失敗しました')
+      }
+
+      const next = !isFavorite
+      setIsFavorite(next)
+      toast.success(next ? 'お気に入りに追加しました' : 'お気に入りを解除しました')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'お気に入りの更新に失敗しました')
+    } finally {
+      setFavoriteLoading(false)
+    }
   }
 
 
@@ -208,15 +262,19 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                         メッセージ
                       </Button>
                     )}
-                    <Button
-                      variant="outline"
-                      className="w-full border-slate-300 bg-white transition-all duration-150 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm active:translate-y-0 focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-1"
-                      aria-label="お気に入り"
-                      onClick={handleFavorite}
-                    >
-                      <Heart className={clsx('mr-1 h-4 w-4', isFavorite ? 'fill-current text-red-500' : '')} />
-                      お気に入り
-                    </Button>
+                    {(role === 'store' || role === null) && (
+                      <Button
+                        variant="outline"
+                        className="w-full border-slate-300 bg-white transition-all duration-150 hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50 hover:shadow-sm active:translate-y-0 focus-visible:ring-2 focus-visible:ring-slate-300 focus-visible:ring-offset-1"
+                        aria-label="お気に入り"
+                        aria-pressed={isFavorite}
+                        onClick={handleFavorite}
+                        disabled={favoriteLoading}
+                      >
+                        <Heart className={clsx('mr-1 h-4 w-4', isFavorite ? 'fill-current text-red-500' : '')} />
+                        {isFavorite ? 'お気に入り済み' : 'お気に入り'}
+                      </Button>
+                    )}
                   </div>
                 </div>
 
