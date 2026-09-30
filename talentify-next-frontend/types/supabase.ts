@@ -1,5 +1,3 @@
-export {}
-
 export type Json =
   | string
   | number
@@ -9,36 +7,642 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
-
-      users: {
+      companies: {
         Row: {
-          id: string
-          auth_user_id: string | null
-          email: string | null
-          role: string | null
-          status: 'pending_email_verification' | 'onboarding' | 'active' | 'suspended'
+          address: string | null
+          avatar_url: string | null
+          company_name: string | null
           created_at: string | null
+          description: string | null
+          display_name: string | null
+          id: string
+          is_setup_complete: boolean | null
+          tel: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          avatar_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: string | null
+          id?: string
+          is_setup_complete?: boolean | null
+          tel?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          avatar_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: string | null
+          id?: string
+          is_setup_complete?: boolean | null
+          tel?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          created_at: string | null
+          due_date: string | null
+          extra_fee: number | null
+          id: string
+          invoice_number: string | null
+          invoice_url: string | null
+          notes: string | null
+          offer_id: string | null
+          paid_at: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          status: Database["public"]["Enums"]["status_type"] | null
+          store_id: string | null
+          talent_id: string | null
+          transport_fee: number | null
           updated_at: string | null
         }
         Insert: {
-          id?: string
-          auth_user_id?: string | null
-          email?: string | null
-          role?: string | null
-          status?: 'pending_email_verification' | 'onboarding' | 'active' | 'suspended'
+          amount: number
           created_at?: string | null
+          due_date?: string | null
+          extra_fee?: number | null
+          id?: string
+          invoice_number?: string | null
+          invoice_url?: string | null
+          notes?: string | null
+          offer_id?: string | null
+          paid_at?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          status?: Database["public"]["Enums"]["status_type"] | null
+          store_id?: string | null
+          talent_id?: string | null
+          transport_fee?: number | null
           updated_at?: string | null
         }
         Update: {
-          id?: string
-          auth_user_id?: string | null
-          email?: string | null
-          role?: string | null
-          status?: 'pending_email_verification' | 'onboarding' | 'active' | 'suspended'
+          amount?: number
           created_at?: string | null
+          due_date?: string | null
+          extra_fee?: number | null
+          id?: string
+          invoice_number?: string | null
+          invoice_url?: string | null
+          notes?: string | null
+          offer_id?: string | null
+          paid_at?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          status?: Database["public"]["Enums"]["status_type"] | null
+          store_id?: string | null
+          talent_id?: string | null
+          transport_fee?: number | null
           updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_invoices_offer_id"
+            columns: ["offer_id"]
+            isOneToOne: true
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_invoices_store_id"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_invoices_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_invoices_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_read_receipts: {
+        Row: {
+          message_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          message_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          message_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_read_receipts_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_threads: {
+        Row: {
+          created_at: string
+          id: string
+          offer_id: string | null
+          participant_user_ids: string[]
+          participants_key: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          offer_id?: string | null
+          participant_user_ids: string[]
+          participants_key?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          offer_id?: string | null
+          participant_user_ids?: string[]
+          participants_key?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_threads_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          event: string | null
+          extension: string | null
+          id: string
+          inserted_at: string | null
+          is_read: boolean | null
+          payload: Json | null
+          private: boolean | null
+          receiver_id: string | null
+          recipient_user_id: string | null
+          sender_id: string | null
+          sender_user_id: string | null
+          thread_id: string | null
+          topic: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          event?: string | null
+          extension?: string | null
+          id: string
+          inserted_at?: string | null
+          is_read?: boolean | null
+          payload?: Json | null
+          private?: boolean | null
+          receiver_id?: string | null
+          recipient_user_id?: string | null
+          sender_id?: string | null
+          sender_user_id?: string | null
+          thread_id?: string | null
+          topic?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          event?: string | null
+          extension?: string | null
+          id?: string
+          inserted_at?: string | null
+          is_read?: boolean | null
+          payload?: Json | null
+          private?: boolean | null
+          receiver_id?: string | null
+          recipient_user_id?: string | null
+          sender_id?: string | null
+          sender_user_id?: string | null
+          thread_id?: string | null
+          topic?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          read_at: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          read_at?: string | null
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          read_at?: string | null
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      offer_messages: {
+        Row: {
+          attachments: Json | null
+          body: string | null
+          created_at: string
+          id: string
+          offer_id: string | null
+          receiver_user: string | null
+          sender_role: string
+          sender_user: string
+        }
+        Insert: {
+          attachments?: Json | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          offer_id?: string | null
+          receiver_user?: string | null
+          sender_role: string
+          sender_user: string
+        }
+        Update: {
+          attachments?: Json | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          offer_id?: string | null
+          receiver_user?: string | null
+          sender_role?: string
+          sender_user?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offer_messages_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offer_read_receipts: {
+        Row: {
+          id: string
+          last_read_at: string
+          offer_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_read_at?: string
+          offer_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_read_at?: string
+          offer_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offer_read_receipts_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          accepted_at: string | null
+          agreed: boolean | null
+          bank_account_holder: string | null
+          bank_account_number: string | null
+          bank_branch: string | null
+          bank_name: string | null
+          canceled_at: string | null
+          canceled_by_role: string | null
+          contract_url: string | null
+          created_at: string | null
+          date: string
+          end_time: string | null
+          event_name: string | null
+          id: string
+          invoice_amount: number | null
+          invoice_date: string | null
+          invoice_submitted: boolean | null
+          invoice_url: string | null
+          is_read_by_talent: boolean | null
+          message: string | null
+          notes: string | null
+          paid: boolean | null
+          paid_at: string | null
+          question_allowed: boolean | null
+          respond_deadline: string | null
+          reward: number | null
+          start_time: string | null
+          status: Database["public"]["Enums"]["status_type"] | null
+          store_id: string | null
+          talent_id: string | null
+          time_range: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          agreed?: boolean | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          canceled_at?: string | null
+          canceled_by_role?: string | null
+          contract_url?: string | null
+          created_at?: string | null
+          date: string
+          end_time?: string | null
+          event_name?: string | null
+          id?: string
+          invoice_amount?: number | null
+          invoice_date?: string | null
+          invoice_submitted?: boolean | null
+          invoice_url?: string | null
+          is_read_by_talent?: boolean | null
+          message?: string | null
+          notes?: string | null
+          paid?: boolean | null
+          paid_at?: string | null
+          question_allowed?: boolean | null
+          respond_deadline?: string | null
+          reward?: number | null
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["status_type"] | null
+          store_id?: string | null
+          talent_id?: string | null
+          time_range?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          agreed?: boolean | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          canceled_at?: string | null
+          canceled_by_role?: string | null
+          contract_url?: string | null
+          created_at?: string | null
+          date?: string
+          end_time?: string | null
+          event_name?: string | null
+          id?: string
+          invoice_amount?: number | null
+          invoice_date?: string | null
+          invoice_submitted?: boolean | null
+          invoice_url?: string | null
+          is_read_by_talent?: boolean | null
+          message?: string | null
+          notes?: string | null
+          paid?: boolean | null
+          paid_at?: string | null
+          question_allowed?: boolean | null
+          respond_deadline?: string | null
+          reward?: number | null
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["status_type"] | null
+          store_id?: string | null
+          talent_id?: string | null
+          time_range?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_offers_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_offers_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          invoice_url: string | null
+          offer_id: string | null
+          paid_at: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          invoice_url?: string | null
+          offer_id?: string | null
+          paid_at?: string | null
+          status: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          invoice_url?: string | null
+          offer_id?: string | null
+          paid_at?: string | null
+          status?: Database["public"]["Enums"]["payment_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_payments_offer_id"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          category_ratings: Json | null
+          comment: string | null
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          offer_id: string | null
+          rating: number | null
+          store_id: string | null
+          talent_id: string | null
+        }
+        Insert: {
+          category_ratings?: Json | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          offer_id?: string | null
+          rating?: number | null
+          store_id?: string | null
+          talent_id?: string | null
+        }
+        Update: {
+          category_ratings?: Json | null
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          offer_id?: string | null
+          rating?: number | null
+          store_id?: string | null
+          talent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_reviews_offer_id"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_reviews_store_id"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_reviews_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_reviews_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedules: {
+        Row: {
+          created_at: string | null
+          date: string
+          description: string | null
+          end_time: string | null
+          id: string
+          related_offer_id: string | null
+          role: string | null
+          start_time: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          related_offer_id?: string | null
+          role?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          related_offer_id?: string | null
+          role?: string | null
+          start_time?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -46,759 +650,487 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string | null
-          store_name: string
           id: string
-          updated_at: string | null
-          user_id: string
+          is_profile_complete: boolean | null
           is_setup_complete: boolean | null
+          store_address: string | null
+          store_name: string | null
+          store_prefect: string | null
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string | null
-          store_name: string
           id?: string
-          updated_at?: string | null
-          user_id: string
+          is_profile_complete?: boolean | null
           is_setup_complete?: boolean | null
+          store_address?: string | null
+          store_name?: string | null
+          store_prefect?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string | null
-          store_name?: string
           id?: string
-          updated_at?: string | null
-          user_id?: string
+          is_profile_complete?: boolean | null
           is_setup_complete?: boolean | null
+          store_address?: string | null
+          store_name?: string | null
+          store_prefect?: string | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
       talent_availability_dates: {
         Row: {
-          created_at: string | null
+          created_at: string
           id: string
-          status: 'ok' | 'ng'
-          talent_id: string
+          source: string
+          status: Database["public"]["Enums"]["availability_status"]
           the_date: string
-          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          status: 'ok' | 'ng'
-          talent_id: string
+          source?: string
+          status: Database["public"]["Enums"]["availability_status"]
           the_date: string
-          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           id?: string
-          status?: 'ok' | 'ng'
-          talent_id?: string
+          source?: string
+          status?: Database["public"]["Enums"]["availability_status"]
           the_date?: string
-          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
+      }
+      talent_availability_overrides: {
+        Row: {
+          created_at: string
+          date: string
+          status: Database["public"]["Enums"]["availability_status"]
+          talent_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          status: Database["public"]["Enums"]["availability_status"]
+          talent_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          status?: Database["public"]["Enums"]["availability_status"]
+          talent_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_availability_overrides_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_availability_overrides_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       talent_availability_settings: {
         Row: {
-          created_at: string | null
-          default_mode: 'default_ok' | 'default_ng'
-          id: string
-          talent_id: string
-          timezone: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          default_mode: 'default_ok' | 'default_ng'
-          id?: string
-          talent_id: string
-          timezone?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          default_mode?: 'default_ok' | 'default_ng'
-          id?: string
-          talent_id?: string
-          timezone?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      companies: {
-        Row: {
-          id: string
-          user_id: string
-          company_name: string
-          address: string | null
-          tel: string | null
-          description: string | null
-          avatar_url: string | null
-          display_name: string | null
-          is_setup_complete: boolean | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          company_name: string
-          address?: string | null
-          tel?: string | null
-          description?: string | null
-          avatar_url?: string | null
-          display_name?: string | null
-          is_setup_complete?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          company_name?: string
-          address?: string | null
-          tel?: string | null
-          description?: string | null
-          avatar_url?: string | null
-          display_name?: string | null
-          is_setup_complete?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      schedules: {
-        Row: {
-          created_at: string | null
-          date: string
-          description: string | null
-          id: string
-          updated_at: string | null
+          default_mode: Database["public"]["Enums"]["availability_default_mode"]
+          effective_from: string
+          timezone: string
+          updated_at: string
           user_id: string
         }
         Insert: {
-          created_at?: string | null
-          date: string
-          description?: string | null
-          id?: string
-          updated_at?: string | null
+          default_mode?: Database["public"]["Enums"]["availability_default_mode"]
+          effective_from?: string
+          timezone?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
-          created_at?: string | null
-          date?: string
-          description?: string | null
-          id?: string
-          updated_at?: string | null
+          default_mode?: Database["public"]["Enums"]["availability_default_mode"]
+          effective_from?: string
+          timezone?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
       }
       talents: {
         Row: {
+          account_holder: string | null
+          account_number: string | null
+          account_type: string | null
+          achievements: string | null
+          agency_name: string | null
           area: string | null
           availability: string | null
           avatar_url: string | null
-          bio: string | null
-          bio_hobby: string | null
-          bio_certifications: string | null
-          bio_others: string | null
           bank_name: string | null
-          branch_name: string | null
-          account_type: string | null
-          account_number: string | null
-          account_holder: string | null
-          genre: string | null
-          notes: string | null
-          achievements: string | null
-          created_at: string | null
-          stage_name: string | null
+          bio: string | null
+          bio_certifications: string | null
+          bio_hobby: string | null
+          bio_others: string | null
           birthdate: string | null
-          gender: string | null
-          residence: string | null
           birthplace: string | null
-          height_cm: number | null
-          agency_name: string | null
+          branch_name: string | null
+          company_id: string | null
+          created_at: string | null
+          display_name: string | null
           experience_years: number | null
-          twitter_url: string | null
-          instagram_url: string | null
-          youtube_url: string | null
-          social_tiktok: string | null
-          photos: string[] | null
-          media_appearance: string | null
+          gender: Database["public"]["Enums"]["gender_type"] | null
+          genre: string | null
+          height_cm: number | null
           id: string
-          user_id: string
+          instagram: string | null
+          instagram_url: string | null
+          is_profile_complete: boolean | null
+          is_setup_complete: boolean | null
           location: string | null
+          media_appearance: string | null
+          min_hours: string | null
           name: string
+          notes: string | null
+          phone: string | null
+          photos: string[] | null
           profile: string | null
           rate: number | null
+          rating: number | null
+          residence: string | null
           skills: string[] | null
           social_links: string[] | null
-          is_profile_complete: boolean | null
+          social_tiktok: string | null
+          stage_name: string | null
+          transportation: string | null
+          twitter: string | null
+          twitter_url: string | null
+          updated_at: string | null
+          user_id: string | null
+          video_url: string | null
+          youtube: string | null
+          youtube_url: string | null
         }
         Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          account_type?: string | null
+          achievements?: string | null
+          agency_name?: string | null
           area?: string | null
           availability?: string | null
           avatar_url?: string | null
-          bio?: string | null
-          bio_hobby?: string | null
-          bio_certifications?: string | null
-          bio_others?: string | null
           bank_name?: string | null
-          branch_name?: string | null
-          account_type?: string | null
-          account_number?: string | null
-          account_holder?: string | null
-          genre?: string | null
-          notes?: string | null
-          achievements?: string | null
-          created_at?: string | null
-          stage_name?: string | null
+          bio?: string | null
+          bio_certifications?: string | null
+          bio_hobby?: string | null
+          bio_others?: string | null
           birthdate?: string | null
-          gender?: string | null
-          residence?: string | null
           birthplace?: string | null
-          height_cm?: number | null
-          agency_name?: string | null
+          branch_name?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          display_name?: string | null
           experience_years?: number | null
-          twitter_url?: string | null
-          instagram_url?: string | null
-          youtube_url?: string | null
-          social_tiktok?: string | null
-          photos?: string[] | null
-          media_appearance?: string | null
+          gender?: Database["public"]["Enums"]["gender_type"] | null
+          genre?: string | null
+          height_cm?: number | null
           id?: string
-          user_id: string
+          instagram?: string | null
+          instagram_url?: string | null
+          is_profile_complete?: boolean | null
+          is_setup_complete?: boolean | null
           location?: string | null
+          media_appearance?: string | null
+          min_hours?: string | null
           name: string
+          notes?: string | null
+          phone?: string | null
+          photos?: string[] | null
           profile?: string | null
           rate?: number | null
+          rating?: number | null
+          residence?: string | null
           skills?: string[] | null
           social_links?: string[] | null
-          is_profile_complete?: boolean | null
+          social_tiktok?: string | null
+          stage_name?: string | null
+          transportation?: string | null
+          twitter?: string | null
+          twitter_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_url?: string | null
+          youtube?: string | null
+          youtube_url?: string | null
         }
         Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          account_type?: string | null
+          achievements?: string | null
+          agency_name?: string | null
           area?: string | null
           availability?: string | null
           avatar_url?: string | null
-          bio?: string | null
-          bio_hobby?: string | null
-          bio_certifications?: string | null
-          bio_others?: string | null
           bank_name?: string | null
-          branch_name?: string | null
-          account_type?: string | null
-          account_number?: string | null
-          account_holder?: string | null
-          genre?: string | null
-          notes?: string | null
-          achievements?: string | null
-          created_at?: string | null
-          stage_name?: string | null
+          bio?: string | null
+          bio_certifications?: string | null
+          bio_hobby?: string | null
+          bio_others?: string | null
           birthdate?: string | null
-          gender?: string | null
-          residence?: string | null
           birthplace?: string | null
-          height_cm?: number | null
-          agency_name?: string | null
+          branch_name?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          display_name?: string | null
           experience_years?: number | null
-          twitter_url?: string | null
-          instagram_url?: string | null
-          youtube_url?: string | null
-          social_tiktok?: string | null
-          photos?: string[] | null
-          media_appearance?: string | null
+          gender?: Database["public"]["Enums"]["gender_type"] | null
+          genre?: string | null
+          height_cm?: number | null
           id?: string
-          user_id?: string
+          instagram?: string | null
+          instagram_url?: string | null
+          is_profile_complete?: boolean | null
+          is_setup_complete?: boolean | null
           location?: string | null
+          media_appearance?: string | null
+          min_hours?: string | null
           name?: string
+          notes?: string | null
+          phone?: string | null
+          photos?: string[] | null
           profile?: string | null
           rate?: number | null
+          rating?: number | null
+          residence?: string | null
           skills?: string[] | null
           social_links?: string[] | null
-          is_profile_complete?: boolean | null
-        }
-        Relationships: []
-      },
-      payments: {
-        Row: {
-          id: string
-          offer_id: string | null
-          amount: number | null
-          status: string | null
-          invoice_url: string | null
-          created_at: string | null
-          updated_at: string | null
-          paid_at: string | null
-        }
-        Insert: {
-          id?: string
-          offer_id?: string | null
-          amount?: number | null
-          status?: string | null
-          invoice_url?: string | null
-          created_at?: string | null
+          social_tiktok?: string | null
+          stage_name?: string | null
+          transportation?: string | null
+          twitter?: string | null
+          twitter_url?: string | null
           updated_at?: string | null
-          paid_at?: string | null
-        }
-        Update: {
-          id?: string
-          offer_id?: string | null
-          amount?: number | null
-          status?: string | null
-          invoice_url?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-          paid_at?: string | null
-        }
-        Relationships: []
-      },
-      reviews: {
-        Row: {
-          id: string
-          offer_id: string | null
-          store_id: string | null
-          talent_id: string | null
-          rating: number | null
-          comment: string | null
-          created_at: string | null
-          category_ratings: Json | null
-          is_public: boolean | null
-        }
-        Insert: {
-          id?: string
-          offer_id?: string | null
-          store_id?: string | null
-          talent_id?: string | null
-          rating?: number | null
-          comment?: string | null
-          created_at?: string | null
-          category_ratings?: Json | null
-          is_public?: boolean | null
-        }
-        Update: {
-          id?: string
-          offer_id?: string | null
-          store_id?: string | null
-          talent_id?: string | null
-          rating?: number | null
-          comment?: string | null
-          created_at?: string | null
-          category_ratings?: Json | null
-          is_public?: boolean | null
-        }
-        Relationships: []
-      },
-      invoices: {
-        Row: {
-          id: string
-          offer_id: string
-          store_id: string
-          talent_id: string
-          amount: number
-          transport_fee: number | null
-          extra_fee: number | null
-          invoice_url: string | null
-          created_at: string | null
-          updated_at: string | null
-          status: Enums<'invoice_status'>
-          due_date: string | null
-          invoice_number: string | null
-           notes: string | null
-          payment_status: Enums<'payment_status'>
-          paid_at: string | null
-        }
-        Insert: {
-          id?: string
-          offer_id: string
-          store_id: string
-          talent_id: string
-          amount: number
-          transport_fee?: number | null
-          extra_fee?: number | null
-          invoice_url?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-          status?: Enums<'invoice_status'>
-          due_date?: string | null
-          invoice_number?: string | null
-          notes?: string | null
-          payment_status?: Enums<'payment_status'>
-          paid_at?: string | null
-        }
-        Update: {
-          id?: string
-          offer_id?: string
-          store_id?: string
-          talent_id?: string
-          amount?: number
-          transport_fee?: number | null
-          extra_fee?: number | null
-          invoice_url?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-          status?: Enums<'invoice_status'>
-          due_date?: string | null
-          invoice_number?: string | null
-          notes?: string | null
-          payment_status?: Enums<'payment_status'>
-          paid_at?: string | null
-        }
-        Relationships: []
-      }
-
-      messages: {
-        Row: {
-          id: string
-          sender_id: string
-          content: string | null
-          payload: Json | null
-          topic: string | null
-          event: string | null
-          private: boolean | null
-          extension: string | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          sender_id: string
-          content?: string | null
-          payload?: Json | null
-          topic?: string | null
-          event?: string | null
-          private?: boolean | null
-          extension?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          sender_id?: string
-          content?: string | null
-          payload?: Json | null
-          topic?: string | null
-          event?: string | null
-          private?: boolean | null
-          extension?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      ,
-      offer_messages: {
-        Row: {
-          id: string
-          offer_id: string | null
-          sender_user: string
-          receiver_user: string
-          sender_role: 'store' | 'talent' | 'admin'
-          body: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          offer_id?: string | null
-          sender_user: string
-          receiver_user: string
-          sender_role: 'store' | 'talent' | 'admin'
-          body: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          offer_id?: string | null
-          sender_user?: string
-          receiver_user?: string
-          sender_role?: 'store' | 'talent' | 'admin'
-          body?: string
-          created_at?: string
-        }
-        Relationships: []
-      }
-      ,
-      notifications: {
-        Row: {
-          id: string
-          user_id: string
-          data: Json | null
-          type:
-            | 'offer_created'
-            | 'offer_updated'
-            | 'payment_created'
-            | 'invoice_submitted'
-            | 'review_received'
-            | 'message'
-            | 'offer'
-            | 'offer_accepted'
-            | 'schedule_fixed'
-          title: string
-          body: string | null
-          is_read: boolean
-          created_at: string
-          updated_at: string
-          read_at: string | null
-          priority: 'low' | 'medium' | 'high'
-          action_url: string | null
-          action_label: string | null
-          entity_type: string | null
-          entity_id: string | null
-          actor_name: string | null
-          expires_at: string | null
-          group_key: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          data?: Json | null
-          type:
-            | 'offer_created'
-            | 'offer_updated'
-            | 'payment_created'
-            | 'invoice_submitted'
-            | 'review_received'
-            | 'message'
-            | 'offer'
-            | 'offer_accepted'
-            | 'schedule_fixed'
-          title: string
-          body?: string | null
-          is_read?: boolean
-          created_at?: string
-          updated_at?: string
-          read_at?: string | null
-          priority?: 'low' | 'medium' | 'high'
-          action_url?: string | null
-          action_label?: string | null
-          entity_type?: string | null
-          entity_id?: string | null
-          actor_name?: string | null
-          expires_at?: string | null
-          group_key?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          data?: Json | null
-          type?:
-            | 'offer_created'
-            | 'offer_updated'
-            | 'payment_created'
-            | 'invoice_submitted'
-            | 'review_received'
-            | 'message'
-            | 'offer'
-            | 'offer_accepted'
-            | 'schedule_fixed'
-          title?: string
-          body?: string | null
-          is_read?: boolean
-          created_at?: string
-          updated_at?: string
-          read_at?: string | null
-          priority?: 'low' | 'medium' | 'high'
-          action_url?: string | null
-          action_label?: string | null
-          entity_type?: string | null
-          entity_id?: string | null
-          actor_name?: string | null
-          expires_at?: string | null
-          group_key?: string | null
-        }
-        Relationships: []
-      }
-      offers: {
-        Row: {
-          id: string
-          talent_id: string
-          user_id: string
-          date: string
-          message: string
-          created_at: string | null
-          status: string | null
-          respond_deadline: string | null
-          is_read_by_talent: boolean | null
-          updated_at: string | null
-          event_name: string | null
-          start_time: string | null
-          end_time: string | null
-          reward: number | null
-          question_allowed: boolean | null
-          notes: string | null
-          store_id: string | null
-          agreed: boolean | null
-          time_range: string | null
-          paid: boolean | null
-          paid_at: string | null
-          invoice_date: string | null
-          invoice_amount: number | null
-          bank_name: string | null
-          bank_branch: string | null
-          bank_account_number: string | null
-          bank_account_holder: string | null
-          invoice_submitted: boolean | null
-          invoice_url: string | null
-          contract_url: string | null
-          accepted_at: string | null
-          canceled_at: string | null
-          canceled_by_role: string | null
-        }
-        Insert: {
-          id?: string
-          talent_id: string
-          user_id: string
-          date: string
-          message: string
-          created_at?: string | null
-          status?: string | null
-          respond_deadline?: string | null
-          is_read_by_talent?: boolean | null
-          updated_at?: string | null
-          event_name?: string | null
-          start_time?: string | null
-          end_time?: string | null
-          reward?: number | null
-          question_allowed?: boolean | null
-          notes?: string | null
-          store_id?: string | null
-          agreed?: boolean | null
-          time_range?: string | null
-          paid?: boolean | null
-          paid_at?: string | null
-          invoice_date?: string | null
-          invoice_amount?: number | null
-          bank_name?: string | null
-          bank_branch?: string | null
-          bank_account_number?: string | null
-          bank_account_holder?: string | null
-          invoice_submitted?: boolean | null
-          invoice_url?: string | null
-          contract_url?: string | null
-          accepted_at?: string | null
-          canceled_at?: string | null
-          canceled_by_role?: string | null
-        }
-        Update: {
-          id?: string
-          talent_id?: string
-          user_id?: string
-          date?: string
-          message?: string
-          created_at?: string | null
-          status?: string | null
-          respond_deadline?: string | null
-          is_read_by_talent?: boolean | null
-          updated_at?: string | null
-          event_name?: string | null
-          start_time?: string | null
-          end_time?: string | null
-          reward?: number | null
-          question_allowed?: boolean | null
-          notes?: string | null
-          store_id?: string | null
-          agreed?: boolean | null
-          time_range?: string | null
-          paid?: boolean | null
-          paid_at?: string | null
-          invoice_date?: string | null
-          invoice_amount?: number | null
-          bank_name?: string | null
-          bank_branch?: string | null
-          bank_account_number?: string | null
-          bank_account_holder?: string | null
-          invoice_submitted?: boolean | null
-          invoice_url?: string | null
-          contract_url?: string | null
-          accepted_at?: string | null
-          canceled_at?: string | null
-          canceled_by_role?: string | null
+          user_id?: string | null
+          video_url?: string | null
+          youtube?: string | null
+          youtube_url?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'offers_store_id_fkey',
-            columns: ['store_id'],
-            referencedRelation: 'stores',
-            referencedColumns: ['id'],
+            foreignKeyName: "talents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visits: {
+        Row: {
+          created_at: string | null
+          id: string
+          note: string | null
+          offer_id: string | null
+          status: Database["public"]["Enums"]["status_type"] | null
+          store_id: string | null
+          talent_id: string | null
+          updated_at: string | null
+          visited_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          offer_id?: string | null
+          status?: Database["public"]["Enums"]["status_type"] | null
+          store_id?: string | null
+          talent_id?: string | null
+          updated_at?: string | null
+          visited_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          note?: string | null
+          offer_id?: string | null
+          status?: Database["public"]["Enums"]["status_type"] | null
+          store_id?: string | null
+          talent_id?: string | null
+          updated_at?: string | null
+          visited_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_visits_offer_id"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: 'offers_talent_id_fkey',
-            columns: ['talent_id'],
-            referencedRelation: 'talents',
-            referencedColumns: ['id'],
+            foreignKeyName: "fk_visits_store_id"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_visits_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_visits_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
           },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      public_talent_profiles: {
+        Row: {
+          area: string | null
+          avatar_url: string | null
+          bio: string | null
+          display_name: string | null
+          genre: string | null
+          id: string | null
+          rate: number | null
+          rating: number | null
+          stage_name: string | null
+        }
+        Insert: {
+          area?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          display_name?: string | null
+          genre?: string | null
+          id?: string | null
+          rate?: number | null
+          rating?: number | null
+          stage_name?: string | null
+        }
+        Update: {
+          area?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          display_name?: string | null
+          genre?: string | null
+          id?: string | null
+          rate?: number | null
+          rating?: number | null
+          stage_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      get_reviews_for_current_talent: {
-        Args: Record<PropertyKey, never>
+      can_talent_read_store: { Args: { store_id: string }; Returns: boolean }
+      get_available_talents: {
+        Args: { _date: string }
         Returns: {
-          review_id: string
+          availability: Database["public"]["Enums"]["availability_status"]
+          talent_id: string
+        }[]
+      }
+      get_offer_store_names: {
+        Args: { _offer_ids: string[] }
+        Returns: {
+          offer_id: string
+          store_display_name: string
+          store_id: string
+        }[]
+      }
+      get_reviews_for_current_talent: {
+        Args: never
+        Returns: {
+          comment: string
           created_at: string
           rating: number
-          comment: string | null
-          category_ratings: Json | null
+          review_id: string
           store_id: string
-          store_name: string | null
+          store_name: string
         }[]
-      },
-      talent_update_offer_status: {
-        Args: {
-          p_offer_id: string
-          p_status: string
-          p_message?: string | null
-        }
-        Returns: Database['public']['Tables']['offers']['Row']
       }
-      talent_accept_offer: {
-        Args: {
-          p_offer_id: string
-        }
-        Returns: Database['public']['Tables']['offers']['Row']
-      }
-      talent_reject_offer: {
-        Args: {
-          p_offer_id: string
-          p_message?: string | null
-        }
-        Returns: Database['public']['Tables']['offers']['Row']
-      }
-      unread_messages_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
+      is_offer_blocking: { Args: { _status: string }; Returns: boolean }
+      is_self_talent: { Args: { _talent_id: string }; Returns: boolean }
+      resolve_talent_availability: {
+        Args: { _date: string; _talent_id: string }
+        Returns: Database["public"]["Enums"]["availability_status"]
       }
     }
     Enums: {
-      invoice_status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'pending'
+      availability_default_mode: "default_ok" | "default_ng"
+      availability_status: "ok" | "ng"
+      gender_type: "male" | "female" | "other"
+      invoice_status:
+        | "draft"
+        | "submitted"
+        | "approved"
+        | "rejected"
+        | "pending"
       notification_type:
-        | 'offer_created'
-        | 'offer_updated'
-        | 'payment_created'
-        | 'invoice_submitted'
-        | 'review_received'
-        | 'message'
-        | 'offer'
-        | 'offer_accepted'
-        | 'schedule_fixed'
-      offer_status: 'pending' | 'accepted' | 'rejected' | 'confirmed'
-      payment_status: 'pending' | 'paid' | 'cancelled'
+        | "offer_created"
+        | "offer_updated"
+        | "payment_created"
+        | "invoice_submitted"
+        | "review_received"
+        | "message"
+        | "offer"
+        | "offer_accepted"
+        | "schedule_fixed"
+      offer_status: "pending" | "accepted" | "rejected" | "confirmed"
+      payment_status: "pending" | "paid" | "cancelled" | "completed"
       status_type:
-        | 'draft'
-        | 'pending'
-        | 'approved'
-        | 'rejected'
-        | 'completed'
-        | 'offer_created'
-        | 'confirmed'
-      visit_status: 'scheduled' | 'confirmed' | 'visited'
+        | "draft"
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "completed"
+        | "offer_created"
+        | "confirmed"
+        | "canceled"
+        | "no_show"
+        | "submitted"
+      visit_status: "scheduled" | "confirmed" | "visited"
+      your_enum_type: "value1" | "value2" | "value3"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -806,21 +1138,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -838,14 +1174,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -861,14 +1199,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -884,14 +1224,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -899,14 +1241,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
@@ -914,22 +1258,37 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      invoice_status: ['draft', 'submitted', 'approved', 'rejected', 'pending'],
+      availability_default_mode: ["default_ok", "default_ng"],
+      availability_status: ["ok", "ng"],
+      gender_type: ["male", "female", "other"],
+      invoice_status: ["draft", "submitted", "approved", "rejected", "pending"],
       notification_type: [
-        'offer_created',
-        'offer_updated',
-        'payment_created',
-        'invoice_submitted',
-        'review_received',
-        'message',
-        'offer',
-        'offer_accepted',
-        'schedule_fixed'
+        "offer_created",
+        "offer_updated",
+        "payment_created",
+        "invoice_submitted",
+        "review_received",
+        "message",
+        "offer",
+        "offer_accepted",
+        "schedule_fixed",
       ],
-      offer_status: ['pending', 'accepted', 'rejected', 'confirmed'],
-      payment_status: ['pending', 'paid', 'cancelled'],
-      status_type: ['draft', 'pending', 'approved', 'rejected', 'completed', 'offer_created', 'confirmed'],
-      visit_status: ['scheduled', 'confirmed', 'visited']
+      offer_status: ["pending", "accepted", "rejected", "confirmed"],
+      payment_status: ["pending", "paid", "cancelled", "completed"],
+      status_type: [
+        "draft",
+        "pending",
+        "approved",
+        "rejected",
+        "completed",
+        "offer_created",
+        "confirmed",
+        "canceled",
+        "no_show",
+        "submitted",
+      ],
+      visit_status: ["scheduled", "confirmed", "visited"],
+      your_enum_type: ["value1", "value2", "value3"],
     },
   },
 } as const
