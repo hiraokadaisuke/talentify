@@ -210,7 +210,7 @@ export default function StoreInvoiceDetail() {
           {invoice.invoice_url && (
             <div>
               <Link
-                href={invoice.invoice_url}
+                href={`/api/invoices/${invoice.id}/attachment`}
                 className='text-blue-600 underline'
                 target='_blank'
               >
