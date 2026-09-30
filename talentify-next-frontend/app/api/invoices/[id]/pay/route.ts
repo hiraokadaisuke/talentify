@@ -41,7 +41,8 @@ export async function POST(
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
-    const { data: offerState, error: offerStateError } = await service
+    const serviceDb = service as any
+    const { data: offerState, error: offerStateError } = await serviceDb
       .from('offers')
       .select('status,visit_completed_at')
       .eq('id', invoice.offer_id)
