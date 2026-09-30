@@ -44,45 +44,56 @@ export default function ReviewModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        return toast.error('投稿にはログインが必要です')
-      }
-      setSubmitting(true)
-      const categoryRatings = compact({ time, attitude, fan, play })
-      const payload = compact({
-        offer_id: offerId,
-        rating: Number(rating),
-        comment: comment || null,
-        is_public: isPublic ?? true,
-        category_ratings: Object.keys(categoryRatings).length ? categoryRatings : {},
-      })
-      const { data: review, error } = await supabase
-        .from('reviews')
-        .insert(payload)
-        .select('id')
-        .single()
-      setSubmitting(false)
-      if (!error && review) {
-        if (talentId) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      return toast.error('投稿にはログインが必要です')
+    }
+
+    setSubmitting(true)
+    const categoryRatings = compact({ time, attitude, fan, play })
+    const payload = compact({
+      offer_id: offerId,
+      rating: Number(rating),
+      comment: comment || null,
+      is_public: isPublic ?? true,
+      category_ratings: Object.keys(categoryRatings).length ? categoryRatings : {},
+    })
+
+    const { data: review, error } = await supabase
+      .from('reviews')
+      .insert(payload)
+      .select('id')
+      .single()
+
+    setSubmitting(false)
+
+    if (!error && review) {
+      if (talentId) {
+        try {
           await fetch('/api/notifications/review-received', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               offerId,
               reviewId: review.id,
-              recipientUserId: talentId,
             }),
           })
+        } catch (notificationError) {
+          console.error('[review notification] failed', notificationError)
         }
-        toast.success('レビューを投稿しました')
-        setOpen(false)
-        onSubmitted?.()
-      } else {
-        console.error('[reviews.insert] failed', { payload, error })
-        toast.error(`投稿に失敗しました: ${error.message}`)
       }
+
+      toast.success('レビューを投稿しました')
+      setOpen(false)
+      onSubmitted?.()
+    } else {
+      console.error('[reviews.insert] failed', { payload, error })
+      toast.error(`投稿に失敗しました: ${error.message}`)
     }
+  }
 
   return (
     <Modal open={open} onOpenChange={setOpen}>
@@ -93,32 +104,34 @@ export default function ReviewModal({
         </ModalHeader>
         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
           <div>
-            <label className="block font-medium mb-1">総合評価<span className="text-red-500">*</span></label>
+            <label className="block font-medium mb-1">
+              総合評価<span className="text-red-500">*</span>
+            </label>
             <StarRatingInput value={rating} onChange={setRating} />
           </div>
           <div className="space-y-2">
             <div>
               <label className="block mb-1">時間厳守</label>
-              <StarRatingInput value={time ?? 0} onChange={(v)=>setTime(v)} />
+              <StarRatingInput value={time ?? 0} onChange={(v) => setTime(v)} />
             </div>
             <div>
               <label className="block mb-1">接客態度</label>
-              <StarRatingInput value={attitude ?? 0} onChange={(v)=>setAttitude(v)} />
+              <StarRatingInput value={attitude ?? 0} onChange={(v) => setAttitude(v)} />
             </div>
             <div>
               <label className="block mb-1">ファンサービス</label>
-              <StarRatingInput value={fan ?? 0} onChange={(v)=>setFan(v)} />
+              <StarRatingInput value={fan ?? 0} onChange={(v) => setFan(v)} />
             </div>
             <div>
               <label className="block mb-1">遊技姿勢</label>
-              <StarRatingInput value={play ?? 0} onChange={(v)=>setPlay(v)} />
+              <StarRatingInput value={play ?? 0} onChange={(v) => setPlay(v)} />
             </div>
           </div>
           <div>
             <label className="block font-medium mb-1">コメント</label>
             <Textarea
               value={comment}
-              onChange={e => setComment(e.target.value)}
+              onChange={(e) => setComment(e.target.value)}
               placeholder="具体的な様子や印象を記載してください"
             />
           </div>
@@ -127,15 +140,19 @@ export default function ReviewModal({
               id="is_public"
               type="checkbox"
               checked={isPublic}
-              onChange={e => setIsPublic(e.target.checked)}
+              onChange={(e) => setIsPublic(e.target.checked)}
             />
             <label htmlFor="is_public">このレビューを他ホールにも表示する</label>
           </div>
           <ModalFooter>
             <ModalClose asChild>
-              <Button type="button" variant="secondary">キャンセル</Button>
+              <Button type="button" variant="secondary">
+                キャンセル
+              </Button>
             </ModalClose>
-            <Button type="submit" disabled={submitting}>投稿</Button>
+            <Button type="submit" disabled={submitting}>
+              投稿
+            </Button>
           </ModalFooter>
         </form>
       </ModalContent>
