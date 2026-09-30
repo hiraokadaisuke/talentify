@@ -331,7 +331,6 @@ model offers {
   stores              stores?               @relation(fields: [store_id], references: [id], onUpdate: NoAction)
   payments            payments?
   reviews             reviews[]
-  talent_payout_accounts talent_payout_accounts?
 
   @@index([status], map: "idx_offers_status")
   @@index([store_id], map: "idx_offers_store_id")
@@ -506,10 +505,11 @@ model talents {
   social_tiktok                 String?
   gender                        gender_type?                    @default(other)
   bio_others                    String?
-  bank_name                     String?
+
   invoices                      invoices[]
   offers                        offers[]
   reviews                       reviews[]
+  talent_payout_accounts        talent_payout_accounts?
 
   @@index([area], map: "idx_talents_area")
   @@index([genre], map: "idx_talents_genre")
