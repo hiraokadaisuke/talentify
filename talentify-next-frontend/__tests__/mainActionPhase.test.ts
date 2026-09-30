@@ -1,39 +1,39 @@
 import { resolveMainActionPhase } from '@/lib/offers/mainActionPhase'
 
 describe('resolveMainActionPhase', () => {
-  it('returns invoice_waiting before visit completion once offer is accepted and invoice is not submitted', () => {
+  it('starts with estimate waiting while the offer is under consultation', () => {
     const phase = resolveMainActionPhase({
       role: 'talent',
-      status: 'accepted',
-      invoiceStatus: 'not_submitted',
+      status: 'pending',
+      invoiceStatus: 'not_created',
       paid: false,
       reviewCompleted: false,
     })
 
-    expect(phase).toBe('invoice_waiting')
+    expect(phase).toBe('estimate_waiting')
   })
 
-  it('prioritizes submitted invoice phase over visit completion', () => {
+  it('shows hall review after the estimate is submitted', () => {
     const phase = resolveMainActionPhase({
       role: 'store',
-      status: 'accepted',
+      status: 'pending',
       invoiceStatus: 'submitted',
       paid: false,
       reviewCompleted: false,
     })
 
-    expect(phase).toBe('invoice_submitted')
+    expect(phase).toBe('estimate_submitted')
   })
 
-  it('treats pending offers without invoice as before_invoice', () => {
+  it('moves to payment waiting after the estimate is approved and contracted', () => {
     const phase = resolveMainActionPhase({
       role: 'store',
-      status: 'pending',
-      invoiceStatus: 'not_submitted',
+      status: 'confirmed',
+      invoiceStatus: 'approved',
       paid: false,
       reviewCompleted: false,
     })
 
-    expect(phase).toBe('before_invoice')
+    expect(phase).toBe('contracted_payment_waiting')
   })
 })

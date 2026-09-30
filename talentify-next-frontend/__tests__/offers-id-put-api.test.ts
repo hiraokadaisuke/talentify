@@ -76,7 +76,7 @@ describe('PUT /api/offers/[id]', () => {
     expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
-  it('allows talent to accept a pending offer and records accepted_at', async () => {
+  it('blocks talent from accepting a pending offer directly', async () => {
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-talent' }, error: null })
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
@@ -90,16 +90,8 @@ describe('PUT /api/offers/[id]', () => {
     })
     const res = await PUT(req, { params: { id: 'offer-1' } })
 
-    expect(res.status).toBe(200)
-    expect(mockedUpdateOfferById).toHaveBeenCalledWith(
-      'offer-1',
-      expect.objectContaining({
-        status: 'confirmed',
-        accepted_at: expect.any(String),
-      }),
-      'pending'
-    )
-    expect(mockedEmitNotification).toHaveBeenCalled()
+    expect(res.status).toBe(409)
+    expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
   it('allows talent to reject only a pending offer', async () => {
@@ -199,7 +191,7 @@ describe('PUT /api/offers/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/offers/offer-1', {
       method: 'PUT',
-      body: JSON.stringify({ status: 'confirmed' }),
+      body: JSON.stringify({ status: 'rejected' }),
     })
     const res = await PUT(req, { params: { id: 'offer-1' } })
 

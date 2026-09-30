@@ -968,6 +968,8 @@ export type Database = {
       }
       is_offer_blocking: { Args: { _status: string }; Returns: boolean }
       is_self_talent: { Args: { _talent_id: string }; Returns: boolean }
+      next_estimate_number: { Args: never; Returns: string }
+      next_invoice_number: { Args: never; Returns: string }
       resolve_talent_availability: {
         Args: { _date: string; _talent_id: string }
         Returns: Database["public"]["Enums"]["availability_status"]
