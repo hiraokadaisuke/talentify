@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existing, error: existingError } = await supabase
       .from('invoices')
-      .select('id')
+      .select('id,status')
       .eq('offer_id', offer_id)
       .maybeSingle()
     if (existingError) throw existingError
@@ -67,6 +67,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (existing) {
+      if (existing.status !== 'draft') {
+        return NextResponse.json(
+          { error: 'invoice_not_editable', status: existing.status },
+          { status: 409 },
+        )
+      }
+
       const updatePayload = {
         offer_id,
         store_id: offer.store_id,
