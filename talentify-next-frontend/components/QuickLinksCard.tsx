@@ -9,7 +9,6 @@ import {
   Calendar,
   User,
   Star,
-  Wallet,
   Bell,
 } from "lucide-react"
 
@@ -18,7 +17,6 @@ const quickLinks = [
   { label: "スケジュールを管理", href: "/talent/schedule", icon: Calendar },
   { label: "プロフィール編集", href: "/talent/edit", icon: User },
   { label: "評価・レビュー", href: "/talent/reviews", icon: Star },
-  { label: "ギャラ管理", href: "/talent/payments", icon: Wallet },
   { label: "通知設定", href: "/talent/notifications", icon: Bell },
 ]
 

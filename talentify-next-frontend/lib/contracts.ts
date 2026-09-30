@@ -23,7 +23,7 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
 
   const { data: offers } = await supabase
     .from('offers')
-    .select('id, talent_id, date, contract_url')
+    .select('id, talent_id, date, reward, contract_url')
     .eq('store_id', store.id)
 
   if (!offers) return []
@@ -37,19 +37,13 @@ export async function getContractsForStore(): Promise<StoreContract[]> {
       .eq('id', offer.talent_id)
       .maybeSingle()
 
-    const { data: payment } = await supabase
-      .from('payments')
-      .select('amount')
-      .eq('offer_id', offer.id)
-      .maybeSingle()
-
     const url = offer.contract_url ?? null
 
     results.push({
       offer_id: offer.id,
       talent_name: talent?.stage_name || '',
       performance_date: offer.date,
-      amount: payment?.amount ?? null,
+      amount: offer.reward ?? null,
       pdf_url: url,
     })
   }

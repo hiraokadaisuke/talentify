@@ -17,7 +17,6 @@ export type Offer = {
   status: string | null
   paid?: boolean | null
   paid_at?: string | null
-  payment_id?: string | null
   invoice_status: 'not_submitted' | 'submitted' | 'paid'
   review_completed: boolean
 }
@@ -30,7 +29,8 @@ type RawOffer = {
   created_at: string | null
   date: string | null
   status: string | null
-  payments: { id: string | null; status: string | null; paid_at: string | null }[] | null
+  paid: boolean | null
+  paid_at: string | null
   talents: { stage_name: string | null } | null
   reviews: { id: string }[] | null
 }
@@ -49,7 +49,7 @@ export async function getOffersForStore() {
   const { data, error } = await supabase
     .from('offers')
     .select(
-      'id,user_id,store_id,talent_id,date,created_at,status,payments(id,status,paid_at),talents(stage_name),reviews(id)'
+      'id,user_id,store_id,talent_id,date,created_at,status,paid,paid_at,talents(stage_name),reviews(id)'
     )
     .eq('store_id', store.id)
     .order('created_at', { ascending: false })
@@ -79,13 +79,11 @@ export async function getOffersForStore() {
   }
 
   return offers.map(o => {
-    const payment = Array.isArray(o.payments) ? o.payments[0] : o.payments
-    const paymentStatus = payment?.status ?? null
     const invoice = invoiceMap.get(o.id)
     const invoiceStatus = deriveOfferInvoiceProgressStatus({
       invoiceStatus: invoice?.status,
       invoicePaymentStatus: invoice?.payment_status,
-      paymentStatus,
+      offerPaid: o.paid,
     })
 
     const reviews = Array.isArray(o.reviews) ? o.reviews : []
@@ -99,9 +97,8 @@ export async function getOffersForStore() {
       created_at: o.created_at,
       date: o.date,
       status: o.status,
-      paid: paymentStatus === 'completed',
-      paid_at: payment?.paid_at ?? null,
-      payment_id: payment?.id ?? null,
+      paid: o.paid,
+      paid_at: o.paid_at,
       invoice_status: invoiceStatus,
       review_completed: reviews.length > 0,
     }

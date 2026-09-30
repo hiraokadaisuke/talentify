@@ -25,7 +25,6 @@ export const navItems: NavItem[] = [
   { href: "/talent/messages", label: "メッセージ", icon: MessageCircle, roles: ["talent"] },
   { href: "/talent/edit", label: "プロフィール編集", icon: User, roles: ["talent"] },
   { href: "/talent/reviews", label: "評価・レビュー", icon: Star, roles: ["talent"] },
-  { href: "/talent/payments", label: "ギャラ管理", icon: Wallet, roles: ["talent"] },
   { href: "/talent/invoices", label: "請求管理", icon: Mail, roles: ["talent"] },
   { href: "/talent/notifications", label: "通知", icon: Bell, roles: ["talent"] },
   { href: "/talent/settings", label: "設定", icon: Settings, roles: ["talent"] },

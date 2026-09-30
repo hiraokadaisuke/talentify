@@ -390,10 +390,6 @@ export type Database = {
         Row: {
           accepted_at: string | null
           agreed: boolean | null
-          bank_account_holder: string | null
-          bank_account_number: string | null
-          bank_branch: string | null
-          bank_name: string | null
           canceled_at: string | null
           canceled_by_role: string | null
           contract_url: string | null
@@ -425,10 +421,6 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           agreed?: boolean | null
-          bank_account_holder?: string | null
-          bank_account_number?: string | null
-          bank_branch?: string | null
-          bank_name?: string | null
           canceled_at?: string | null
           canceled_by_role?: string | null
           contract_url?: string | null
@@ -460,10 +452,6 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           agreed?: boolean | null
-          bank_account_holder?: string | null
-          bank_account_number?: string | null
-          bank_branch?: string | null
-          bank_name?: string | null
           canceled_at?: string | null
           canceled_by_role?: string | null
           contract_url?: string | null
@@ -512,47 +500,6 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      payments: {
-        Row: {
-          amount: number
-          created_at: string | null
-          id: string
-          invoice_url: string | null
-          offer_id: string | null
-          paid_at: string | null
-          status: Database["public"]["Enums"]["payment_status"]
-          updated_at: string | null
-        }
-        Insert: {
-          amount: number
-          created_at?: string | null
-          id?: string
-          invoice_url?: string | null
-          offer_id?: string | null
-          paid_at?: string | null
-          status: Database["public"]["Enums"]["payment_status"]
-          updated_at?: string | null
-        }
-        Update: {
-          amount?: number
-          created_at?: string | null
-          id?: string
-          invoice_url?: string | null
-          offer_id?: string | null
-          paid_at?: string | null
-          status?: Database["public"]["Enums"]["payment_status"]
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_payments_offer_id"
-            columns: ["offer_id"]
-            isOneToOne: false
-            referencedRelation: "offers"
             referencedColumns: ["id"]
           },
         ]
