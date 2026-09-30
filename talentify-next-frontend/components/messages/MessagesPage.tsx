@@ -124,10 +124,12 @@ export default function MessagesPage({
   role,
   type,
   basePath,
+  initialPartnerId,
 }: {
   role: UserRole
   type: 'direct' | 'offer'
   basePath?: string
+  initialPartnerId?: string | null
 }) {
   const [messages, setMessages] = useState<MessageRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -187,7 +189,27 @@ export default function MessagesPage({
     }
   }, [userId, type])
 
-  const threads = useMemo(() => groupMessages(messages, userId, role, type), [messages, userId, role, type])
+  const threads = useMemo(() => {
+    const grouped = groupMessages(messages, userId, role, type)
+    if (
+      type === 'direct' &&
+      initialPartnerId &&
+      !grouped.some(thread => thread.id === initialPartnerId)
+    ) {
+      grouped.unshift({
+        id: initialPartnerId,
+        partnerId: initialPartnerId,
+        name: '新規メッセージ',
+        avatar: '/avatar-default.svg',
+        latest: 'まだメッセージはありません',
+        unread: 0,
+        updatedAt: null,
+        statusLabel: '新規',
+        messages: [],
+      })
+    }
+    return grouped
+  }, [messages, userId, role, type, initialPartnerId])
 
   const filteredThreads = useMemo(() => {
     if (!query.trim()) return threads
@@ -208,6 +230,13 @@ export default function MessagesPage({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [activeId, messages])
+
+  useEffect(() => {
+    if (type === 'direct' && initialPartnerId) {
+      setActiveId(initialPartnerId)
+      setMobileThreadOpen(true)
+    }
+  }, [type, initialPartnerId])
 
   useEffect(() => {
     if (type !== 'offer' || !activeId) {

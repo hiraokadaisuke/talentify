@@ -8,8 +8,10 @@ import { useUserRole } from '@/utils/useRole'
 export default function MessagesTopPage() {
   const params = useSearchParams()
   const tabParam = params.get('tab') === 'offer' ? 'offer' : 'direct'
+  const partnerId = tabParam === 'direct' ? params.get('partner') : null
   const { role, loading } = useUserRole()
   if (loading || !role || (role !== 'store' && role !== 'talent')) return null
+
   return (
     <main className="p-4">
       <div className="border-b mb-4 flex space-x-4">
@@ -26,8 +28,12 @@ export default function MessagesTopPage() {
           オファー
         </Link>
       </div>
-      <MessagesPage role={role} type={tabParam} />
+      <MessagesPage
+        role={role}
+        type={tabParam}
+        basePath={role === 'store' ? '/store/messages' : '/talent/messages'}
+        initialPartnerId={partnerId}
+      />
     </main>
   )
 }
-

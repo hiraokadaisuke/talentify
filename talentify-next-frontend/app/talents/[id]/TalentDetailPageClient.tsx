@@ -116,7 +116,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
 
   const handleMessage = () => {
     if (!talent?.user_id) return
-    const destination = `/messages/${talent.user_id}`
+    const destination = `/messages?tab=direct&partner=${encodeURIComponent(talent.user_id)}`
     if (!userId) {
       window.location.href = `/login?redirect=${encodeURIComponent(destination)}`
       return
