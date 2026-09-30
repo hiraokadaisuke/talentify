@@ -10,6 +10,7 @@ export async function POST(
   { params }: { params: { id: string } },
 ) {
   const supabase = await createClient()
+  const service = createServiceClient()
   const { id } = params
 
   try {
@@ -44,7 +45,7 @@ export async function POST(
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await service
       .from('invoices')
       .update({ status: nextStatus })
       .eq('id', id)
@@ -53,7 +54,6 @@ export async function POST(
     if (error) throw error
 
     try {
-      const service = createServiceClient()
       const { data: store } = await service
         .from('stores')
         .select('user_id')

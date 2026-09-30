@@ -81,11 +81,18 @@ export default function TalentInvoiceDetailPage() {
     notes: notes || null,
   } as const
 
+  const saveDraft = () =>
+    fetch(`/api/invoices/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatePayload),
+    })
+
   const handleSave = async () => {
     setSaving(true)
-    const { error } = await supabase.from('invoices').update(updatePayload).eq('id', id)
+    const res = await saveDraft()
     setSaving(false)
-    if (error) {
+    if (!res.ok) {
       toast.error('保存に失敗しました')
     } else {
       toast.success('保存しました')
@@ -95,8 +102,8 @@ export default function TalentInvoiceDetailPage() {
 
   const handleSubmit = async () => {
     setSubmitting(true)
-    const { error } = await supabase.from('invoices').update(updatePayload).eq('id', id)
-    if (error) {
+    const saveRes = await saveDraft()
+    if (!saveRes.ok) {
       toast.error('提出に失敗しました')
       setSubmitting(false)
       return

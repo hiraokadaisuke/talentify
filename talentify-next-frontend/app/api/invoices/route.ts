@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { getSubmitStatus } from './utils'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
+  const service = createServiceClient()
   let offerId: string | undefined
 
   try {
@@ -75,28 +77,28 @@ export async function POST(req: NextRequest) {
         extra_fee,
         invoice_url,
       }
-      const { data: updated, error: updateError } = await supabase
+      const { data: updated, error: updateError } = await service
         .from('invoices')
         .update(updatePayload)
         .eq('id', existing.id)
         .select('id, status')
         .single()
       if (updateError) throw updateError
-      await supabase
+      await service
         .from('offers')
         .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
         .eq('id', offer_id)
       return NextResponse.json({ id: updated.id, status: updated.status }, { status: 200 })
     }
 
-    const { data: inserted, error: insertError } = await supabase
+    const { data: inserted, error: insertError } = await service
       .from('invoices')
       .insert(payload)
       .select('id, status')
       .single()
     if (insertError) throw insertError
 
-    await supabase
+    await service
       .from('offers')
       .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
       .eq('id', offer_id)

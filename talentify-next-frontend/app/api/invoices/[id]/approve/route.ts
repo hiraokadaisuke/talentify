@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(
   req: NextRequest,
@@ -37,7 +38,8 @@ export async function POST(
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const { data, error } = await supabase
+    const service = createServiceClient()
+    const { data, error } = await service
       .from('invoices')
       .update({ status: 'approved' })
       .eq('id', id)

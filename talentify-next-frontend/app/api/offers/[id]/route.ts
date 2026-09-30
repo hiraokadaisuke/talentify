@@ -63,10 +63,6 @@ export async function PUT(
         'agreed',
         'invoice_date',
         'invoice_amount',
-        'bank_name',
-        'bank_branch',
-        'bank_account_number',
-        'bank_account_holder',
         'invoice_submitted',
         'invoice_url',
       ]

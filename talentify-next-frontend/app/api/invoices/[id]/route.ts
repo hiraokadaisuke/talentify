@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function PATCH(
   req: NextRequest,
@@ -36,7 +37,7 @@ export async function PATCH(
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const allowedFields = ['invoice_url', 'amount', 'due_date']
+    const allowedFields = ['invoice_url', 'amount', 'due_date', 'notes']
     const updates: Record<string, any> = {}
     for (const field of allowedFields) {
       if (body[field] !== undefined) updates[field] = body[field]
@@ -45,7 +46,8 @@ export async function PATCH(
       return NextResponse.json<{ error: string }>({ error: '更新可能な項目がありません' }, { status: 400 })
     }
 
-    const { data, error } = await supabase
+    const service = createServiceClient()
+    const { data, error } = await service
       .from('invoices')
       .update(updates)
       .eq('id', id)

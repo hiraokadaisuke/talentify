@@ -9,6 +9,7 @@ export async function POST(
   { params }: { params: { id: string } },
 ) {
   const supabase = await createClient()
+  const service = createServiceClient()
   const { id } = params
 
   try {
@@ -43,20 +44,19 @@ export async function POST(
     const { paid_at } = await req.json().catch(() => ({}))
     const paidTime = paid_at ?? new Date().toISOString()
 
-    const { error: invoiceError } = await supabase
+    const { error: invoiceError } = await service
       .from('invoices')
       .update({ payment_status: 'paid', paid_at: paidTime })
       .eq('id', id)
     if (invoiceError) throw invoiceError
 
-    const { error: offerError } = await supabase
+    const { error: offerError } = await service
       .from('offers')
       .update({ paid: true, paid_at: paidTime, status: 'completed' })
       .eq('id', invoice.offer_id)
     if (offerError) throw offerError
 
     try {
-      const service = createServiceClient()
       const { data: talent } = await service
         .from('talents')
         .select('user_id')
