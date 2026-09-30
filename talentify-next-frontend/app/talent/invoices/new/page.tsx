@@ -74,14 +74,21 @@ export default function TalentInvoiceNewPage() {
           .single(),
         supabase
           .from('invoices')
-          .select('id, amount, status, payment_status, invoice_url, due_date')
+          .select('id, amount, transport_fee, extra_fee, notes, status, payment_status, invoice_url, due_date')
           .eq('offer_id', offerId)
           .maybeSingle(),
       ])
       if (offerData) setOffer(offerData)
       if (invData) {
+        const savedTransportFee = invData.transport_fee ?? 0
+        const savedExtraFee = invData.extra_fee ?? 0
         setInvoice(invData)
-        setBaseFee(String(invData.amount ?? ''))
+        setBaseFee(
+          String((invData.amount ?? 0) - savedTransportFee - savedExtraFee)
+        )
+        setTransportFee(String(savedTransportFee))
+        setExtraFee(String(savedExtraFee))
+        setMemo(invData.notes ?? '')
         setDueDate(invData.due_date ?? '')
         if (!invData.due_date) {
           setDueDatePattern('none')
@@ -151,7 +158,13 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: total, due_date: dueDate || null }),
+          body: JSON.stringify({
+            amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo.trim() || null,
+            due_date: dueDate || null,
+          }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
@@ -161,6 +174,9 @@ export default function TalentInvoiceNewPage() {
           body: JSON.stringify({
             offer_id: offerId,
             amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo.trim() || null,
             due_date: dueDate || null,
           }),
         })
@@ -170,7 +186,16 @@ export default function TalentInvoiceNewPage() {
       }
       if (!id) throw new Error('id missing')
       setInvoice(prev => {
-        const next = { ...(prev ?? {}), id, amount: total, due_date: dueDate || null }
+        const next = {
+          ...(prev ?? {}),
+          id,
+          amount: total,
+          transport_fee: Number(transportFee || 0),
+          extra_fee: Number(extraFee || 0),
+          notes: memo.trim() || null,
+          notes: pdfMemo.trim() || null,
+          due_date: dueDate || null,
+        }
         if (!next.status) next.status = 'draft'
         if (next.payment_status === undefined) next.payment_status = null
         return next
@@ -193,7 +218,13 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: total, due_date: dueDate || null }),
+          body: JSON.stringify({
+            amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo.trim() || null,
+            due_date: dueDate || null,
+          }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
@@ -203,6 +234,9 @@ export default function TalentInvoiceNewPage() {
           body: JSON.stringify({
             offer_id: offerId,
             amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo.trim() || null,
             due_date: dueDate || null,
           }),
         })
@@ -212,7 +246,15 @@ export default function TalentInvoiceNewPage() {
       }
       if (!id) throw new Error('id missing')
       setInvoice(prev => {
-        const next = { ...(prev ?? {}), id, amount: total, due_date: dueDate || null }
+        const next = {
+          ...(prev ?? {}),
+          id,
+          amount: total,
+          transport_fee: Number(transportFee || 0),
+          extra_fee: Number(extraFee || 0),
+          notes: memo.trim() || null,
+          due_date: dueDate || null,
+        }
         if (!next.status) next.status = 'draft'
         if (next.payment_status === undefined) next.payment_status = null
         return next
@@ -247,7 +289,11 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ invoice_url: invoiceUrl, due_date: dueDate || null }),
+          body: JSON.stringify({
+            invoice_url: invoiceUrl,
+            notes: pdfMemo.trim() || null,
+            due_date: dueDate || null,
+          }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
@@ -258,6 +304,7 @@ export default function TalentInvoiceNewPage() {
             offer_id: offerId,
             amount: 0,
             invoice_url: invoiceUrl,
+            notes: pdfMemo.trim() || null,
             due_date: dueDate || null,
           }),
         })
