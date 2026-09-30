@@ -19,6 +19,7 @@ interface Invoice {
   id: string
   offer_id: string
   amount: number
+  invoice_url: string | null
   transport_fee: number | null
   extra_fee: number | null
   notes: string | null
@@ -50,7 +51,7 @@ export default function TalentInvoiceDetailPage() {
       const { data, error } = await supabase
         .from('invoices')
         .select(
-          'id,offer_id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
+          'id,offer_id,amount,invoice_url,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
         )
         .eq('id', id)
         .single()
@@ -213,6 +214,18 @@ export default function TalentInvoiceDetailPage() {
             見積書を提出
           </Button>
         </div>
+      )}
+
+      {invoice.invoice_url && (
+        <Button asChild variant='outline'>
+          <a
+            href={`/api/invoices/${id}/attachment`}
+            target='_blank'
+            rel='noreferrer'
+          >
+            アップロード済みPDFを開く
+          </a>
+        </Button>
       )}
 
       <Button onClick={handleDownload} disabled={downloading} variant='outline'>
