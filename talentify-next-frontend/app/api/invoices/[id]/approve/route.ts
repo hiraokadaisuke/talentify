@@ -5,6 +5,7 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { Prisma } from '@prisma/client'
 import { getPrismaClient } from '@/lib/prisma'
 import { emitNotification } from '@/lib/notifications/emit'
+import { parseOfferTimeRange, timeRangesOverlap } from '@/lib/offers/timeRange'
 
 type PayoutSnapshotRow = {
   bank_name: string | null
@@ -64,7 +65,7 @@ export async function POST(
 
       const offer = await tx.offers.findUnique({
         where: { id: invoice.offer_id },
-        select: { id: true, status: true, date: true },
+        select: { id: true, status: true, date: true, time_range: true },
       })
 
       if (!offer) throw new Error('OFFER_NOT_FOUND')
@@ -79,14 +80,24 @@ export async function POST(
         FOR UPDATE
       `
 
-      const scheduleConflict = await tx.offers.findFirst({
+      const blockingOffers = await tx.offers.findMany({
         where: {
           id: { not: offer.id },
           talent_id: invoice.talent_id,
           date: offer.date,
-          status: { in: ['confirmed', 'completed'] },
+          status: { in: ['accepted', 'confirmed', 'completed'] },
         },
-        select: { id: true },
+        select: { id: true, time_range: true },
+      })
+
+      const candidateRange = parseOfferTimeRange(offer.time_range)
+      const scheduleConflict = blockingOffers.find(existingOffer => {
+        const existingRange = parseOfferTimeRange(existingOffer.time_range)
+
+        // Legacy or malformed ranges are treated conservatively as a same-day conflict.
+        if (!candidateRange || !existingRange) return true
+
+        return timeRangesOverlap(candidateRange, existingRange)
       })
 
       if (scheduleConflict) throw new Error('TALENT_SCHEDULE_CONFLICT')
@@ -211,7 +222,7 @@ export async function POST(
     if (message === 'TALENT_SCHEDULE_CONFLICT') {
       return NextResponse.json(
         {
-          error: 'この演者は同日に別の締結済み案件があります。日程を調整してください',
+          error: 'この演者は同じ時間帯に別の締結済み案件があります。時間または日程を調整してください',
           code: 'TALENT_SCHEDULE_CONFLICT',
         },
         { status: 409 }
