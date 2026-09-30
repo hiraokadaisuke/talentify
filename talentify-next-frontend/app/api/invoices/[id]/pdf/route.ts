@@ -15,6 +15,8 @@ type ContractSnapshot = {
   version: 1
   captured_at: string
   store_name: string
+  store_address?: string | null
+  store_contact_name?: string | null
   talent_name: string
   invoice: {
     invoice_number: string
@@ -117,10 +119,11 @@ function toPdfAscii(value: string) {
 function buildInvoicePdf(params: {
   invoice: InvoiceRow
   storeName: string
+  storeAddress: string | null
   talentName: string
   payout: PayoutRow
 }) {
-  const { invoice, storeName, talentName, payout } = params
+  const { invoice, storeName, storeAddress, talentName, payout } = params
   const pageWidth = 595
   const pageHeight = 842
   const commands: string[] = []
@@ -169,6 +172,7 @@ function buildInvoicePdf(params: {
 
   jp('請求先', 50, 742, 9)
   jp(storeName || '店舗名未設定', 50, 716, 15)
+  if (storeAddress) jp(storeAddress, 50, 696, 8)
   jp('請求元', 330, 742, 9)
   jp(talentName || '演者名未設定', 330, 716, 15)
 
@@ -308,6 +312,7 @@ export async function GET(
 
     let pdfInvoice = invoice
     let storeName: string
+    let storeAddress: string | null
     let talentName: string
     let payout: PayoutRow
 
@@ -322,6 +327,7 @@ export async function GET(
         updated_at: contractSnapshot.captured_at,
       }
       storeName = contractSnapshot.store_name
+      storeAddress = contractSnapshot.store_address ?? null
       talentName = contractSnapshot.talent_name
       payout = contractSnapshot.payout
     } else {
@@ -329,7 +335,7 @@ export async function GET(
       const [{ data: store }, { data: talent }, { data: payoutRow }] = await Promise.all([
         service
           .from('stores')
-          .select('store_name')
+          .select('store_name,store_address')
           .eq('id', invoice.store_id)
           .maybeSingle(),
         service
@@ -345,6 +351,7 @@ export async function GET(
       ])
 
       storeName = store?.store_name ?? '店舗名未設定'
+      storeAddress = store?.store_address ?? null
       talentName =
         talent?.stage_name ?? talent?.display_name ?? talent?.name ?? '演者名未設定'
       payout = (payoutRow as PayoutRow) ?? null
@@ -353,6 +360,7 @@ export async function GET(
     const pdfBytes = buildInvoicePdf({
       invoice: pdfInvoice,
       storeName,
+      storeAddress,
       talentName,
       payout,
     })

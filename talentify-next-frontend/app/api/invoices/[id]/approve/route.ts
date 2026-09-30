@@ -105,7 +105,7 @@ export async function POST(
       const [storeSnapshot, talentSnapshot, payoutRows] = await Promise.all([
         tx.stores.findUnique({
           where: { id: invoice.store_id },
-          select: { store_name: true },
+          select: { store_name: true, store_address: true, contact_name: true },
         }),
         tx.talents.findUnique({
           where: { id: invoice.talent_id },
@@ -124,6 +124,8 @@ export async function POST(
         version: 1,
         captured_at: now.toISOString(),
         store_name: storeSnapshot?.store_name ?? '店舗名未設定',
+        store_address: storeSnapshot?.store_address ?? null,
+        store_contact_name: storeSnapshot?.contact_name ?? null,
         talent_name:
           talentSnapshot?.stage_name ??
           talentSnapshot?.display_name ??
