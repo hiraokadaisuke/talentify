@@ -37,7 +37,14 @@ export async function PATCH(
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const allowedFields = ['invoice_url', 'amount', 'due_date', 'notes']
+    const allowedFields = [
+      'invoice_url',
+      'amount',
+      'transport_fee',
+      'extra_fee',
+      'due_date',
+      'notes',
+    ]
     const updates: Record<string, any> = {}
     for (const field of allowedFields) {
       if (body[field] !== undefined) updates[field] = body[field]
