@@ -50,7 +50,7 @@ const statusDisplay = (status: string) => {
     case 'accepted':
       return { text: '承認済み', badge: <Badge variant="success">承認済み</Badge> }
     case 'confirmed':
-      return { text: '来店予定', badge: <Badge variant="success">来店予定</Badge> }
+      return { text: '締結済み', badge: <Badge variant="success">締結済み</Badge> }
     case 'completed':
       return { text: '完了', badge: <Badge variant="success">完了</Badge> }
     case 'rejected':
@@ -91,13 +91,21 @@ export default function StepDetailCard({
           primaryAction: <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/new?offerId=${offer.id}`}>見積書を作成する</Link></Button>,
         }
       case 'payment_waiting':
-        return {
-          title: '見積書を提出しました',
-          description: 'ホール側で見積内容を確認しています。必要に応じてメッセージで調整してください。',
-          badge: <Badge variant="outline">ホール確認待ち</Badge>,
-          meta: [{ label: '見積ステータス', value: offer.invoiceStatusLabel }],
-          primaryAction: invoiceId ? <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>提出した見積書を見る</Link></Button> : undefined,
-        }
+        return offer.status === 'confirmed'
+          ? {
+              title: '取引が締結されました',
+              description: 'ホールが見積内容を承認し、取引締結書兼請求書が発行されました。',
+              badge: <Badge variant="success">締結済み</Badge>,
+              meta: [{ label: '支払い状態', value: offer.paymentStatusLabel }],
+              primaryAction: invoiceId ? <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>締結書兼請求書を見る</Link></Button> : undefined,
+            }
+          : {
+              title: '見積書を提出しました',
+              description: 'ホール側で見積内容を確認しています。必要に応じてメッセージで調整してください。',
+              badge: <Badge variant="outline">ホール確認待ち</Badge>,
+              meta: [{ label: '見積ステータス', value: offer.invoiceStatusLabel }],
+              primaryAction: invoiceId ? <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>提出した見積書を見る</Link></Button> : undefined,
+            }
       case 'review_available':
         return {
           title: 'レビューが届いています',

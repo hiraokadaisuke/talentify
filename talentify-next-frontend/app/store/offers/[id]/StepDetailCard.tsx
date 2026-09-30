@@ -62,13 +62,13 @@ const statusBadge = (status: string) => {
   switch (status) {
     case 'confirmed':
     case 'accepted':
-      return <Badge>承認済み</Badge>
+      return <Badge>締結済み</Badge>
     case 'rejected':
       return <Badge variant="secondary">辞退済み</Badge>
     case 'canceled':
       return <Badge variant="destructive">キャンセル済み</Badge>
     default:
-      return <Badge variant="outline">承認待ち</Badge>
+      return <Badge variant="outline">相談中</Badge>
   }
 }
 
@@ -76,13 +76,13 @@ const getStatusText = (status: string) => {
   switch (status) {
     case 'confirmed':
     case 'accepted':
-      return '承認済み'
+      return '締結済み'
     case 'rejected':
       return '辞退済み'
     case 'canceled':
       return 'キャンセル済み'
     default:
-      return '承認待ち'
+      return '相談中'
   }
 }
 
@@ -108,34 +108,33 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
     switch (phase) {
       case 'invoice_waiting':
         return {
-          title: '請求をお待ちしています',
-          description: '請求書がまだ作成されていません。必要に応じてメッセージで作成・提出を案内してください。',
-          badge: <Badge variant="outline">請求待ち</Badge>,
-          meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
+          title: '見積書をお待ちください',
+          description: '演者と条件を相談し、見積書の提出をお待ちください。',
+          badge: <Badge variant="outline">見積待ち</Badge>,
+          meta: [{ label: '見積ステータス', value: offer.invoiceStatusLabel }],
           primaryAction: undefined,
         }
       case 'invoice_submitted':
         return {
-          title: '請求書が提出されました',
-          description: '内容を確認し、問題なければ支払いへ進んでください。',
+          title: '見積書が提出されました',
+          description: '内容を確認し、問題なければ見積を承認して取引を締結してください。',
           badge: <Badge>確認が必要</Badge>,
           meta: [
-            { label: '請求書ステータス', value: offer.invoiceStatusLabel },
-            ...(invoice?.amount != null ? [{ label: '請求額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
-            { label: '支払い状況', value: offer.paymentStatusLabel },
+            { label: '見積ステータス', value: offer.invoiceStatusLabel },
+            ...(invoice?.amount != null ? [{ label: '見積合計', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
           ],
-          primaryAction: invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
+          primaryAction: invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>見積書を確認する</Link></Button> : undefined,
         }
       case 'payment_waiting':
         return {
-          title: '支払い処理を進めてください',
-          description: '請求内容は確認済みです。次は支払いを完了し、レビューに進みましょう。',
-          badge: <Badge variant="outline">支払い待ち</Badge>,
+          title: '取引が締結されました',
+          description: '見積内容で条件が確定し、取引締結書兼請求書が発行されています。来店後、支払いを進めてください。',
+          badge: <Badge variant="success">締結済み</Badge>,
           meta: [
             { label: '支払い状況', value: offer.paymentStatusLabel },
             ...(invoice?.amount != null ? [{ label: '支払い予定額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
           ],
-          primaryAction: paymentLink ? <Button className={primaryActionClass} asChild><Link href={paymentLink}>支払いを確認する</Link></Button> : invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
+          primaryAction: paymentLink ? <Button className={primaryActionClass} asChild><Link href={paymentLink}>締結書兼請求書を見る</Link></Button> : invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>締結書兼請求書を見る</Link></Button> : undefined,
         }
       case 'payment_completed_review_waiting':
         return {
@@ -197,8 +196,8 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
 
     if (activeStep === 'offer_submitted') {
       result = {
-        title: 'オファー提出',
-        description: '店舗からタレントへオファーを送信しました。返信内容はメッセージで確認できます。',
+        title: 'オファー・条件相談',
+        description: '演者へオファーを送信しました。メッセージなどで条件を相談してください。',
         badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
         meta: [
           { label: 'オファー金額', value: offer.reward != null ? `¥${offer.reward.toLocaleString('ja-JP')}` : '未設定' },
@@ -209,10 +208,12 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
 
     if (activeStep === 'approval') {
       result = {
-        title: '承認',
-        description: '承認状況を確認し、必要に応じてメッセージで調整してください。',
-        badge: statusBadge(offer.status),
-        meta: [{ label: '承認状況', value: getStatusText(offer.status) }],
+        title: '見積',
+        description: offer.invoiceStatus === 'submitted'
+          ? '演者から見積書が届いています。内容を確認してください。'
+          : '条件相談後、演者から見積書が提出されます。',
+        badge: offer.invoiceStatus === 'submitted' ? <Badge>見積確認待ち</Badge> : statusBadge(offer.status),
+        meta: [{ label: '案件状況', value: getStatusText(offer.status) }],
       }
     }
 

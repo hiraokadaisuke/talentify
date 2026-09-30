@@ -26,7 +26,7 @@ export const OFFER_STEP_LABELS: Record<OfferStepKey, string> = {
   offer_submitted: 'オファー・相談',
   approval: '見積',
   visit: '来店実施',
-  invoice: '請求',
+  invoice: '締結・請求',
   payment: '支払い',
   review: 'レビュー',
 }
@@ -108,24 +108,24 @@ export function getOfferProgress({
   const order: OfferStepKey[] = [
     'offer_submitted',
     'approval',
-    'visit',
     'invoice',
+    'visit',
     'payment',
     'review',
   ]
 
   const completed = new Set<OfferStepKey>(['offer_submitted'])
 
-  if (['accepted', 'confirmed', 'completed'].includes(status)) {
+  if (invoiceStatus !== 'not_submitted' || ['confirmed', 'completed'].includes(status)) {
     completed.add('approval')
   }
 
-  if (status === 'completed') {
-    completed.add('visit')
+  if (['confirmed', 'completed'].includes(status)) {
+    completed.add('invoice')
   }
 
-  if (invoiceStatus !== 'not_submitted' || paid) {
-    completed.add('invoice')
+  if (status === 'completed' || paid || invoiceStatus === 'paid') {
+    completed.add('visit')
   }
 
   if (paid || invoiceStatus === 'paid') {

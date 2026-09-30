@@ -86,12 +86,12 @@ export default function StoreOfferProgressPanel({
         case 'approval':
           return {
             ...step,
-            subLabel: formattedRespondDeadline ? `承認期限: ${formattedRespondDeadline}` : '承認期限: 未設定',
+            subLabel: `見積状況: ${offer.invoiceStatusLabel}`,
           }
         case 'visit':
           return { ...step, subLabel: `来店予定: ${formattedVisitDate}` }
         case 'invoice':
-          return { ...step, subLabel: `請求状況: ${offer.invoiceStatusLabel}` }
+          return { ...step, subLabel: offer.status === 'confirmed' ? '締結済み・請求書発行済み' : '見積承認で締結' }
         case 'payment':
           return {
             ...step,
@@ -112,7 +112,6 @@ export default function StoreOfferProgressPanel({
   }, [
     steps,
     formattedSubmittedAt,
-    formattedRespondDeadline,
     formattedVisitDate,
     offer.invoiceStatusLabel,
     offer.paid,

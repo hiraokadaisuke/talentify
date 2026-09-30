@@ -119,25 +119,25 @@ export default function StoreInvoiceDetail() {
     const res = await fetch(`/api/invoices/${id}/approve`, { method: 'POST' })
     setUpdatingStatus(false)
     if (res.ok) {
-      toast.success('請求書を承認しました')
+      toast.success('見積書を承認し、取引を締結しました')
       await load()
     } else {
-      toast.error('承認に失敗しました')
+      toast.error('見積承認に失敗しました')
     }
   }
 
   const handleReject = async () => {
-    const ok = window.confirm('この請求書を差し戻しますか？')
+    const ok = window.confirm('見積書の修正を依頼しますか？')
     if (!ok) return
 
     setUpdatingStatus(true)
     const res = await fetch(`/api/invoices/${id}/reject`, { method: 'POST' })
     setUpdatingStatus(false)
     if (res.ok) {
-      toast.success('請求書を差し戻しました')
+      toast.success('見積書の修正を依頼しました')
       await load()
     } else {
-      toast.error('差し戻しに失敗しました')
+      toast.error('修正依頼に失敗しました')
     }
   }
 
@@ -176,17 +176,20 @@ export default function StoreInvoiceDetail() {
       ].some(Boolean)
     : false
 
+  const isEstimate = invoice.status === 'draft' || invoice.status === 'submitted' || invoice.status === 'rejected'
+  const isContracted = invoice.status === 'approved'
+
   return (
-    <main className='p-6 space-y-4'>
-      <h1 className='text-xl font-bold'>請求詳細</h1>
+    <main className='space-y-4 p-3 sm:p-6'>
+      <h1 className='text-xl font-bold'>{isEstimate ? '見積詳細' : '取引締結書兼請求書'}</h1>
       <Card>
         <CardHeader>
-          <CardTitle>請求情報</CardTitle>
+          <CardTitle>{isEstimate ? '見積情報' : '締結・請求情報'}</CardTitle>
         </CardHeader>
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
           <div>金額: ¥{invoice.amount.toLocaleString('ja-JP')}</div>
-          <div>請求書番号: {invoice.invoice_number ?? '-'}</div>
+          <div>{isEstimate ? '管理番号' : '締結書兼請求書番号'}: {invoice.invoice_number ?? '-'}</div>
           <div>
             支払期限:{' '}
             {invoice.due_date
@@ -194,7 +197,7 @@ export default function StoreInvoiceDetail() {
               : '-'}
           </div>
           <div>
-            請求書ステータス:{' '}
+            {isEstimate ? '見積ステータス' : '取引ステータス'}:{' '}
             <Badge variant='outline'>{statusLabel(invoice)}</Badge>
           </div>
           <div>
@@ -254,23 +257,23 @@ export default function StoreInvoiceDetail() {
 
       <Button onClick={handleDownload} disabled={downloading}>
         {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-        請求書をダウンロード
+        {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
       </Button>
 
       {invoice.status === 'submitted' && (
         <div className='flex gap-2'>
           <Button onClick={handleApprove} disabled={updatingStatus}>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            承認する
+            この見積内容で締結する
           </Button>
           <Button onClick={handleReject} disabled={updatingStatus} variant='outline'>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            差し戻す
+            修正を依頼する
           </Button>
         </div>
       )}
 
-      {!invoice.offers?.paid && invoice.status === 'approved' && (
+      {!invoice.offers?.paid && isContracted && (
         <Button onClick={handlePay} disabled={paying}>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする

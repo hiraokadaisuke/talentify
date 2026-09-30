@@ -141,17 +141,17 @@ export default function TalentInvoiceDetailPage() {
 
   return (
     <main className="space-y-4 p-3 sm:p-6">
-      <h1 className="text-xl font-bold">{isEstimate ? '見積詳細' : '請求詳細'}</h1>
+      <h1 className="text-xl font-bold">{isEstimate ? '見積詳細' : '取引締結書兼請求書'}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>{isEstimate ? '見積情報' : '請求情報'}</CardTitle>
+          <CardTitle>{isEstimate ? '見積情報' : '締結・請求情報'}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
 
           {/* 請求書番号は編集不可（自動採番・表示のみ） */}
-          <div>{isEstimate ? '管理番号' : '請求書番号'}: {invoice.invoice_number}</div>
+          <div>{isEstimate ? '管理番号' : '締結書兼請求書番号'}: {invoice.invoice_number}</div>
 
           <div className="flex items-center gap-2">
             <span className="shrink-0">支払期限:</span>
@@ -170,7 +170,7 @@ export default function TalentInvoiceDetailPage() {
           </div>
 
           <div>
-            {isEstimate ? '見積ステータス' : '請求ステータス'}:{' '}
+            {isEstimate ? '見積ステータス' : '取引ステータス'}:{' '}
             <Badge variant="outline">{getInvoiceStatusLabel(invoice.status)}</Badge>
           </div>
           <div>
@@ -217,7 +217,7 @@ export default function TalentInvoiceDetailPage() {
 
       <Button onClick={handleDownload} disabled={downloading} variant='outline'>
         {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-        {isEstimate ? '見積書をダウンロード' : '請求書をダウンロード'}
+        {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
       </Button>
     </main>
   )

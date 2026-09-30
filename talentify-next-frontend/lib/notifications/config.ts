@@ -224,10 +224,10 @@ export const notificationConfig: {
     priority: 'medium',
     dedupeStrategy: (event) => `offer-accepted:${event.offerId}`,
     build: ({ roleRootPath, event }) => ({
-      title: 'オファーが承認されました',
-      body: '進行中の作業内容を確認してください。',
+      title: '見積書が承認され、取引が締結されました',
+      body: '取引締結書兼請求書が発行されました。内容をご確認ください。',
       actionUrl: `${roleRootPath}/offers/${event.offerId}`,
-      actionLabel: 'オファーを見る',
+      actionLabel: '締結内容を見る',
       entityType: 'offer',
       entityId: event.offerId,
       data: {

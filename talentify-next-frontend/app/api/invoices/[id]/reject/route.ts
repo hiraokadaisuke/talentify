@@ -22,7 +22,7 @@ export async function POST(
       .eq('id', id)
       .single()
     if (invError || !invoice) {
-      return NextResponse.json<{ error: string }>({ error: '請求書が見つかりません' }, { status: 404 })
+      return NextResponse.json<{ error: string }>({ error: '見積書が見つかりません' }, { status: 404 })
     }
 
     const { data: store, error: storeError } = await supabase
@@ -42,7 +42,7 @@ export async function POST(
     const service = createServiceClient()
     const { data, error } = await service
       .from('invoices')
-      .update({ status: 'rejected', updated_at: new Date().toISOString() })
+      .update({ status: 'draft', updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
       .single()

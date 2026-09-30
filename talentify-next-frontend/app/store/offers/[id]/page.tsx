@@ -188,7 +188,7 @@ function getStatusLabel(status: string) {
   switch (status) {
     case 'accepted':
     case 'confirmed':
-      return '承認済み'
+      return '締結済み'
     case 'completed':
       return '完了'
     case 'rejected':
@@ -198,7 +198,7 @@ function getStatusLabel(status: string) {
     case 'draft':
       return '下書き'
     default:
-      return '承認待ち'
+      return '相談中'
   }
 }
 

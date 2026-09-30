@@ -40,6 +40,9 @@ export function resolveMainActionPhase({
   }
 
   if (invoiceStatus === 'submitted') {
+    if (status === 'confirmed' || status === 'completed') {
+      return 'payment_waiting'
+    }
     return role === 'store' ? 'invoice_submitted' : 'payment_waiting'
   }
 
