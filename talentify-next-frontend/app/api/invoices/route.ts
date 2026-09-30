@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       transport_fee,
       extra_fee,
       invoice_url,
+      due_date,
     } = body
     offerId = offer_id
 
@@ -64,6 +65,7 @@ export async function POST(req: NextRequest) {
       transport_fee,
       extra_fee,
       invoice_url,
+      due_date,
     }
 
     if (existing) {
@@ -83,6 +85,7 @@ export async function POST(req: NextRequest) {
         transport_fee,
         extra_fee,
         invoice_url,
+        due_date,
       }
       const { data: updated, error: updateError } = await service
         .from('invoices')
