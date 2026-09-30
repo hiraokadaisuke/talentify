@@ -96,7 +96,7 @@ export default function OfferPaymentStatusCard({
               </Button>
               {invoice.invoiceUrl && (
                 <Button variant="outline" asChild>
-                  <Link href={invoice.invoiceUrl} target="_blank">
+                  <Link href={`/api/invoices/${invoice.id}/attachment`} target="_blank">
                     PDFを開く
                   </Link>
                 </Button>
