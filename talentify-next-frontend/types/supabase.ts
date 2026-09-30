@@ -300,6 +300,7 @@ export type Database = {
           action_label: string | null
           action_url: string | null
           actor_name: string | null
+          body: string | null
           created_at: string | null
           data: Json | null
           entity_id: string | null
@@ -310,6 +311,7 @@ export type Database = {
           is_read: boolean | null
           priority: string
           read_at: string | null
+          title: string
           type: Database["public"]["Enums"]["notification_type"]
           updated_at: string
           user_id: string
@@ -318,6 +320,7 @@ export type Database = {
           action_label?: string | null
           action_url?: string | null
           actor_name?: string | null
+          body?: string | null
           created_at?: string | null
           data?: Json | null
           entity_id?: string | null
@@ -328,6 +331,7 @@ export type Database = {
           is_read?: boolean | null
           priority?: string
           read_at?: string | null
+          title: string
           type: Database["public"]["Enums"]["notification_type"]
           updated_at?: string
           user_id: string
@@ -336,6 +340,7 @@ export type Database = {
           action_label?: string | null
           action_url?: string | null
           actor_name?: string | null
+          body?: string | null
           created_at?: string | null
           data?: Json | null
           entity_id?: string | null
@@ -346,6 +351,7 @@ export type Database = {
           is_read?: boolean | null
           priority?: string
           read_at?: string | null
+          title?: string
           type?: Database["public"]["Enums"]["notification_type"]
           updated_at?: string
           user_id?: string
