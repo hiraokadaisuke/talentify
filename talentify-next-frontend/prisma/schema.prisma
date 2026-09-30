@@ -449,7 +449,7 @@ model talent_availability_settings {
 model talent_payout_accounts {
   talent_id      String   @id @db.Uuid
   user_id        String   @unique @db.Uuid
-  bank_name      String?
+
   branch_name    String?
   account_type   String?
   account_number String?
