@@ -3,6 +3,12 @@ import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 
+type BillingRow = {
+  billing_name: string | null
+  billing_address: string | null
+  invoice_registration_number: string | null
+} | null
+
 type PayoutRow = {
   bank_name: string | null
   branch_name: string | null
@@ -18,6 +24,7 @@ type ContractSnapshot = {
   store_address?: string | null
   store_contact_name?: string | null
   talent_name: string
+  billing?: BillingRow
   invoice: {
     invoice_number: string
     amount: number
@@ -76,6 +83,19 @@ function readContractSnapshot(value: unknown): ContractSnapshot | null {
     return null
   }
 
+  const billing = snapshot.billing
+  if (billing !== undefined && billing !== null) {
+    if (!billing || typeof billing !== 'object' || Array.isArray(billing)) return null
+    const billingData = billing as Record<string, unknown>
+    if (
+      !isNullableString(billingData.billing_name) ||
+      !isNullableString(billingData.billing_address) ||
+      !isNullableString(billingData.invoice_registration_number)
+    ) {
+      return null
+    }
+  }
+
   const payout = snapshot.payout
   if (payout !== null) {
     if (!payout || typeof payout !== 'object' || Array.isArray(payout)) return null
@@ -121,9 +141,10 @@ function buildInvoicePdf(params: {
   storeName: string
   storeAddress: string | null
   talentName: string
+  billing: BillingRow
   payout: PayoutRow
 }) {
-  const { invoice, storeName, storeAddress, talentName, payout } = params
+  const { invoice, storeName, storeAddress, talentName, billing, payout } = params
   const pageWidth = 595
   const pageHeight = 842
   const commands: string[] = []
@@ -174,7 +195,12 @@ function buildInvoicePdf(params: {
   jp(storeName || '店舗名未設定', 50, 716, 15)
   if (storeAddress) jp(storeAddress, 50, 696, 8)
   jp('請求元', 330, 742, 9)
-  jp(talentName || '演者名未設定', 330, 716, 15)
+  jp(billing?.billing_name || talentName || '演者名未設定', 330, 716, 15)
+  if (billing?.billing_address) jp(billing.billing_address, 330, 696, 8)
+  if (billing?.invoice_registration_number) {
+    jp('登録番号', 330, 678, 8)
+    latin(billing.invoice_registration_number, 385, 678, 8)
+  }
 
   box(50, 635, 495, 54)
   jp(isContracted ? 'ご請求金額' : 'お見積金額', 66, 655, 11)
@@ -314,6 +340,7 @@ export async function GET(
     let storeName: string
     let storeAddress: string | null
     let talentName: string
+    let billing: BillingRow
     let payout: PayoutRow
 
     if (contractSnapshot) {
@@ -329,10 +356,11 @@ export async function GET(
       storeName = contractSnapshot.store_name
       storeAddress = contractSnapshot.store_address ?? null
       talentName = contractSnapshot.talent_name
+      billing = contractSnapshot.billing ?? null
       payout = contractSnapshot.payout
     } else {
       const service = createServiceClient()
-      const [{ data: store }, { data: talent }, { data: payoutRow }] = await Promise.all([
+      const [{ data: store }, { data: talent }, { data: payoutRow }, billingResult] = await Promise.all([
         service
           .from('stores')
           .select('store_name,store_address')
@@ -348,12 +376,18 @@ export async function GET(
           .select('bank_name,branch_name,account_type,account_number,account_holder')
           .eq('talent_id', invoice.talent_id)
           .maybeSingle(),
+        (service as any)
+          .from('talent_billing_profiles')
+          .select('billing_name,billing_address,invoice_registration_number')
+          .eq('talent_id', invoice.talent_id)
+          .maybeSingle(),
       ])
 
       storeName = store?.store_name ?? '店舗名未設定'
       storeAddress = store?.store_address ?? null
       talentName =
         talent?.stage_name ?? talent?.display_name ?? talent?.name ?? '演者名未設定'
+      billing = (billingResult?.data as BillingRow) ?? null
       payout = (payoutRow as PayoutRow) ?? null
     }
 
@@ -362,6 +396,7 @@ export async function GET(
       storeName,
       storeAddress,
       talentName,
+      billing,
       payout,
     })
 

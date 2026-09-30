@@ -15,6 +15,12 @@ type PayoutSnapshotRow = {
   account_holder: string | null
 }
 
+type BillingSnapshotRow = {
+  billing_name: string | null
+  billing_address: string | null
+  invoice_registration_number: string | null
+}
+
 export async function POST(
   _req: NextRequest,
   { params }: { params: { id: string } }
@@ -102,7 +108,7 @@ export async function POST(
 
       if (scheduleConflict) throw new Error('TALENT_SCHEDULE_CONFLICT')
 
-      const [storeSnapshot, talentSnapshot, payoutRows] = await Promise.all([
+      const [storeSnapshot, talentSnapshot, payoutRows, billingRows] = await Promise.all([
         tx.stores.findUnique({
           where: { id: invoice.store_id },
           select: { store_name: true, store_address: true, contact_name: true },
@@ -117,9 +123,16 @@ export async function POST(
           WHERE talent_id = ${invoice.talent_id}::uuid
           LIMIT 1
         `,
+        tx.$queryRaw<BillingSnapshotRow[]>`
+          SELECT billing_name, billing_address, invoice_registration_number
+          FROM public.talent_billing_profiles
+          WHERE talent_id = ${invoice.talent_id}::uuid
+          LIMIT 1
+        `,
       ])
 
       const payoutSnapshot = payoutRows[0] ?? null
+      const billingSnapshot = billingRows[0] ?? null
       const contractSnapshot: Prisma.InputJsonValue = {
         version: 1,
         captured_at: now.toISOString(),
@@ -139,6 +152,13 @@ export async function POST(
           due_date: invoice.due_date ? invoice.due_date.toISOString().slice(0, 10) : null,
           notes: invoice.notes ?? null,
         },
+        billing: billingSnapshot
+          ? {
+              billing_name: billingSnapshot.billing_name,
+              billing_address: billingSnapshot.billing_address,
+              invoice_registration_number: billingSnapshot.invoice_registration_number,
+            }
+          : null,
         payout: payoutSnapshot
           ? {
               bank_name: payoutSnapshot.bank_name,
