@@ -11,7 +11,7 @@ import { SupabaseProvider } from "@/lib/supabase/provider";
 
 export const metadata = {
   title: "Talentify",
-  description: "パチンコ店と演者をつなぐマッチングプラットフォーム",
+  description: "パチンコ店と演者をつなぎ、検索・オファー・案件管理・請求までを一つにまとめるプラットフォーム",
   icons: {
     icon: "/favicon.png?v=2",
   },

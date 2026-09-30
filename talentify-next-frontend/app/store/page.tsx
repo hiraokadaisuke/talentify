@@ -1,239 +1,195 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { ArrowRight, Calendar, CheckCircle2, FileText, MessageCircle, Search, Send, Store } from 'lucide-react'
 
-const painPoints = [
-  '誰に依頼すればいいかわからない',
-  '毎回やり取りがバラバラ',
-  '条件確認に時間がかかる',
-  '履歴が残らない',
+export const metadata = {
+  title: '店舗向け｜Talentify',
+  description:
+    '演者探し・日程確認・オファー・メッセージ・案件管理・請求確認まで。店舗の来店案件をTalentifyで一つにまとめます。',
+}
+
+const problems = [
+  '誰に依頼すればいいか、候補探しに時間がかかる',
+  '空き日程や条件確認のやり取りが増えやすい',
+  '案件ごとの連絡や進行状況がバラバラになる',
+  '過去の依頼や評価が担当者の中だけに残りやすい',
 ]
 
-const solutions = [
-  '演者を一覧で探せる',
-  '条件を整理して依頼できる',
-  'やり取りをまとめて管理できる',
-  '履歴と実績が自動で残る',
+const steps = [
+  { icon: Search, title: '演者を探す', text: 'プロフィール・ジャンル・エリアなどから候補を確認。' },
+  { icon: Calendar, title: '日程を確認', text: '空き状況を見ながら、依頼したい日を決める。' },
+  { icon: Send, title: 'オファーを送る', text: '報酬・時間・内容をまとめて依頼。' },
+  { icon: MessageCircle, title: '案件を進める', text: 'メッセージと予定を案件単位で管理。' },
+  { icon: CheckCircle2, title: '実施後まで管理', text: '請求・支払い状況・レビューまで確認。' },
+]
+
+const features = [
+  {
+    eyebrow: 'SEARCH',
+    title: '候補を比較して、演者を探す。',
+    text: 'プロフィールや活動情報を見ながら、店舗の企画に合う演者を探せます。',
+    image: '/images/ui/ui-talent-list.png',
+  },
+  {
+    eyebrow: 'OFFER',
+    title: '条件を整理したまま、依頼する。',
+    text: '日程・報酬・時間・依頼内容をオファーにまとめ、承諾・辞退まで同じ画面で追えます。',
+    image: '/images/ui/ui-offer-create.png',
+  },
+  {
+    eyebrow: 'COMMUNICATION',
+    title: '案件のやり取りを、一か所に残す。',
+    text: 'メッセージや進行状況が案件とつながるため、後から見ても経緯を追いやすくなります。',
+    image: '/images/ui/ui-message.png',
+  },
 ]
 
 const benefits = [
-  {
-    title: '依頼の手間が減る',
-    description: '条件整理と連絡の流れが揃い、準備時間を短縮できます。',
-  },
-  {
-    title: 'ミスが減る',
-    description: '必要情報がまとまり、確認漏れや認識違いを防げます。',
-  },
-  {
-    title: '再現性が生まれる',
-    description: '案件履歴が残るため、担当が変わっても同じ品質で運用できます。',
-  },
-  {
-    title: '成果につながる',
-    description: '改善の判断材料が蓄積され、次の施策に活かせます。',
-  },
+  '候補探しから依頼までの往復を減らせる',
+  '案件の条件とやり取りを同じ場所に残せる',
+  '担当者が変わっても経緯を確認しやすい',
+  'レビューや履歴を次の依頼判断に使える',
 ]
-
-const featureCards = [
-  {
-    label: 'マッチング',
-    title: '最適な演者が見つかる',
-    description: '条件に合う候補を一覧で比較。感覚ではなく情報で選べます。',
-    image: '/images/ui/ui-talent-list.png',
-    alt: '演者候補を比較するダミー画面',
-  },
-  {
-    label: 'オファー',
-    title: '条件を整理して依頼できる',
-    description: '日程・予算・要件を整理して送信。確認の往復を減らせます。',
-    image: '/images/ui/ui-offer-create.png',
-    alt: '依頼条件をまとめるダミー画面',
-  },
-  {
-    label: '管理',
-    title: 'やり取りを一元化',
-    description: '誰が何を合意したかを見える化。引き継ぎもスムーズです。',
-    image: '/images/ui/ui-message.png',
-    alt: '案件管理のダミー画面',
-  },
-]
-
-const lpImages = {
-  heroMain: '/images/lp/store/store-hero-main.png',
-  operation: '/images/lp/store/store-operation.png',
-}
 
 export default function StoreLandingPage() {
   return (
-    <main className="bg-white text-[#1a1a1a]">
-      <section className="relative isolate overflow-hidden">
-        <Image
-          src={lpImages.heroMain}
-          alt="来店イベントの現場イメージ"
-          fill
-          priority
-          className="object-cover brightness-110 contrast-110"
-        />
-        <div className="absolute inset-0 bg-[#111]/35" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#111]/40 via-[#111]/35 to-[#111]/20" />
-        <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
-          <div className="max-w-3xl text-white">
-            <p className="text-xs uppercase tracking-[0.2em] text-white/70">For Pachinko Stores</p>
-            <h1 className="mt-4 text-3xl font-semibold leading-tight sm:text-6xl">
+    <main className="overflow-hidden bg-[#05050d] pt-16 text-white">
+      <section className="relative isolate min-h-[640px] overflow-hidden">
+        <Image src="/images/lp/store/store-hero-main.png" alt="来店イベントの店舗イメージ" fill priority className="object-cover object-center" />
+        <div className="absolute inset-0 bg-black/58" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/55 to-black/20" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_35%,rgba(249,115,22,.26),transparent_34%),linear-gradient(to_bottom,transparent,#05050d_98%)]" />
+
+        <div className="relative mx-auto flex min-h-[640px] w-full max-w-[1400px] items-center px-5 py-16 sm:px-8 lg:px-12">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-300/25 bg-orange-400/10 px-4 py-2 text-xs font-black tracking-[0.18em] text-orange-200 backdrop-blur">
+              <Store className="h-4 w-4" />
+              FOR PACHINKO STORES
+            </div>
+            <h1 className="mt-6 text-[40px] font-black leading-[1.08] tracking-[-0.04em] sm:text-6xl lg:text-[68px]">
               来店演者の依頼を、
               <br />
-              もっとスムーズに。
+              <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 bg-clip-text text-transparent">
+                もっとスムーズに。
+              </span>
             </h1>
-            <p className="mt-5 text-base leading-relaxed text-white/90 sm:text-xl">
-              探す・依頼する・管理するまで、すべて一つに。
+            <p className="mt-6 max-w-2xl text-base font-bold leading-8 text-white/90 sm:text-xl">
+              探す・日程を確認する・オファーする・進める。
+              <br className="hidden sm:block" />
+              店舗の来店案件を、一つの流れで管理できます。
             </p>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/85 sm:text-base sm:leading-8">
-              Talentifyは、店舗と演者をつなぐ無料のマッチングサービスです。
-              依頼条件の整理からやり取り、実績管理まで一元化できます。
-            </p>
-            <Link href="/register?role=store" className="mt-8 inline-flex">
-              <Button className="h-12 rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:text-base">
-                無料で店舗登録
-              </Button>
-            </Link>
-            <div className="mt-4">
-              <Link href="/" className="text-sm text-white/90 underline-offset-4 hover:underline">
-                ブランドトップへ戻る
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link href="/register?role=store" className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 px-8 text-sm font-black shadow-[0_0_26px_rgba(249,115,22,.28)] transition hover:scale-[1.02]">
+                店舗として登録
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link href="/guide#store-flow" className="inline-flex h-14 items-center justify-center rounded-full border border-white/25 bg-black/25 px-8 text-sm font-black backdrop-blur transition hover:bg-white/10">
+                利用の流れを見る
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
-        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">課題提示</p>
-        <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">こんな悩みありませんか？</h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {painPoints.map((item) => (
-            <div key={item} className="border border-zinc-200 bg-white p-5 text-sm leading-7 sm:text-base">
-              ・{item}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-gray-50 py-16 sm:py-24">
-        <div className="mx-auto w-full max-w-6xl px-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">解決</p>
-          <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">Talentifyならすべて解決</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {solutions.map((item) => (
-              <div key={item} className="border border-zinc-200 bg-white p-5 text-sm leading-7 sm:text-base">
-                ・{item}
+      <section className="px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div className="mx-auto w-full max-w-[1300px]">
+          <p className="text-sm font-black tracking-[0.22em] text-orange-300">STORE PROBLEMS</p>
+          <h2 className="mt-3 text-3xl font-black sm:text-5xl">来店案件、こんなところで止まりやすい。</h2>
+          <div className="mt-9 grid gap-4 md:grid-cols-2">
+            {problems.map((problem) => (
+              <div key={problem} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-5">
+                <span className="mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-orange-400/15 text-orange-300">
+                  <CheckCircle2 className="h-4 w-4" />
+                </span>
+                <p className="text-sm font-bold leading-7 text-white/75 sm:text-base">{problem}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
-        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">ベネフィット</p>
-        <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">運用の質が変わる</h2>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map((item, index) => (
-            <div
-              key={item.title}
-              className="rounded-xl border border-zinc-200 bg-white p-6 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:p-7"
-            >
-              <p className="text-xs font-semibold tracking-[0.16em] text-zinc-500">POINT {index + 1}</p>
-              <p className="mt-3 text-lg font-semibold leading-8 text-zinc-900">{item.title}</p>
-              <p className="mt-3 text-sm leading-7 text-zinc-600">{item.description}</p>
-            </div>
-          ))}
+      <section className="border-y border-white/10 bg-[#090914] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div className="mx-auto w-full max-w-[1300px]">
+          <p className="text-sm font-black tracking-[0.22em] text-pink-400">WORKFLOW</p>
+          <h2 className="mt-3 text-3xl font-black sm:text-5xl">店舗側の流れを、5ステップに。</h2>
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {steps.map((step, index) => {
+              const Icon = step.icon
+              return (
+                <article key={step.title} className="rounded-[24px] border border-white/10 bg-white/[0.045] p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black tracking-[0.15em] text-white/40">0{index + 1}</span>
+                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-orange-400 to-pink-500">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                  </div>
+                  <h3 className="mt-6 text-xl font-black">{step.title}</h3>
+                  <p className="mt-3 text-sm font-medium leading-7 text-white/60">{step.text}</p>
+                </article>
+              )
+            })}
+          </div>
         </div>
       </section>
 
-      <section className="bg-gray-50 py-16 sm:py-24">
-        <div className="mx-auto w-full max-w-6xl px-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">機能</p>
-          <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">必要な機能だけ、明確に。</h2>
-          <div className="mt-10 space-y-10">
-            {featureCards.map((feature) => (
-              <div key={feature.label} className="grid gap-6 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 lg:grid-cols-[0.95fr_1.2fr] lg:items-center">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">{feature.label}</p>
-                  <h3 className="mt-3 text-2xl font-semibold sm:text-3xl">{feature.title}</h3>
-                  <p className="mt-4 text-sm leading-7 text-zinc-700 sm:text-base">{feature.description}</p>
+      <section className="px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div className="mx-auto w-full max-w-[1300px]">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-black tracking-[0.22em] text-yellow-300">KEY FEATURES</p>
+            <h2 className="mt-3 text-3xl font-black sm:text-5xl">店舗が使う機能を、案件の流れに沿って。</h2>
+          </div>
+
+          <div className="mt-12 space-y-6">
+            {features.map((feature, index) => (
+              <article key={feature.eyebrow} className="grid overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045] lg:grid-cols-2 lg:items-center">
+                <div className={'p-7 sm:p-9 ' + (index % 2 === 1 ? 'lg:order-2' : '')}>
+                  <p className="text-xs font-black tracking-[0.2em] text-orange-300">{feature.eyebrow}</p>
+                  <h3 className="mt-3 text-2xl font-black sm:text-4xl">{feature.title}</h3>
+                  <p className="mt-4 max-w-xl text-sm font-medium leading-7 text-white/65 sm:text-base">{feature.text}</p>
                 </div>
-                <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-2 sm:p-3">
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
-                    <Image src={feature.image} alt={feature.alt} fill className="object-contain p-3 sm:p-4" />
+                <div className={'bg-white p-4 sm:p-6 ' + (index % 2 === 1 ? 'lg:order-1' : '')}>
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-slate-50">
+                    <Image src={feature.image} alt="" fill className="object-contain p-3 sm:p-5" />
                   </div>
                 </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-gradient-to-b from-[#090914] to-[#05050d] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div className="mx-auto w-full max-w-[1300px]">
+          <p className="text-sm font-black tracking-[0.22em] text-sky-300">WHAT CHANGES</p>
+          <h2 className="mt-3 text-3xl font-black sm:text-5xl">案件を「人の記憶」だけで回さない。</h2>
+          <div className="mt-9 grid gap-4 sm:grid-cols-2">
+            {benefits.map((item) => (
+              <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-sky-300" />
+                <span className="text-sm font-bold text-white/75 sm:text-base">{item}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-16 sm:py-24">
-        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">フロー</p>
-        <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">使い方はシンプル</h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {['① 演者を探す', '② 条件を決めてオファー', '③ 成約・実施'].map((step) => (
-            <div key={step} className="border border-zinc-200 bg-white p-5 text-base font-medium leading-7">
-              {step}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-gray-50 py-16 sm:py-24">
-        <div className="mx-auto w-full max-w-6xl px-6">
-          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">信頼</p>
-          <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">導入の不安を、数字と運用で解消。</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <p className="text-3xl font-semibold">導入相談 無料</p>
-              <p className="mt-2 text-sm text-zinc-700">初期費用0円。まずは運用に合うか確認できます。</p>
-            </div>
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <p className="text-3xl font-semibold">履歴を蓄積</p>
-              <p className="mt-2 text-sm text-zinc-700">案件ごとの条件・評価が残るため、次回判断が早くなります。</p>
-            </div>
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <p className="text-3xl font-semibold">運用基盤化</p>
-              <p className="mt-2 text-sm text-zinc-700">担当者変更があっても、同じ品質で依頼を継続できます。</p>
-            </div>
-          </div>
-          <div className="mt-6 rounded-2xl border border-zinc-200 bg-white p-3 sm:p-4">
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
-              <Image src={lpImages.operation} alt="店舗運用のイメージ写真" fill className="object-cover" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-6xl px-6 py-20 text-center sm:py-24">
-        <p className="text-sm text-zinc-600">準備できた店舗から、成果の差が生まれています。</p>
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-zinc-600 sm:text-base">
-          まずは無料で始めて、運用の変化を確認できます。
-        </p>
-        <Link href="/register?role=store" className="mt-5 inline-flex">
-          <Button className="h-[54px] rounded-full bg-red-500 px-9 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:px-10 sm:text-base">無料で店舗登録</Button>
-        </Link>
-      </section>
-
-      <section className="bg-[#111] px-6 py-20 text-white sm:py-24">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-2xl font-semibold leading-snug sm:text-5xl sm:leading-tight">
-            今までのやり方を続けますか。
-            <span className="block sm:inline sm:pl-2">それとも、もっと効率的な運用に変えますか。</span>
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/80 sm:text-base">
-            依頼の属人化を終わらせるなら、最初の一歩は登録です。無料ですぐに始められます。
+      <section className="relative overflow-hidden border-t border-white/10 px-5 py-20 text-center sm:px-8 lg:px-12 lg:py-28">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(249,115,22,.18),transparent_48%)]" />
+        <div className="relative mx-auto max-w-4xl">
+          <FileText className="mx-auto h-9 w-9 text-orange-300" />
+          <h2 className="mt-5 text-3xl font-black sm:text-5xl">来店案件の管理を、ここから一本化。</h2>
+          <p className="mx-auto mt-5 max-w-2xl text-sm font-medium leading-7 text-white/65 sm:text-base">
+            まずは店舗プロフィールを登録して、演者検索から始められます。
           </p>
-          <Link href="/register?role=store" className="mt-8 inline-flex">
-            <Button className="h-12 rounded-full bg-red-500 px-8 text-sm font-semibold text-white hover:bg-red-600 sm:h-14 sm:text-base">
-              無料で店舗登録
-            </Button>
+          <Link href="/register?role=store" className="mt-8 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 px-9 text-sm font-black shadow-[0_0_26px_rgba(249,115,22,.25)] transition hover:scale-[1.02]">
+            店舗として登録
+            <ArrowRight className="h-5 w-5" />
           </Link>
+          <div className="mt-6">
+            <Link href="/talent" className="text-sm font-bold text-white/55 underline-offset-4 hover:text-white hover:underline">
+              演者向けページを見る
+            </Link>
+          </div>
         </div>
       </section>
     </main>
