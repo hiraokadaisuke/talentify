@@ -13,7 +13,6 @@ type ResolveActorNameParams = {
 }
 
 type UserIdRow = { user_id: string | null }
-type MessageParticipantRow = { participant_user_ids: string[] | null }
 type InvoiceUserRow = { store_user_id: string | null; talent_user_id: string | null }
 type ReviewUserRow = { store_user_id: string | null; talent_user_id: string | null }
 type OfferUserRow = { store_user_id: string | null; talent_user_id: string | null }
@@ -44,26 +43,13 @@ export async function resolveRecipientRole({
 
   if (entityType === 'message') {
     const messageRows = await prisma.$queryRaw<UserIdRow[]>`
-      SELECT recipient_user_id AS user_id
-      FROM public.messages
+      SELECT receiver_user AS user_id
+      FROM public.offer_messages
       WHERE id = ${entityId}::uuid
       LIMIT 1
     `
 
-    const directRecipientRole = await resolveRoleByUserId(messageRows[0]?.user_id ?? null)
-    if (directRecipientRole !== 'unknown') return directRecipientRole
-
-    const participantsRows = await prisma.$queryRaw<MessageParticipantRow[]>`
-      SELECT mt.participant_user_ids
-      FROM public.messages m
-      JOIN public.message_threads mt ON mt.id = m.thread_id
-      WHERE m.id = ${entityId}::uuid
-      LIMIT 1
-    `
-
-    const participants = participantsRows[0]?.participant_user_ids ?? []
-    const recipientUserId = participants.find((userId) => userId && userId !== actorId)
-    return resolveRoleByUserId(recipientUserId ?? null)
+    return resolveRoleByUserId(messageRows[0]?.user_id ?? null)
   }
 
   if (entityType === 'invoice' || entityType === 'payment') {
