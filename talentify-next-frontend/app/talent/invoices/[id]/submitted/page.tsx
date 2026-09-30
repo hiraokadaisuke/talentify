@@ -19,7 +19,8 @@ interface Invoice {
   transport_fee: number | null
   extra_fee: number | null
   notes: string | null
-  invoice_number: string
+  estimate_number: string
+  invoice_number: string | null
   due_date: string | null
   status: string
   payment_status: string | null
@@ -42,7 +43,7 @@ export default function TalentInvoiceSubmittedPage() {
       const { data, error } = await supabase
         .from('invoices')
         .select(
-          'id,offer_id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
+          'id,offer_id,amount,transport_fee,extra_fee,notes,estimate_number,invoice_number,due_date,status,payment_status,created_at'
         )
         .eq('id', id)
         .maybeSingle()
@@ -83,21 +84,21 @@ export default function TalentInvoiceSubmittedPage() {
         </div>
         <div className='flex flex-wrap gap-2'>
           <Button asChild variant='default'>
-            <Link href='/talent/invoices'>請求履歴へ戻る</Link>
+            <Link href='/talent/invoices'>見積・請求一覧へ戻る</Link>
           </Button>
           <Button asChild variant='outline'>
-            <Link href={`/talent/invoices/${invoice.id}`}>請求詳細を表示</Link>
+            <Link href={`/talent/invoices/${invoice.id}`}>見積詳細を表示</Link>
           </Button>
         </div>
       </section>
 
       <Card>
         <CardHeader>
-          <CardTitle>請求情報</CardTitle>
+          <CardTitle>見積情報</CardTitle>
         </CardHeader>
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>見積書番号: {invoice.invoice_number}</div>
+          <div>見積番号: {invoice.estimate_number}</div>
           <div>
             支払期限:{' '}
             {invoice.due_date
@@ -105,7 +106,7 @@ export default function TalentInvoiceSubmittedPage() {
               : '-'}
           </div>
           <div>
-            見積書ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
+            見積ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
           </div>
           <div>
             支払い状態:{' '}

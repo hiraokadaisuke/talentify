@@ -37,7 +37,7 @@ export default function OfferHeaderCard({
   const renderStatusBadge = () => {
     if (offer.status === 'pending') return null
     if (offer.status === 'confirmed') {
-      return <Badge>承諾済み</Badge>
+      return <Badge>締結済み</Badge>
     }
     if (offer.status === 'rejected') {
       return <Badge variant="secondary">辞退済み</Badge>
@@ -68,25 +68,15 @@ export default function OfferHeaderCard({
           invoiceStatus={offer.invoiceStatus}
         />
         <div className="flex flex-wrap gap-2">
-          {role === 'talent' && offer.status === 'pending' && (
-            <>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={onAccept}
-                disabled={actionLoading !== null}
-              >
-                {actionLoading === 'accept' ? '承諾中...' : '承諾'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onDecline}
-                disabled={actionLoading !== null}
-              >
-                {actionLoading === 'decline' ? '辞退中...' : '辞退'}
-              </Button>
-            </>
+          {role === 'talent' && offer.status === 'pending' && onDecline && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onDecline}
+              disabled={actionLoading !== null}
+            >
+              {actionLoading === 'decline' ? '処理中...' : '今回は対応できない'}
+            </Button>
           )}
         </div>
       </CardContent>

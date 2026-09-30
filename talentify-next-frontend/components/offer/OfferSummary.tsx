@@ -26,7 +26,7 @@ export default function OfferSummary({
   storeName,
   date,
   message,
-  invoiceStatus = 'not_submitted',
+  invoiceStatus = 'not_created',
 }: OfferSummaryProps) {
   const formattedDate = format(new Date(date), 'yyyy/MM/dd (EEE) HH:mm', {
     locale: ja,

@@ -137,7 +137,6 @@ export default async function StoreOfferPage({ params }: PageProps) {
               id: offer.id,
               status: offer.status,
               date: offer.date,
-              respondDeadline: offer.respondDeadline,
               updatedAt: offer.updatedAt,
               submittedAt: offer.submittedAt,
               paid: offer.paid,
