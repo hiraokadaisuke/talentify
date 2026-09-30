@@ -13,7 +13,6 @@ const payloadSchema = z.object({
 
 export async function GET() {
   const supabase = createClient()
-
   const { user } = await getCurrentUser()
 
   if (!user) {
@@ -41,7 +40,7 @@ export async function GET() {
   const { data: settings, error: settingsError } = await supabase
     .from('talent_availability_settings')
     .select('default_mode, timezone')
-    .eq('talent_id', talent.id)
+    .eq('user_id', user.id)
     .maybeSingle()
 
   if (settingsError) {
@@ -60,7 +59,6 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const supabase = createClient()
-
   const { user } = await getCurrentUser()
 
   if (!user) {
@@ -100,7 +98,7 @@ export async function POST(request: NextRequest) {
   const { error: upsertError } = await supabase
     .from('talent_availability_settings')
     .upsert({
-      talent_id: talent.id,
+      user_id: user.id,
       default_mode: parsed.data.default_mode,
       timezone,
     })
