@@ -62,7 +62,7 @@ export default function StoreInvoicesPage() {
                     <div className='mt-4 flex gap-2'>
                       {inv.invoice_url && (
                         <Button size='sm' variant='outline' asChild className='min-h-10 flex-1'>
-                          <Link href={inv.invoice_url} target='_blank'>PDF</Link>
+                          <Link href={`/api/invoices/${inv.id}/attachment`} target='_blank'>PDF</Link>
                         </Button>
                       )}
                       <Button size='sm' asChild className='min-h-10 flex-1'>
@@ -94,7 +94,7 @@ export default function StoreInvoicesPage() {
                       <div className='flex gap-2'>
                         {inv.invoice_url && (
                           <Button size='sm' variant='outline' asChild>
-                            <Link href={inv.invoice_url} target='_blank'>
+                            <Link href={`/api/invoices/${inv.id}/attachment`} target='_blank'>
                               PDF
                             </Link>
                           </Button>
