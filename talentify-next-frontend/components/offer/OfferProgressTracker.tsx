@@ -24,18 +24,9 @@ const dateColorByStatus: Record<OfferProgressStep['status'], string> = {
 }
 
 const iconStylesByStatus: Record<OfferProgressStep['status'], { outer: string; inner: string }> = {
-  complete: {
-    outer: 'border-2 border-[#2f4da0]',
-    inner: 'bg-[#2f4da0] text-white',
-  },
-  current: {
-    outer: 'border-2 border-transparent',
-    inner: 'bg-[#2f4da0] text-white',
-  },
-  upcoming: {
-    outer: 'border border-[#e2e8f0]',
-    inner: 'bg-white text-[#94a3b8]',
-  },
+  complete: { outer: 'border-2 border-[#2f4da0]', inner: 'bg-[#2f4da0] text-white' },
+  current: { outer: 'border-2 border-transparent', inner: 'bg-[#2f4da0] text-white' },
+  upcoming: { outer: 'border border-[#e2e8f0]', inner: 'bg-white text-[#94a3b8]' },
 }
 
 export default function OfferProgressTracker({ steps, selectedStep, onStepSelect }: OfferProgressTrackerProps) {
@@ -44,77 +35,117 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
   const completedCount = steps.filter(step => step.status === 'complete').length
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-3">
       <div className="flex items-center justify-end">
         <span className="text-xs font-medium text-[#64748b]">
           {completedCount}/{steps.length}ステップ完了
         </span>
       </div>
-      <div className="overflow-x-auto">
-        <div className="min-w-[620px] space-y-4">
-          <div className="flex justify-between gap-2.5">
-            {steps.map((step, index) => {
-              const isSelected = step.key === activeStep
-              const iconStyles = iconStylesByStatus[step.status]
-              const displaySubLabel = step.subLabel ?? ''
-              const prevStep = steps[index - 1]
-              const nextStep = steps[index + 1]
-              const leftConnectorActive = prevStep ? prevStep.status === 'complete' : false
-              const rightConnectorActive = nextStep ? step.status === 'complete' : false
 
-              return (
-                <div key={step.key} className="relative flex min-w-0 flex-1 flex-col items-center text-center">
-                  {index > 0 && (
-                    <span
-                      className="absolute left-0 top-6 block h-1 w-1/2 -translate-y-1/2 rounded-full"
-                      style={{ backgroundColor: leftConnectorActive ? '#2f4da0' : '#e2e8f0' }}
-                      aria-hidden="true"
-                    />
+      <div className="space-y-1 sm:hidden">
+        {steps.map((step, index) => {
+          const isSelected = step.key === activeStep
+          const iconStyles = iconStylesByStatus[step.status]
+          const connectorActive = step.status === 'complete'
+          return (
+            <div key={step.key} className="relative">
+              {index < steps.length - 1 && (
+                <span
+                  className={cn(
+                    'absolute left-[19px] top-10 h-[calc(100%-1.5rem)] w-0.5',
+                    connectorActive ? 'bg-[#2f4da0]' : 'bg-slate-200',
                   )}
-                  {index < steps.length - 1 && (
-                    <span
-                      className="absolute right-0 top-6 block h-1 w-1/2 -translate-y-1/2 rounded-full"
-                      style={{ backgroundColor: rightConnectorActive ? '#2f4da0' : '#e2e8f0' }}
-                      aria-hidden="true"
-                    />
+                  aria-hidden="true"
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => onStepSelect?.(step.key)}
+                className={cn(
+                  'relative z-10 flex w-full items-start gap-3 rounded-xl px-2 py-2 text-left transition-colors',
+                  isSelected ? 'bg-blue-50' : 'hover:bg-slate-50',
+                )}
+                aria-pressed={isSelected}
+              >
+                <div
+                  className={cn(
+                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white',
+                    iconStyles.outer,
+                    isSelected && 'ring-2 ring-[#2f4da0]/25 ring-offset-1',
                   )}
-                  <button
-                    type="button"
-                    onClick={() => onStepSelect?.(step.key)}
-                    className="flex flex-col items-center gap-2 focus:outline-none"
-                    aria-pressed={isSelected}
-                  >
-                    <div
-                      className={cn(
-                        'relative z-10 flex h-12 w-12 items-center justify-center rounded-full transition-all',
-                        iconStyles.outer,
-                        isSelected && 'ring-2 ring-[#2f4da0] ring-opacity-35 ring-offset-2',
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          'flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all',
-                          iconStyles.inner,
-                        )}
-                      >
-                        {step.status === 'complete' ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <span>{index + 1}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex min-h-[3rem] flex-col items-center justify-start gap-0.5">
-                      <span className={cn('text-xs font-semibold sm:text-sm', titleColorByStatus[step.status])}>{step.title}</span>
-                      <span className={cn('text-[11px] font-medium sm:text-xs', dateColorByStatus[step.status])}>
-                        {displaySubLabel || ' '}
-                      </span>
-                    </div>
-                  </button>
+                >
+                  <div className={cn('flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold', iconStyles.inner)}>
+                    {step.status === 'complete' ? <Check className="h-4 w-4" /> : index + 1}
+                  </div>
                 </div>
-              )
-            })}
-          </div>
+                <div className="min-w-0 flex-1 pt-0.5">
+                  <div className={cn('text-sm font-semibold', titleColorByStatus[step.status])}>{step.title}</div>
+                  {step.subLabel ? (
+                    <div className={cn('mt-0.5 break-words text-xs leading-5', dateColorByStatus[step.status])}>
+                      {step.subLabel}
+                    </div>
+                  ) : null}
+                </div>
+              </button>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="hidden sm:block">
+        <div className="flex justify-between gap-2.5">
+          {steps.map((step, index) => {
+            const isSelected = step.key === activeStep
+            const iconStyles = iconStylesByStatus[step.status]
+            const displaySubLabel = step.subLabel ?? ''
+            const prevStep = steps[index - 1]
+            const nextStep = steps[index + 1]
+            const leftConnectorActive = prevStep ? prevStep.status === 'complete' : false
+            const rightConnectorActive = nextStep ? step.status === 'complete' : false
+
+            return (
+              <div key={step.key} className="relative flex min-w-0 flex-1 flex-col items-center text-center">
+                {index > 0 && (
+                  <span
+                    className="absolute left-0 top-6 block h-1 w-1/2 -translate-y-1/2 rounded-full"
+                    style={{ backgroundColor: leftConnectorActive ? '#2f4da0' : '#e2e8f0' }}
+                    aria-hidden="true"
+                  />
+                )}
+                {index < steps.length - 1 && (
+                  <span
+                    className="absolute right-0 top-6 block h-1 w-1/2 -translate-y-1/2 rounded-full"
+                    style={{ backgroundColor: rightConnectorActive ? '#2f4da0' : '#e2e8f0' }}
+                    aria-hidden="true"
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => onStepSelect?.(step.key)}
+                  className="flex min-w-0 flex-col items-center gap-2 focus:outline-none"
+                  aria-pressed={isSelected}
+                >
+                  <div
+                    className={cn(
+                      'relative z-10 flex h-12 w-12 items-center justify-center rounded-full transition-all',
+                      iconStyles.outer,
+                      isSelected && 'ring-2 ring-[#2f4da0] ring-opacity-35 ring-offset-2',
+                    )}
+                  >
+                    <div className={cn('flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all', iconStyles.inner)}>
+                      {step.status === 'complete' ? <Check className="h-4 w-4" /> : <span>{index + 1}</span>}
+                    </div>
+                  </div>
+                  <div className="flex min-h-[3rem] min-w-0 flex-col items-center justify-start gap-0.5">
+                    <span className={cn('text-xs font-semibold sm:text-sm', titleColorByStatus[step.status])}>{step.title}</span>
+                    <span className={cn('max-w-full break-words text-[11px] font-medium sm:text-xs', dateColorByStatus[step.status])}>
+                      {displaySubLabel || ' '}
+                    </span>
+                  </div>
+                </button>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

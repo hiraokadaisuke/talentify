@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { getOfferProgress } from '@/utils/offerProgress'
@@ -19,7 +19,7 @@ import MessageCard from './MessageCard'
 
 export default function TalentOfferPage() {
   const params = useParams<{ id: string }>()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [offer, setOffer] = useState<any>(null)
   const [loaded, setLoaded] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
@@ -27,25 +27,27 @@ export default function TalentOfferPage() {
   const [invoiceId, setInvoiceId] = useState<string | null>(null)
 
   const loadOffer = useCallback(async () => {
-    const { data } = await supabase
-      .from('offers')
-      .select(
+    const [{ data }, { data: invoice }] = await Promise.all([
+      supabase
+        .from('offers')
+        .select(
+          `
+          id,status,date,time_range,reward,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
+          reviews(id),
+          talents(stage_name,avatar_url,user_id),
+          store:stores!offers_store_id_fkey(id, store_name, user_id)
         `
-        id,status,date,time_range,reward,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
-        reviews(id),
-        talents(stage_name,avatar_url,user_id),
-        store:stores!offers_store_id_fkey(id, store_name, user_id)
-      `
-      )
-      .eq('id', params.id)
-      .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
-      .single()
-    if (data) {
-      const { data: invoice } = await supabase
+        )
+        .eq('id', params.id)
+        .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
+        .single(),
+      supabase
         .from('invoices')
         .select('id,status,payment_status')
         .eq('offer_id', params.id)
-        .maybeSingle()
+        .maybeSingle(),
+    ])
+    if (data) {
       const invoiceStatus = deriveOfferInvoiceProgressStatus({
         invoiceStatus: invoice?.status,
         invoicePaymentStatus: invoice?.payment_status,
@@ -81,9 +83,8 @@ export default function TalentOfferPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: userData } = await supabase.auth.getUser()
-      setUserId(userData.user?.id ?? null)
-      await loadOffer()
+      const [userResult] = await Promise.all([supabase.auth.getUser(), loadOffer()])
+      setUserId(userResult.data.user?.id ?? null)
     }
     init()
   }, [loadOffer, supabase])
@@ -109,7 +110,7 @@ export default function TalentOfferPage() {
       toast.error('承諾に失敗しました')
       setOffer((prev: any) => ({ ...prev, status: 'pending' }))
     } else {
-      await loadOffer()
+      toast.success('オファーを承諾しました')
     }
     setActionLoading(null)
   }
@@ -127,7 +128,7 @@ export default function TalentOfferPage() {
       toast.error('辞退に失敗しました')
       setOffer((prev: any) => ({ ...prev, status: 'pending' }))
     } else {
-      await loadOffer()
+      toast.success('オファーを辞退しました')
     }
     setActionLoading(null)
   }
@@ -147,8 +148,8 @@ export default function TalentOfferPage() {
 
   return (
     <div className="p-3 sm:p-5 lg:p-6">
-      <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
-        <div className="space-y-4 lg:col-span-2">
+      <div className="mx-auto grid min-w-0 w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
+        <div className="min-w-0 space-y-4 lg:col-span-2">
           <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="space-y-2">
@@ -194,7 +195,7 @@ export default function TalentOfferPage() {
             actionLoading={actionLoading}
           />
         </div>
-        <div className="lg:sticky lg:top-6">
+        <div className="min-w-0 lg:sticky lg:top-6">
           <MessageCard
             offerId={offer.id}
             currentUserId={userId}

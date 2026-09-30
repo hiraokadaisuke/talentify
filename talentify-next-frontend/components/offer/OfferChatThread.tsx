@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/utils/supabase/client'
 import type { OfferMessage } from '@/lib/supabase/offerMessages'
@@ -35,7 +35,7 @@ export default function OfferChatThread({
   adminName = 'サポート',
   className,
 }: OfferChatThreadProps) {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [messages, setMessages] = useState<OfferMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [peerLastReadAt, setPeerLastReadAt] = useState<string | null>(null)
@@ -180,11 +180,11 @@ export default function OfferChatThread({
   return (
     <div
       className={cn(
-        'flex h-full min-h-[420px] flex-col overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FDFDFD]',
+        'flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FDFDFD] sm:min-h-[420px]',
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-[#E5E7EB] bg-white px-4 py-2.5">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-b border-[#E5E7EB] bg-white px-3 py-2.5 sm:px-4">
         <div className="flex items-center gap-2">
           <MessageCircle className="h-4.5 w-4.5 text-slate-600" aria-hidden="true" />
           <h3 className="text-sm font-semibold text-slate-900">メッセージ</h3>
