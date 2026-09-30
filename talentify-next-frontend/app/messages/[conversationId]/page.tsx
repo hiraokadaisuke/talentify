@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { sendMessage } from '@/lib/messages'
 import { useParams } from 'next/navigation'
 
 interface MessageRow {
@@ -43,7 +42,15 @@ export default function ConversationPage() {
 
   const handleSend = async () => {
     if (!input.trim()) return
-    await sendMessage(conversationId, input.trim())
+    const sendRes = await fetch('/api/messages/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        receiverUserId: conversationId,
+        body: input.trim(),
+      }),
+    })
+    if (!sendRes.ok) return
     setInput('')
     const res = await fetch(`/api/messages/inbox?userId=${conversationId}&type=direct`)
     if (res.ok) {

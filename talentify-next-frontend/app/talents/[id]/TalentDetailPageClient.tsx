@@ -13,8 +13,6 @@ import { MapPin, Clock3, Timer, Bus, Wallet, Heart, MessageSquare, Star } from '
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import NewMessageModal from '@/components/messages/NewMessageModal'
-import { findOrCreateConversation } from '@/lib/messages'
 import OfferComposerOverlay from './OfferComposerOverlay'
 
 type Talent = {
@@ -66,7 +64,6 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
   const [isFavorite, setIsFavorite] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)
   const router = useRouter()
-  const [messageOpen, setMessageOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
   const [offerSent, setOfferSent] = useState(false)
   const reviewAverage =
@@ -98,15 +95,6 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
     }
   }, [id, supabase, initialTalent])
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      if (params.get('message') === '1') {
-        setMessageOpen(true)
-      }
-    }
-  }, [])
-
   if (loadingTalent || roleLoading) return <div>読み込み中...</div>
   if (!talent) return <div>タレントが見つかりませんでした</div>
 
@@ -126,20 +114,15 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
     toast.success('オファーを送信しました')
   }
 
-  const handleMessage = async () => {
+  const handleMessage = () => {
     if (!talent?.user_id) return
+    const destination = `/messages/${talent.user_id}`
     if (!userId) {
-      const redirect = `${window.location.pathname}?message=1`
-      window.location.href = `/login?redirect=${encodeURIComponent(redirect)}`
+      window.location.href = `/login?redirect=${encodeURIComponent(destination)}`
       return
     }
     if (role !== 'store') return
-    const { conversationId, exists } = await findOrCreateConversation(userId, talent.user_id)
-    if (exists) {
-      router.push(`/messages/${conversationId}`)
-    } else {
-      setMessageOpen(true)
-    }
+    router.push(destination)
   }
 
   return (
@@ -438,12 +421,6 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
         rate: talent.rate,
       }}
       onSuccess={handleOfferSuccess}
-    />
-    <NewMessageModal
-      open={messageOpen}
-      onOpenChange={setMessageOpen}
-      conversationId={talent.user_id ?? ''}
-      talentName={talent.stage_name}
     />
     </>
   )
