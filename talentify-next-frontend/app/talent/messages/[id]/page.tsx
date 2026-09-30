@@ -13,5 +13,5 @@ export default async function TalentMessageTargetPage({ params }: Props) {
     redirect('/talent/messages?tab=direct')
   }
 
-  redirect(`/messages/${targetUserId}`)
+  redirect(`/messages?tab=direct&partner=${encodeURIComponent(targetUserId)}`)
 }

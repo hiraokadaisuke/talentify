@@ -23,7 +23,7 @@ describe('/store/messages/[id] route', () => {
     await mod.default({ params: Promise.resolve({ id: 'talent-id' }) })
 
     expect(resolveMessageTargetUserId).toHaveBeenCalledWith('talent-id')
-    expect(redirect).toHaveBeenCalledWith('/messages/2e3bd187-1c86-4916-b2cf-2f7cb2e583d1')
+    expect(redirect).toHaveBeenCalledWith('/messages?tab=direct&partner=2e3bd187-1c86-4916-b2cf-2f7cb2e583d1')
   })
 
   it('falls back to direct tab when id cannot be resolved', async () => {

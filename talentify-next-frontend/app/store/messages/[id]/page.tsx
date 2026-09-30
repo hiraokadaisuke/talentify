@@ -13,5 +13,5 @@ export default async function StoreMessageTargetPage({ params }: Props) {
     redirect('/store/messages?tab=direct')
   }
 
-  redirect(`/messages/${targetUserId}`)
+  redirect(`/messages?tab=direct&partner=${encodeURIComponent(targetUserId)}`)
 }
