@@ -85,7 +85,7 @@ export async function POST(
           id: { not: offer.id },
           talent_id: invoice.talent_id,
           date: offer.date,
-          status: { in: ['accepted', 'confirmed', 'completed'] },
+          status: { in: ['confirmed', 'completed'] },
         },
         select: { id: true, time_range: true },
       })
