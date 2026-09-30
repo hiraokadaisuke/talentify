@@ -465,7 +465,6 @@ model talents {
   user_id                       String?                         @unique(map: "talents_user_id_unique") @db.Uuid
   stage_name                    String?
   display_name                  String?
-  phone                         String?
   preferred_contact_method      String                          @default("chat")
   phone_contact_allowed         Boolean                         @default(false)
   phone_available_hours         String?

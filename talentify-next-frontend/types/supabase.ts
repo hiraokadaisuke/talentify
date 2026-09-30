@@ -751,7 +751,6 @@ export type Database = {
           min_hours: string | null
           name: string
           notes: string | null
-          phone: string | null
           phone_available_hours: string | null
           phone_contact_allowed: boolean
           preferred_contact_method: string
@@ -801,7 +800,6 @@ export type Database = {
           min_hours?: string | null
           name: string
           notes?: string | null
-          phone?: string | null
           phone_available_hours?: string | null
           phone_contact_allowed?: boolean
           preferred_contact_method?: string
@@ -851,7 +849,6 @@ export type Database = {
           min_hours?: string | null
           name?: string
           notes?: string | null
-          phone?: string | null
           phone_available_hours?: string | null
           phone_contact_allowed?: boolean
           preferred_contact_method?: string
