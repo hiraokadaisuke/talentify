@@ -1,105 +1,81 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
-import { countUnreadNotificationsByUser, findNotificationsByUser } from '@/lib/repositories/notifications'
+import { createClient } from '@/lib/supabase/server'
+import type { Database } from '@/types/supabase'
 
 export const runtime = 'nodejs'
 
 const BELL_LIMIT = 8
+const FETCH_LIMIT = 24
 
-const bellFilter = {
-  unreadOnly: true,
-  actionableOnly: false,
-  category: undefined,
-} as const
+type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
-type BellFailureStage = 'getCurrentUser' | 'fetchUnreadCount' | 'fetchNotificationsList'
+const priorityRank: Record<string, number> = {
+  high: 2,
+  medium: 1,
+  low: 0,
+}
 
-function logBellFailure({
-  stage,
-  error,
-  userId,
-}: {
-  stage: BellFailureStage
-  error: unknown
-  userId?: string
-}) {
-  console.error('[notifications][api][bell] failed', {
-    stage,
-    userId,
-    bellFilter,
-    limit: BELL_LIMIT,
-    error,
-    message: error instanceof Error ? error.message : null,
-    stack: error instanceof Error ? error.stack : null,
-  })
+function sortForBell(items: NotificationRow[]) {
+  return [...items]
+    .sort((a, b) => {
+      const priorityDiff =
+        (priorityRank[b.priority ?? 'medium'] ?? 1) -
+        (priorityRank[a.priority ?? 'medium'] ?? 1)
+      if (priorityDiff !== 0) return priorityDiff
+
+      const bTime = new Date(b.updated_at ?? b.created_at).getTime()
+      const aTime = new Date(a.updated_at ?? a.created_at).getTime()
+      return bTime - aTime
+    })
+    .slice(0, BELL_LIMIT)
 }
 
 export async function GET() {
-  let user: { id?: string } | null = null
-
   try {
-    const currentUserResult = await getCurrentUser()
-    console.info('[auth][debug]', {
-      user: currentUserResult.user,
+    const { user, error: userError } = await getCurrentUser()
+    if (userError || !user) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    }
+
+    // This endpoint is polled by every signed-in browser and also refreshed by
+    // realtime events. Use Supabase's Data API instead of opening a Prisma
+    // Postgres session for every bell refresh.
+    const supabase = await createClient()
+    const { data, error, count } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact' })
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+      .order('updated_at', { ascending: false })
+      .order('created_at', { ascending: false })
+      .limit(FETCH_LIMIT)
+
+    if (error) {
+      console.error('[notifications][api][bell] failed', {
+        stage: 'fetchNotifications',
+        userId: user.id,
+        error,
+      })
+      return NextResponse.json(
+        { error: 'failed to fetch bell notifications' },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.json({
+      count: count ?? data?.length ?? 0,
+      items: sortForBell((data ?? []) as NotificationRow[]),
     })
-    user = currentUserResult.user
   } catch (error) {
-    logBellFailure({
-      stage: 'getCurrentUser',
+    console.error('[notifications][api][bell] failed', {
+      stage: 'unexpected',
       error,
-      userId: user?.id,
+      message: error instanceof Error ? error.message : null,
     })
-    return NextResponse.json({ error: 'failed to fetch bell notifications' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'failed to fetch bell notifications' },
+      { status: 500 },
+    )
   }
-
-  if (!user) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
-  }
-
-  if (!user.id) {
-    console.error('[notifications][api][bell] user.id is undefined', { user })
-    return NextResponse.json({ error: 'failed to fetch bell notifications' }, { status: 500 })
-  }
-
-  let count = 0
-  try {
-    console.info('[notifications][count][before]', {
-      userId: user.id,
-    })
-    count = await countUnreadNotificationsByUser({ userId: user.id, ...bellFilter })
-  } catch (error) {
-    logBellFailure({
-      stage: 'fetchUnreadCount',
-      error,
-      userId: user.id,
-    })
-    return NextResponse.json({ error: 'failed to fetch bell notifications' }, { status: 500 })
-  }
-
-  let items: Awaited<ReturnType<typeof findNotificationsByUser>> = []
-  try {
-    console.info('[notifications][list][before]', {
-      userId: user.id,
-      limit: BELL_LIMIT,
-    })
-    items = await findNotificationsByUser({ userId: user.id, limit: BELL_LIMIT, ...bellFilter })
-  } catch (error) {
-    logBellFailure({
-      stage: 'fetchNotificationsList',
-      error,
-      userId: user.id,
-    })
-    return NextResponse.json({ error: 'failed to fetch bell notifications' }, { status: 500 })
-  }
-
-  if (process.env.NOTIFICATIONS_DEBUG_LOG === 'true') {
-    console.info('[notifications][api][bell]', {
-      userId: user.id,
-      bellFilter,
-      count,
-      itemCount: items.length,
-    })
-  }
-
-  return NextResponse.json({ count, items })
 }
