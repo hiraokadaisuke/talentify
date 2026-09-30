@@ -104,7 +104,7 @@ export default function NotificationBell() {
         <button
           aria-label="通知"
           data-testid="header-notification-bell"
-          className="relative p-2 rounded-full hover:bg-muted focus:outline-none"
+          className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           <Bell className="h-6 w-6" />
           {count > 0 && (
@@ -118,7 +118,7 @@ export default function NotificationBell() {
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[360px] p-0">
+      <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] max-w-[360px] p-0">
         <div className="flex items-center justify-between border-b px-3 py-2">
           <p className="text-sm font-semibold">通知</p>
           <Button variant="ghost" size="sm" onClick={handleReadAll} disabled={count === 0}>
