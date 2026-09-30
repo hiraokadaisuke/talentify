@@ -114,10 +114,10 @@ export const notificationConfig: {
     priority: 'medium',
     dedupeStrategy: (event) => `invoice-submit:${event.invoiceId}`,
     build: ({ roleRootPath, event }) => ({
-      title: '請求書が提出されました',
-      body: '内容を確認して、承認または差し戻しを行ってください。',
+      title: '見積書が提出されました',
+      body: '内容を確認し、必要に応じて演者と条件を調整してください。',
       actionUrl: `${roleRootPath}/invoices/${event.invoiceId}`,
-      actionLabel: '請求書を確認',
+      actionLabel: '見積書を確認',
       entityType: 'invoice',
       entityId: event.invoiceId,
       data: {
@@ -132,8 +132,8 @@ export const notificationConfig: {
     priority: 'high',
     dedupeStrategy: (event) => `invoice-reject:${event.invoiceId}`,
     build: ({ roleRootPath, event }) => ({
-      title: '請求書が差し戻されました',
-      body: '修正内容を確認し、再提出をお願いします。',
+      title: '見積書の修正依頼が届きました',
+      body: '修正内容を確認し、見積書を再提出してください。',
       actionUrl: `${roleRootPath}/invoices/${event.invoiceId}`,
       actionLabel: '再提出する',
       entityType: 'invoice',
@@ -188,7 +188,7 @@ export const notificationConfig: {
     dedupeStrategy: (event) => `offer-created:${event.offerId}`,
     build: ({ roleRootPath, event }) => ({
       title: '新しいオファーが届きました',
-      body: '内容を確認して、回答をお願いします。',
+      body: '内容を確認し、メッセージなどで条件を相談してください。',
       actionUrl: `${roleRootPath}/offers/${event.offerId}`,
       actionLabel: 'オファーを確認',
       entityType: 'offer',

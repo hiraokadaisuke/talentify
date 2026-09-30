@@ -27,10 +27,8 @@ type StepDetailCardProps = {
     reviewCompleted: boolean
   }
   invoiceId: string | null
-  paymentLink?: string
-  onAcceptOffer?: () => void
   onDeclineOffer?: () => void
-  actionLoading?: 'accept' | 'decline' | null
+  actionLoading?: 'decline' | null
 }
 
 type StepDetail = {
@@ -48,7 +46,7 @@ const secondaryActionClass = 'h-9 border-slate-300 bg-white px-4 text-slate-700 
 const statusDisplay = (status: string) => {
   switch (status) {
     case 'pending':
-      return { text: '承認待ち', badge: <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">承認待ち</Badge> }
+      return { text: '相談中', badge: <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">相談中</Badge> }
     case 'accepted':
       return { text: '承認済み', badge: <Badge variant="success">承認済み</Badge> }
     case 'confirmed':
@@ -69,8 +67,6 @@ export default function StepDetailCard({
   activeStatus,
   offer,
   invoiceId,
-  paymentLink,
-  onAcceptOffer,
   onDeclineOffer,
   actionLoading,
 }: StepDetailCardProps) {
@@ -88,19 +84,19 @@ export default function StepDetailCard({
     switch (phase) {
       case 'invoice_waiting':
         return {
-          title: '請求をお待ちしています',
-          description: '請求書がまだ作成されていません。請求書の作成・提出を進めてください。',
-          badge: <Badge variant="outline">請求待ち</Badge>,
-          meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
-          primaryAction: <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/new?offerId=${offer.id}`}>請求書を作成する</Link></Button>,
+          title: '見積書を作成してください',
+          description: '事前に相談した出演料・交通費などを見積書にまとめて提出してください。',
+          badge: <Badge variant="outline">見積作成</Badge>,
+          meta: [{ label: '見積ステータス', value: offer.invoiceStatusLabel }],
+          primaryAction: <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/new?offerId=${offer.id}`}>見積書を作成する</Link></Button>,
         }
       case 'payment_waiting':
         return {
-          title: '支払いをお待ちしています',
-          description: '店舗側での支払い処理待ちです。必要に応じて状況を確認してください。',
-          badge: <Badge variant="outline">支払い待ち</Badge>,
-          meta: [{ label: '支払い状態', value: offer.paymentStatusLabel }],
-          primaryAction: invoiceId ? <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>請求書を見る</Link></Button> : paymentLink ? <Button className={primaryActionClass} asChild><Link href={paymentLink}>状況を確認する</Link></Button> : undefined,
+          title: '見積書を提出しました',
+          description: 'ホール側で見積内容を確認しています。必要に応じてメッセージで調整してください。',
+          badge: <Badge variant="outline">ホール確認待ち</Badge>,
+          meta: [{ label: '見積ステータス', value: offer.invoiceStatusLabel }],
+          primaryAction: invoiceId ? <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>提出した見積書を見る</Link></Button> : undefined,
         }
       case 'review_available':
         return {
@@ -132,7 +128,7 @@ export default function StepDetailCard({
           badge: <Badge variant="outline">準備中</Badge>,
         }
     }
-  }, [offer.status, offer.invoiceStatus, offer.paid, offer.reviewCompleted, offer.invoiceStatusLabel, offer.paymentStatusLabel, offer.id, invoiceId, paymentLink])
+  }, [offer.status, offer.invoiceStatus, offer.paid, offer.reviewCompleted, offer.invoiceStatusLabel, offer.paymentStatusLabel, offer.id, invoiceId])
 
   const detail = useMemo<StepDetail>(() => {
     if (['invoice', 'payment', 'review'].includes(activeStep)) {
@@ -141,8 +137,8 @@ export default function StepDetailCard({
 
     if (activeStep === 'offer_submitted') {
       return {
-        title: 'オファー提出',
-        description: '店舗からオファーが届きました。内容を確認して、承諾または辞退を選択してください。',
+        title: 'オファー・条件相談',
+        description: '店舗からオファーが届いています。メッセージや必要に応じて電話で条件を相談してください。',
         badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
         meta: [
           { label: '来店予定', value: formattedVisitDate },
@@ -152,18 +148,24 @@ export default function StepDetailCard({
 
     if (activeStep === 'approval') {
       const status = statusDisplay(offer.status)
+      const estimateSubmitted = offer.invoiceStatus === 'submitted' || offer.invoiceStatus === 'paid'
       return {
-        title: '承認',
-        description: '承諾または辞退を選択し、必要に応じてメッセージで確認してください。',
-        badge: status.badge,
+        title: estimateSubmitted ? '見積書を提出しました' : '見積書を作成',
+        description: estimateSubmitted
+          ? 'ホール側の確認待ちです。必要に応じてメッセージで条件を調整してください。'
+          : '条件がまとまったら、出演料・交通費・追加費用などを見積書にまとめて提出してください。',
+        badge: estimateSubmitted ? <Badge variant="outline">ホール確認待ち</Badge> : status.badge,
         meta: [
-          { label: 'ステータス', value: status.text },
+          { label: '案件ステータス', value: status.text },
+          { label: '見積ステータス', value: offer.invoiceStatusLabel },
         ],
-        primaryAction: offer.status === 'pending' && onAcceptOffer ? (
-          <Button className={primaryActionClass} onClick={onAcceptOffer} disabled={actionLoading !== null}>{actionLoading === 'accept' ? '承諾中...' : '承諾'}</Button>
+        primaryAction: estimateSubmitted && invoiceId ? (
+          <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>提出した見積書を見る</Link></Button>
+        ) : offer.status === 'pending' ? (
+          <Button className={primaryActionClass} asChild><Link href={invoiceId ? `/talent/invoices/${invoiceId}` : `/talent/invoices/new?offerId=${offer.id}`}>{invoiceId ? '見積書を編集する' : '見積書を作成する'}</Link></Button>
         ) : undefined,
         secondaryAction: offer.status === 'pending' && onDeclineOffer ? (
-          <Button variant="outline" className={secondaryActionClass} onClick={onDeclineOffer} disabled={actionLoading !== null}>{actionLoading === 'decline' ? '辞退中...' : '辞退'}</Button>
+          <Button variant="outline" className={secondaryActionClass} onClick={onDeclineOffer} disabled={actionLoading !== null}>{actionLoading === 'decline' ? '処理中...' : '今回は対応できない'}</Button>
         ) : undefined,
       }
     }
@@ -176,7 +178,7 @@ export default function StepDetailCard({
         { label: '来店日時', value: formattedVisitDate },
       ],
     }
-  }, [activeStep, activeStatus, mainActionDetail, formattedVisitDate, offer.status, onAcceptOffer, onDeclineOffer, actionLoading])
+  }, [activeStep, activeStatus, mainActionDetail, formattedVisitDate, offer.status, offer.invoiceStatus, offer.invoiceStatusLabel, offer.id, invoiceId, onDeclineOffer, actionLoading])
 
   return (
     <Card className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">

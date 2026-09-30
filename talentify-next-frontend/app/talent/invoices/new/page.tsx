@@ -175,7 +175,7 @@ export default function TalentInvoiceNewPage() {
         if (next.payment_status === undefined) next.payment_status = null
         return next
       })
-      toast.success('下書きを保存しました')
+      toast.success('見積書の下書きを保存しました')
     } catch (e) {
       toast.error('下書き保存に失敗しました')
     } finally {
@@ -221,7 +221,7 @@ export default function TalentInvoiceNewPage() {
       if (!submitRes.ok) throw new Error('submit failed')
       router.push(`/talent/invoices/${id}/submitted`)
     } catch (e) {
-      toast.error('提出に失敗しました')
+      toast.error('見積書の提出に失敗しました')
     } finally {
       setLoading(false)
     }
@@ -282,7 +282,7 @@ export default function TalentInvoiceNewPage() {
       if (!submitRes.ok) throw new Error('submit failed')
       router.push(`/talent/invoices/${id}/submitted`)
     } catch (e) {
-      toast.error('提出に失敗しました')
+      toast.error('見積書の提出に失敗しました')
     } finally {
       setLoading(false)
     }
@@ -292,7 +292,7 @@ export default function TalentInvoiceNewPage() {
     ? format(new Date(offer.date), 'yyyy/MM/dd (EEE)', { locale: ja })
     : ''
 
-  const steps = ['下書き保存', '提出済み', '支払い完了']
+  const steps = ['見積作成', 'ホール確認', '締結・請求']
 
   const dueDateMessage = (() => {
     if (dueDate) {
@@ -318,7 +318,7 @@ export default function TalentInvoiceNewPage() {
     <main className="p-3 sm:p-5 lg:p-6">
       <div className="mx-auto grid min-w-0 max-w-[1200px] grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[420px,1fr]">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-2">
-          <h1 className="text-xl font-bold">請求書を作成</h1>
+          <h1 className="text-xl font-bold">見積書を作成</h1>
           <div className="flex items-center gap-2 text-sm">
             <span>現在の状態:</span>
             <Badge variant="secondary">{statusLabel()}</Badge>
@@ -359,7 +359,7 @@ export default function TalentInvoiceNewPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>請求書</CardTitle>
+            <CardTitle>見積書</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">

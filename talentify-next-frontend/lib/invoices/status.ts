@@ -5,13 +5,13 @@ export type OfferInvoiceProgressStatus = 'not_submitted' | 'submitted' | 'paid'
 export function getInvoiceStatusLabel(status: InvoiceStatus): string {
   switch (status) {
     case 'draft':
-      return '未提出'
+      return '見積作成中'
     case 'submitted':
-      return '提出済み'
+      return '見積提出済み'
     case 'approved':
       return '承認済み'
     case 'rejected':
-      return '差し戻し'
+      return '見積修正依頼'
     default:
       return status ?? '-'
   }

@@ -81,7 +81,7 @@ export async function PUT(
       actorRole = 'talent'
       transitionAllowed =
         currentStatus === 'pending' &&
-        (requestedStatus === 'confirmed' || requestedStatus === 'rejected')
+        requestedStatus === 'rejected'
     } else {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
@@ -96,9 +96,6 @@ export async function PUT(
     const updates: Record<string, unknown> = { status: requestedStatus }
     const now = new Date().toISOString()
 
-    if (requestedStatus === 'confirmed') {
-      updates.accepted_at = now
-    }
     if (requestedStatus === 'canceled') {
       updates.canceled_at = now
       updates.canceled_by_role = actorRole

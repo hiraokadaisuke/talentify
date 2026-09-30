@@ -104,14 +104,14 @@ export default function TalentInvoiceDetailPage() {
     setSubmitting(true)
     const saveRes = await saveDraft()
     if (!saveRes.ok) {
-      toast.error('提出に失敗しました')
+      toast.error('見積書の提出に失敗しました')
       setSubmitting(false)
       return
     }
     const res = await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
     setSubmitting(false)
     if (res.ok) {
-      toast.success('提出しました')
+      toast.success('見積書を提出しました')
       router.replace('/talent/invoices')
     } else {
       toast.error('提出に失敗しました')
@@ -137,19 +137,21 @@ export default function TalentInvoiceDetailPage() {
     }
   }
 
+  const isEstimate = invoice.status === 'draft' || invoice.status === 'submitted' || invoice.status === 'rejected'
+
   return (
-    <main className="p-6 space-y-4">
-      <h1 className="text-xl font-bold">請求詳細</h1>
+    <main className="space-y-4 p-3 sm:p-6">
+      <h1 className="text-xl font-bold">{isEstimate ? '見積詳細' : '請求詳細'}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>請求情報</CardTitle>
+          <CardTitle>{isEstimate ? '見積情報' : '請求情報'}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
 
           {/* 請求書番号は編集不可（自動採番・表示のみ） */}
-          <div>請求書番号: {invoice.invoice_number}</div>
+          <div>{isEstimate ? '管理番号' : '請求書番号'}: {invoice.invoice_number}</div>
 
           <div className="flex items-center gap-2">
             <span className="shrink-0">支払期限:</span>
@@ -168,7 +170,7 @@ export default function TalentInvoiceDetailPage() {
           </div>
 
           <div>
-            請求書ステータス:{' '}
+            {isEstimate ? '見積ステータス' : '請求ステータス'}:{' '}
             <Badge variant="outline">{getInvoiceStatusLabel(invoice.status)}</Badge>
           </div>
           <div>
@@ -208,14 +210,14 @@ export default function TalentInvoiceDetailPage() {
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            提出
+            見積書を提出
           </Button>
         </div>
       )}
 
       <Button onClick={handleDownload} disabled={downloading} variant='outline'>
         {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-        請求書をダウンロード
+        {isEstimate ? '見積書をダウンロード' : '請求書をダウンロード'}
       </Button>
     </main>
   )

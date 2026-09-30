@@ -28,10 +28,8 @@ type TalentOfferProgressPanelProps = {
     message: string | null
   }
   invoiceId: string | null
-  paymentLink?: string
-  onAcceptOffer?: () => void
   onDeclineOffer?: () => void
-  actionLoading?: 'accept' | 'decline' | null
+  actionLoading?: 'decline' | null
 }
 
 export default function TalentOfferProgressPanel({
@@ -39,8 +37,6 @@ export default function TalentOfferProgressPanel({
   initialActiveStep,
   offer,
   invoiceId,
-  paymentLink,
-  onAcceptOffer,
   onDeclineOffer,
   actionLoading,
 }: TalentOfferProgressPanelProps) {
@@ -70,7 +66,7 @@ export default function TalentOfferProgressPanel({
         case 'offer_submitted':
           return { ...step, subLabel: formattedSubmittedAt }
         case 'approval':
-          return { ...step }
+          return { ...step, subLabel: `見積状況: ${offer.invoiceStatusLabel}` }
         case 'visit':
           return { ...step, subLabel: `来店予定: ${formattedVisitDate}` }
         case 'invoice':
@@ -120,8 +116,6 @@ export default function TalentOfferProgressPanel({
         activeStatus={activeStatus}
         offer={offer}
         invoiceId={invoiceId}
-        paymentLink={paymentLink}
-        onAcceptOffer={onAcceptOffer}
         onDeclineOffer={onDeclineOffer}
         actionLoading={actionLoading}
       />

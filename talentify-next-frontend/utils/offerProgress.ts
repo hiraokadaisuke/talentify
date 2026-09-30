@@ -23,8 +23,8 @@ export interface OfferProgressBadge {
 }
 
 export const OFFER_STEP_LABELS: Record<OfferStepKey, string> = {
-  offer_submitted: 'オファー提出',
-  approval: '承認',
+  offer_submitted: 'オファー・相談',
+  approval: '見積',
   visit: '来店実施',
   invoice: '請求',
   payment: '支払い',
@@ -79,15 +79,22 @@ function resolveProgressBadge({
     }
   }
 
+  if (invoiceStatus === 'submitted') {
+    return {
+      label: '見積確認待ち',
+      variant: 'default',
+    }
+  }
+
   if (status === 'accepted') {
     return {
-      label: '承認済み',
+      label: '進行中',
       variant: 'default',
     }
   }
 
   return {
-    label: '承認待ち',
+    label: '相談中',
     variant: 'secondary',
   }
 }

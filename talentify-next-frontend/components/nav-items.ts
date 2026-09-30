@@ -15,7 +15,7 @@ export const navItems: NavItem[] = [
   { href: "/store/reviews", label: "レビュー管理", icon: Star, roles: ["store"] },
   { href: "/store/messages", label: "メッセージ", icon: MessageCircle, roles: ["store"] },
   { href: "/store/notifications", label: "通知", icon: Bell, roles: ["store"] },
-  { href: "/store/invoices", label: "請求一覧", icon: Wallet, roles: ["store"] },
+  { href: "/store/invoices", label: "見積・請求", icon: Wallet, roles: ["store"] },
   { href: "/store/edit", label: "店舗情報", icon: User, roles: ["store"] },
   { href: "/store/settings", label: "設定", icon: Settings, roles: ["store"] },
 
@@ -25,7 +25,7 @@ export const navItems: NavItem[] = [
   { href: "/talent/messages", label: "メッセージ", icon: MessageCircle, roles: ["talent"] },
   { href: "/talent/edit", label: "プロフィール編集", icon: User, roles: ["talent"] },
   { href: "/talent/reviews", label: "評価・レビュー", icon: Star, roles: ["talent"] },
-  { href: "/talent/invoices", label: "請求管理", icon: Mail, roles: ["talent"] },
+  { href: "/talent/invoices", label: "見積・請求管理", icon: Mail, roles: ["talent"] },
   { href: "/talent/notifications", label: "通知", icon: Bell, roles: ["talent"] },
   { href: "/talent/settings", label: "設定", icon: Settings, roles: ["talent"] },
 ];
