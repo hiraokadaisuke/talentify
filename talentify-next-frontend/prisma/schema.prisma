@@ -171,23 +171,6 @@ datasource db {
 // @@schema("auth")
 // }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model companies {
-  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id           String?   @db.Uuid
-  company_name      String?
-  address           String?
-  tel               String?
-  description       String?
-  created_at        DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime? @default(now()) @db.Timestamptz(6)
-  avatar_url        String?
-  is_setup_complete Boolean?  @default(false)
-  display_name      String?
-  talents           talents[]
-
-  @@schema("public")
-}
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model invoices {
@@ -212,6 +195,8 @@ model invoices {
   talents        talents?       @relation(fields: [talent_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_talent_id")
 
   @@index([offer_id], map: "idx_invoices_offer_id")
+  @@index([store_id], map: "idx_invoices_store_id")
+  @@index([talent_id], map: "idx_invoices_talent_id")
   @@schema("public")
 }
 
@@ -351,6 +336,7 @@ model offers {
   @@index([status], map: "idx_offers_status")
   @@index([store_id], map: "idx_offers_store_id")
   @@index([talent_id], map: "idx_offers_talent_id")
+  @@index([user_id], map: "idx_offers_user_id")
   @@schema("public")
 }
 
@@ -387,6 +373,7 @@ model reviews {
 
   @@unique([offer_id, store_id], map: "uniq_offer_store_review")
   @@index([talent_id], map: "idx_reviews_talent_id")
+  @@index([store_id], map: "idx_reviews_store_id")
   @@schema("public")
 }
 
@@ -417,8 +404,8 @@ model stores {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model users {
   id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  auth_user_id String?     @unique(map: "users_auth_user_id_key") @db.Uuid
-  email        String?
+  auth_user_id String      @unique(map: "users_auth_user_id_key") @db.Uuid
+  email        String
   role         String?
   status       user_status @default(pending_email_verification)
   created_at   DateTime?   @default(now()) @db.Timestamptz(6)
@@ -474,8 +461,7 @@ model talents {
   area                          String?
   video_url                     String?
   rating                        Decimal?                        @db.Decimal
-  user_id                       String?                         @unique(map: "talents_user_id_unique_not_null_idx", where: raw("(user_id IS NOT NULL)")) @db.Uuid
-  company_id                    String?                         @db.Uuid
+  user_id                       String?                         @unique(map: "talents_user_id_unique") @db.Uuid
   stage_name                    String?
   display_name                  String?
   phone                         String?
@@ -513,8 +499,6 @@ model talents {
   invoices                      invoices[]
   offers                        offers[]
   reviews                       reviews[]
-
-  companies                     companies?                      @relation(fields: [company_id], references: [id], onUpdate: NoAction)
 
   @@index([area], map: "idx_talents_area")
   @@index([genre], map: "idx_talents_genre")

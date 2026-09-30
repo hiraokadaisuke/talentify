@@ -5,14 +5,12 @@ import { getUserRoleInfo, type UserRole } from '@/lib/getUserRole'
 function homeForRole(role: UserRole | null) {
   if (role === 'store') return '/store/dashboard'
   if (role === 'talent') return '/talent/dashboard'
-  if (role === 'company') return '/company/offers'
   return '/account/role'
 }
 
 function onboardingForRole(role: UserRole | null) {
   if (role === 'store') return '/store/edit'
   if (role === 'talent') return '/talent/edit'
-  if (role === 'company') return '/company/edit'
   return '/account/role'
 }
 
@@ -46,7 +44,6 @@ export async function middleware(req: NextRequest) {
     '/app',
     '/store/',
     '/talent/',
-    '/company/',
     '/messages',
     '/account/',
   ].some((prefix) => pathname.startsWith(prefix))
@@ -82,17 +79,15 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  if ((role === 'store' || role === 'talent') && pathname.startsWith('/messages')) {
-    return redirectWithCookies(req, res, `/${role}${pathname}`)
+  if (pathname.startsWith('/messages')) {
+    return redirectWithCookies(req, res, '/' + role + pathname)
   }
 
   if (pathname.startsWith('/store/') && role !== 'store') {
     return redirectWithCookies(req, res, homeForRole(role))
   }
+
   if (pathname.startsWith('/talent/') && role !== 'talent') {
-    return redirectWithCookies(req, res, homeForRole(role))
-  }
-  if (pathname.startsWith('/company/') && role !== 'company') {
     return redirectWithCookies(req, res, homeForRole(role))
   }
 
@@ -110,7 +105,6 @@ export const config = {
     '/app/:path*',
     '/store/:path*',
     '/talent/:path*',
-    '/company/:path*',
     '/messages/:path*',
     '/account/:path*',
   ],

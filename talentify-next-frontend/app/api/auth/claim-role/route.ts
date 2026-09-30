@@ -27,18 +27,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to load account' }, { status: 500 })
   }
 
-  if (appUser?.role) {
-    const next = appUser.role === 'talent' ? '/talent/edit' : appUser.role === 'store' ? '/store/edit' : '/dashboard'
-    return NextResponse.json({ ok: true, next })
+  if (appUser?.role === 'store' || appUser?.role === 'talent') {
+    return NextResponse.json({
+      ok: true,
+      next: appUser.role === 'store' ? '/store/edit' : '/talent/edit',
+    })
   }
 
-  const [{ data: store }, { data: talent }, { data: company }] = await Promise.all([
+  const [{ data: store }, { data: talent }] = await Promise.all([
     service.from('stores').select('id').eq('user_id', user.id).maybeSingle(),
     service.from('talents').select('id').eq('user_id', user.id).maybeSingle(),
-    service.from('companies').select('id').eq('user_id', user.id).maybeSingle(),
   ])
 
-  if (store || talent || company) {
+  if (store || talent) {
     return NextResponse.json({ error: 'Account role is inconsistent' }, { status: 409 })
   }
 

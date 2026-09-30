@@ -3,7 +3,7 @@ import { notificationConfig, type NotificationEvent } from './config'
 
 type NotificationInsert = Database['public']['Tables']['notifications']['Insert']
 
-export type RecipientRole = 'store' | 'talent' | 'company' | 'unknown'
+export type RecipientRole = 'store' | 'talent' | 'unknown'
 
 export type NotificationPayload = Omit<NotificationInsert, 'user_id'>
 
@@ -18,12 +18,12 @@ function normalizeActorName(actorName?: string | null): string {
 export function roleToRootPath(role: RecipientRole): string {
   if (role === 'store') return '/store'
   if (role === 'talent') return '/talent'
-  if (role === 'company') return '/app'
-  return '/app'
+  return '/dashboard'
 }
 
 export function getNotificationsRootPath(role: RecipientRole): string {
-  return `${roleToRootPath(role)}/notifications`
+  const root = roleToRootPath(role)
+  return root === '/dashboard' ? root : root + '/notifications'
 }
 
 function ensureSafeActionUrl(actionUrl: string | null | undefined, fallbackPath: string): string {

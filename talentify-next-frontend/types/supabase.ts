@@ -14,48 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      companies: {
-        Row: {
-          address: string | null
-          avatar_url: string | null
-          company_name: string | null
-          created_at: string | null
-          description: string | null
-          display_name: string | null
-          id: string
-          is_setup_complete: boolean | null
-          tel: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          address?: string | null
-          avatar_url?: string | null
-          company_name?: string | null
-          created_at?: string | null
-          description?: string | null
-          display_name?: string | null
-          id?: string
-          is_setup_complete?: boolean | null
-          tel?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          address?: string | null
-          avatar_url?: string | null
-          company_name?: string | null
-          created_at?: string | null
-          description?: string | null
-          display_name?: string | null
-          id?: string
-          is_setup_complete?: boolean | null
-          tel?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       invoices: {
         Row: {
           amount: number
@@ -784,7 +742,6 @@ export type Database = {
           birthdate: string | null
           birthplace: string | null
           branch_name: string | null
-          company_id: string | null
           created_at: string | null
           display_name: string | null
           experience_years: number | null
@@ -837,7 +794,6 @@ export type Database = {
           birthdate?: string | null
           birthplace?: string | null
           branch_name?: string | null
-          company_id?: string | null
           created_at?: string | null
           display_name?: string | null
           experience_years?: number | null
@@ -890,7 +846,6 @@ export type Database = {
           birthdate?: string | null
           birthplace?: string | null
           branch_name?: string | null
-          company_id?: string | null
           created_at?: string | null
           display_name?: string | null
           experience_years?: number | null
@@ -926,15 +881,7 @@ export type Database = {
           youtube?: string | null
           youtube_url?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "talents_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       users: {
         Row: {

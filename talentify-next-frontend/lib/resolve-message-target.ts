@@ -9,34 +9,20 @@ function isUuid(value: string): boolean {
 async function resolveFromRoleTables(id: string): Promise<string | null> {
   const prisma = getPrismaClient()
 
-  const [talent, store, company] = await Promise.all([
+  const [talent, store] = await Promise.all([
     prisma.talents.findFirst({
-      where: {
-        OR: [{ id }, { user_id: id }],
-      },
+      where: { OR: [{ id }, { user_id: id }] },
       select: { user_id: true },
     }),
     prisma.stores.findFirst({
-      where: {
-        OR: [{ id }, { user_id: id }],
-      },
-      select: { user_id: true },
-    }),
-    prisma.companies.findFirst({
-      where: {
-        OR: [{ id }, { user_id: id }],
-      },
+      where: { OR: [{ id }, { user_id: id }] },
       select: { user_id: true },
     }),
   ])
 
-  return talent?.user_id ?? store?.user_id ?? company?.user_id ?? null
+  return talent?.user_id ?? store?.user_id ?? null
 }
 
-/**
- * Resolves a message target id into canonical auth user id.
- * Accepts user_id directly, or profile ids such as talents.id/stores.id/companies.id.
- */
 export async function resolveMessageTargetUserId(rawId: string): Promise<string | null> {
   const id = rawId.trim()
   if (!isUuid(id)) return null
@@ -44,6 +30,5 @@ export async function resolveMessageTargetUserId(rawId: string): Promise<string 
   const resolvedByRole = await resolveFromRoleTables(id)
   if (resolvedByRole) return resolvedByRole
 
-  // Fallback: treat UUID as user_id directly so legacy links continue to work.
   return id
 }

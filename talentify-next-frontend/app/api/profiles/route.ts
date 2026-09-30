@@ -2,11 +2,13 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
-  const supabase = await createClient()
+  const supabase = createClient()
+  const { data: stores, error: storesError } = await supabase.from('stores').select('*')
+  const { data: talents, error: talentsError } = await supabase.from('talents').select('*')
 
-  const { data: stores } = await supabase.from('stores').select('*')
-  const { data: talents } = await supabase.from('talents').select('*')
-  const { data: companies } = await supabase.from('companies').select('*')
+  if (storesError || talentsError) {
+    return NextResponse.json({ error: 'Failed to load profiles' }, { status: 500 })
+  }
 
-  return NextResponse.json({ stores, talents, companies })
+  return NextResponse.json({ stores: stores ?? [], talents: talents ?? [] })
 }

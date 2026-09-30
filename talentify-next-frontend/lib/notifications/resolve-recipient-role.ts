@@ -23,15 +23,13 @@ async function resolveRoleByUserId(userId: string | null | undefined): Promise<R
 
   const prisma = getPrismaClient()
 
-  const [talent, store, company] = await Promise.all([
+  const [talent, store] = await Promise.all([
     prisma.talents.findFirst({ where: { user_id: userId }, select: { id: true } }),
     prisma.stores.findFirst({ where: { user_id: userId }, select: { id: true } }),
-    prisma.companies.findFirst({ where: { user_id: userId }, select: { id: true } }),
   ])
 
   if (talent) return 'talent'
   if (store) return 'store'
-  if (company) return 'company'
   return 'unknown'
 }
 
@@ -142,10 +140,9 @@ export async function resolveActorName({ actorId, fallbackName }: ResolveActorNa
   if (!actorId) return fallbackName ?? null
 
   const prisma = getPrismaClient()
-  const [talent, store, company] = await Promise.all([
+  const [talent, store] = await Promise.all([
     prisma.talents.findFirst({ where: { user_id: actorId }, select: { stage_name: true, name: true, display_name: true } }),
     prisma.stores.findFirst({ where: { user_id: actorId }, select: { store_name: true } }),
-    prisma.companies.findFirst({ where: { user_id: actorId }, select: { display_name: true, company_name: true } }),
   ])
 
   const name =
@@ -153,8 +150,6 @@ export async function resolveActorName({ actorId, fallbackName }: ResolveActorNa
     talent?.stage_name?.trim() ||
     talent?.name?.trim() ||
     store?.store_name?.trim() ||
-    company?.display_name?.trim() ||
-    company?.company_name?.trim() ||
     null
 
   return name || fallbackName || null

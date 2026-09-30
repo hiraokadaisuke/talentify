@@ -15,15 +15,13 @@ export default function DashboardRedirectPage() {
       router.replace('/account/role')
       return
     }
+
     if (role === 'store') {
       router.replace(isSetupComplete ? '/store/dashboard' : '/store/edit')
       return
     }
-    if (role === 'talent') {
-      router.replace(isSetupComplete ? '/talent/dashboard' : '/talent/edit')
-      return
-    }
-    router.replace(isSetupComplete ? '/company/offers' : '/company/edit')
+
+    router.replace(isSetupComplete ? '/talent/dashboard' : '/talent/edit')
   }, [role, isSetupComplete, loading, router])
 
   return null
