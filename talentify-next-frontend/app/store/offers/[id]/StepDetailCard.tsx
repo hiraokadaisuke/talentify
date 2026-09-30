@@ -7,11 +7,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
+import type { OfferInvoiceProgressStatus } from '@/lib/invoices/status'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import CancelOfferSection from './CancelOfferSection'
 import ReviewModal from '@/components/modals/ReviewModal'
-import { resolveMainActionPhase } from '@/lib/offers/mainActionPhase'
 
 type StepDetailCardProps = {
   activeStep: OfferStepKey
@@ -20,13 +20,10 @@ type StepDetailCardProps = {
     id: string
     status: string
     storeName: string
-    submittedAt: string | null
-    updatedAt: string
-    respondDeadline: string | null
     date: string | null
     paid: boolean
     paidAt: string | null
-    invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
+    invoiceStatus: OfferInvoiceProgressStatus
     invoiceStatusLabel: string
     paymentStatusLabel: string
     reward: number | null
@@ -40,7 +37,6 @@ type StepDetailCardProps = {
     status: string
     paymentStatus: string | null
   } | null
-  paymentLink?: string
   cancelation?: {
     initialStatus: string
     initialCanceledAt: string | null
@@ -56,214 +52,101 @@ type StepDetail = {
   footer?: ReactNode
 }
 
-const primaryActionClass = 'h-9 bg-blue-700 px-4 text-white hover:bg-blue-800 focus-visible:ring-blue-300'
+const primaryActionClass = 'min-h-10 bg-blue-700 px-4 text-white hover:bg-blue-800'
 
-const statusBadge = (status: string) => {
-  switch (status) {
-    case 'confirmed':
-    case 'accepted':
-      return <Badge>承認済み</Badge>
-    case 'rejected':
-      return <Badge variant="secondary">辞退済み</Badge>
-    case 'canceled':
-      return <Badge variant="destructive">キャンセル済み</Badge>
-    default:
-      return <Badge variant="outline">承認待ち</Badge>
-  }
-}
-
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'confirmed':
-    case 'accepted':
-      return '承認済み'
-    case 'rejected':
-      return '辞退済み'
-    case 'canceled':
-      return 'キャンセル済み'
-    default:
-      return '承認待ち'
-  }
-}
-
-export default function StepDetailCard({ activeStep, activeStatus, offer, invoice, paymentLink, cancelation }: StepDetailCardProps) {
+export default function StepDetailCard({ activeStep, activeStatus, offer, invoice, cancelation }: StepDetailCardProps) {
   const router = useRouter()
-
-  const handleReviewSubmitted = useCallback(() => {
-    router.refresh()
-  }, [router])
-
-  const formattedVisitDate = useMemo(() => offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定', [offer.date])
-  const paymentCompletedLabel = useMemo(() => offer.paidAt ? format(new Date(offer.paidAt), 'yyyy/MM/dd', { locale: ja }) : undefined, [offer.paidAt])
-
-  const mainActionDetail = useMemo<StepDetail>(() => {
-    const phase = resolveMainActionPhase({
-      role: 'store',
-      status: offer.status,
-      invoiceStatus: offer.invoiceStatus,
-      paid: offer.paid,
-      reviewCompleted: offer.reviewCompleted,
-    })
-
-    switch (phase) {
-      case 'invoice_waiting':
-        return {
-          title: '請求をお待ちしています',
-          description: '請求書がまだ作成されていません。必要に応じてメッセージで作成・提出を案内してください。',
-          badge: <Badge variant="outline">請求待ち</Badge>,
-          meta: [{ label: '請求書ステータス', value: offer.invoiceStatusLabel }],
-          primaryAction: undefined,
-        }
-      case 'invoice_submitted':
-        return {
-          title: '請求書が提出されました',
-          description: '内容を確認し、問題なければ支払いへ進んでください。',
-          badge: <Badge>確認が必要</Badge>,
-          meta: [
-            { label: '請求書ステータス', value: offer.invoiceStatusLabel },
-            ...(invoice?.amount != null ? [{ label: '請求額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
-            { label: '支払い状況', value: offer.paymentStatusLabel },
-          ],
-          primaryAction: invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
-        }
-      case 'payment_waiting':
-        return {
-          title: '支払い処理を進めてください',
-          description: '請求内容は確認済みです。次は支払いを完了し、レビューに進みましょう。',
-          badge: <Badge variant="outline">支払い待ち</Badge>,
-          meta: [
-            { label: '支払い状況', value: offer.paymentStatusLabel },
-            ...(invoice?.amount != null ? [{ label: '支払い予定額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
-          ],
-          primaryAction: paymentLink ? <Button className={primaryActionClass} asChild><Link href={paymentLink}>支払いを確認する</Link></Button> : invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link></Button> : undefined,
-        }
-      case 'payment_completed_review_waiting':
-        return {
-          title: '支払いが完了しました',
-          description: 'お疲れさまでした。次はレビューを投稿してください。',
-          badge: <Badge variant="success">レビュー待ち</Badge>,
-          meta: [
-            { label: '支払い状況', value: offer.paymentStatusLabel },
-            ...(paymentCompletedLabel ? [{ label: '支払い日', value: paymentCompletedLabel }] : []),
-          ],
-          primaryAction: offer.talentId ? (
-            <ReviewModal
-              offerId={offer.id}
-              talentId={offer.talentId}
-              trigger={<Button className={primaryActionClass}>レビューする</Button>}
-              onSubmitted={handleReviewSubmitted}
-            />
-          ) : undefined,
-        }
-      case 'completed':
-        return {
-          title: '取引が完了しました',
-          description: 'この案件はすべてのステップが完了しています。',
-          badge: <Badge variant="success">全完了</Badge>,
-          meta: [{ label: 'レビュー状態', value: offer.reviewCompleted ? 'レビュー済み' : '未実施' }],
-          primaryAction: <Button className={primaryActionClass} asChild><Link href="/store/reviews">レビューを見る</Link></Button>,
-        }
-      default:
-        return {
-          title: '請求書の準備がこれからです',
-          description: 'まだ請求書が作成されていない状態です。進行ステップバーで状況を確認してください。',
-          badge: <Badge variant="outline">準備中</Badge>,
-          meta: [{ label: '現在ステップ', value: activeStep }],
-        }
-    }
-  }, [activeStep, offer.status, offer.invoiceStatus, offer.paid, offer.reviewCompleted, offer.invoiceStatusLabel, offer.paymentStatusLabel, offer.id, offer.talentId, invoice, paymentLink, paymentCompletedLabel, handleReviewSubmitted])
+  const handleReviewSubmitted = useCallback(() => router.refresh(), [router])
+  const formattedVisitDate = useMemo(
+    () => offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定',
+    [offer.date],
+  )
 
   const detail = useMemo<StepDetail>(() => {
-    if (['invoice', 'payment', 'review'].includes(activeStep)) {
-      const base = mainActionDetail
-      return cancelation
-        ? {
-            ...base,
-            footer: (
-              <CancelOfferSection
-                offerId={offer.id}
-                initialStatus={cancelation.initialStatus}
-                initialCanceledAt={cancelation.initialCanceledAt}
-              />
-            ),
-          }
-        : base
-    }
+    let result: StepDetail
 
-    let result: StepDetail = {
-      title: '進行中',
-      description: '進行ステップを確認してください。',
-    }
-
-    if (activeStep === 'offer_submitted') {
+    if (activeStep === 'offer_consultation') {
       result = {
-        title: 'オファー提出',
-        description: '店舗からタレントへオファーを送信しました。返信内容はメッセージで確認できます。',
-        badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
-        meta: [
-          { label: 'オファー金額', value: offer.reward != null ? `¥${offer.reward.toLocaleString('ja-JP')}` : '未設定' },
-          { label: '提出者', value: offer.storeName || '未設定' },
-        ],
+        title: 'オファー・条件相談',
+        description: '演者とメッセージや電話で条件を確認してください。条件がまとまると演者から見積書が提出されます。',
+        badge: offer.status === 'pending' ? <Badge variant="outline">相談中</Badge> : undefined,
+        meta: [{ label: 'オファー金額（目安）', value: offer.reward != null ? `¥${offer.reward.toLocaleString('ja-JP')}` : '未設定' }],
       }
-    }
-
-    if (activeStep === 'approval') {
+    } else if (activeStep === 'estimate') {
+      if (offer.invoiceStatus === 'submitted' && invoice) {
+        result = {
+          title: '見積書が届いています',
+          description: '内容を確認し、問題なければ「この見積内容で締結する」から承認してください。',
+          badge: <Badge>確認が必要</Badge>,
+          meta: [
+            { label: '見積状態', value: offer.invoiceStatusLabel },
+            ...(invoice.amount != null ? [{ label: '見積合計', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
+          ],
+          primaryAction: <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>見積書を確認する</Link></Button>,
+        }
+      } else {
+        result = {
+          title: offer.invoiceStatus === 'draft' ? '演者が見積書を作成中です' : '見積書をお待ちください',
+          description: '条件相談後、演者から見積書が提出されます。',
+          badge: <Badge variant="outline">{offer.invoiceStatusLabel}</Badge>,
+        }
+      }
+    } else if (activeStep === 'contract') {
+      const contracted = offer.invoiceStatus === 'approved' || offer.invoiceStatus === 'paid' || offer.status === 'confirmed' || offer.status === 'completed'
       result = {
-        title: '承認',
-        description: '承認状況を確認し、必要に応じてメッセージで調整してください。',
-        badge: statusBadge(offer.status),
-        meta: [{ label: '承認状況', value: getStatusText(offer.status) }],
+        title: contracted ? '取引が締結されています' : '見積承認で取引締結',
+        description: contracted ? '承認した見積内容が取引条件として確定し、取引締結書兼請求書が発行されています。' : '見積内容を承認すると、その条件で取引が締結されます。',
+        badge: contracted ? <Badge variant="success">締結済み</Badge> : <Badge variant="outline">未締結</Badge>,
+        primaryAction: contracted && invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>締結書兼請求書を見る</Link></Button> : undefined,
       }
-    }
-
-    if (activeStep === 'visit') {
+    } else if (activeStep === 'visit') {
       result = {
         title: '来店実施',
         description: '来店日時と当日の連絡事項を確認してください。',
-        badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
-        meta: [
-          { label: '来店日時', value: formattedVisitDate },
-        ],
+        badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : <Badge variant="outline">来店予定</Badge>,
+        meta: [{ label: '来店日時', value: formattedVisitDate }],
       }
+    } else if (activeStep === 'payment') {
+      result = {
+        title: offer.paid ? '支払い完了' : '支払い',
+        description: offer.paid ? '支払いは完了しています。' : '取引締結書兼請求書の内容に基づき、支払い後に完了を記録してください。',
+        badge: offer.paid ? <Badge variant="success">支払済み</Badge> : <Badge variant="outline">未払い</Badge>,
+        meta: [
+          { label: '支払い状況', value: offer.paymentStatusLabel },
+          ...(invoice?.amount != null ? [{ label: '請求額', value: `¥${invoice.amount.toLocaleString('ja-JP')}` }] : []),
+        ],
+        primaryAction: invoice ? <Button className={primaryActionClass} asChild><Link href={`/store/invoices/${invoice.id}`}>{offer.paid ? '締結書兼請求書を見る' : '支払い内容を確認する'}</Link></Button> : undefined,
+      }
+    } else {
+      result = offer.reviewCompleted
+        ? {
+            title: '取引が完了しました',
+            description: 'レビューまで完了しています。',
+            badge: <Badge variant="success">全完了</Badge>,
+            primaryAction: <Button className={primaryActionClass} asChild><Link href="/store/reviews">レビューを見る</Link></Button>,
+          }
+        : {
+            title: 'レビューを投稿してください',
+            description: '支払い完了後、演者へのレビューを投稿できます。',
+            badge: <Badge variant="outline">レビュー待ち</Badge>,
+            primaryAction: offer.talentId ? <ReviewModal offerId={offer.id} talentId={offer.talentId} trigger={<Button className={primaryActionClass}>レビューする</Button>} onSubmitted={handleReviewSubmitted} /> : undefined,
+          }
     }
 
     return cancelation
-      ? {
-          ...result,
-          footer: (
-            <CancelOfferSection
-              offerId={offer.id}
-              initialStatus={cancelation.initialStatus}
-              initialCanceledAt={cancelation.initialCanceledAt}
-            />
-          ),
-        }
+      ? { ...result, footer: <CancelOfferSection offerId={offer.id} initialStatus={cancelation.initialStatus} initialCanceledAt={cancelation.initialCanceledAt} /> }
       : result
-  }, [activeStep, activeStatus, cancelation, formattedVisitDate, mainActionDetail, offer.id, offer.reward, offer.status, offer.storeName])
+  }, [activeStep, activeStatus, offer, invoice, cancelation, formattedVisitDate, handleReviewSubmitted])
 
   return (
     <Card className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <CardHeader className="flex flex-col gap-1.5 border-b border-slate-100 p-4 sm:p-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <CardTitle className="text-base font-semibold text-slate-900 sm:text-lg">{detail.title}</CardTitle>
-          {detail.badge}
-        </div>
+        <div className="flex flex-wrap items-center gap-3"><CardTitle className="text-base font-semibold text-slate-900 sm:text-lg">{detail.title}</CardTitle>{detail.badge}</div>
         <p className="break-words text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
       </CardHeader>
       <CardContent className="space-y-4 p-4 sm:p-5">
-        {detail.meta && detail.meta.length > 0 && (
-          <dl className="grid gap-3 text-sm sm:grid-cols-2">
-            {detail.meta.map(item => (
-              <div key={item.label} className="space-y-0.5">
-                <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{item.label}</dt>
-                <dd className="text-sm font-semibold text-slate-900 sm:text-base">{item.value}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:justify-end">
-          {detail.primaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.primaryAction}</div>}
-        </div>
+        {detail.meta && <dl className="grid gap-3 text-sm sm:grid-cols-2">{detail.meta.map(item => <div key={item.label}><dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{item.label}</dt><dd className="mt-0.5 font-semibold text-slate-900">{item.value}</dd></div>)}</dl>}
+        {detail.primaryAction && <div className="flex w-full sm:justify-end">{detail.primaryAction}</div>}
         {detail.footer && <div className="space-y-4 border-t border-dashed border-slate-200 pt-4">{detail.footer}</div>}
       </CardContent>
     </Card>

@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { getOfferProgress } from '@/utils/offerProgress'
 import StoreOfferProgressPanel from './StoreOfferProgressPanel'
-import { deriveActiveStep } from '@/lib/offers/deriveActiveStep'
 import {
   deriveOfferInvoiceProgressStatus,
   getInvoiceStatusLabel,
@@ -93,23 +92,11 @@ export default async function StoreOfferPage({ params }: PageProps) {
       }
     : null
 
-  const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
-  const paymentLink = showActions && invoice ? `/store/invoices/${invoice.id}` : undefined
-
-  const { steps } = getOfferProgress({
+  const { steps, current: activeStep } = getOfferProgress({
     status: offer.status,
     invoiceStatus: offer.invoiceStatus,
     paid: offer.paid,
     reviewCompleted: offer.reviewCompleted,
-  })
-
-  const activeStep = deriveActiveStep({
-    status: offer.status,
-    acceptedAt: offer.acceptedAt,
-    visitScheduledAt: offer.date,
-    invoiceStatus: offer.invoiceStatus,
-    paid: offer.paid,
-    paidAt: offer.paidAt,
   })
 
   const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
@@ -166,7 +153,6 @@ export default async function StoreOfferPage({ params }: PageProps) {
               reviewCompleted: offer.reviewCompleted,
             }}
             invoice={invoiceData}
-            paymentLink={paymentLink}
             cancelation={{ initialStatus: data.status as string, initialCanceledAt: data.canceled_at as string | null }}
           />
         </div>
@@ -186,9 +172,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
 
 function getStatusLabel(status: string) {
   switch (status) {
-    case 'accepted':
     case 'confirmed':
-      return '承認済み'
+      return '締結済み'
     case 'completed':
       return '完了'
     case 'rejected':
@@ -198,7 +183,7 @@ function getStatusLabel(status: string) {
     case 'draft':
       return '下書き'
     default:
-      return '承認待ち'
+      return '相談中'
   }
 }
 

@@ -15,7 +15,7 @@ export type TalentOffer = {
   date: string | null
   status: string | null
   paid?: boolean | null
-  invoice_status: 'not_submitted' | 'submitted' | 'paid'
+  invoice_status: 'not_created' | 'draft' | 'submitted' | 'approved' | 'paid'
   review_completed: boolean
 }
 
