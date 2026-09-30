@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAppUserByAuthUserId, upsertAppUser } from '@/lib/auth/app-user'
 import { SIGNUP_ROLES, type SignupRole } from '@/lib/auth/signup'
 import { ensureStoreProfile, ensureTalentProfile } from '@/lib/provision'
+import { createServiceClient } from '@/lib/supabase/service'
 
 function toSignupRole(value: string | null | undefined): SignupRole | undefined {
   if (!value) return undefined
@@ -47,10 +48,27 @@ export async function GET(req: NextRequest) {
       status: 'onboarding',
     })
 
+    const syncedUser = await getAppUserByAuthUserId(user.id)
+    const service = createServiceClient()
+
     if (role === 'store') {
       await ensureStoreProfile(supabase, user.id)
+      if (syncedUser?.phone) {
+        await service
+          .from('stores')
+          .update({ contact_phone: syncedUser.phone })
+          .eq('user_id', user.id)
+          .is('contact_phone', null)
+      }
     } else if (role === 'talent') {
       await ensureTalentProfile(supabase, user.id)
+      if (syncedUser?.phone) {
+        await service
+          .from('talents')
+          .update({ phone: syncedUser.phone })
+          .eq('user_id', user.id)
+          .is('phone', null)
+      }
     }
 
     const target =

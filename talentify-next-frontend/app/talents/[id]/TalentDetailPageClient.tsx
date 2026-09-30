@@ -37,6 +37,9 @@ type Talent = {
   twitter?: string | null
   instagram?: string | null
   youtube?: string | null
+  preferred_contact_method?: string | null
+  phone_contact_allowed?: boolean | null
+  phone_available_hours?: string | null
 }
 
 type PublicReview = {
@@ -242,6 +245,15 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                     { icon: Timer, label: '最低拘束時間', value: talent.min_hours || '要相談' },
                     { icon: Bus, label: '交通費', value: talent.transportation || '要相談' },
                     { icon: Wallet, label: '出演料金目安', value: talent.rate != null ? `${talent.rate.toLocaleString()}円〜` : '要相談' },
+                    {
+                      icon: MessageSquare,
+                      label: '連絡方法',
+                      value: talent.phone_contact_allowed
+                        ? talent.preferred_contact_method === 'phone'
+                          ? '電話対応可'
+                          : 'チャット推奨・電話も可'
+                        : 'チャットのみ',
+                    },
                   ].map(({ icon: Icon, label, value }) => (
                     <div key={label} className="flex items-center gap-2">
                       <Icon className="h-4 w-4 shrink-0 text-slate-500" />
@@ -250,6 +262,10 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                     </div>
                   ))}
                 </div>
+
+                {talent.phone_contact_allowed && talent.phone_available_hours && (
+                  <p className="text-xs text-slate-500">電話可能時間帯：{talent.phone_available_hours}</p>
+                )}
 
                 {(talent.area.length > 0 || talent.genre) && (
                   <div className="space-y-2.5 border-t border-slate-100 pt-3">

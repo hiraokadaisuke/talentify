@@ -749,6 +749,9 @@ export type Database = {
           name: string
           notes: string | null
           phone: string | null
+          phone_available_hours: string | null
+          phone_contact_allowed: boolean
+          preferred_contact_method: string
           photos: string[] | null
           profile: string | null
           rate: number | null
@@ -796,6 +799,9 @@ export type Database = {
           name: string
           notes?: string | null
           phone?: string | null
+          phone_available_hours?: string | null
+          phone_contact_allowed?: boolean
+          preferred_contact_method?: string
           photos?: string[] | null
           profile?: string | null
           rate?: number | null
@@ -843,6 +849,9 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+          phone_available_hours?: string | null
+          phone_contact_allowed?: boolean
+          preferred_contact_method?: string
           photos?: string[] | null
           profile?: string | null
           rate?: number | null
@@ -869,6 +878,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          phone: string | null
           role: string | null
           status: Database["public"]["Enums"]["user_status"]
           updated_at: string
@@ -878,6 +888,7 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          phone?: string | null
           role?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string
@@ -887,6 +898,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          phone?: string | null
           role?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           updated_at?: string

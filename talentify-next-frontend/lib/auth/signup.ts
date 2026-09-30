@@ -3,6 +3,7 @@ import { z } from 'zod'
 export const SIGNUP_ROLES = ['talent', 'store'] as const
 export const signUpSchema = z.object({
   email: z.string().email(),
+  phone: z.string().transform(value => value.replace(/\D/g, '')).refine(value => /^\d{10,11}$/.test(value)),
   password: z.string().min(8),
   role: z.enum(SIGNUP_ROLES),
 })

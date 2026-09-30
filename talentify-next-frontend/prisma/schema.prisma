@@ -390,6 +390,7 @@ model users {
   id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   auth_user_id String      @unique(map: "users_auth_user_id_key") @db.Uuid
   email        String
+  phone        String?
   role         String?
   status       user_status @default(pending_email_verification)
   created_at   DateTime?   @default(now()) @db.Timestamptz(6)
@@ -464,6 +465,9 @@ model talents {
   stage_name                    String?
   display_name                  String?
   phone                         String?
+  preferred_contact_method      String                          @default("chat")
+  phone_contact_allowed         Boolean                         @default(false)
+  phone_available_hours         String?
   is_setup_complete             Boolean?                        @default(false)
   twitter_url                   String?
   instagram_url                 String?

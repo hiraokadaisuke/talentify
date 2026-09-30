@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     return errorResponse(400, 'INVALID_INPUT', '入力内容を確認してください')
   }
 
-  const { email, password, role } = parsed.data
+  const { email, phone, password, role } = parsed.data
   const supabase = createClient()
 
   const { data, error } = await supabase.auth.signUp({
@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
     await upsertAppUser({
       authUserId: data.user.id,
       email: data.user.email,
+      phone,
       role,
       status: 'pending_email_verification',
     })

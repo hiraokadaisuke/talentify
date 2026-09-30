@@ -17,11 +17,13 @@ export default function RegisterForm() {
 
   const role = initialRole
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
+  const [phoneError, setPhoneError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [confirmError, setConfirmError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -98,6 +100,7 @@ export default function RegisterForm() {
     setGlobalError(null)
     setRateLimitError(null)
     setEmailError(null)
+    setPhoneError(null)
     setPasswordError(null)
     setConfirmError(null)
 
@@ -108,6 +111,15 @@ export default function RegisterForm() {
       hasError = true
     } else if (!/^\S+@\S+\.\S+$/.test(email)) {
       setEmailError('メールアドレスの形式が正しくありません')
+      hasError = true
+    }
+
+    const normalizedPhone = phone.replace(/\D/g, '')
+    if (!phone) {
+      setPhoneError('電話番号を入力してください')
+      hasError = true
+    } else if (!/^\d{10,11}$/.test(normalizedPhone)) {
+      setPhoneError('電話番号は10〜11桁の数字で入力してください')
       hasError = true
     }
 
@@ -141,6 +153,7 @@ export default function RegisterForm() {
         },
         body: JSON.stringify({
           email,
+          phone: normalizedPhone,
           password,
           role,
         }),
@@ -199,6 +212,23 @@ export default function RegisterForm() {
             required
           />
           {emailError && <p className="text-red-600 text-sm mt-1">{emailError}</p>}
+        </div>
+
+        <div>
+          <label className="block font-medium text-white/80">電話番号</label>
+          <Input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            aria-invalid={!!phoneError}
+            disabled={isSubmitting}
+            placeholder="例：09012345678"
+            required
+          />
+          <p className="mt-1 text-xs text-white/45">案件連絡用です。演者の電話番号は、通話を許可した案件でのみホールに表示します。</p>
+          {phoneError && <p className="mt-1 text-sm text-red-600">{phoneError}</p>}
         </div>
 
         <div>

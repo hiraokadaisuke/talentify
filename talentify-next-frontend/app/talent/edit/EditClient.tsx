@@ -34,6 +34,10 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const [profile, setProfile] = useState({
     name: '',
     stage_name: '',
+    phone: '',
+    preferred_contact_method: 'chat',
+    phone_contact_allowed: false,
+    phone_available_hours: '',
     bio: '',
     profile: '',
     residence: '',
@@ -94,6 +98,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     const err: Record<string, string> = {}
     if (!s(p.name).trim()) err.name = '本名は必須です'
     if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
+    if (p.phone_contact_allowed && !s(p.phone).trim()) err.phone = '電話対応を許可するには電話番号が必要です'
     if (!s(p.genre).trim()) err.genre = 'ジャンルは必須です'
     if (p.area.length === 0) err.area = 'エリアは1つ以上選択してください'
     if (n(p.rate) <= 0) err.rate = '報酬は0より大きい数値を入力してください'
@@ -137,7 +142,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       setUserId(user.id)
 
       const fields =
-        'name,stage_name,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url,is_profile_complete' as const
+        'name,stage_name,phone,preferred_contact_method,phone_contact_allowed,phone_available_hours,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url,is_profile_complete' as const
 
       const { data, error } = await supabase
         .from('talents' as any)
@@ -154,6 +159,10 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         setProfile({
           name: s((data as any).name),
           stage_name: s((data as any).stage_name),
+          phone: s((data as any).phone),
+          preferred_contact_method: s((data as any).preferred_contact_method) || 'chat',
+          phone_contact_allowed: Boolean((data as any).phone_contact_allowed),
+          phone_available_hours: s((data as any).phone_available_hours),
           bio: s((data as any).bio),
           profile: s((data as any).profile),
           residence: s((data as any).residence),
@@ -294,6 +303,10 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         user_id: user.id,
         name: profile.name.trim(),
         stage_name: profile.stage_name,
+        phone: profile.phone || null,
+        preferred_contact_method: profile.preferred_contact_method,
+        phone_contact_allowed: profile.phone_contact_allowed,
+        phone_available_hours: profile.phone_contact_allowed ? (profile.phone_available_hours || null) : null,
         ...(profile.bio && { bio: profile.bio }),
         ...(profile.profile && { profile: profile.profile }),
         ...(profile.residence && { residence: profile.residence }),
@@ -512,6 +525,67 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
               </select>
               {errors.genre && <p className="text-sm text-red-500">{errors.genre}</p>}
             </div>
+          </section>
+
+          <section className={sectionClassName}>
+            <h2 className="text-xl font-semibold">連絡方法</h2>
+            <div className="space-y-1.5">
+              <label className="block text-sm font-medium text-gray-800">登録電話番号</label>
+              <Input
+                type="tel"
+                value={profile.phone}
+                disabled
+                className={fieldClassName}
+              />
+              <p className="text-sm text-gray-500">登録時の電話番号です。電話対応を許可した案件でのみホール側に表示します。</p>
+              {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-800">案件での連絡方法</label>
+              <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
+                <input
+                  type="radio"
+                  name="contactOption"
+                  checked={profile.preferred_contact_method === 'chat' && profile.phone_contact_allowed}
+                  onChange={() => setProfile(p => ({ ...p, preferred_contact_method: 'chat', phone_contact_allowed: true }))}
+                  className="mt-1"
+                />
+                <span><span className="block text-sm font-medium">チャット推奨（必要なら電話も可）</span><span className="text-xs text-gray-500">まずTalentify内で相談し、必要な場合は電話連絡も受け付けます。</span></span>
+              </label>
+              <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
+                <input
+                  type="radio"
+                  name="contactOption"
+                  checked={profile.preferred_contact_method === 'phone' && profile.phone_contact_allowed}
+                  onChange={() => setProfile(p => ({ ...p, preferred_contact_method: 'phone', phone_contact_allowed: true }))}
+                  className="mt-1"
+                />
+                <span><span className="block text-sm font-medium">電話対応可</span><span className="text-xs text-gray-500">案件成立前の条件相談で電話連絡を歓迎します。</span></span>
+              </label>
+              <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
+                <input
+                  type="radio"
+                  name="contactOption"
+                  checked={!profile.phone_contact_allowed}
+                  onChange={() => setProfile(p => ({ ...p, preferred_contact_method: 'chat', phone_contact_allowed: false, phone_available_hours: '' }))}
+                  className="mt-1"
+                />
+                <span><span className="block text-sm font-medium">電話対応不可（チャットのみ）</span><span className="text-xs text-gray-500">電話番号はホールに表示されません。</span></span>
+              </label>
+            </div>
+            {profile.phone_contact_allowed && (
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-gray-800">電話可能時間帯</label>
+                <Input
+                  type="text"
+                  name="phone_available_hours"
+                  value={profile.phone_available_hours}
+                  onChange={handleChange}
+                  className={fieldClassName}
+                  placeholder="例：平日 12:00〜18:00"
+                />
+              </div>
+            )}
           </section>
 
           <section className={sectionClassName}>

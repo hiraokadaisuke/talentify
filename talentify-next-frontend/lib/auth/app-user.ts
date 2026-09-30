@@ -8,6 +8,7 @@ import {
 type UpsertAppUserParams = {
   authUserId: string
   email: string
+  phone?: string
   role?: SignupRole
   status: AppUserStatus
 }
@@ -16,6 +17,7 @@ type AppUserRow = {
   id?: string
   auth_user_id?: string
   email?: string | null
+  phone?: string | null
   role?: string | null
   status?: AppUserStatus | null
 } | null
@@ -34,7 +36,7 @@ async function findByAuthUserId(authUserId: string): Promise<AppUserRow> {
   const service = createServiceClient()
   const { data, error } = await service
     .from('users' as any)
-    .select('id, auth_user_id, email, role, status')
+    .select('id, auth_user_id, email, phone, role, status')
     .eq('auth_user_id', authUserId)
     .maybeSingle()
 
@@ -59,6 +61,7 @@ export async function upsertAppUser(params: UpsertAppUserParams) {
   const record = {
     auth_user_id: params.authUserId,
     email: params.email,
+    phone: params.phone ?? existing?.phone ?? null,
     role: resolvedRole ?? existing?.role ?? null,
     status: resolvedStatus,
   }

@@ -28,7 +28,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
       .select(
         `
         id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,
-        reviews(id), talents(stage_name,avatar_url,user_id),
+        reviews(id), talents(stage_name,avatar_url,user_id,phone,preferred_contact_method,phone_contact_allowed,phone_available_hours),
         store:stores!offers_store_id_fkey(id, store_name, user_id)
       `
       )
@@ -81,6 +81,10 @@ export default async function StoreOfferPage({ params }: PageProps) {
     talentId: data.talent_id as string | null,
     reviewCompleted,
     talentUserId: data.talents?.user_id as string | null,
+    talentPhone: data.talents?.phone as string | null,
+    preferredContactMethod: data.talents?.preferred_contact_method as string | null,
+    phoneContactAllowed: Boolean(data.talents?.phone_contact_allowed),
+    phoneAvailableHours: data.talents?.phone_available_hours as string | null,
   }
 
   const invoiceData = invoice
@@ -171,13 +175,40 @@ export default async function StoreOfferPage({ params }: PageProps) {
           />
         </div>
         <div className="min-w-0 lg:sticky lg:top-6">
-          <MessageCard
-            offerId={offer.id}
-            currentUserId={user.id}
-            peerUserId={offer.talentUserId ?? ''}
-            storeName={offer.storeName}
-            talentName={offer.performerName}
-          />
+          <div className="space-y-3">
+            <MessageCard
+              offerId={offer.id}
+              currentUserId={user.id}
+              peerUserId={offer.talentUserId ?? ''}
+              storeName={offer.storeName}
+              talentName={offer.performerName}
+            />
+            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <p className="text-sm font-semibold text-slate-900">連絡方法</p>
+              <p className="mt-1 text-sm text-slate-600">
+                {offer.phoneContactAllowed
+                  ? offer.preferredContactMethod === 'phone'
+                    ? '電話対応可'
+                    : 'チャット推奨・必要なら電話も可'
+                  : 'チャットのみ'}
+              </p>
+              {offer.phoneContactAllowed && offer.talentPhone ? (
+                <div className="mt-3 space-y-2">
+                  <a
+                    href={`tel:${offer.talentPhone}`}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white hover:bg-blue-800"
+                  >
+                    電話で相談する
+                  </a>
+                  {offer.phoneAvailableHours && (
+                    <p className="text-xs text-slate-500">電話可能時間帯：{offer.phoneAvailableHours}</p>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-slate-500">電話番号は公開されていません。メッセージでご相談ください。</p>
+              )}
+            </section>
+          </div>
         </div>
       </div>
     </div>
