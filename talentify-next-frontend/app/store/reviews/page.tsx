@@ -89,17 +89,57 @@ export default function StoreReviewsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-10">
+    <main className="min-h-screen bg-gray-100 px-3 py-5 sm:px-4 sm:py-8">
       <div className="mx-auto w-full max-w-5xl">
-        <h1 className="mb-6 text-3xl font-bold tracking-tight">レビュー投稿一覧</h1>
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h1 className="mb-4 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl">レビュー投稿一覧</h1>
+        <section className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6">
           {loading ? (
             <p>読み込み中...</p>
           ) : offers.length === 0 ? (
             <p>該当するオファーはありません。</p>
           ) : (
-            <Table>
-              <TableHeader>
+            <>
+              <div className="space-y-3 md:hidden">
+                {offers.map(o => (
+                  <article key={o.id} className="rounded-xl border border-slate-200 bg-white p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-xs text-slate-500">
+                          {new Date(o.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                        </p>
+                        <p className="mt-1 break-words font-semibold">{o.talent_name || o.talent_id}</p>
+                      </div>
+                      {reviewByOfferId[o.id] && (
+                        <span className="shrink-0 tracking-wide text-amber-500">{renderStars(reviewByOfferId[o.id].rating)}</span>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      {!reviewByOfferId[o.id] ? (
+                        <ReviewModal
+                          offerId={o.id}
+                          talentId={o.talent_id}
+                          trigger={<Button size="sm" className="min-h-10 w-full">レビューする</Button>}
+                          onSubmitted={async () => {
+                            setOffers(prev => prev.map(p => p.id === o.id ? { ...p, reviewed: true } : p))
+                            const { data: latestReview } = await supabase
+                              .from('reviews')
+                              .select('offer_id, rating')
+                              .eq('offer_id', o.id)
+                              .order('created_at', { ascending: false })
+                              .maybeSingle()
+                            if (latestReview) setReviewByOfferId(prev => ({ ...prev, [o.id]: latestReview as ReviewSummary }))
+                          }}
+                        />
+                      ) : (
+                        <Button size="sm" variant="outline" className="min-h-10 w-full" onClick={() => openDetail(o)}>詳細を見る</Button>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto md:block">
+                <Table>
+                  <TableHeader>
                 <TableRow>
                   <TableHead>日付</TableHead>
                   <TableHead>演者</TableHead>
@@ -158,8 +198,10 @@ export default function StoreReviewsPage() {
                     </TableCell>
                   </TableRow>
                 ))}
-              </TableBody>
-            </Table>
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </section>
       </div>

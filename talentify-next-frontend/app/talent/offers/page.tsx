@@ -178,7 +178,7 @@ export default function TalentOffersPage() {
           </div>
 
           <div className={styles.filterBar}>
-            <label className="flex min-w-[180px] flex-1 flex-col gap-1 text-xs text-[#64748b]">
+            <label className="flex w-full min-w-0 flex-1 flex-col gap-1 text-xs text-[#64748b] sm:min-w-[180px]">
               店舗名検索
               <input
                 value={searchWord}
@@ -187,7 +187,7 @@ export default function TalentOffersPage() {
                 placeholder="店舗名で検索"
               />
             </label>
-            <label className="flex min-w-[140px] flex-col gap-1 text-xs text-[#64748b]">
+            <label className="flex w-full min-w-0 flex-col gap-1 text-xs text-[#64748b] sm:w-auto sm:min-w-[140px]">
               ステータス
               <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]">
                 <option value="all">すべて</option>

@@ -242,13 +242,13 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
   }, [activeStep, activeStatus, cancelation, formattedVisitDate, mainActionDetail, offer.id, offer.reward, offer.status, offer.storeName])
 
   return (
-    <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
+    <Card className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <CardHeader className="flex flex-col gap-1.5 border-b border-slate-100 p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-3">
           <CardTitle className="text-base font-semibold text-slate-900 sm:text-lg">{detail.title}</CardTitle>
           {detail.badge}
         </div>
-        <p className="text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
+        <p className="break-words text-sm leading-relaxed text-muted-foreground">{detail.description}</p>
       </CardHeader>
       <CardContent className="space-y-4 p-4 sm:p-5">
         {detail.meta && detail.meta.length > 0 && (
@@ -261,8 +261,8 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             ))}
           </dl>
         )}
-        <div className="flex flex-wrap justify-end gap-2.5">
-          {detail.primaryAction && <div className="inline-flex">{detail.primaryAction}</div>}
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:justify-end">
+          {detail.primaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.primaryAction}</div>}
         </div>
         {detail.footer && <div className="space-y-4 border-t border-dashed border-slate-200 pt-4">{detail.footer}</div>}
       </CardContent>
