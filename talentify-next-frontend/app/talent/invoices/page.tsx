@@ -31,7 +31,7 @@ export default function TalentInvoicesPage() {
 
   return (
     <main className='space-y-4 p-3 sm:p-6'>
-      <h1 className='text-xl font-bold'>請求履歴</h1>
+      <h1 className='text-xl font-bold'>見積・請求履歴</h1>
       {loading ? (
         <TableSkeleton rows={3} />
       ) : invoices.length === 0 ? (
@@ -66,7 +66,7 @@ export default function TalentInvoicesPage() {
             <TableRow>
               <TableHead>作成日</TableHead>
               <TableHead>金額</TableHead>
-              <TableHead>請求書ステータス</TableHead>
+              <TableHead>見積・締結状態</TableHead>
               <TableHead>支払い状態</TableHead>
               <TableHead>操作</TableHead>
             </TableRow>

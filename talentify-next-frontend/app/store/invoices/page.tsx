@@ -37,7 +37,7 @@ export default function StoreInvoicesPage() {
   return (
     <main className='min-h-screen bg-gray-100 px-3 py-5 sm:px-4 sm:py-8'>
       <div className='mx-auto w-full max-w-5xl'>
-        <h1 className='mb-4 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl'>請求一覧</h1>
+        <h1 className='mb-4 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl'>見積・請求一覧</h1>
         <section className='rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6'>
           {loading ? (
             <TableSkeleton rows={3} />
@@ -78,7 +78,7 @@ export default function StoreInvoicesPage() {
                 <TableRow>
                   <TableHead>作成日</TableHead>
                   <TableHead>金額</TableHead>
-                  <TableHead>請求書ステータス</TableHead>
+                  <TableHead>見積・締結状態</TableHead>
                   <TableHead>支払い状態</TableHead>
                   <TableHead>操作</TableHead>
                 </TableRow>

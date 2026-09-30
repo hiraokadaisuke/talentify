@@ -9,12 +9,14 @@ interface OfferSummaryProps {
   storeName: string
   date: string // ISO string
   message: string
-  invoiceStatus?: 'not_submitted' | 'submitted' | 'paid'
+  invoiceStatus?: 'not_created' | 'draft' | 'submitted' | 'approved' | 'paid'
 }
 
 const invoiceLabel: Record<string, { label: string; className: string }> = {
-  not_submitted: { label: '未提出', className: 'bg-gray-200 text-gray-800' },
-  submitted: { label: '提出済', className: 'bg-yellow-200 text-yellow-800' },
+  not_created: { label: '未作成', className: 'bg-gray-200 text-gray-800' },
+  draft: { label: '見積作成中', className: 'bg-slate-200 text-slate-800' },
+  submitted: { label: '見積確認待ち', className: 'bg-yellow-200 text-yellow-800' },
+  approved: { label: '締結済み', className: 'bg-green-200 text-green-800' },
   paid: { label: '支払済', className: 'bg-green-200 text-green-800' },
 }
 

@@ -22,7 +22,9 @@ interface Invoice {
   transport_fee: number | null
   extra_fee: number | null
   notes: string | null
-  invoice_number: string
+  estimate_number: string
+  invoice_number: string | null
+  contracted_at: string | null
   due_date: string | null
   status: string
   payment_status: string | null
@@ -37,7 +39,7 @@ export default function TalentInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // 下書き中は支払期限とメモのみ編集可。請求書番号は自動採番・編集不可。
+  // 見積の下書き中のみ編集可。締結後は内容を固定します。
   const [dueDate, setDueDate] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -50,7 +52,7 @@ export default function TalentInvoiceDetailPage() {
       const { data, error } = await supabase
         .from('invoices')
         .select(
-          'id,offer_id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
+          'id,offer_id,amount,transport_fee,extra_fee,notes,estimate_number,invoice_number,contracted_at,due_date,status,payment_status,created_at'
         )
         .eq('id', id)
         .single()
@@ -104,14 +106,14 @@ export default function TalentInvoiceDetailPage() {
     setSubmitting(true)
     const saveRes = await saveDraft()
     if (!saveRes.ok) {
-      toast.error('提出に失敗しました')
+      toast.error('見積書の提出に失敗しました')
       setSubmitting(false)
       return
     }
     const res = await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
     setSubmitting(false)
     if (res.ok) {
-      toast.success('提出しました')
+      toast.success('見積書を提出しました')
       router.replace('/talent/invoices')
     } else {
       toast.error('提出に失敗しました')
@@ -127,7 +129,7 @@ export default function TalentInvoiceDetailPage() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `${invoice.invoice_number}.pdf`
+      a.download = `${invoice.status === 'approved' && invoice.invoice_number ? invoice.invoice_number : invoice.estimate_number}.pdf`
       document.body.appendChild(a)
       a.click()
       a.remove()
@@ -138,18 +140,19 @@ export default function TalentInvoiceDetailPage() {
   }
 
   return (
-    <main className="p-6 space-y-4">
-      <h1 className="text-xl font-bold">請求詳細</h1>
+    <main className="space-y-4 p-3 sm:p-6">
+      <h1 className="text-xl font-bold">{invoice.status === 'approved' ? '取引締結書兼請求書' : '見積詳細'}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>請求情報</CardTitle>
+          <CardTitle>{invoice.status === 'approved' ? '締結・請求情報' : '見積情報'}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
 
-          {/* 請求書番号は編集不可（自動採番・表示のみ） */}
-          <div>請求書番号: {invoice.invoice_number}</div>
+          <div>見積番号: {invoice.estimate_number}</div>
+          {invoice.invoice_number && <div>締結書兼請求書番号: {invoice.invoice_number}</div>}
+          {invoice.contracted_at && <div>締結日時: {formatJaDateTimeWithWeekday(invoice.contracted_at)}</div>}
 
           <div className="flex items-center gap-2">
             <span className="shrink-0">支払期限:</span>
@@ -168,7 +171,7 @@ export default function TalentInvoiceDetailPage() {
           </div>
 
           <div>
-            請求書ステータス:{' '}
+            取引ステータス:{' '}
             <Badge variant="outline">{getInvoiceStatusLabel(invoice.status)}</Badge>
           </div>
           <div>
@@ -208,14 +211,14 @@ export default function TalentInvoiceDetailPage() {
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            提出
+            見積書を提出
           </Button>
         </div>
       )}
 
       <Button onClick={handleDownload} disabled={downloading} variant='outline'>
         {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-        請求書をダウンロード
+        {invoice.status === 'approved' ? '締結書兼請求書をダウンロード' : '見積書をダウンロード'}
       </Button>
     </main>
   )

@@ -71,15 +71,15 @@ export default function TalentInvoiceSubmittedPage() {
   }
 
   if (!invoice) {
-    return <div className='p-6'>請求書が見つかりませんでした。</div>
+    return <div className='p-6'>見積書が見つかりませんでした。</div>
   }
 
   return (
     <main className='p-6 space-y-6'>
       <section className='space-y-4'>
         <div>
-          <h1 className='text-xl font-bold'>請求書の提出が完了しました</h1>
-          <p className='text-sm text-muted-foreground'>請求内容をご確認ください。</p>
+          <h1 className='text-xl font-bold'>見積書の提出が完了しました</h1>
+          <p className='text-sm text-muted-foreground'>見積内容をご確認ください。</p>
         </div>
         <div className='flex flex-wrap gap-2'>
           <Button asChild variant='default'>
@@ -97,7 +97,7 @@ export default function TalentInvoiceSubmittedPage() {
         </CardHeader>
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>請求書番号: {invoice.invoice_number}</div>
+          <div>見積書番号: {invoice.invoice_number}</div>
           <div>
             支払期限:{' '}
             {invoice.due_date
@@ -105,7 +105,7 @@ export default function TalentInvoiceSubmittedPage() {
               : '-'}
           </div>
           <div>
-            請求書ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
+            見積書ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
           </div>
           <div>
             支払い状態:{' '}

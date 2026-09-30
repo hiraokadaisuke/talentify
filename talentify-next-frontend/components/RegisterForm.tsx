@@ -73,7 +73,7 @@ export default function RegisterForm() {
               <p className="text-xs font-black tracking-[0.18em] text-sky-300">FOR TALENTS</p>
               <h2 className="mt-3 text-2xl font-black">演者として登録</h2>
               <p className="mt-3 text-sm font-medium leading-7 text-white/65">
-                プロフィール・予定・オファー・請求管理を利用する演者向けアカウントです。
+                プロフィール・予定・オファー・見積・請求管理を利用する演者向けアカウントです。
               </p>
             </Link>
           </div>

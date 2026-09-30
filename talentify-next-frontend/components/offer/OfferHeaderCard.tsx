@@ -13,7 +13,7 @@ interface OfferHeaderCardProps {
     storeName: string
     date: string
     message: string
-    invoiceStatus?: 'not_submitted' | 'submitted' | 'paid'
+    invoiceStatus?: 'not_created' | 'draft' | 'submitted' | 'approved' | 'paid'
   }
   role: 'store' | 'talent'
   onAccept?: () => void

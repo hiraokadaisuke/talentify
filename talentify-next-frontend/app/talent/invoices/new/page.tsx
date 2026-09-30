@@ -74,14 +74,19 @@ export default function TalentInvoiceNewPage() {
           .single(),
         supabase
           .from('invoices')
-          .select('id, amount, status, payment_status, invoice_url, due_date')
+          .select('id, amount, transport_fee, extra_fee, notes, status, payment_status, invoice_url, due_date')
           .eq('offer_id', offerId)
           .maybeSingle(),
       ])
       if (offerData) setOffer(offerData)
       if (invData) {
         setInvoice(invData)
-        setBaseFee(String(invData.amount ?? ''))
+        const transport = Number(invData.transport_fee ?? 0)
+        const extra = Number(invData.extra_fee ?? 0)
+        setTransportFee(String(transport))
+        setExtraFee(String(extra))
+        setBaseFee(String(Math.max(0, Number(invData.amount ?? 0) - transport - extra)))
+        setMemo(invData.notes ?? '')
         setDueDate(invData.due_date ?? '')
         if (!invData.due_date) {
           setDueDatePattern('none')
@@ -151,7 +156,13 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: total, due_date: dueDate || null }),
+          body: JSON.stringify({
+            amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo || null,
+            due_date: dueDate || null,
+          }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
@@ -161,6 +172,9 @@ export default function TalentInvoiceNewPage() {
           body: JSON.stringify({
             offer_id: offerId,
             amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo || null,
             due_date: dueDate || null,
           }),
         })
@@ -175,9 +189,9 @@ export default function TalentInvoiceNewPage() {
         if (next.payment_status === undefined) next.payment_status = null
         return next
       })
-      toast.success('下書きを保存しました')
+      toast.success('見積書の下書きを保存しました')
     } catch (e) {
-      toast.error('下書き保存に失敗しました')
+      toast.error('見積書の保存に失敗しました')
     } finally {
       setLoading(false)
     }
@@ -193,7 +207,13 @@ export default function TalentInvoiceNewPage() {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: total, due_date: dueDate || null }),
+          body: JSON.stringify({
+            amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo || null,
+            due_date: dueDate || null,
+          }),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
@@ -203,6 +223,9 @@ export default function TalentInvoiceNewPage() {
           body: JSON.stringify({
             offer_id: offerId,
             amount: total,
+            transport_fee: Number(transportFee || 0),
+            extra_fee: Number(extraFee || 0),
+            notes: memo || null,
             due_date: dueDate || null,
           }),
         })
@@ -221,7 +244,7 @@ export default function TalentInvoiceNewPage() {
       if (!submitRes.ok) throw new Error('submit failed')
       router.push(`/talent/invoices/${id}/submitted`)
     } catch (e) {
-      toast.error('提出に失敗しました')
+      toast.error('見積書の提出に失敗しました')
     } finally {
       setLoading(false)
     }
@@ -282,7 +305,7 @@ export default function TalentInvoiceNewPage() {
       if (!submitRes.ok) throw new Error('submit failed')
       router.push(`/talent/invoices/${id}/submitted`)
     } catch (e) {
-      toast.error('提出に失敗しました')
+      toast.error('見積書の提出に失敗しました')
     } finally {
       setLoading(false)
     }
@@ -292,7 +315,7 @@ export default function TalentInvoiceNewPage() {
     ? format(new Date(offer.date), 'yyyy/MM/dd (EEE)', { locale: ja })
     : ''
 
-  const steps = ['下書き保存', '提出済み', '支払い完了']
+  const steps = ['見積作成', 'ホール確認', '締結・請求']
 
   const dueDateMessage = (() => {
     if (dueDate) {
@@ -318,7 +341,7 @@ export default function TalentInvoiceNewPage() {
     <main className="p-3 sm:p-5 lg:p-6">
       <div className="mx-auto grid min-w-0 max-w-[1200px] grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[420px,1fr]">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-2">
-          <h1 className="text-xl font-bold">請求書を作成</h1>
+          <h1 className="text-xl font-bold">見積書を作成</h1>
           <div className="flex items-center gap-2 text-sm">
             <span>現在の状態:</span>
             <Badge variant="secondary">{statusLabel()}</Badge>
@@ -359,7 +382,7 @@ export default function TalentInvoiceNewPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>請求書</CardTitle>
+            <CardTitle>見積書</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
