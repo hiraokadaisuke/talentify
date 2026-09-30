@@ -193,7 +193,6 @@ export default function TalentInvoiceNewPage() {
           transport_fee: Number(transportFee || 0),
           extra_fee: Number(extraFee || 0),
           notes: memo.trim() || null,
-          notes: pdfMemo.trim() || null,
           due_date: dueDate || null,
         }
         if (!next.status) next.status = 'draft'
@@ -319,6 +318,7 @@ export default function TalentInvoiceNewPage() {
           id,
           invoice_url: invoiceUrl,
           amount: prev?.amount ?? 0,
+          notes: pdfMemo.trim() || null,
           due_date: dueDate || null,
         }
         if (!next.status) next.status = 'draft'
