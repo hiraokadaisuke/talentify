@@ -129,7 +129,7 @@ export default function TalentSearchPage() {
   const paginated = results.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   return (
-    <main className="mx-auto space-y-6 px-6 md:px-8 lg:px-12">
+    <main className="mx-auto min-w-0 space-y-4 px-3 py-3 sm:space-y-6 sm:px-6 sm:py-4 md:px-8 lg:px-12">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
         <TalentSearchForm onSearch={handleSearch} genreOptions={genreOptions} areaOptions={areaOptions} />
 

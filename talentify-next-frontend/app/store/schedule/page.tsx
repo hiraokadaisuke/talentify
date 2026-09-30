@@ -236,7 +236,7 @@ export default function StoreSchedulePage() {
   }
 
   return (
-    <main className="p-4">
+    <main className="min-w-0 p-3 sm:p-4">
       <h1 className="text-2xl font-bold mb-4">スケジュール</h1>
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <div className="flex items-center gap-2 hidden">
@@ -328,11 +328,11 @@ export default function StoreSchedulePage() {
           </div>
         ))}
       </div>
-      <div className="h-[430px]">
+      <div className="h-[420px] min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 sm:h-[460px] sm:p-2">
         <BigCalendar
           culture="ja"
           toolbar={false}
-          className="mx-auto w-[64%]"
+          className="mx-auto w-full"
           localizer={localizer}
           events={calendarEvents}
           startAccessor="start"
@@ -340,11 +340,7 @@ export default function StoreSchedulePage() {
           views={[Views.MONTH]}
           date={date}
           onNavigate={(d) => setDate(d)}
-          style={{
-            height: 384,
-            transform: 'scale(1.12)',
-            transformOrigin: 'top center',
-          }}
+          style={{ height: 400 }}
           components={{ event: EventComponent }}
           dayPropGetter={dayPropGetter}
           eventPropGetter={(e) => {
@@ -430,6 +426,11 @@ export default function StoreSchedulePage() {
           top: 0;
           z-index: 1;
           background: white;
+        }
+        @media (max-width: 640px) {
+          .rbc-month-view { font-size: 11px; }
+          .rbc-date-cell { padding-right: 3px; }
+          .rbc-event-content { font-size: 10px; }
         }
       `}</style>
     </main>

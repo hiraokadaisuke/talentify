@@ -21,33 +21,35 @@ type PageProps = {
 export default async function StoreOfferPage({ params }: PageProps) {
   const supabase = createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const { data } = await supabase
-    .from('offers')
-    .select(
+  const [userResult, offerResult, invoiceResult] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from('offers')
+      .select(
+        `
+        id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,
+        reviews(id), talents(stage_name,avatar_url,user_id),
+        store:stores!offers_store_id_fkey(id, store_name, user_id)
       `
-      id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,
-      reviews(id), talents(stage_name,avatar_url,user_id),
-      store:stores!offers_store_id_fkey(id, store_name, user_id)
-    `
-    )
-    .eq('id', params.id)
-    .single()
+      )
+      .eq('id', params.id)
+      .single(),
+    supabase
+      .from('invoices')
+      .select('id,amount,invoice_url,status,payment_status')
+      .eq('offer_id', params.id)
+      .maybeSingle(),
+  ])
+
+  const user = userResult.data.user
+  const data = offerResult.data
+  const invoice = invoiceResult.data
 
   if (!data || !user) {
     notFound()
   }
 
   const reviewCompleted = Array.isArray((data as any).reviews) && (data as any).reviews.length > 0
-
-  const { data: invoice } = await supabase
-    .from('invoices')
-    .select('id,amount,invoice_url,status,payment_status')
-    .eq('offer_id', params.id)
-    .maybeSingle()
 
   const invoiceStatus = deriveOfferInvoiceProgressStatus({
     invoiceStatus: invoice?.status,
@@ -117,8 +119,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
 
   return (
     <div className="p-3 sm:p-5 lg:p-6">
-      <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
-        <div className="space-y-4 lg:col-span-2">
+      <div className="mx-auto grid min-w-0 w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
+        <div className="min-w-0 space-y-4 lg:col-span-2">
           <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2">
@@ -168,7 +170,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
             cancelation={{ initialStatus: data.status as string, initialCanceledAt: data.canceled_at as string | null }}
           />
         </div>
-        <div className="lg:sticky lg:top-6">
+        <div className="min-w-0 lg:sticky lg:top-6">
           <MessageCard
             offerId={offer.id}
             currentUserId={user.id}

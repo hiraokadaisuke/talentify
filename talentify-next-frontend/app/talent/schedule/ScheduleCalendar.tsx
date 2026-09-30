@@ -494,7 +494,6 @@ export default function ScheduleCalendar() {
           throw new Error('Failed to update availability')
         }
         toast.success('可用性を更新しました')
-        await fetchCalendarData()
       } catch (error) {
         console.error('Failed to update availability', error)
         setOverrides(previousOverrides)
@@ -551,7 +550,6 @@ export default function ScheduleCalendar() {
           }
           return nextOverrides
         })
-        await fetchCalendarData()
         toast.success('基本可用性を更新しました')
       } catch (error) {
         console.error('Failed to update default availability mode', error)
@@ -598,7 +596,6 @@ export default function ScheduleCalendar() {
         }
 
         toast.success('この月の可用性を更新しました')
-        await fetchCalendarData()
       } catch (error) {
         console.error('Failed to bulk update availability', error)
         setOverrides(previousOverrides)
@@ -795,8 +792,7 @@ export default function ScheduleCalendar() {
         {loading && (
           <p className="mb-2 text-sm text-muted-foreground">読み込み中…</p>
         )}
-        <div className="-mx-2 overflow-x-auto px-2">
-          <div className="min-w-[720px]">
+        <div className="min-w-0 overflow-hidden">
             <BigCalendar
               culture="ja"
               toolbar={false}
@@ -813,7 +809,7 @@ export default function ScheduleCalendar() {
               dayPropGetter={dayPropGetter}
               components={{ event: EventComponent }}
               formats={{ weekdayFormat: 'eee' }}
-              style={{ height: 480 }}
+              style={{ height: 430 }}
               eventPropGetter={(event) => {
                 const calendarEvent = event as TalentCalendarEvent
                 if (calendarEvent.isMore) {
@@ -838,7 +834,6 @@ export default function ScheduleCalendar() {
               }}
               popup={false}
             />
-          </div>
         </div>
       </div>
       <style jsx global>{`
@@ -853,6 +848,12 @@ export default function ScheduleCalendar() {
         }
         .talent-calendar .rbc-today {
           background-color: transparent;
+        }
+        @media (max-width: 640px) {
+          .talent-calendar .rbc-month-view { font-size: 10px; }
+          .talent-calendar .rbc-date-cell { padding-right: 2px; }
+          .talent-calendar .rbc-event-content { font-size: 9px; }
+          .talent-calendar .rbc-event { min-height: 14px; }
         }
       `}</style>
     </main>
