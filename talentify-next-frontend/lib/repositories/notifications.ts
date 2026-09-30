@@ -216,15 +216,15 @@ export async function findNotificationOwner({
   userId: string
 }): Promise<boolean> {
   const prisma = getPrismaClient()
-  const row = await prisma.notifications.findFirst({
-    where: {
-      id,
-      user_id: userId,
-    },
-    select: { id: true },
-  })
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
+    SELECT id
+    FROM public.notifications
+    WHERE id = ${id}::uuid
+      AND user_id = ${userId}::uuid
+    LIMIT 1
+  `
 
-  return Boolean(row)
+  return rows.length > 0
 }
 
 export async function countUnreadNotificationsByUser({
@@ -508,20 +508,18 @@ export async function markNotificationRead({
   const prisma = getPrismaClient()
   const now = new Date()
 
-  const result = await prisma.notifications.updateMany({
-    where: {
-      id,
-      user_id: userId,
-      is_read: false,
-    },
-    data: {
-      is_read: true,
-      read_at: now,
-      updated_at: now,
-    },
-  })
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
+    UPDATE public.notifications
+    SET is_read = true,
+        read_at = ${now},
+        updated_at = ${now}
+    WHERE id = ${id}::uuid
+      AND user_id = ${userId}::uuid
+      AND is_read = false
+    RETURNING id
+  `
 
-  return result.count
+  return rows.length
 }
 
 export async function markNotificationUnread({
@@ -530,20 +528,19 @@ export async function markNotificationUnread({
 }: MarkNotificationUnreadParams): Promise<number> {
   const prisma = getPrismaClient()
 
-  const result = await prisma.notifications.updateMany({
-    where: {
-      id,
-      user_id: userId,
-      is_read: true,
-    },
-    data: {
-      is_read: false,
-      read_at: null,
-      updated_at: new Date(),
-    },
-  })
+  const now = new Date()
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
+    UPDATE public.notifications
+    SET is_read = false,
+        read_at = NULL,
+        updated_at = ${now}
+    WHERE id = ${id}::uuid
+      AND user_id = ${userId}::uuid
+      AND is_read = true
+    RETURNING id
+  `
 
-  return result.count
+  return rows.length
 }
 
 export async function markAllNotificationsRead({
@@ -553,23 +550,21 @@ export async function markAllNotificationsRead({
   const prisma = getPrismaClient()
   const now = new Date()
 
-  const idFilter =
+  const idCondition =
     Array.isArray(ids) && ids.length > 0
-      ? { id: { in: ids } }
-      : {}
+      ? Prisma.sql`AND id = ANY (${ids}::uuid[])`
+      : Prisma.empty
 
-  const result = await prisma.notifications.updateMany({
-    where: {
-      user_id: userId,
-      ...idFilter,
-      is_read: false,
-    },
-    data: {
-      is_read: true,
-      read_at: now,
-      updated_at: now,
-    },
-  })
+  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
+    UPDATE public.notifications
+    SET is_read = true,
+        read_at = ${now},
+        updated_at = ${now}
+    WHERE user_id = ${userId}::uuid
+      AND is_read = false
+      ${idCondition}
+    RETURNING id
+  `
 
-  return result.count
+  return rows.length
 }
