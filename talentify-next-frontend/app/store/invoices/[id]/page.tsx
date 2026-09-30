@@ -24,9 +24,7 @@ interface Invoice {
   transport_fee: number | null
   extra_fee: number | null
   notes: string | null
-  estimate_number: string
   invoice_number: string | null
-  contracted_at: string | null
   due_date: string | null
   payment_status: string | null
   offers: { paid: boolean | null } | null
@@ -67,7 +65,7 @@ export default function StoreInvoiceDetail() {
     const { data } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,notes,estimate_number,invoice_number,contracted_at,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid)'
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid)'
       )
       .eq('id', id)
       .maybeSingle()
@@ -121,25 +119,25 @@ export default function StoreInvoiceDetail() {
     const res = await fetch(`/api/invoices/${id}/approve`, { method: 'POST' })
     setUpdatingStatus(false)
     if (res.ok) {
-      toast.success('見積書を承認し、取引を締結しました')
+      toast.success('請求書を承認しました')
       await load()
     } else {
-      toast.error('見積承認に失敗しました')
+      toast.error('承認に失敗しました')
     }
   }
 
   const handleReject = async () => {
-    const ok = window.confirm('見積書の修正を依頼しますか？')
+    const ok = window.confirm('この請求書を差し戻しますか？')
     if (!ok) return
 
     setUpdatingStatus(true)
     const res = await fetch(`/api/invoices/${id}/reject`, { method: 'POST' })
     setUpdatingStatus(false)
     if (res.ok) {
-      toast.success('見積書の修正を依頼しました')
+      toast.success('請求書を差し戻しました')
       await load()
     } else {
-      toast.error('修正依頼に失敗しました')
+      toast.error('差し戻しに失敗しました')
     }
   }
 
@@ -152,7 +150,7 @@ export default function StoreInvoiceDetail() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = invoice.status === 'approved' && invoice.invoice_number ? `${invoice.invoice_number}.pdf` : `${invoice.estimate_number}.pdf`
+      a.download = `invoice-${id}.pdf`
       document.body.appendChild(a)
       a.click()
       a.remove()
@@ -179,18 +177,16 @@ export default function StoreInvoiceDetail() {
     : false
 
   return (
-    <main className='space-y-4 p-3 sm:p-6'>
-      <h1 className='text-xl font-bold'>{invoice.status === 'approved' ? '取引締結書兼請求書' : '見積詳細'}</h1>
+    <main className='p-6 space-y-4'>
+      <h1 className='text-xl font-bold'>請求詳細</h1>
       <Card>
         <CardHeader>
-          <CardTitle>{invoice.status === 'approved' ? '締結・請求情報' : '見積情報'}</CardTitle>
+          <CardTitle>請求情報</CardTitle>
         </CardHeader>
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
           <div>金額: ¥{invoice.amount.toLocaleString('ja-JP')}</div>
-          <div>見積番号: {invoice.estimate_number}</div>
-          {invoice.invoice_number && <div>締結書兼請求書番号: {invoice.invoice_number}</div>}
-          {invoice.contracted_at && <div>締結日時: {formatJaDateTimeWithWeekday(invoice.contracted_at)}</div>}
+          <div>請求書番号: {invoice.invoice_number ?? '-'}</div>
           <div>
             支払期限:{' '}
             {invoice.due_date
@@ -198,7 +194,7 @@ export default function StoreInvoiceDetail() {
               : '-'}
           </div>
           <div>
-            取引ステータス:{' '}
+            請求書ステータス:{' '}
             <Badge variant='outline'>{statusLabel(invoice)}</Badge>
           </div>
           <div>
@@ -258,18 +254,18 @@ export default function StoreInvoiceDetail() {
 
       <Button onClick={handleDownload} disabled={downloading}>
         {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-        {invoice.status === 'approved' ? '締結書兼請求書をダウンロード' : '見積書をダウンロード'}
+        請求書をダウンロード
       </Button>
 
       {invoice.status === 'submitted' && (
         <div className='flex gap-2'>
           <Button onClick={handleApprove} disabled={updatingStatus}>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            この見積内容で締結する
+            承認する
           </Button>
           <Button onClick={handleReject} disabled={updatingStatus} variant='outline'>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            修正を依頼する
+            差し戻す
           </Button>
         </div>
       )}

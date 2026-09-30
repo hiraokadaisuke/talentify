@@ -81,7 +81,7 @@ export async function PUT(
       actorRole = 'talent'
       transitionAllowed =
         currentStatus === 'pending' &&
-        requestedStatus === 'rejected'
+        (requestedStatus === 'confirmed' || requestedStatus === 'rejected')
     } else {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
@@ -96,6 +96,9 @@ export async function PUT(
     const updates: Record<string, unknown> = { status: requestedStatus }
     const now = new Date().toISOString()
 
+    if (requestedStatus === 'confirmed') {
+      updates.accepted_at = now
+    }
     if (requestedStatus === 'canceled') {
       updates.canceled_at = now
       updates.canceled_by_role = actorRole
@@ -112,15 +115,21 @@ export async function PUT(
     const recipientUserId = actorRole === 'store' ? talentUserId : storeUserId
     if (recipientUserId) {
       try {
-        await emitNotification({
-          recipientUserId,
-          event: {
-            kind: 'offer_updated',
-            offerId: id,
-            actorId: user.id,
-            status: requestedStatus,
-          },
-        })
+        const event =
+          requestedStatus === 'confirmed'
+            ? {
+                kind: 'offer_accepted' as const,
+                offerId: id,
+                actorId: user.id,
+              }
+            : {
+                kind: 'offer_updated' as const,
+                offerId: id,
+                actorId: user.id,
+                status: requestedStatus,
+              }
+
+        await emitNotification({ recipientUserId, event })
       } catch (notificationError) {
         console.error('failed to create offer notification', notificationError)
       }

@@ -23,7 +23,7 @@ export default function TalentOfferPage() {
   const [offer, setOffer] = useState<any>(null)
   const [loaded, setLoaded] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
-  const [actionLoading, setActionLoading] = useState<'decline' | null>(null)
+  const [actionLoading, setActionLoading] = useState<'accept' | 'decline' | null>(null)
   const [invoiceId, setInvoiceId] = useState<string | null>(null)
 
   const loadOffer = useCallback(async () => {
@@ -97,6 +97,24 @@ export default function TalentOfferPage() {
     return <p className="p-4">オファーが見つかりません</p>
   }
 
+  const handleAccept = async () => {
+    if (offer.status !== 'pending') return
+    setActionLoading('accept')
+    setOffer({ ...offer, status: 'confirmed' })
+    const response = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'confirmed' }),
+    })
+    if (!response.ok) {
+      toast.error('承諾に失敗しました')
+      setOffer((prev: any) => ({ ...prev, status: 'pending' }))
+    } else {
+      toast.success('オファーを承諾しました')
+    }
+    setActionLoading(null)
+  }
+
   const handleDecline = async () => {
     if (offer.status !== 'pending') return
     setActionLoading('decline')
@@ -115,6 +133,8 @@ export default function TalentOfferPage() {
     setActionLoading(null)
   }
 
+  const showActions = ['accepted', 'confirmed', 'completed'].includes(offer.status)
+  const paymentLink = showActions && invoiceId ? `/talent/invoices/${invoiceId}` : undefined
   const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
   const statusLabel = getStatusLabel(offer.status)
   const statusClassName = getStatusBadgeClassName(offer.status)
@@ -169,6 +189,8 @@ export default function TalentOfferPage() {
               message: offer.message,
             }}
             invoiceId={invoiceId}
+            paymentLink={paymentLink}
+            onAcceptOffer={handleAccept}
             onDeclineOffer={handleDecline}
             actionLoading={actionLoading}
           />
@@ -189,8 +211,9 @@ export default function TalentOfferPage() {
 
 function getStatusLabel(status: string) {
   switch (status) {
+    case 'accepted':
     case 'confirmed':
-      return '締結済み'
+      return '承認済み'
     case 'completed':
       return '完了'
     case 'rejected':
@@ -200,7 +223,7 @@ function getStatusLabel(status: string) {
     case 'draft':
       return '下書き'
     default:
-      return '相談中'
+      return '承認待ち'
   }
 }
 

@@ -15,11 +15,11 @@ import { Badge } from '@/components/ui/badge'
 import styles from './page.module.css'
 
 const statusLabels: Record<string, string> = {
-  pending: '相談中',
-  confirmed: '締結済み',
+  pending: '保留中',
+  confirmed: '承諾済',
   canceled: 'キャンセル済み',
-  rejected: '辞退済み',
-  completed: '完了',
+  rejected: '拒否',
+  completed: '来店完',
   expired: '期限切れ',
 }
 
@@ -252,7 +252,7 @@ export default function TalentOffersPage() {
                         </TableCell>
                         <TableCell className="px-4">
                           <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[11px] ${o.isCanceled ? badgeToneByCategory.danger : o.isHistory ? badgeToneByCategory.success : badgeToneByCategory.active}`}>
-                            {statusLabels[o.status ?? 'pending'] ?? '相談中'}
+                            {statusLabels[o.status ?? 'pending'] ?? '保留中'}
                           </Badge>
                         </TableCell>
                         <TableCell className="px-4">
@@ -286,7 +286,7 @@ export default function TalentOffersPage() {
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-semibold">{formatDate(o.date)}</p>
                       <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[11px] ${o.isCanceled ? badgeToneByCategory.danger : o.isHistory ? badgeToneByCategory.success : badgeToneByCategory.active}`}>
-                        {statusLabels[o.status ?? 'pending'] ?? '相談中'}
+                        {statusLabels[o.status ?? 'pending'] ?? '保留中'}
                       </Badge>
                     </div>
                     <p className="mt-2 text-base font-semibold">{o.store_name ?? '-'}</p>

@@ -1,8 +1,8 @@
 export type OfferStepKey =
-  | 'offer_consultation'
-  | 'estimate'
-  | 'contract'
+  | 'offer_submitted'
+  | 'approval'
   | 'visit'
+  | 'invoice'
   | 'payment'
   | 'review'
 
@@ -23,30 +23,73 @@ export interface OfferProgressBadge {
 }
 
 export const OFFER_STEP_LABELS: Record<OfferStepKey, string> = {
-  offer_consultation: 'オファー・相談',
-  estimate: '見積',
-  contract: '締結',
+  offer_submitted: 'オファー提出',
+  approval: '承認',
   visit: '来店実施',
+  invoice: '請求',
   payment: '支払い',
   review: 'レビュー',
 }
 
 interface ProgressParams {
   status: string
-  invoiceStatus: 'not_created' | 'draft' | 'submitted' | 'approved' | 'paid'
+  invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
   paid: boolean
   reviewCompleted?: boolean
 }
 
-function resolveProgressBadge({ status, invoiceStatus, paid, reviewCompleted }: ProgressParams): OfferProgressBadge {
-  if (reviewCompleted) return { label: 'レビュー済み', variant: 'success' }
-  if (paid || invoiceStatus === 'paid') return { label: '支払い済み', variant: 'success' }
-  if (status === 'confirmed' || invoiceStatus === 'approved') return { label: '締結済み', variant: 'success' }
-  if (invoiceStatus === 'submitted') return { label: '見積確認待ち', variant: 'default' }
-  if (invoiceStatus === 'draft') return { label: '見積作成中', variant: 'default' }
-  if (status === 'rejected') return { label: '辞退済み', variant: 'secondary' }
-  if (status === 'canceled') return { label: '取り下げ済み', variant: 'secondary' }
-  return { label: '相談中', variant: 'secondary' }
+function resolveProgressBadge({
+  status,
+  invoiceStatus,
+  paid,
+  reviewCompleted,
+}: ProgressParams): OfferProgressBadge {
+  if ((paid || invoiceStatus === 'paid') && !reviewCompleted) {
+    return {
+      label: 'レビュー待ち',
+      variant: 'default',
+    }
+  }
+
+  if (reviewCompleted) {
+    return {
+      label: 'レビュー済み',
+      variant: 'success',
+    }
+  }
+
+  if (paid || invoiceStatus === 'paid') {
+    return {
+      label: '支払い済み',
+      variant: 'success',
+    }
+  }
+
+  if (status === 'completed') {
+    return {
+      label: '来店完了',
+      variant: 'success',
+    }
+  }
+
+  if (status === 'confirmed') {
+    return {
+      label: '来店予定',
+      variant: 'default',
+    }
+  }
+
+  if (status === 'accepted') {
+    return {
+      label: '承認済み',
+      variant: 'default',
+    }
+  }
+
+  return {
+    label: '承認待ち',
+    variant: 'secondary',
+  }
 }
 
 export function getOfferProgress({
@@ -56,34 +99,46 @@ export function getOfferProgress({
   reviewCompleted = false,
 }: ProgressParams): { steps: OfferProgressStep[]; current: OfferStepKey; badge: OfferProgressBadge } {
   const order: OfferStepKey[] = [
-    'offer_consultation',
-    'estimate',
-    'contract',
+    'offer_submitted',
+    'approval',
     'visit',
+    'invoice',
     'payment',
     'review',
   ]
 
-  const completed = new Set<OfferStepKey>()
+  const completed = new Set<OfferStepKey>(['offer_submitted'])
 
-  if (invoiceStatus !== 'not_created' || ['confirmed', 'completed'].includes(status)) {
-    completed.add('offer_consultation')
+  if (['accepted', 'confirmed', 'completed'].includes(status)) {
+    completed.add('approval')
   }
-  if (['approved', 'paid'].includes(invoiceStatus) || ['confirmed', 'completed'].includes(status)) {
-    completed.add('estimate')
-    completed.add('contract')
-  }
-  if (paid || invoiceStatus === 'paid' || status === 'completed') {
+
+  if (status === 'completed') {
     completed.add('visit')
+  }
+
+  if (invoiceStatus !== 'not_submitted' || paid) {
+    completed.add('invoice')
+  }
+
+  if (paid || invoiceStatus === 'paid') {
     completed.add('payment')
   }
-  if (reviewCompleted) completed.add('review')
+
+  if (reviewCompleted) {
+    completed.add('review')
+  }
 
   const current = order.find(step => !completed.has(step)) ?? 'review'
-  const steps = order.map(step => ({
+
+  const steps: OfferProgressStep[] = order.map(step => ({
     key: step,
     title: OFFER_STEP_LABELS[step],
-    status: completed.has(step) ? 'complete' as const : step === current ? 'current' as const : 'upcoming' as const,
+    status: completed.has(step)
+      ? 'complete'
+      : step === current
+        ? 'current'
+        : 'upcoming',
   }))
 
   return { steps, current, badge: resolveProgressBadge({ status, invoiceStatus, paid, reviewCompleted }) }

@@ -17,13 +17,11 @@ export type Database = {
       invoices: {
         Row: {
           amount: number
-          contracted_at: string | null
           created_at: string | null
           due_date: string | null
-          estimate_number: string
           extra_fee: number | null
           id: string
-          invoice_number: string | null
+          invoice_number: string
           invoice_url: string | null
           notes: string | null
           offer_id: string | null
@@ -37,13 +35,11 @@ export type Database = {
         }
         Insert: {
           amount: number
-          contracted_at?: string | null
           created_at?: string | null
           due_date?: string | null
-          estimate_number?: string
           extra_fee?: number | null
           id?: string
-          invoice_number?: string | null
+          invoice_number?: string
           invoice_url?: string | null
           notes?: string | null
           offer_id?: string | null
@@ -57,13 +53,11 @@ export type Database = {
         }
         Update: {
           amount?: number
-          contracted_at?: string | null
           created_at?: string | null
           due_date?: string | null
-          estimate_number?: string
           extra_fee?: number | null
           id?: string
-          invoice_number?: string | null
+          invoice_number?: string
           invoice_url?: string | null
           notes?: string | null
           offer_id?: string | null
@@ -968,8 +962,6 @@ export type Database = {
       }
       is_offer_blocking: { Args: { _status: string }; Returns: boolean }
       is_self_talent: { Args: { _talent_id: string }; Returns: boolean }
-      next_estimate_number: { Args: never; Returns: string }
-      next_invoice_number: { Args: never; Returns: string }
       resolve_talent_availability: {
         Args: { _date: string; _talent_id: string }
         Returns: Database["public"]["Enums"]["availability_status"]

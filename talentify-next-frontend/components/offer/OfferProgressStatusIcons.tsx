@@ -29,11 +29,11 @@ const iconByStatus: Record<OfferProgressStep['status'], ReactNode> = {
 }
 
 const STEP_SHORT_LABELS: Record<OfferProgressStep['key'], string> = {
-  offer_consultation: '相談',
-  estimate: '見積',
-  contract: '締結',
+  offer_submitted: '提出',
+  approval: '承認',
   visit: '来店',
-  payment: '支払',
+  invoice: '請求',
+  payment: '支払い',
   review: 'レビュー',
 }
 

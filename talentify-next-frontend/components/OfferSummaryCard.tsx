@@ -30,7 +30,7 @@ export default function OfferSummaryCard({
           <div className='flex items-center justify-between text-sm text-slate-600'>
             <span className='inline-flex items-center gap-1.5 font-medium'>
               <Clock3 className='h-4 w-4 text-amber-600' />
-              相談中
+              保留中
             </span>
             <Badge variant='secondary' className='text-sm font-semibold'>
               {pending}
@@ -41,7 +41,7 @@ export default function OfferSummaryCard({
           <div className='flex items-center justify-between text-sm text-slate-600'>
             <span className='inline-flex items-center gap-1.5 font-medium'>
               <CircleCheckBig className='h-4 w-4 text-emerald-600' />
-              締結済み
+              承認済み
             </span>
             <Badge className='text-sm font-semibold'>{confirmed}</Badge>
           </div>

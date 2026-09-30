@@ -184,11 +184,9 @@ model invoices {
   updated_at     DateTime?      @default(now()) @db.Timestamp(6)
   status         status_type?   @default(draft)
   due_date       DateTime?      @db.Date
-  estimate_number String @default(dbgenerated("next_estimate_number()"))
-  invoice_number  String?
-  contracted_at   DateTime?      @db.Timestamptz(6)
-  payment_status  payment_status @default(pending)
-  paid_at         DateTime?      @db.Timestamptz(6)
+  invoice_number String
+  payment_status payment_status @default(pending)
+  paid_at        DateTime?      @db.Timestamptz(6)
   transport_fee  Int?
   extra_fee      Int?
   notes          String?

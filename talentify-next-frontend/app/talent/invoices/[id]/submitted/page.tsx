@@ -19,8 +19,7 @@ interface Invoice {
   transport_fee: number | null
   extra_fee: number | null
   notes: string | null
-  estimate_number: string
-  invoice_number: string | null
+  invoice_number: string
   due_date: string | null
   status: string
   payment_status: string | null
@@ -43,7 +42,7 @@ export default function TalentInvoiceSubmittedPage() {
       const { data, error } = await supabase
         .from('invoices')
         .select(
-          'id,offer_id,amount,transport_fee,extra_fee,notes,estimate_number,invoice_number,due_date,status,payment_status,created_at'
+          'id,offer_id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
         )
         .eq('id', id)
         .maybeSingle()
@@ -72,33 +71,33 @@ export default function TalentInvoiceSubmittedPage() {
   }
 
   if (!invoice) {
-    return <div className='p-6'>見積書が見つかりませんでした。</div>
+    return <div className='p-6'>請求書が見つかりませんでした。</div>
   }
 
   return (
     <main className='p-6 space-y-6'>
       <section className='space-y-4'>
         <div>
-          <h1 className='text-xl font-bold'>見積書の提出が完了しました</h1>
-          <p className='text-sm text-muted-foreground'>見積内容をご確認ください。</p>
+          <h1 className='text-xl font-bold'>請求書の提出が完了しました</h1>
+          <p className='text-sm text-muted-foreground'>請求内容をご確認ください。</p>
         </div>
         <div className='flex flex-wrap gap-2'>
           <Button asChild variant='default'>
-            <Link href='/talent/invoices'>見積・請求一覧へ戻る</Link>
+            <Link href='/talent/invoices'>請求履歴へ戻る</Link>
           </Button>
           <Button asChild variant='outline'>
-            <Link href={`/talent/invoices/${invoice.id}`}>見積詳細を表示</Link>
+            <Link href={`/talent/invoices/${invoice.id}`}>請求詳細を表示</Link>
           </Button>
         </div>
       </section>
 
       <Card>
         <CardHeader>
-          <CardTitle>見積情報</CardTitle>
+          <CardTitle>請求情報</CardTitle>
         </CardHeader>
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>見積番号: {invoice.estimate_number}</div>
+          <div>請求書番号: {invoice.invoice_number}</div>
           <div>
             支払期限:{' '}
             {invoice.due_date
@@ -106,7 +105,7 @@ export default function TalentInvoiceSubmittedPage() {
               : '-'}
           </div>
           <div>
-            見積ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
+            請求書ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
           </div>
           <div>
             支払い状態:{' '}

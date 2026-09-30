@@ -8,10 +8,7 @@ type InvoiceRow = {
   amount: number
   transport_fee: number | null
   extra_fee: number | null
-  estimate_number: string
-  invoice_number: string | null
-  status: string | null
-  contracted_at: string | null
+  invoice_number: string
   due_date: string | null
   created_at: string | null
   store_id: string
@@ -94,14 +91,8 @@ function buildInvoicePdf(params: {
     invoice.amount - (invoice.transport_fee ?? 0) - (invoice.extra_fee ?? 0)
   )
 
-  const isContracted = invoice.status === 'approved' || invoice.status === 'completed'
-  const documentTitle = isContracted ? '取引締結書兼請求書' : '見積書'
-  const documentNumber = isContracted
-    ? (invoice.invoice_number ?? invoice.estimate_number)
-    : invoice.estimate_number
-
-  jp(documentTitle, isContracted ? 198 : 255, 790, isContracted ? 18 : 22)
-  latin(documentNumber, 400, 794, 9)
+  jp('請求書', 264, 790, 22)
+  latin(invoice.invoice_number, 402, 794, 9)
   line(50, 775, 545, 775, 1)
 
   jp('請求先', 50, 742, 9)
@@ -110,16 +101,16 @@ function buildInvoicePdf(params: {
   jp(talentName || '演者名未設定', 330, 716, 15)
 
   box(50, 635, 495, 54)
-  jp(isContracted ? 'ご請求金額' : 'お見積金額', 66, 655, 11)
+  jp('ご請求金額', 66, 655, 11)
   latin(money(invoice.amount), 330, 653, 18)
   jp('円', 482, 655, 11)
 
-  jp(isContracted ? '締結・請求情報' : '見積情報', 50, 600, 13)
+  jp('請求情報', 50, 600, 13)
   line(50, 590, 545, 590)
-  jp(isContracted ? '締結日' : '見積作成日', 60, 566, 10)
-  latin(formatDate(isContracted ? invoice.contracted_at : invoice.created_at), 210, 566, 10)
-  jp(isContracted ? '締結書兼請求書番号' : '見積番号', 60, 542, 10)
-  latin(documentNumber, 210, 542, 10)
+  jp('請求日', 60, 566, 10)
+  latin(formatDate(invoice.created_at), 210, 566, 10)
+  jp('請求書番号', 60, 542, 10)
+  latin(invoice.invoice_number, 210, 542, 10)
   jp('支払期限', 60, 518, 10)
   latin(formatDate(invoice.due_date), 210, 518, 10)
 
@@ -139,12 +130,10 @@ function buildInvoicePdf(params: {
   latin(money(invoice.amount), 420, 360, 12)
   jp('円', 510, 360, 10)
 
-  jp(isContracted ? '振込先情報' : '備考', 50, 320, 13)
+  jp('振込先情報', 50, 320, 13)
   line(50, 310, 545, 310)
 
-  if (!isContracted) {
-    jp('本見積はホール承認後に取引条件として確定します。', 60, 282, 10)
-  } else if (payout) {
+  if (payout) {
     const payoutRows: Array<[string, string, boolean]> = [
       ['銀行名', payout.bank_name ?? '-', false],
       ['支店名', payout.branch_name ?? '-', false],
@@ -164,7 +153,7 @@ function buildInvoicePdf(params: {
   }
 
   jp('Talentify', 50, 70, 9)
-  latin(documentNumber, 430, 70, 8)
+  latin(invoice.invoice_number, 430, 70, 8)
 
   const stream = commands.join('\n') + '\n'
   const objects = [
@@ -219,7 +208,7 @@ export async function GET(
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,estimate_number,invoice_number,status,contracted_at,due_date,created_at,store_id,talent_id'
+        'id,amount,transport_fee,extra_fee,invoice_number,due_date,created_at,store_id,talent_id'
       )
       .eq('id', id)
       .single<InvoiceRow>()
@@ -273,7 +262,7 @@ export async function GET(
     return new NextResponse(new Uint8Array(pdfBytes), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${invoice.status === 'approved' && invoice.invoice_number ? invoice.invoice_number : invoice.estimate_number}.pdf"`,
+        'Content-Disposition': `attachment; filename="${invoice.invoice_number}.pdf"`,
         'Cache-Control': 'private, no-store',
       },
     })

@@ -17,7 +17,7 @@ export type Offer = {
   status: string | null
   paid?: boolean | null
   paid_at?: string | null
-  invoice_status: 'not_created' | 'draft' | 'submitted' | 'approved' | 'paid'
+  invoice_status: 'not_submitted' | 'submitted' | 'paid'
   review_completed: boolean
 }
 

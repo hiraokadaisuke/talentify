@@ -64,7 +64,7 @@ const ROLE_MENUS: Record<
     account: [
       { href: '/store/edit', label: 'プロフィール編集' },
       { href: '/store/reviews', label: 'レビュー管理' },
-      { href: '/store/invoices', label: '見積・請求管理' },
+      { href: '/store/invoices', label: '請求管理' },
       { href: '/store/settings', label: '設定' },
     ],
   },
@@ -78,7 +78,7 @@ const ROLE_MENUS: Record<
     account: [
       { href: '/talent/edit', label: 'プロフィール編集' },
       { href: '/talent/reviews', label: 'レビュー管理' },
-      { href: '/talent/invoices', label: '見積・請求管理' },
+      { href: '/talent/invoices', label: '請求管理' },
       { href: '/talent/settings', label: '設定' },
     ],
   },

@@ -92,7 +92,7 @@ export default function OfferPaymentStatusCard({
             )}
             <div className="flex flex-col gap-2">
               <Button variant="outline" asChild>
-                <Link href={`/store/invoices/${invoice.id}`}>締結書兼請求書を見る</Link>
+                <Link href={`/store/invoices/${invoice.id}`}>請求書を見る</Link>
               </Button>
               {invoice.invoiceUrl && (
                 <Button variant="outline" asChild>

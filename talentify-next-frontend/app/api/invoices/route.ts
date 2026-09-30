@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { getSubmitStatus } from './utils'
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
@@ -23,11 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
-    const body = await req.json().catch(() => null)
-    if (!body || typeof body !== 'object') {
-      return NextResponse.json({ error: 'invalid_payload' }, { status: 400 })
-    }
-
+    const body = await req.json()
     const {
       offer_id,
       amount,
@@ -35,17 +32,12 @@ export async function POST(req: NextRequest) {
       transport_fee,
       extra_fee,
       invoice_url,
-      due_date,
-    } = body as Record<string, any>
+    } = body
     offerId = offer_id
-
-    if (!offer_id || !Number.isFinite(Number(amount)) || Number(amount) < 0) {
-      return NextResponse.json({ error: 'invalid_payload' }, { status: 400 })
-    }
 
     const { data: offer, error: offerError } = await supabase
       .from('offers')
-      .select('store_id,talent_id,status')
+      .select('store_id, talent_id')
       .eq('id', offer_id)
       .single()
     if (offerError || !offer) {
@@ -54,71 +46,82 @@ export async function POST(req: NextRequest) {
     if (talent.id !== offer.talent_id) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
-    if (['rejected', 'canceled', 'completed'].includes(offer.status ?? '')) {
-      return NextResponse.json({ error: 'offer_not_editable' }, { status: 409 })
-    }
 
     const { data: existing, error: existingError } = await supabase
       .from('invoices')
-      .select('id,status')
+      .select('id')
       .eq('offer_id', offer_id)
       .maybeSingle()
     if (existingError) throw existingError
 
-    const documentPayload = {
+    const payload = {
       offer_id,
       store_id: offer.store_id,
       talent_id: offer.talent_id,
-      amount: Number(amount),
-      notes: notes ?? null,
-      transport_fee: transport_fee == null ? null : Number(transport_fee),
-      extra_fee: extra_fee == null ? null : Number(extra_fee),
-      invoice_url: invoice_url ?? null,
-      due_date: due_date || null,
+      amount,
+      status: 'draft' as const,
+      notes,
+      transport_fee,
+      extra_fee,
+      invoice_url,
     }
 
     if (existing) {
-      if (!['draft', 'rejected'].includes(existing.status ?? '')) {
-        return NextResponse.json(
-          { error: 'estimate_locked', id: existing.id },
-          { status: 409 },
-        )
+      const updatePayload = {
+        offer_id,
+        store_id: offer.store_id,
+        talent_id: offer.talent_id,
+        amount,
+        notes,
+        transport_fee,
+        extra_fee,
+        invoice_url,
       }
-
       const { data: updated, error: updateError } = await service
         .from('invoices')
-        .update({ ...documentPayload, status: 'draft' })
+        .update(updatePayload)
         .eq('id', existing.id)
-        .select('id,status,estimate_number,invoice_number')
+        .select('id, status, invoice_number')
         .single()
       if (updateError) throw updateError
-
-      return NextResponse.json(updated, { status: 200 })
+      await service
+        .from('offers')
+        .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
+        .eq('id', offer_id)
+      return NextResponse.json({ id: updated.id, status: updated.status, invoice_number: updated.invoice_number }, { status: 200 })
     }
 
     const { data: inserted, error: insertError } = await service
       .from('invoices')
-      .insert({ ...documentPayload, status: 'draft' })
-      .select('id,status,estimate_number,invoice_number')
+      .insert(payload)
+      .select('id, status, invoice_number')
       .single()
     if (insertError) throw insertError
 
-    return NextResponse.json(inserted, { status: 201 })
+    await service
+      .from('offers')
+      .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
+      .eq('id', offer_id)
+
+    return NextResponse.json({ id: inserted.id, status: inserted.status, invoice_number: inserted.invoice_number }, { status: 201 })
   } catch (err: any) {
-    console.error('[POST /api/invoices]', { code: err?.code, message: err?.message })
-    if (err?.code === '23505' && offerId) {
+    console.error({ code: err.code, message: err.message })
+    if (err.code === '23505' && offerId) {
       const { data: existing } = await supabase
         .from('invoices')
         .select('id')
         .eq('offer_id', offerId)
-        .maybeSingle()
+        .single()
       if (existing) {
-        return NextResponse.json({ error: 'duplicate', id: existing.id }, { status: 409 })
+        return NextResponse.json({ error: 'duplicate', id: existing.id }, { status: 200 })
       }
     }
-    if (err?.code === '42501') {
+    if (err.code === '23502') {
+      return NextResponse.json({ error: 'not_null_violation' }, { status: 400 })
+    }
+    if (err.code === '42501') {
       return NextResponse.json({ error: 'forbidden_rls' }, { status: 403 })
     }
-    return NextResponse.json({ error: 'unknown', code: err?.code ?? null }, { status: 400 })
+    return NextResponse.json({ error: 'unknown', code: err.code }, { status: 400 })
   }
 }
