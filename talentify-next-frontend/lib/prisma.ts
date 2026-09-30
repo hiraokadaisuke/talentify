@@ -16,6 +16,13 @@ function createPrismaClient() {
   const adapter = new PrismaPg(
     new Pool({
       connectionString,
+      // Vercel functions are short-lived and scale horizontally. Keep each
+      // function instance to a single DB connection and release idle sessions
+      // quickly so Supavisor session-mode pools are not exhausted.
+      max: 1,
+      idleTimeoutMillis: 1_000,
+      connectionTimeoutMillis: 5_000,
+      allowExitOnIdle: true,
     })
   )
 

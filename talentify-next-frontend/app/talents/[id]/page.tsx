@@ -12,13 +12,22 @@ type PageProps = {
 
 export default async function Page({ params }: PageProps) {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('talents')
-    .select(
-      'id,user_id,stage_name,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,media_appearance,video_url,avatar_url,photos,twitter,instagram,youtube,is_setup_complete'
-    )
-    .eq('id', params.id)
-    .maybeSingle<any>()
+  const [{ data, error }, { data: reviewRows }] = await Promise.all([
+    supabase
+      .from('talents')
+      .select(
+        'id,user_id,stage_name,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,media_appearance,video_url,avatar_url,photos,twitter,instagram,youtube,is_setup_complete'
+      )
+      .eq('id', params.id)
+      .maybeSingle<any>(),
+    supabase
+      .from('reviews')
+      .select('id,rating,comment,category_ratings,created_at')
+      .eq('talent_id', params.id)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .limit(6),
+  ])
 
   if (error || !data || data.is_setup_complete === false) {
     notFound()
@@ -46,5 +55,22 @@ export default async function Page({ params }: PageProps) {
     youtube: data.youtube,
   }
 
-  return <TalentDetailPageClient id={params.id} initialTalent={talent} />
+  const publicReviews = (reviewRows ?? []).map(review => ({
+    id: review.id,
+    rating: review.rating ?? 0,
+    comment: review.comment,
+    category_ratings:
+      review.category_ratings && typeof review.category_ratings === 'object'
+        ? (review.category_ratings as Record<string, number>)
+        : {},
+    created_at: review.created_at,
+  }))
+
+  return (
+    <TalentDetailPageClient
+      id={params.id}
+      initialTalent={talent}
+      initialReviews={publicReviews}
+    />
+  )
 }

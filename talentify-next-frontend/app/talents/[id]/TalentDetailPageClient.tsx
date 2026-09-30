@@ -9,9 +9,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
-import { MapPin, Clock3, Timer, Bus, Wallet, Heart, MessageSquare } from 'lucide-react'
+import { MapPin, Clock3, Timer, Bus, Wallet, Heart, MessageSquare, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import NewMessageModal from '@/components/messages/NewMessageModal'
 import { findOrCreateConversation } from '@/lib/messages'
 import OfferComposerOverlay from './OfferComposerOverlay'
@@ -38,12 +39,21 @@ type Talent = {
   youtube?: string | null
 }
 
+type PublicReview = {
+  id: string
+  rating: number
+  comment?: string | null
+  category_ratings: Record<string, number>
+  created_at: string
+}
+
 type Props = {
   id: string
   initialTalent?: Talent | null
+  initialReviews?: PublicReview[]
 }
 
-export default function TalentDetailPageClient({ id, initialTalent }: Props) {
+export default function TalentDetailPageClient({ id, initialTalent, initialReviews = [] }: Props) {
   const supabase = useMemo(() => createClient(), [])
   const [talent, setTalent] = useState<Talent | null>(initialTalent ?? null)
   const [loadingTalent, setLoadingTalent] = useState(!initialTalent)
@@ -56,6 +66,10 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
   const [messageOpen, setMessageOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
   const [offerSent, setOfferSent] = useState(false)
+  const reviewAverage =
+    initialReviews.length > 0
+      ? initialReviews.reduce((sum, review) => sum + review.rating, 0) / initialReviews.length
+      : null
 
   useEffect(() => {
     const fetchData = async () => {
@@ -175,6 +189,15 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
               <CardContent className="flex h-full flex-col gap-4 p-4 md:p-4">
                 <div>
                   <h1 className="text-2xl font-bold tracking-tight md:text-[1.75rem]">{talent.stage_name}</h1>
+                  {reviewAverage !== null && (
+                    <div className="mt-2 flex items-center gap-2 text-sm">
+                      <div className="flex items-center gap-0.5 text-amber-500">
+                        <Star className="h-4 w-4 fill-current" />
+                        <span className="font-bold text-slate-900">{reviewAverage.toFixed(1)}</span>
+                      </div>
+                      <span className="text-slate-500">公開レビュー {initialReviews.length}件</span>
+                    </div>
+                  )}
                   {talent.profile && <p className="mt-1.5 text-sm leading-relaxed text-slate-700 whitespace-pre-line">{talent.profile}</p>}
                 </div>
 
@@ -299,6 +322,91 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
             )}
           </div>
         </div>
+
+        <section className="mx-auto mt-4 w-full max-w-6xl">
+          <Card className="border-slate-200 shadow-sm">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Reviews</p>
+                  <h2 className="mt-1 text-xl font-bold text-slate-950">ホールからの評価・レビュー</h2>
+                </div>
+                {reviewAverage !== null && (
+                  <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-sm">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    <span className="font-bold">{reviewAverage.toFixed(1)}</span>
+                    <span className="text-slate-500">/ 5</span>
+                  </div>
+                )}
+              </div>
+
+              {initialReviews.length === 0 ? (
+                <p className="mt-4 text-sm text-slate-500">公開されているレビューはまだありません。</p>
+              ) : (
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                  {initialReviews.map(review => (
+                    <article key={review.id} className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-1 text-amber-500">
+                          {[1, 2, 3, 4, 5].map(value => (
+                            <Star
+                              key={value}
+                              className={clsx(
+                                'h-4 w-4',
+                                value <= review.rating ? 'fill-current' : 'text-slate-300',
+                              )}
+                            />
+                          ))}
+                          <span className="ml-1 font-semibold text-slate-900">{review.rating.toFixed(1)}</span>
+                        </div>
+                        <time className="shrink-0 text-xs text-slate-400">
+                          {new Date(review.created_at).toLocaleDateString('ja-JP')}
+                        </time>
+                      </div>
+
+                      {review.comment && (
+                        <p className="mt-3 break-words text-sm leading-6 text-slate-700">{review.comment}</p>
+                      )}
+
+                      {Object.keys(review.category_ratings).length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {Object.entries(review.category_ratings).map(([key, value]) => {
+                            const label =
+                              key === 'time'
+                                ? '時間厳守'
+                                : key === 'attitude'
+                                  ? '接客態度'
+                                  : key === 'fan'
+                                    ? 'ファンサービス'
+                                    : key === 'play'
+                                      ? '遊技姿勢'
+                                      : key
+                            return (
+                              <span
+                                key={key}
+                                className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600"
+                              >
+                                {label} {value}/5
+                              </span>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )}
+
+              {role === 'talent' && userId === talent.user_id && (
+                <div className="mt-4 border-t border-slate-100 pt-4">
+                  <Button variant="outline" asChild className="w-full sm:w-auto">
+                    <Link href="/talent/reviews">すべての自分のレビューを見る</Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
       </main>
 
     <OfferComposerOverlay
