@@ -54,6 +54,7 @@ export default function TalentInvoiceNewPage() {
   const [dueDateInitialized, setDueDateInitialized] = useState(false)
 
   const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [pdfAmount, setPdfAmount] = useState('')
   const [pdfMemo, setPdfMemo] = useState('')
 
   const [loading, setLoading] = useState(false)
@@ -89,6 +90,8 @@ export default function TalentInvoiceNewPage() {
         setTransportFee(String(savedTransportFee))
         setExtraFee(String(savedExtraFee))
         setMemo(invData.notes ?? '')
+        setPdfAmount(String(invData.amount ?? ''))
+        setPdfMemo(invData.notes ?? '')
         setDueDate(invData.due_date ?? '')
         if (!invData.due_date) {
           setDueDatePattern('none')
@@ -271,28 +274,29 @@ export default function TalentInvoiceNewPage() {
   const submitPdf = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!offerId || !pdfFile) return
+
+    const amount = Number(pdfAmount)
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error('見積合計金額を入力してください')
+      return
+    }
+
     setLoading(true)
     let id = invoice?.id
     try {
-      const ext = pdfFile.name.split('.').pop()
-      const path = `${offerId}/${Date.now()}.${ext}`
-      const { error: upErr } = await supabase.storage
-        .from('invoices')
-        .upload(path, pdfFile)
-      if (upErr) throw upErr
-      const { data: urlData } = supabase.storage
-        .from('invoices')
-        .getPublicUrl(path)
-      const invoiceUrl = urlData.publicUrl
+      const payload = {
+        amount,
+        transport_fee: 0,
+        extra_fee: 0,
+        notes: pdfMemo.trim() || null,
+        due_date: dueDate || null,
+      }
+
       if (id) {
         const res = await fetch(`/api/invoices/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            invoice_url: invoiceUrl,
-            notes: pdfMemo.trim() || null,
-            due_date: dueDate || null,
-          }),
+          body: JSON.stringify(payload),
         })
         if (!res.ok) throw new Error('patch failed')
       } else {
@@ -301,23 +305,33 @@ export default function TalentInvoiceNewPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             offer_id: offerId,
-            amount: 0,
-            invoice_url: invoiceUrl,
-            notes: pdfMemo.trim() || null,
-            due_date: dueDate || null,
+            ...payload,
           }),
         })
         if (!res.ok) throw new Error('post failed')
         const data = await res.json()
         id = data.id
       }
+
       if (!id) throw new Error('id missing')
+
+      const formData = new FormData()
+      formData.append('file', pdfFile)
+      const uploadRes = await fetch(`/api/invoices/${id}/attachment`, {
+        method: 'POST',
+        body: formData,
+      })
+      if (!uploadRes.ok) throw new Error('upload failed')
+      const uploadData = await uploadRes.json()
+
       setInvoice(prev => {
         const next = {
           ...(prev ?? {}),
           id,
-          invoice_url: invoiceUrl,
-          amount: prev?.amount ?? 0,
+          invoice_url: uploadData.path,
+          amount,
+          transport_fee: 0,
+          extra_fee: 0,
           notes: pdfMemo.trim() || null,
           due_date: dueDate || null,
         }
@@ -325,6 +339,7 @@ export default function TalentInvoiceNewPage() {
         if (next.payment_status === undefined) next.payment_status = null
         return next
       })
+
       const submitRes = await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
       if (!submitRes.ok) throw new Error('submit failed')
       router.push(`/talent/invoices/${id}/submitted`)
@@ -493,6 +508,19 @@ export default function TalentInvoiceNewPage() {
                 <TabsContent value="pdf">
                   <form onSubmit={submitPdf} className="space-y-4">
                     <div>
+                      <label className="mb-1 block text-sm">見積合計金額</label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={pdfAmount}
+                        onChange={e => setPdfAmount(e.target.value)}
+                        required
+                      />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        取引・支払い管理に使用する合計金額です。
+                      </p>
+                    </div>
+                    <div>
                       <label className="mb-1 block text-sm">PDFファイル</label>
                       <Input
                         type="file"
@@ -500,6 +528,10 @@ export default function TalentInvoiceNewPage() {
                         onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
                         required
                       />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        PDFのみ・10MBまで。ファイルは非公開で保存されます。
+                      </p>
+
                     </div>
                     <div>
                       <label className="mb-1 block text-sm">備考メモ (任意)</label>
@@ -509,7 +541,7 @@ export default function TalentInvoiceNewPage() {
                       />
                     </div>
                     <div className="flex">
-                      <Button type="submit" disabled={loading || !pdfFile}>
+                      <Button type="submit" disabled={loading || !pdfFile || Number(pdfAmount) <= 0}>
                         提出する
                       </Button>
                     </div>
