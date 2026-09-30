@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { Prisma } from '@prisma/client'
 import { getPrismaClient } from '@/lib/prisma'
 import { emitNotification } from '@/lib/notifications/emit'
+
+type PayoutSnapshotRow = {
+  bank_name: string | null
+  branch_name: string | null
+  account_type: string | null
+  account_number: string | null
+  account_holder: string | null
+}
 
 export async function POST(
   _req: NextRequest,
@@ -39,13 +48,19 @@ export async function POST(
           talent_id: true,
           status: true,
           amount: true,
+          transport_fee: true,
+          extra_fee: true,
+          due_date: true,
+          invoice_number: true,
+          notes: true,
         },
       })
 
       if (!invoice) throw new Error('ESTIMATE_NOT_FOUND')
-      if (invoice.store_id !== store.id) throw new Error('FORBIDDEN')
+      if (!invoice.store_id || invoice.store_id !== store.id) throw new Error('FORBIDDEN')
       if (invoice.status !== 'submitted') throw new Error('ESTIMATE_NOT_SUBMITTED')
       if (!invoice.offer_id) throw new Error('OFFER_NOT_FOUND')
+      if (!invoice.talent_id) throw new Error('TALENT_NOT_FOUND')
 
       const offer = await tx.offers.findUnique({
         where: { id: invoice.offer_id },
@@ -54,6 +69,52 @@ export async function POST(
 
       if (!offer) throw new Error('OFFER_NOT_FOUND')
       if (offer.status !== 'pending') throw new Error('OFFER_STATE_CHANGED')
+
+      const [storeSnapshot, talentSnapshot, payoutRows] = await Promise.all([
+        tx.stores.findUnique({
+          where: { id: invoice.store_id },
+          select: { store_name: true },
+        }),
+        tx.talents.findUnique({
+          where: { id: invoice.talent_id },
+          select: { stage_name: true, display_name: true, name: true },
+        }),
+        tx.$queryRaw<PayoutSnapshotRow[]>`
+          SELECT bank_name, branch_name, account_type, account_number, account_holder
+          FROM public.talent_payout_accounts
+          WHERE talent_id = ${invoice.talent_id}::uuid
+          LIMIT 1
+        `,
+      ])
+
+      const payoutSnapshot = payoutRows[0] ?? null
+      const contractSnapshot: Prisma.InputJsonValue = {
+        version: 1,
+        captured_at: now.toISOString(),
+        store_name: storeSnapshot?.store_name ?? '店舗名未設定',
+        talent_name:
+          talentSnapshot?.stage_name ??
+          talentSnapshot?.display_name ??
+          talentSnapshot?.name ??
+          '演者名未設定',
+        invoice: {
+          invoice_number: invoice.invoice_number,
+          amount: invoice.amount,
+          transport_fee: invoice.transport_fee ?? 0,
+          extra_fee: invoice.extra_fee ?? 0,
+          due_date: invoice.due_date ? invoice.due_date.toISOString().slice(0, 10) : null,
+          notes: invoice.notes ?? null,
+        },
+        payout: payoutSnapshot
+          ? {
+              bank_name: payoutSnapshot.bank_name,
+              branch_name: payoutSnapshot.branch_name,
+              account_type: payoutSnapshot.account_type,
+              account_number: payoutSnapshot.account_number,
+              account_holder: payoutSnapshot.account_holder,
+            }
+          : null,
+      }
 
       const offerUpdated = await tx.offers.updateMany({
         where: { id: offer.id, status: 'pending' },
@@ -71,7 +132,11 @@ export async function POST(
 
       const contracted = await tx.invoices.update({
         where: { id: invoice.id },
-        data: { status: 'approved', updated_at: now },
+        data: {
+          status: 'approved',
+          updated_at: now,
+          contract_snapshot: contractSnapshot,
+        },
       })
 
       return {
@@ -124,6 +189,9 @@ export async function POST(
     }
     if (message === 'OFFER_NOT_FOUND') {
       return NextResponse.json({ error: '対象案件が見つかりません' }, { status: 404 })
+    }
+    if (message === 'TALENT_NOT_FOUND') {
+      return NextResponse.json({ error: '演者情報が見つかりません' }, { status: 404 })
     }
 
     console.error('[POST /invoices/:id/approve]', e)

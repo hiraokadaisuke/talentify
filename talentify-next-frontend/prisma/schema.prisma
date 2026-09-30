@@ -190,6 +190,7 @@ model invoices {
   transport_fee  Int?
   extra_fee      Int?
   notes          String?
+  contract_snapshot Json?
   offers         offers?        @relation(fields: [offer_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_offer_id")
   stores         stores?        @relation(fields: [store_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_store_id")
   talents        talents?       @relation(fields: [talent_id], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "fk_invoices_talent_id")

@@ -3,6 +3,30 @@ import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 
+type PayoutRow = {
+  bank_name: string | null
+  branch_name: string | null
+  account_type: string | null
+  account_number: string | null
+  account_holder: string | null
+} | null
+
+type ContractSnapshot = {
+  version: 1
+  captured_at: string
+  store_name: string
+  talent_name: string
+  invoice: {
+    invoice_number: string
+    amount: number
+    transport_fee: number
+    extra_fee: number
+    due_date: string | null
+    notes: string | null
+  }
+  payout: PayoutRow
+}
+
 type InvoiceRow = {
   id: string
   amount: number
@@ -15,15 +39,58 @@ type InvoiceRow = {
   updated_at: string | null
   store_id: string
   talent_id: string
+  contract_snapshot: unknown
 }
 
-type PayoutRow = {
-  bank_name: string | null
-  branch_name: string | null
-  account_type: string | null
-  account_number: string | null
-  account_holder: string | null
-} | null
+function isNullableString(value: unknown): value is string | null {
+  return value === null || typeof value === 'string'
+}
+
+function readContractSnapshot(value: unknown): ContractSnapshot | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const snapshot = value as Record<string, unknown>
+  const invoice = snapshot.invoice
+  if (
+    snapshot.version !== 1 ||
+    typeof snapshot.captured_at !== 'string' ||
+    typeof snapshot.store_name !== 'string' ||
+    typeof snapshot.talent_name !== 'string' ||
+    !invoice ||
+    typeof invoice !== 'object' ||
+    Array.isArray(invoice)
+  ) {
+    return null
+  }
+
+  const invoiceData = invoice as Record<string, unknown>
+  if (
+    typeof invoiceData.invoice_number !== 'string' ||
+    typeof invoiceData.amount !== 'number' ||
+    typeof invoiceData.transport_fee !== 'number' ||
+    typeof invoiceData.extra_fee !== 'number' ||
+    !isNullableString(invoiceData.due_date) ||
+    !isNullableString(invoiceData.notes)
+  ) {
+    return null
+  }
+
+  const payout = snapshot.payout
+  if (payout !== null) {
+    if (!payout || typeof payout !== 'object' || Array.isArray(payout)) return null
+    const payoutData = payout as Record<string, unknown>
+    if (
+      !isNullableString(payoutData.bank_name) ||
+      !isNullableString(payoutData.branch_name) ||
+      !isNullableString(payoutData.account_type) ||
+      !isNullableString(payoutData.account_number) ||
+      !isNullableString(payoutData.account_holder)
+    ) {
+      return null
+    }
+  }
+
+  return snapshot as unknown as ContractSnapshot
+}
 
 function toUtf16BeHex(value: string) {
   let hex = ''
@@ -215,7 +282,7 @@ export async function GET(
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,invoice_number,status,due_date,created_at,updated_at,store_id,talent_id'
+        'id,amount,transport_fee,extra_fee,invoice_number,status,due_date,created_at,updated_at,store_id,talent_id,contract_snapshot'
       )
       .eq('id', id)
       .single<InvoiceRow>()
@@ -236,40 +303,64 @@ export async function GET(
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
-    const service = createServiceClient()
-    const [{ data: store }, { data: talent }, { data: payout }] = await Promise.all([
-      service
-        .from('stores')
-        .select('store_name')
-        .eq('id', invoice.store_id)
-        .maybeSingle(),
-      service
-        .from('talents')
-        .select('stage_name,display_name,name')
-        .eq('id', invoice.talent_id)
-        .maybeSingle(),
-      service
-        .from('talent_payout_accounts')
-        .select('bank_name,branch_name,account_type,account_number,account_holder')
-        .eq('talent_id', invoice.talent_id)
-        .maybeSingle(),
-    ])
+    const contractSnapshot =
+      invoice.status === 'approved' ? readContractSnapshot(invoice.contract_snapshot) : null
 
-    const storeName = store?.store_name ?? '店舗名未設定'
-    const talentName =
-      talent?.stage_name ?? talent?.display_name ?? talent?.name ?? '演者名未設定'
+    let pdfInvoice = invoice
+    let storeName: string
+    let talentName: string
+    let payout: PayoutRow
+
+    if (contractSnapshot) {
+      pdfInvoice = {
+        ...invoice,
+        amount: contractSnapshot.invoice.amount,
+        transport_fee: contractSnapshot.invoice.transport_fee,
+        extra_fee: contractSnapshot.invoice.extra_fee,
+        invoice_number: contractSnapshot.invoice.invoice_number,
+        due_date: contractSnapshot.invoice.due_date,
+        updated_at: contractSnapshot.captured_at,
+      }
+      storeName = contractSnapshot.store_name
+      talentName = contractSnapshot.talent_name
+      payout = contractSnapshot.payout
+    } else {
+      const service = createServiceClient()
+      const [{ data: store }, { data: talent }, { data: payoutRow }] = await Promise.all([
+        service
+          .from('stores')
+          .select('store_name')
+          .eq('id', invoice.store_id)
+          .maybeSingle(),
+        service
+          .from('talents')
+          .select('stage_name,display_name,name')
+          .eq('id', invoice.talent_id)
+          .maybeSingle(),
+        service
+          .from('talent_payout_accounts')
+          .select('bank_name,branch_name,account_type,account_number,account_holder')
+          .eq('talent_id', invoice.talent_id)
+          .maybeSingle(),
+      ])
+
+      storeName = store?.store_name ?? '店舗名未設定'
+      talentName =
+        talent?.stage_name ?? talent?.display_name ?? talent?.name ?? '演者名未設定'
+      payout = (payoutRow as PayoutRow) ?? null
+    }
 
     const pdfBytes = buildInvoicePdf({
-      invoice,
+      invoice: pdfInvoice,
       storeName,
       talentName,
-      payout: (payout as PayoutRow) ?? null,
+      payout,
     })
 
     return new NextResponse(new Uint8Array(pdfBytes), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${invoice.status === 'approved' ? 'contract-invoice' : 'estimate'}-${invoice.invoice_number}.pdf"`,
+        'Content-Disposition': `attachment; filename="${invoice.status === 'approved' ? 'contract-invoice' : 'estimate'}-${pdfInvoice.invoice_number}.pdf"`,
         'Cache-Control': 'private, no-store',
       },
     })
