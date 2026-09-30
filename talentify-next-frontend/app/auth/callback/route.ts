@@ -62,13 +62,6 @@ export async function GET(req: NextRequest) {
       }
     } else if (role === 'talent') {
       await ensureTalentProfile(supabase, user.id)
-      if (syncedUser?.phone) {
-        await service
-          .from('talents')
-          .update({ phone: syncedUser.phone })
-          .eq('user_id', user.id)
-          .is('phone', null)
-      }
     }
 
     const target =

@@ -144,15 +144,22 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       setUserId(user.id)
 
       const fields =
-        'name,stage_name,phone,preferred_contact_method,phone_contact_allowed,phone_available_hours,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url,is_profile_complete' as const
+        'name,stage_name,preferred_contact_method,phone_contact_allowed,phone_available_hours,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url,is_profile_complete' as const
 
-      const { data, error } = await supabase
-        .from('talents' as any)
-        .select(fields)
-        .eq('user_id', user.id)
-        .maybeSingle<any>()
+      const [{ data, error }, { data: appUser, error: appUserError }] = await Promise.all([
+        supabase
+          .from('talents' as any)
+          .select(fields)
+          .eq('user_id', user.id)
+          .maybeSingle<any>(),
+        supabase
+          .from('users')
+          .select('phone')
+          .eq('auth_user_id', user.id)
+          .maybeSingle(),
+      ])
 
-      if (error) {
+      if (error || appUserError) {
         console.error('プロフィールの取得に失敗:', error)
         setErrorMessage('プロフィールの取得に失敗しました')
       }
@@ -161,7 +168,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         setProfile({
           name: s((data as any).name),
           stage_name: s((data as any).stage_name),
-          phone: s((data as any).phone),
+          phone: s(appUser?.phone),
           preferred_contact_method: s((data as any).preferred_contact_method) || 'chat',
           phone_contact_allowed: Boolean((data as any).phone_contact_allowed),
           phone_available_hours: s((data as any).phone_available_hours),
@@ -305,7 +312,6 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         user_id: user.id,
         name: profile.name.trim(),
         stage_name: profile.stage_name,
-        phone: profile.phone ? profile.phone.replace(/\D/g, '') : null,
         preferred_contact_method: profile.preferred_contact_method,
         phone_contact_allowed: profile.phone_contact_allowed,
         phone_available_hours: profile.phone_contact_allowed ? (profile.phone_available_hours || null) : null,
@@ -337,6 +343,16 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         .upsert(updateData, { onConflict: 'user_id' })
 
       if (error) throw error
+
+      const phoneResponse = await fetch('/api/account/phone', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: profile.phone.replace(/\D/g, '') }),
+      })
+      if (!phoneResponse.ok) {
+        const payload = await phoneResponse.json().catch(() => null)
+        throw new Error(payload?.error ?? '電話番号の保存に失敗しました')
+      }
 
       toast.success('保存しました')
       setShowIncomplete(!isComplete)

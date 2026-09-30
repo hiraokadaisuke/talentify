@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
@@ -28,7 +29,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
       .select(
         `
         id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,accepted_at,paid,paid_at,
-        reviews(id), talents(stage_name,avatar_url,user_id,phone,preferred_contact_method,phone_contact_allowed,phone_available_hours),
+        reviews(id), talents(stage_name,avatar_url,user_id,preferred_contact_method,phone_contact_allowed,phone_available_hours),
         store:stores!offers_store_id_fkey(id, store_name, user_id)
       `
       )
@@ -45,8 +46,19 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const data = offerResult.data
   const invoice = invoiceResult.data
 
-  if (!data || !user) {
+  if (!data || !user || data.store?.user_id !== user.id) {
     notFound()
+  }
+
+  let privateTalentPhone: string | null = null
+  if (data.talents?.phone_contact_allowed && data.talents?.user_id) {
+    const service = createServiceClient()
+    const { data: appUser } = await service
+      .from('users')
+      .select('phone')
+      .eq('auth_user_id', data.talents.user_id)
+      .maybeSingle()
+    privateTalentPhone = appUser?.phone ?? null
   }
 
   const reviewCompleted = Array.isArray((data as any).reviews) && (data as any).reviews.length > 0
@@ -81,7 +93,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     talentId: data.talent_id as string | null,
     reviewCompleted,
     talentUserId: data.talents?.user_id as string | null,
-    talentPhone: data.talents?.phone as string | null,
+    talentPhone: privateTalentPhone,
     preferredContactMethod: data.talents?.preferred_contact_method as string | null,
     phoneContactAllowed: Boolean(data.talents?.phone_contact_allowed),
     phoneAvailableHours: data.talents?.phone_available_hours as string | null,
