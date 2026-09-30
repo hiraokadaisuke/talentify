@@ -23,6 +23,12 @@ export type NotificationEvent =
       invoiceId: string
     }
   | {
+      kind: 'estimate_approved_to_talent'
+      actorName?: string | null
+      actorId?: string | null
+      invoiceId: string
+    }
+  | {
       kind: 'payment_completed_to_talent'
       actorName?: string | null
       actorId?: string | null
@@ -114,10 +120,10 @@ export const notificationConfig: {
     priority: 'medium',
     dedupeStrategy: (event) => `invoice-submit:${event.invoiceId}`,
     build: ({ roleRootPath, event }) => ({
-      title: '請求書が提出されました',
-      body: '内容を確認して、承認または差し戻しを行ってください。',
+      title: '見積書が提出されました',
+      body: '内容を確認し、問題なければ承認して取引を締結してください。',
       actionUrl: `${roleRootPath}/invoices/${event.invoiceId}`,
-      actionLabel: '請求書を確認',
+      actionLabel: '見積書を確認',
       entityType: 'invoice',
       entityId: event.invoiceId,
       data: {
@@ -132,15 +138,31 @@ export const notificationConfig: {
     priority: 'high',
     dedupeStrategy: (event) => `invoice-reject:${event.invoiceId}`,
     build: ({ roleRootPath, event }) => ({
-      title: '請求書が差し戻されました',
-      body: '修正内容を確認し、再提出をお願いします。',
+      title: '見積書の修正依頼が届きました',
+      body: '内容を確認し、見積書を修正して再提出してください。',
       actionUrl: `${roleRootPath}/invoices/${event.invoiceId}`,
-      actionLabel: '再提出する',
+      actionLabel: '見積書を修正',
       entityType: 'invoice',
       entityId: event.invoiceId,
       data: {
         invoice_id: event.invoiceId,
       },
+    }),
+  },
+  estimate_approved_to_talent: {
+    type: 'offer_accepted',
+    category: 'notification',
+    isActionable: false,
+    priority: 'high',
+    dedupeStrategy: (event) => `estimate-approved:${event.invoiceId}`,
+    build: ({ roleRootPath, event }) => ({
+      title: '見積書が承認され、取引が締結されました',
+      body: '取引締結書兼請求書が発行されました。内容をご確認ください。',
+      actionUrl: `${roleRootPath}/invoices/${event.invoiceId}`,
+      actionLabel: '締結書兼請求書を見る',
+      entityType: 'invoice',
+      entityId: event.invoiceId,
+      data: { invoice_id: event.invoiceId },
     }),
   },
   payment_completed_to_talent: {
@@ -188,7 +210,7 @@ export const notificationConfig: {
     dedupeStrategy: (event) => `offer-created:${event.offerId}`,
     build: ({ roleRootPath, event }) => ({
       title: '新しいオファーが届きました',
-      body: '内容を確認して、回答をお願いします。',
+      body: '内容を確認し、必要に応じてメッセージで条件を相談してください。',
       actionUrl: `${roleRootPath}/offers/${event.offerId}`,
       actionLabel: 'オファーを確認',
       entityType: 'offer',

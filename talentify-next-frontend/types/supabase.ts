@@ -17,11 +17,14 @@ export type Database = {
       invoices: {
         Row: {
           amount: number
+          contracted_at?: string | null
+          contracted_at: string | null
           created_at: string | null
           due_date: string | null
+          estimate_number: string
           extra_fee: number | null
           id: string
-          invoice_number: string
+          invoice_number: string | null
           invoice_url: string | null
           notes: string | null
           offer_id: string | null
@@ -37,9 +40,11 @@ export type Database = {
           amount: number
           created_at?: string | null
           due_date?: string | null
+          estimate_number?: string
+          estimate_number?: string
           extra_fee?: number | null
           id?: string
-          invoice_number?: string
+          invoice_number?: string | null
           invoice_url?: string | null
           notes?: string | null
           offer_id?: string | null
@@ -53,11 +58,12 @@ export type Database = {
         }
         Update: {
           amount?: number
+          contracted_at?: string | null
           created_at?: string | null
           due_date?: string | null
           extra_fee?: number | null
           id?: string
-          invoice_number?: string
+          invoice_number?: string | null
           invoice_url?: string | null
           notes?: string | null
           offer_id?: string | null

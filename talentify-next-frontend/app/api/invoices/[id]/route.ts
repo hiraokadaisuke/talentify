@@ -22,10 +22,10 @@ export async function PATCH(
       .eq('id', id)
       .single()
     if (invError || !invoice) {
-      return NextResponse.json<{ error: string }>({ error: '請求書が見つかりません' }, { status: 404 })
+      return NextResponse.json<{ error: string }>({ error: '見積書が見つかりません' }, { status: 404 })
     }
     if (invoice.status !== 'draft') {
-      return NextResponse.json<{ error: string }>({ error: '下書きのみ編集できます' }, { status: 400 })
+      return NextResponse.json<{ error: string }>({ error: '見積書の下書きのみ編集できます' }, { status: 400 })
     }
 
     const { data: talent, error: talentError } = await supabase
@@ -37,7 +37,7 @@ export async function PATCH(
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const allowedFields = ['invoice_url', 'amount', 'due_date', 'notes']
+    const allowedFields = ['invoice_url', 'amount', 'due_date', 'notes', 'transport_fee', 'extra_fee']
     const updates: Record<string, any> = {}
     for (const field of allowedFields) {
       if (body[field] !== undefined) updates[field] = body[field]

@@ -25,7 +25,7 @@ export async function POST(
       .eq('id', id)
       .single()
     if (invError || !invoice) {
-      return NextResponse.json<{ error: string }>({ error: '請求書が見つかりません' }, { status: 404 })
+      return NextResponse.json<{ error: string }>({ error: '見積書が見つかりません' }, { status: 404 })
     }
 
     const { data: talent, error: talentError } = await supabase

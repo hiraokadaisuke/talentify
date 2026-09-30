@@ -1,17 +1,17 @@
 export type InvoiceStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | string | null | undefined
 export type PaymentStatus = 'paid' | 'unpaid' | string | null | undefined
-export type OfferInvoiceProgressStatus = 'not_submitted' | 'submitted' | 'paid'
+export type OfferInvoiceProgressStatus = 'not_created' | 'draft' | 'submitted' | 'approved' | 'paid'
 
 export function getInvoiceStatusLabel(status: InvoiceStatus): string {
   switch (status) {
     case 'draft':
-      return '未提出'
+      return '見積作成中'
     case 'submitted':
-      return '提出済み'
+      return '見積提出済み'
     case 'approved':
-      return '承認済み'
+      return '締結済み'
     case 'rejected':
-      return '差し戻し'
+      return '修正依頼'
     default:
       return status ?? '-'
   }
@@ -35,8 +35,8 @@ export function deriveOfferInvoiceProgressStatus(params: {
   const paymentCompleted = paymentStatus === 'completed' || isPaymentCompleted(invoicePaymentStatus, offerPaid)
 
   if (paymentCompleted) return 'paid'
-  if (invoiceStatus === 'submitted' || invoiceStatus === 'approved' || invoiceStatus === 'rejected') {
-    return 'submitted'
-  }
-  return 'not_submitted'
+  if (invoiceStatus === 'approved') return 'approved'
+  if (invoiceStatus === 'submitted') return 'submitted'
+  if (invoiceStatus === 'draft' || invoiceStatus === 'rejected') return 'draft'
+  return 'not_created'
 }
