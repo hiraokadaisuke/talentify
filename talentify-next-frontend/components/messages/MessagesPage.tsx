@@ -380,7 +380,7 @@ export default function MessagesPage({
 
               {type === 'offer' && (
                 <div className="border-b border-gray-200 bg-white px-4 py-3">
-                  <OfferSummary offer={offerInfo} role={role} />
+                  <OfferSummary offer={offerInfo} role={role} offerId={activeId} />
                 </div>
               )}
 

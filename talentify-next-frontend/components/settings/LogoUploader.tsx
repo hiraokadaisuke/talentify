@@ -1,6 +1,7 @@
 'use client'
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 interface Props {
   value?: string | null
@@ -15,11 +16,13 @@ export function LogoUploader({ value, onChange }: Props) {
     const file = e.target.files?.[0]
     if (!file) return
     if (!file.type.startsWith('image/')) {
-      // TODO: show error
+      toast.error('画像ファイルを選択してください')
+      e.target.value = ''
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      // TODO: show error
+      toast.error('画像は5MB以下にしてください')
+      e.target.value = ''
       return
     }
     const url = URL.createObjectURL(file)

@@ -7,7 +7,6 @@ const footerLinks = [
   { href: '/guide', label: 'ご利用ガイド' },
   { href: '/faq', label: 'よくある質問' },
   { href: '/login', label: 'ログイン' },
-  { href: '/company', label: '会社概要' },
   { href: '/privacy', label: 'プライバシーポリシー' },
 ]
 

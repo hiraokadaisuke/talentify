@@ -26,7 +26,6 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/',
   '/about',
   '/column',
-  '/company',
   '/contact',
   '/faq',
   '/guide',
@@ -74,7 +73,6 @@ const ROLE_MENUS: Record<
       { href: '/talent/edit', label: 'プロフィール編集' },
       { href: '/talent/reviews', label: 'レビュー管理' },
       { href: '/talent/invoices', label: '請求管理' },
-      { href: '/talent/payments', label: 'ギャラ管理' },
       { href: '/talent/settings', label: '設定' },
     ],
   },
@@ -132,7 +130,6 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
       pathname.startsWith('/guide/') ||
       pathname.startsWith('/column/') ||
       pathname.startsWith('/news/') ||
-      pathname.startsWith('/company/') ||
       pathname.startsWith('/faq/') ||
       pathname.startsWith('/password-reset/'))
 
@@ -268,7 +265,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   ログイン
                 </Link>
                 <Link
-                  href="/#choose-role"
+                  href="/#register"
                   className="inline-flex h-9 items-center rounded-full bg-gradient-to-r from-orange-400 to-pink-500 px-4 text-xs font-black text-white shadow-[0_0_18px_rgba(236,72,153,.25)] sm:text-sm"
                 >
                   新規登録

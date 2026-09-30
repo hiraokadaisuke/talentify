@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export type OfferSummaryInfo = {
   status?: string | null
   date?: string | null
@@ -8,7 +10,15 @@ export type OfferSummaryInfo = {
   time?: string | null
 }
 
-export default function OfferSummary({ offer, role }: { offer: OfferSummaryInfo | null; role: 'store' | 'talent' }) {
+export default function OfferSummary({
+  offer,
+  role,
+  offerId,
+}: {
+  offer: OfferSummaryInfo | null
+  role: 'store' | 'talent'
+  offerId?: string | null
+}) {
   if (!offer) {
     return (
       <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-xs text-gray-500">
@@ -26,31 +36,16 @@ export default function OfferSummary({ offer, role }: { offer: OfferSummaryInfo 
         <div className="rounded-lg bg-white px-2 py-1.5">希望時間: {offer.time ?? '未設定'}</div>
         <div className="rounded-lg bg-white px-2 py-1.5">ステータス: {offer.status ?? '確認中'}</div>
       </div>
-      <div className="mt-2 flex flex-wrap gap-2">
-        <button type="button" className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100">
-          オファー内容を確認
-        </button>
-        {role === 'store' ? (
-          <>
-            <button type="button" className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100">
-              条件を変更
-            </button>
-            <button type="button" className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100">
-              メッセージで相談
-            </button>
-          </>
-        ) : (
-          <>
-            <button type="button" className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700">
-              承認する
-            </button>
-            <button type="button" className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-100">
-              辞退する
-            </button>
-          </>
-        )}
-      </div>
-      {/* TODO: 既存の承認/辞退APIや詳細ページ導線に接続する */}
+      {offerId && (
+        <div className="mt-3">
+          <Link
+            href={'/' + role + '/offers/' + offerId}
+            className="inline-flex rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
+          >
+            オファー詳細で確認・操作
+          </Link>
+        </div>
+      )}
     </div>
   )
 }

@@ -45,6 +45,7 @@ export async function middleware(req: NextRequest) {
     '/store/',
     '/talent/',
     '/messages',
+    '/notifications',
     '/account/',
   ].some((prefix) => pathname.startsWith(prefix))
 
@@ -79,8 +80,8 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  if (pathname.startsWith('/messages')) {
-    return redirectWithCookies(req, res, '/' + role + pathname)
+  if (pathname.startsWith('/notifications')) {
+    return redirectWithCookies(req, res, '/' + role + '/notifications')
   }
 
   if (pathname.startsWith('/store/') && role !== 'store') {
@@ -106,6 +107,7 @@ export const config = {
     '/store/:path*',
     '/talent/:path*',
     '/messages/:path*',
+    '/notifications/:path*',
     '/account/:path*',
   ],
 }
