@@ -51,7 +51,7 @@ export async function POST(
 
     const { error: offerError } = await supabase
       .from('offers')
-      .update({ paid: true, paid_at: paidTime })
+      .update({ paid: true, paid_at: paidTime, status: 'completed' })
       .eq('id', invoice.offer_id)
     if (offerError) throw offerError
 
