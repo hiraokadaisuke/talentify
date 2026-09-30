@@ -37,34 +37,6 @@ export async function listOfferMessages(
   return { data: (data as any) as OfferMessage[] }
 }
 
-export async function sendOfferMessage(
-  client: SupabaseClient,
-  params: {
-    offerId: string
-    senderRole: 'store' | 'talent' | 'admin'
-    receiverUserId: string
-    body: string | null
-    attachments: Attachment[]
-  }
-): Promise<OfferMessage> {
-  const { user } = await getCurrentUserWithClient(client)
-  if (!user) throw new Error('Not authenticated')
-  const { data, error } = await client
-    .from('offer_messages')
-    .insert({
-      offer_id: params.offerId,
-      sender_user: user.id,
-      receiver_user: params.receiverUserId,
-      sender_role: params.senderRole,
-      body: params.body,
-      attachments: params.attachments,
-    })
-    .select('*')
-    .single()
-  if (error) throw error
-  return data as OfferMessage
-}
-
 export function subscribeOfferMessages(
   client: SupabaseClient,
   offerId: string,
