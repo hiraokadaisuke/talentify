@@ -38,7 +38,6 @@ export async function PATCH(
     }
 
     const allowedFields = [
-      'invoice_url',
       'amount',
       'transport_fee',
       'extra_fee',
