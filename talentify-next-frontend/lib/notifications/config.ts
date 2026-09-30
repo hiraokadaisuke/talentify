@@ -96,7 +96,9 @@ export const notificationConfig: {
     build: ({ actorName, roleRootPath, event }) => ({
       title: `${actorName}さんからメッセージが届きました`,
       body: '内容を確認して、必要であれば返信しましょう。',
-      actionUrl: `${roleRootPath}/messages`,
+      actionUrl: event.offerId
+        ? `${roleRootPath}/offers/${event.offerId}#offer-messages`
+        : `${roleRootPath}/messages?tab=direct`,
       actionLabel: 'メッセージを確認',
       entityType: 'message',
       entityId: event.messageId,

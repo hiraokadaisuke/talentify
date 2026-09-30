@@ -324,6 +324,7 @@ export type Database = {
           id: string
           offer_id: string | null
           receiver_user: string | null
+          read_at: string | null
           sender_role: string
           sender_user: string
         }
@@ -334,6 +335,7 @@ export type Database = {
           id?: string
           offer_id?: string | null
           receiver_user?: string | null
+          read_at?: string | null
           sender_role: string
           sender_user: string
         }
@@ -344,6 +346,7 @@ export type Database = {
           id?: string
           offer_id?: string | null
           receiver_user?: string | null
+          read_at?: string | null
           sender_role?: string
           sender_user?: string
         }

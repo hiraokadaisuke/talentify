@@ -1,27 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { messages } from '../data'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function POST(req: NextRequest) {
-  const { threadId, upToMessageId, userId = 'u1' } = await req.json()
-  if (!threadId || !upToMessageId) {
-    return NextResponse.json({ error: 'threadId and upToMessageId are required' }, { status: 400 })
+  try {
+    const { user, error: userError } = await getCurrentUser()
+    if (userError || !user) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    }
+
+    const body = await req.json().catch(() => ({}))
+    const offerId = typeof body.offerId === 'string' && body.offerId ? body.offerId : null
+    const withUser = typeof body.withUser === 'string' && body.withUser ? body.withUser : null
+
+    if (!offerId && !withUser) {
+      return NextResponse.json({ error: 'offerId or withUser is required' }, { status: 400 })
+    }
+
+    const service = createServiceClient()
+    let query = service
+      .from('offer_messages')
+      .select('id')
+      .eq('receiver_user', user.id)
+      .is('read_at', null)
+
+    if (offerId) {
+      query = query.eq('offer_id', offerId)
+    } else {
+      query = query.is('offer_id', null).eq('sender_user', withUser!)
+    }
+
+    const { data: unreadRows, error: selectError } = await query
+    if (selectError) throw selectError
+
+    const ids = (unreadRows ?? []).map(row => row.id)
+    if (ids.length === 0) {
+      return NextResponse.json({ ok: true, count: 0 })
+    }
+
+    const readAt = new Date().toISOString()
+    const { error: updateError } = await service
+      .from('offer_messages')
+      .update({ read_at: readAt })
+      .eq('receiver_user', user.id)
+      .in('id', ids)
+
+    if (updateError) throw updateError
+
+    const { error: notificationError } = await service
+      .from('notifications')
+      .update({ is_read: true, read_at: readAt, updated_at: readAt })
+      .eq('user_id', user.id)
+      .eq('type', 'message')
+      .eq('is_read', false)
+      .in('entity_id', ids)
+
+    if (notificationError) {
+      console.error('failed to mark message notifications read', notificationError)
+    }
+
+    return NextResponse.json({ ok: true, count: ids.length, read_at: readAt })
+  } catch (error) {
+    console.error('[POST /api/messages/read]', error)
+    return NextResponse.json({ error: 'mark_read_failed' }, { status: 500 })
   }
-
-  const target = messages.find(
-    m => m.id === upToMessageId && m.threadId === threadId
-  )
-  if (!target) {
-    return NextResponse.json({ error: 'Message not found' }, { status: 404 })
-  }
-
-  const cutoff = target.createdAt
-  messages
-    .filter(m => m.threadId === threadId && m.createdAt <= cutoff)
-    .forEach(m => {
-      if (!m.readBy.includes(userId)) {
-        m.readBy.push(userId)
-      }
-    })
-
-  return NextResponse.json({ ok: true })
 }

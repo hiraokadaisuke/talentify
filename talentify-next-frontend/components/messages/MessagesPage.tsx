@@ -21,6 +21,7 @@ type MessageRow = {
   body: string
   created_at: string | null
   offer_id: string | null
+  read_at?: string | null
   attachment_url?: string | null
   attachment_name?: string | null
   attachment_size?: number | null
@@ -96,6 +97,9 @@ function groupMessages(
       })
     }
     const th = map.get(key)!
+    if (m.receiver_user === userId && !m.read_at) {
+      th.unread += 1
+    }
     th.messages.push({
       id: m.id,
       from: m.sender_user === userId ? role : role === 'store' ? 'talent' : 'store',
@@ -235,6 +239,48 @@ export default function MessagesPage({
 
   const activeThread = filteredThreads.find(t => t.id === activeId)
 
+  const markThreadRead = async (thread: Thread) => {
+    if (!userId || thread.unread <= 0) return
+    const payload =
+      type === 'offer'
+        ? { offerId: thread.id }
+        : { withUser: thread.partnerId }
+
+    try {
+      const res = await fetch('/api/messages/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) return
+      const now = new Date().toISOString()
+      setMessages(prev =>
+        prev.map(message => {
+          const belongsToThread =
+            type === 'offer'
+              ? message.offer_id === thread.id
+              : !message.offer_id &&
+                (message.sender_user === thread.partnerId || message.receiver_user === thread.partnerId)
+          return belongsToThread && message.receiver_user === userId && !message.read_at
+            ? { ...message, read_at: now }
+            : message
+        }),
+      )
+    } catch (error) {
+      console.error('failed to mark message thread as read', error)
+    }
+  }
+
+  useEffect(() => {
+    if (!activeThread || !userId) return
+    const visible = mobileThreadOpen || window.matchMedia('(min-width: 768px)').matches
+    if (visible && activeThread.unread > 0) {
+      void markThreadRead(activeThread)
+    }
+  // Marking read updates messages and therefore activeThread; avoid a repeated request loop.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, mobileThreadOpen, userId, type])
+
   const handleSend = async () => {
     if (!input.trim() || !activeThread || sending) return
     const tempId = `temp-${Date.now()}`
@@ -333,6 +379,7 @@ export default function MessagesPage({
                         onClick={() => {
                           setActiveId(thread.id)
                           setMobileThreadOpen(true)
+                          void markThreadRead(thread)
                         }}
                       >
                         <div className="flex items-start gap-3">

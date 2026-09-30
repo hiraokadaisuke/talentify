@@ -57,7 +57,14 @@ export default function OfferChatThread({
   }, [currentUserId, offerId, supabase])
 
   const markConversationAsRead = useCallback(async () => {
-    await upsertReadReceipt(supabase, offerId)
+    await Promise.all([
+      upsertReadReceipt(supabase, offerId),
+      fetch('/api/messages/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ offerId }),
+      }).catch(() => null),
+    ])
     setUnreadCount(0)
     await updateReadReceipts()
   }, [offerId, supabase, updateReadReceipts])

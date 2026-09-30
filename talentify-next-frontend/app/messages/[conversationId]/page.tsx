@@ -27,6 +27,11 @@ export default function ConversationPage() {
       if (res.ok) {
         const { data }: { data: MessageRow[] } = await res.json()
         setMessages(data)
+        await fetch('/api/messages/read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ withUser: conversationId }),
+        }).catch(() => null)
       }
     }
     init()
@@ -40,6 +45,11 @@ export default function ConversationPage() {
     if (!input.trim()) return
     await sendMessage(conversationId, input.trim())
     setInput('')
+    const res = await fetch(`/api/messages/inbox?userId=${conversationId}&type=direct`)
+    if (res.ok) {
+      const { data }: { data: MessageRow[] } = await res.json()
+      setMessages(data)
+    }
   }
 
   return (

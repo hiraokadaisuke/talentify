@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const offerId = searchParams.get('offerId')
   const withUser = searchParams.get('userId')
+  const type = searchParams.get('type')
 
   let query = supabase
     .from('offer_messages')
@@ -20,6 +21,10 @@ export async function GET(req: NextRequest) {
 
   if (offerId) {
     query = query.eq('offer_id', offerId)
+  } else if (type === 'offer') {
+    query = query.not('offer_id', 'is', null)
+  } else if (type === 'direct') {
+    query = query.is('offer_id', null)
   }
 
   if (withUser) {

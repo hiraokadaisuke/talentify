@@ -1,36 +1,47 @@
 'use client'
 
-import { useMemo, useState, KeyboardEvent } from 'react'
+import { useState, KeyboardEvent } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { sendOfferMessage } from '@/lib/supabase/offerMessages'
-import { createClient } from '@/utils/supabase/client'
+import type { OfferMessage } from '@/lib/supabase/offerMessages'
+import { toast } from 'sonner'
 
 interface OfferChatInputProps {
   offerId: string
   senderRole: 'store' | 'talent' | 'admin'
   receiverUserId: string
-  onSent?: (msg: any) => void
+  onSent?: (msg: OfferMessage) => void
 }
 
-export default function OfferChatInput({ offerId, senderRole, receiverUserId, onSent }: OfferChatInputProps) {
+export default function OfferChatInput({ offerId, receiverUserId, onSent }: OfferChatInputProps) {
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
-  const supabase = useMemo(() => createClient(), [])
 
   const handleSend = async () => {
-    if (!body.trim() || !receiverUserId) return
+    const messageBody = body.trim()
+    if (!messageBody || !receiverUserId || sending) return
     setSending(true)
+
     try {
-      const message = await sendOfferMessage(supabase, {
-        offerId,
-        senderRole,
-        receiverUserId,
-        body: body.trim() || null,
-        attachments: [],
+      const res = await fetch('/api/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiverUserId,
+          offerId,
+          body: messageBody,
+        }),
       })
+      const payload = await res.json().catch(() => null)
+      if (!res.ok || !payload?.data) {
+        throw new Error(payload?.error ?? 'send_failed')
+      }
+
       setBody('')
-      onSent?.(message)
+      onSent?.(payload.data as OfferMessage)
+    } catch (error) {
+      console.error('failed to send offer message', error)
+      toast.error('メッセージの送信に失敗しました')
     } finally {
       setSending(false)
     }
@@ -39,7 +50,7 @@ export default function OfferChatInput({ offerId, senderRole, receiverUserId, on
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSend()
+      void handleSend()
     }
   }
 
@@ -56,7 +67,7 @@ export default function OfferChatInput({ offerId, senderRole, receiverUserId, on
       <div className="flex flex-col gap-2 text-[11px] text-slate-400 sm:flex-row sm:items-center sm:justify-between">
         <p>{receiverUserId ? 'Shift + Enter で改行 / Enter で送信' : '送信先ユーザー情報を読み込み中です。'}</p>
         <Button
-          onClick={handleSend}
+          onClick={() => void handleSend()}
           disabled={sending || !body.trim() || !receiverUserId}
           className="min-h-11 w-full rounded-full bg-emerald-500 px-5 text-white transition hover:bg-emerald-600 disabled:bg-slate-300 sm:w-auto"
         >

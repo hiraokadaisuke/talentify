@@ -1,19 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { messages, threads } from '../data'
+import { NextResponse } from 'next/server'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
+import { createServiceClient } from '@/lib/supabase/service'
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const userId = searchParams.get('userId') || 'u1'
+export async function GET() {
+  try {
+    const { user, error: userError } = await getCurrentUser()
+    if (userError || !user) {
+      return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    }
 
-  const count = messages.filter(m => {
-    const thread = threads.find(t => t.id === m.threadId)
-    if (!thread) return false
-    return (
-      thread.participants.includes(userId) &&
-      m.senderUserId !== userId &&
-      !m.readBy.includes(userId)
-    )
-  }).length
+    const service = createServiceClient()
+    const { count, error } = await service
+      .from('offer_messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('receiver_user', user.id)
+      .is('read_at', null)
 
-  return NextResponse.json({ count })
+    if (error) throw error
+    return NextResponse.json({ count: count ?? 0 })
+  } catch (error) {
+    console.error('[GET /api/messages/unread-count]', error)
+    return NextResponse.json({ count: 0 }, { status: 500 })
+  }
 }

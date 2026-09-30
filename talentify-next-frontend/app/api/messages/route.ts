@@ -1,30 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { messages } from './data'
+import { getCurrentUser } from '@/lib/auth/getCurrentUser'
+import { createClient } from '@/lib/supabase/server'
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const threadId = searchParams.get('threadId')
+  const { user, error: userError } = await getCurrentUser()
+  if (userError || !user) {
+    return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  }
+
+  const threadId = req.nextUrl.searchParams.get('threadId')
+  const type = req.nextUrl.searchParams.get('type') === 'offer' ? 'offer' : 'direct'
   if (!threadId) {
     return NextResponse.json({ error: 'threadId is required' }, { status: 400 })
   }
 
-  const limit = parseInt(searchParams.get('limit') || '20', 10)
-  const cursor = searchParams.get('cursor')
+  const supabase = await createClient()
+  let query = supabase
+    .from('offer_messages')
+    .select('*')
+    .order('created_at', { ascending: true })
+    .limit(200)
 
-  const threadMessages = messages
-    .filter((m) => m.threadId === threadId)
-    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
-
-  let startIndex = 0
-  if (cursor) {
-    const index = threadMessages.findIndex((m) => m.id === cursor)
-    if (index >= 0) {
-      startIndex = index + 1
-    }
+  if (type === 'offer') {
+    query = query.eq('offer_id', threadId)
+  } else {
+    query = query
+      .is('offer_id', null)
+      .or(
+        `and(sender_user.eq.${user.id},receiver_user.eq.${threadId}),and(sender_user.eq.${threadId},receiver_user.eq.${user.id})`
+      )
   }
 
-  const data = threadMessages.slice(startIndex, startIndex + limit)
-  const nextCursor = data.length === limit ? data[data.length - 1].id : null
-
-  return NextResponse.json({ data, nextCursor })
+  const { data, error } = await query
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ data: data ?? [], nextCursor: null })
 }
