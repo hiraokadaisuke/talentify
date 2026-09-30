@@ -37,11 +37,27 @@ export async function PUT(
 ) {
   try {
     const { id } = params
-    const body = await req.json()
+    const body = await req.json().catch(() => null)
 
     const { user, error: userError } = await getCurrentUser()
     if (userError || !user) {
       return NextResponse.json<{ error: string }>({ error: '認証が必要です' }, { status: 401 })
+    }
+
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json<{ error: string }>({ error: 'リクエスト形式が正しくありません' }, { status: 400 })
+    }
+
+    const requestedStatus = toDbOfferStatus(
+      typeof body.status === 'string' ? body.status : null
+    )
+    if (!requestedStatus) {
+      return NextResponse.json<{ error: string }>({ error: '有効なステータスを指定してください' }, { status: 400 })
+    }
+
+    const extraFields = Object.keys(body).filter(field => field !== 'status')
+    if (extraFields.length > 0) {
+      return NextResponse.json<{ error: string }>({ error: 'このAPIではステータスのみ更新できます' }, { status: 400 })
     }
 
     const offerAccess = await findOfferAccessById(id)
@@ -49,57 +65,58 @@ export async function PUT(
       return NextResponse.json<{ error: string }>({ error: 'オファーが見つかりません' }, { status: 404 })
     }
 
-    let allowedFields: string[] = []
-    let actorRole: 'store' | 'talent' | null = null
     const storeUserId = offerAccess.store_user_id ?? undefined
     const talentUserId = offerAccess.talent_user_id ?? undefined
+    const currentStatus = offerAccess.status
+
+    let actorRole: 'store' | 'talent'
+    let transitionAllowed = false
+
     if (storeUserId && user.id === storeUserId) {
       actorRole = 'store'
-      allowedFields = ['status', 'contract_url']
+      transitionAllowed =
+        requestedStatus === 'canceled' &&
+        (currentStatus === 'pending' || currentStatus === 'confirmed')
     } else if (talentUserId && user.id === talentUserId) {
       actorRole = 'talent'
-      allowedFields = [
-        'status',
-        'agreed',
-        'invoice_date',
-        'invoice_amount',
-        'invoice_submitted',
-        'invoice_url',
-      ]
+      transitionAllowed =
+        currentStatus === 'pending' &&
+        (requestedStatus === 'confirmed' || requestedStatus === 'rejected')
     } else {
       return NextResponse.json<{ error: string }>({ error: '権限がありません' }, { status: 403 })
     }
 
-    const updates: Record<string, unknown> = {}
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) updates[field] = body[field]
+    if (!transitionAllowed) {
+      return NextResponse.json<{ error: string }>(
+        { error: '現在の状態ではこの操作はできません' },
+        { status: 409 }
+      )
     }
 
-    if (updates.status !== undefined) {
-      const normalizedStatus = toDbOfferStatus(String(updates.status))
-      if (normalizedStatus) {
-        updates.status = normalizedStatus
-        if (normalizedStatus === 'canceled') {
-          updates.canceled_at = new Date().toISOString()
-          updates.canceled_by_role = actorRole
-        }
-      } else {
-        delete updates.status
-      }
+    const updates: Record<string, unknown> = { status: requestedStatus }
+    const now = new Date().toISOString()
+
+    if (requestedStatus === 'confirmed') {
+      updates.accepted_at = now
+    }
+    if (requestedStatus === 'canceled') {
+      updates.canceled_at = now
+      updates.canceled_by_role = actorRole
     }
 
-    if (Object.keys(updates).length === 0) {
-      return NextResponse.json<{ error: string }>({ error: '更新可能な項目がありません' }, { status: 400 })
+    const updatedCount = await updateOfferById(id, updates, currentStatus)
+    if (updatedCount !== 1) {
+      return NextResponse.json<{ error: string }>(
+        { error: 'オファーの状態が変更されています。画面を更新してください' },
+        { status: 409 }
+      )
     }
 
-    await updateOfferById(id, updates)
-
-    const updatedStatus = typeof updates.status === 'string' ? updates.status : null
-    const recipientUserId = user.id === storeUserId ? talentUserId : storeUserId
-    if (updatedStatus && recipientUserId) {
+    const recipientUserId = actorRole === 'store' ? talentUserId : storeUserId
+    if (recipientUserId) {
       try {
         const event =
-          updatedStatus === 'confirmed'
+          requestedStatus === 'confirmed'
             ? {
                 kind: 'offer_accepted' as const,
                 offerId: id,
@@ -109,7 +126,7 @@ export async function PUT(
                 kind: 'offer_updated' as const,
                 offerId: id,
                 actorId: user.id,
-                status: updatedStatus,
+                status: requestedStatus,
               }
 
         await emitNotification({ recipientUserId, event })
@@ -118,7 +135,6 @@ export async function PUT(
       }
     }
 
-    // Notify performer or store about status change via webhook if configured
     const webhook = process.env.NOTIFICATION_WEBHOOK_URL
     if (webhook) {
       try {
@@ -127,9 +143,7 @@ export async function PUT(
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             offerId: id,
-            status: updates.status,
-            contract_url: updates.contract_url,
-            agreed: updates.agreed,
+            status: requestedStatus,
           }),
         })
       } catch (err) {

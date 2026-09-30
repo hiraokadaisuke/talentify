@@ -27,6 +27,7 @@ describe('PUT /api/offers/[id]', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-default' }, error: null })
+    mockedUpdateOfferById.mockResolvedValue(1)
   })
 
   it('returns 404 when offer does not exist', async () => {
@@ -35,95 +36,118 @@ describe('PUT /api/offers/[id]', () => {
 
     const req = new NextRequest('http://localhost/api/offers/offer-404', {
       method: 'PUT',
-      body: JSON.stringify({ status: 'approved' }),
+      body: JSON.stringify({ status: 'confirmed' }),
     })
     const res = await PUT(req, { params: { id: 'offer-404' } })
 
     expect(res.status).toBe(404)
-    await expect(res.json()).resolves.toMatchObject({ error: 'オファーが見つかりません' })
     expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
-  it('returns 403 when user is not store/talent owner', async () => {
+  it('returns 403 when user is not a participant owner', async () => {
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-other' }, error: null })
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
       talent_user_id: 'u-talent',
+      status: 'pending',
     })
 
     const req = new NextRequest('http://localhost/api/offers/offer-1', {
       method: 'PUT',
-      body: JSON.stringify({ status: 'approved' }),
+      body: JSON.stringify({ status: 'confirmed' }),
     })
     const res = await PUT(req, { params: { id: 'offer-1' } })
 
     expect(res.status).toBe(403)
-    await expect(res.json()).resolves.toMatchObject({ error: '権限がありません' })
     expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
-  it('returns 400 when no updatable fields are provided', async () => {
-    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
-    mockedFindOfferAccessById.mockResolvedValue({
-      store_user_id: 'u-store',
-      talent_user_id: 'u-talent',
-    })
+  it('rejects non-status fields', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-talent' }, error: null })
 
     const req = new NextRequest('http://localhost/api/offers/offer-1', {
       method: 'PUT',
-      body: JSON.stringify({ message: 'not-allowed' }),
+      body: JSON.stringify({ status: 'confirmed', invoice_amount: 999999 }),
     })
     const res = await PUT(req, { params: { id: 'offer-1' } })
 
     expect(res.status).toBe(400)
-    await expect(res.json()).resolves.toMatchObject({ error: '更新可能な項目がありません' })
+    expect(mockedFindOfferAccessById).not.toHaveBeenCalled()
     expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
-  it('updates allowed fields for store owner', async () => {
-    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
-    mockedUpdateOfferById.mockResolvedValue(1)
-    mockedFindOfferAccessById.mockResolvedValue({
-      store_user_id: 'u-store',
-      talent_user_id: 'u-talent',
-    })
-
-    const req = new NextRequest('http://localhost/api/offers/offer-1', {
-      method: 'PUT',
-      body: JSON.stringify({ contract_url: 'https://example.com/contract' }),
-    })
-    const res = await PUT(req, { params: { id: 'offer-1' } })
-
-    expect(res.status).toBe(200)
-    expect(mockedUpdateOfferById).toHaveBeenCalledWith('offer-1', {
-      contract_url: 'https://example.com/contract',
-    })
-  })
-
-  it('updates allowed fields for talent owner', async () => {
+  it('allows talent to accept a pending offer and records accepted_at', async () => {
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-talent' }, error: null })
-    mockedUpdateOfferById.mockResolvedValue(1)
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
       talent_user_id: 'u-talent',
+      status: 'pending',
     })
 
     const req = new NextRequest('http://localhost/api/offers/offer-1', {
       method: 'PUT',
-      body: JSON.stringify({ agreed: true }),
+      body: JSON.stringify({ status: 'confirmed' }),
     })
     const res = await PUT(req, { params: { id: 'offer-1' } })
 
     expect(res.status).toBe(200)
-    expect(mockedUpdateOfferById).toHaveBeenCalledWith('offer-1', { agreed: true })
+    expect(mockedUpdateOfferById).toHaveBeenCalledWith(
+      'offer-1',
+      expect.objectContaining({
+        status: 'confirmed',
+        accepted_at: expect.any(String),
+      }),
+      'pending'
+    )
+    expect(mockedEmitNotification).toHaveBeenCalled()
   })
 
-  it('normalizes status before updating', async () => {
-    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
-    mockedUpdateOfferById.mockResolvedValue(1)
+  it('allows talent to reject only a pending offer', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-talent' }, error: null })
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
       talent_user_id: 'u-talent',
+      status: 'pending',
+    })
+
+    const req = new NextRequest('http://localhost/api/offers/offer-1', {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'rejected' }),
+    })
+    const res = await PUT(req, { params: { id: 'offer-1' } })
+
+    expect(res.status).toBe(200)
+    expect(mockedUpdateOfferById).toHaveBeenCalledWith(
+      'offer-1',
+      { status: 'rejected' },
+      'pending'
+    )
+  })
+
+  it('blocks talent from changing an already confirmed offer', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-talent' }, error: null })
+    mockedFindOfferAccessById.mockResolvedValue({
+      store_user_id: 'u-store',
+      talent_user_id: 'u-talent',
+      status: 'confirmed',
+    })
+
+    const req = new NextRequest('http://localhost/api/offers/offer-1', {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'rejected' }),
+    })
+    const res = await PUT(req, { params: { id: 'offer-1' } })
+
+    expect(res.status).toBe(409)
+    expect(mockedUpdateOfferById).not.toHaveBeenCalled()
+  })
+
+  it('allows store to cancel pending or confirmed offers', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
+    mockedFindOfferAccessById.mockResolvedValue({
+      store_user_id: 'u-store',
+      talent_user_id: 'u-talent',
+      status: 'confirmed',
     })
 
     const req = new NextRequest('http://localhost/api/offers/offer-1', {
@@ -133,7 +157,53 @@ describe('PUT /api/offers/[id]', () => {
     const res = await PUT(req, { params: { id: 'offer-1' } })
 
     expect(res.status).toBe(200)
-    expect(mockedUpdateOfferById).toHaveBeenCalledWith('offer-1', { status: 'canceled' })
-    expect(mockedEmitNotification).toHaveBeenCalled()
+    expect(mockedUpdateOfferById).toHaveBeenCalledWith(
+      'offer-1',
+      expect.objectContaining({
+        status: 'canceled',
+        canceled_at: expect.any(String),
+        canceled_by_role: 'store',
+      }),
+      'confirmed'
+    )
+  })
+
+  it('blocks store from accepting, rejecting, or completing offers', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
+    mockedFindOfferAccessById.mockResolvedValue({
+      store_user_id: 'u-store',
+      talent_user_id: 'u-talent',
+      status: 'pending',
+    })
+
+    for (const status of ['confirmed', 'rejected', 'completed']) {
+      const req = new NextRequest('http://localhost/api/offers/offer-1', {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      })
+      const res = await PUT(req, { params: { id: 'offer-1' } })
+      expect(res.status).toBe(409)
+    }
+
+    expect(mockedUpdateOfferById).not.toHaveBeenCalled()
+  })
+
+  it('returns 409 when the offer changed concurrently', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-talent' }, error: null })
+    mockedFindOfferAccessById.mockResolvedValue({
+      store_user_id: 'u-store',
+      talent_user_id: 'u-talent',
+      status: 'pending',
+    })
+    mockedUpdateOfferById.mockResolvedValue(0)
+
+    const req = new NextRequest('http://localhost/api/offers/offer-1', {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'confirmed' }),
+    })
+    const res = await PUT(req, { params: { id: 'offer-1' } })
+
+    expect(res.status).toBe(409)
+    expect(mockedEmitNotification).not.toHaveBeenCalled()
   })
 })

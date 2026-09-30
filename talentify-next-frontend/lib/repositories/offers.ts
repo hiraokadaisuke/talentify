@@ -93,6 +93,7 @@ export class OfferCreateConflictError extends Error {
 export type OfferAccessForUpdate = {
   store_user_id: string | null
   talent_user_id: string | null
+  status: OfferStatusType | null
 }
 
 export type OfferUpdateInput = Record<string, unknown>
@@ -268,6 +269,7 @@ export async function findOfferAccessById(offerId: string): Promise<OfferAccessF
   const offer = await prisma.offers.findUnique({
     where: { id: offerId },
     select: {
+      status: true,
       stores: {
         select: {
           user_id: true,
@@ -288,14 +290,22 @@ export async function findOfferAccessById(offerId: string): Promise<OfferAccessF
   return {
     store_user_id: offer.stores?.user_id ?? null,
     talent_user_id: offer.talents?.user_id ?? null,
+    status: offer.status,
   }
 }
 
-export async function updateOfferById(offerId: string, updates: OfferUpdateInput): Promise<number> {
+export async function updateOfferById(
+  offerId: string,
+  updates: OfferUpdateInput,
+  expectedStatus?: OfferStatusType | null
+): Promise<number> {
   const prisma = getPrismaClient()
 
   const result = await prisma.offers.updateMany({
-    where: { id: offerId },
+    where: {
+      id: offerId,
+      ...(expectedStatus ? { status: expectedStatus } : {}),
+    },
     data: updates as Prisma.offersUpdateManyMutationInput,
   })
 
