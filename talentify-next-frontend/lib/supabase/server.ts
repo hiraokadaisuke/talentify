@@ -19,11 +19,20 @@ export function createClient() {
       get(name: string) {
         return cookieStore.get(name)?.value
       },
-      set() {
-        // Server Component では cookie を変更できないため何もしない
+      set(name: string, value: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value, ...options })
+        } catch {
+          // Server Components cannot mutate cookies.
+          // Route Handlers / Server Actions can, which is what login requires.
+        }
       },
-      remove() {
-        // Server Component では cookie を変更できないため何もしない
+      remove(name: string, options: CookieOptions) {
+        try {
+          cookieStore.set({ name, value: '', ...options, maxAge: 0 })
+        } catch {
+          // Server Components cannot mutate cookies.
+        }
       },
     },
   })
@@ -49,7 +58,7 @@ export const createMiddlewareClient = (
         res.cookies.set({ name, value, ...options })
       },
       remove(name: string, options: CookieOptions) {
-        res.cookies.set({ name, value: '', ...options })
+        res.cookies.set({ name, value: '', ...options, maxAge: 0 })
       },
     },
   })
