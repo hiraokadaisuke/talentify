@@ -127,7 +127,7 @@ export default function TalentInvoiceDetailPage() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `invoice-${id}.pdf`
+      a.download = `${invoice.invoice_number}.pdf`
       document.body.appendChild(a)
       a.click()
       a.remove()
