@@ -13,6 +13,7 @@ import { getActionLabel, getNotificationLink } from './notification-meta'
 interface Props {
   notification: NotificationRow
   onRead?: (id: string) => void
+  onNavigate?: () => void
   className?: string
 }
 
@@ -35,19 +36,24 @@ function isResurfacedNotification(createdAt: string | null, updatedAt: string | 
   return new Date(updatedAt).getTime() - new Date(createdAt).getTime() > 60_000
 }
 
-export default function NotificationItem({ notification, onRead, className }: Props) {
+export default function NotificationItem({ notification, onRead, onNavigate, className }: Props) {
   const router = useRouter()
   const Icon = resolveIcon(notification.type)
   const isUnread = !notification.is_read
   const isHigh = notification.priority === 'high'
 
-  const handleClick = useCallback(async () => {
+  const handleClick = useCallback(() => {
+    onNavigate?.()
+
     if (!notification.is_read) {
-      await markNotificationRead(notification.id)
       onRead?.(notification.id)
+      void markNotificationRead(notification.id).catch((error) => {
+        console.error('failed to mark notification as read', error)
+      })
     }
+
     router.push(getNotificationLink(notification))
-  }, [notification, onRead, router])
+  }, [notification, onNavigate, onRead, router])
 
   return (
     <button

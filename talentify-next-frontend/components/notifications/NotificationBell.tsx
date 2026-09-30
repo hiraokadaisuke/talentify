@@ -26,6 +26,7 @@ export default function NotificationBell() {
   const [items, setItems] = useState<NotificationRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [open, setOpen] = useState(false)
 
   const refreshBell = async (options?: { silent?: boolean }) => {
     if (!options?.silent) {
@@ -80,13 +81,18 @@ export default function NotificationBell() {
     }
   }, [])
 
-  const handleOpenChange = (open: boolean) => {
-    if (open) refreshBell({ silent: true })
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    if (nextOpen) refreshBell({ silent: true })
   }
 
   const handleItemRead = (id: string) => {
     setItems((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)))
-    refreshBell({ silent: true })
+    setCount((prev) => Math.max(0, prev - 1))
+  }
+
+  const handleNavigate = () => {
+    setOpen(false)
   }
 
   const handleReadAll = async () => {
@@ -99,7 +105,7 @@ export default function NotificationBell() {
   const notificationsPath = role ? `/${role}/notifications` : '/notifications'
 
   return (
-    <DropdownMenu onOpenChange={handleOpenChange}>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <button
           aria-label="通知"
@@ -141,12 +147,18 @@ export default function NotificationBell() {
           {!isLoading &&
             !loadError &&
             items.map((n) => (
-            <NotificationItem key={n.id} notification={n} onRead={handleItemRead} />
+            <NotificationItem
+              key={n.id}
+              notification={n}
+              onRead={handleItemRead}
+              onNavigate={handleNavigate}
+            />
             ))}
         </div>
         <div className="border-t">
           <Link
             href={notificationsPath}
+            onClick={handleNavigate}
             className="block px-3 py-2 text-center text-sm text-blue-600 hover:underline"
           >
             すべて見る
