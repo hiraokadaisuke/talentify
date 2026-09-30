@@ -5,7 +5,7 @@ import { getNotificationsRootPath, type RecipientRole } from '@/lib/notification
 function resolveRoleFromNotification(notification: NotificationRow): RecipientRole {
   const data = (notification.data as Record<string, unknown> | null) ?? {}
   const recipientRole = data.recipient_role
-  if (recipientRole === 'store' || recipientRole === 'talent' || recipientRole === 'company') return recipientRole
+  if (recipientRole === 'store' || recipientRole === 'talent') return recipientRole
   return 'unknown'
 }
 
@@ -23,12 +23,12 @@ export function getNotificationLink(notification: NotificationRow): string {
   const invoiceId = typeof data.invoice_id === 'string' ? data.invoice_id : null
 
   const role = resolveRoleFromNotification(notification)
-  if (notification.type === 'message') return role === 'store' || role === 'talent' ? `/${role}/messages` : '/app/messages'
+  if (notification.type === 'message') return role === 'store' || role === 'talent' ? `/${role}/messages` : '/dashboard'
   if (offerId) {
     if (role === 'store' || role === 'talent') return `/${role}/offers/${offerId}`
-    return `/offers/${offerId}`
+    return '/dashboard'
   }
-  if (invoiceId) return role === 'store' || role === 'talent' ? `/${role}/invoices/${invoiceId}` : `/invoices/${invoiceId}`
+  if (invoiceId) return role === 'store' || role === 'talent' ? `/${role}/invoices/${invoiceId}` : '/dashboard'
   return resolveFallbackLink(notification)
 }
 
