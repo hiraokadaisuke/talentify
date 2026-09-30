@@ -145,6 +145,9 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isPrimaryActive =
     !!roleNav?.primaryHref &&
     (pathname === roleNav.primaryHref || pathname.startsWith(roleNav.primaryHref + '/'))
+  const isFavoritesActive =
+    inferredRole === 'store' &&
+    (pathname === '/store/favorites' || pathname.startsWith('/store/favorites/'))
   const isProjectActive =
     !!roleNav &&
     roleNav.project.some((item) => pathname === item.href || pathname.startsWith(item.href + '/'))
@@ -185,6 +188,14 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               {roleNav.primaryHref && roleNav.primaryLabel && (
                 <Link href={roleNav.primaryHref} className={cn(navItemBaseClass, isPrimaryActive ? navItemActiveClass : '')}>
                   {roleNav.primaryLabel}
+                </Link>
+              )}
+              {inferredRole === 'store' && (
+                <Link
+                  href="/store/favorites"
+                  className={cn(navItemBaseClass, isFavoritesActive ? navItemActiveClass : '')}
+                >
+                  お気に入り
                 </Link>
               )}
               <DropdownMenu>
@@ -272,6 +283,16 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                           className={cn(mobileLinkClass, isPrimaryActive ? mobileActiveClass : '')}
                         >
                           {roleNav.primaryLabel}
+                        </Link>
+                      </SheetClose>
+                    )}
+                    {inferredRole === 'store' && (
+                      <SheetClose asChild>
+                        <Link
+                          href="/store/favorites"
+                          className={cn(mobileLinkClass, isFavoritesActive ? mobileActiveClass : '')}
+                        >
+                          お気に入り
                         </Link>
                       </SheetClose>
                     )}

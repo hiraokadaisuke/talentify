@@ -1,4 +1,4 @@
-import { LayoutDashboard, Mail, Calendar, User, Star, Wallet, Bell, Settings, Search, MessageCircle } from "lucide-react";
+import { LayoutDashboard, Mail, Calendar, User, Star, Wallet, Bell, Settings, Search, MessageCircle, Heart } from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -9,6 +9,7 @@ export interface NavItem {
 
 export const navItems: NavItem[] = [
   { href: "/search", label: "演者を探す", icon: Search, roles: ["store"] },
+  { href: "/store/favorites", label: "お気に入り", icon: Heart, roles: ["store"] },
   { href: "/store/dashboard", label: "ダッシュボード", icon: LayoutDashboard, roles: ["store"] },
   { href: "/store/offers", label: "オファー管理", icon: Mail, roles: ["store"] },
   { href: "/store/schedule", label: "スケジュール", icon: Calendar, roles: ["store"] },
