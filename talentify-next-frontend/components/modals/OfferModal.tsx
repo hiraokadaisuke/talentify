@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Modal,
   ModalContent,
@@ -30,7 +30,7 @@ type Template = {
 const TEMPLATE_KEY = 'offer_templates'
 
 export default function OfferModal({ open, onOpenChange, initialDate }: OfferModalProps) {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [talents, setTalents] = useState<{ id: string; stage_name: string | null }[]>([])
   const [visitDate, setVisitDate] = useState('')
   const [talentId, setTalentId] = useState('')
@@ -157,12 +157,12 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent className="max-h-[90vh] max-w-2xl overflow-hidden p-0">
-        <ModalHeader className="mb-0 border-b border-slate-200 bg-white px-6 py-4">
+      <ModalContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] max-w-2xl overflow-hidden p-0 sm:w-full">
+        <ModalHeader className="mb-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
           <ModalTitle>オファー作成</ModalTitle>
         </ModalHeader>
         <form onSubmit={handleSubmit} className="flex max-h-[calc(90vh-65px)] flex-col">
-          <div className="space-y-4 overflow-y-auto bg-slate-50 px-6 py-5">
+          <div className="space-y-4 overflow-y-auto bg-slate-50 px-4 py-4 sm:px-6 sm:py-5">
             <section className="rounded-lg border border-slate-200 bg-slate-100 p-4">
               <h3 className="text-sm font-semibold text-slate-700">オファー対象</h3>
               <div className="mt-3 space-y-3">
@@ -291,7 +291,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
               </div>
             </section>
           </div>
-          <ModalFooter className="mt-0 justify-between border-t border-slate-200 bg-white px-6 py-4">
+          <ModalFooter className="mt-0 flex-col gap-2 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:justify-between sm:px-6 sm:py-4">
             <Button type="button" variant="outline" className="h-10" onClick={saveTemplate}>
               テンプレート保存
             </Button>

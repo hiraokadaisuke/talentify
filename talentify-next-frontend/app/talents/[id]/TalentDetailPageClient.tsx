@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import clsx from 'clsx'
 import { createClient } from '@/utils/supabase/client'
@@ -44,7 +44,7 @@ type Props = {
 }
 
 export default function TalentDetailPageClient({ id, initialTalent }: Props) {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [talent, setTalent] = useState<Talent | null>(initialTalent ?? null)
   const [loadingTalent, setLoadingTalent] = useState(!initialTalent)
   const [userId, setUserId] = useState<string | null>(null)
@@ -106,7 +106,7 @@ export default function TalentDetailPageClient({ id, initialTalent }: Props) {
 
   const handleOfferSuccess = () => {
     setOfferSent(true)
-    router.refresh()
+    toast.success('オファーを送信しました')
   }
 
   const handleMessage = async () => {

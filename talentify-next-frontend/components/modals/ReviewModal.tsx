@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   Modal,
   ModalContent,
@@ -31,7 +31,7 @@ export default function ReviewModal({
   trigger: React.ReactNode
   onSubmitted?: () => void
 }) {
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(5)
   const [time, setTime] = useState<number | null>(null)
@@ -72,18 +72,16 @@ export default function ReviewModal({
 
     if (!error && review) {
       if (talentId) {
-        try {
-          await fetch('/api/notifications/review-received', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              offerId,
-              reviewId: review.id,
-            }),
-          })
-        } catch (notificationError) {
+        void fetch('/api/notifications/review-received', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            offerId,
+            reviewId: review.id,
+          }),
+        }).catch((notificationError) => {
           console.error('[review notification] failed', notificationError)
-        }
+        })
       }
 
       toast.success('レビューを投稿しました')
@@ -98,7 +96,7 @@ export default function ReviewModal({
   return (
     <Modal open={open} onOpenChange={setOpen}>
       <ModalTrigger asChild>{trigger}</ModalTrigger>
-      <ModalContent>
+      <ModalContent className="w-[calc(100vw-1.5rem)] max-w-lg sm:w-full">
         <ModalHeader>
           <ModalTitle>レビューを投稿</ModalTitle>
         </ModalHeader>
@@ -144,7 +142,7 @@ export default function ReviewModal({
             />
             <label htmlFor="is_public">このレビューを他ホールにも表示する</label>
           </div>
-          <ModalFooter>
+          <ModalFooter className="flex-col gap-2 sm:flex-row sm:justify-end">
             <ModalClose asChild>
               <Button type="button" variant="secondary">
                 キャンセル

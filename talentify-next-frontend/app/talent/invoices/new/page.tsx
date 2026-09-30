@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -39,7 +39,7 @@ export default function TalentInvoiceNewPage() {
   const searchParams = useSearchParams()
   const offerId = searchParams.get('offerId')
   const router = useRouter()
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   const [offer, setOffer] = useState<any | null>(null)
   const [invoice, setInvoice] = useState<any | null>(null)
@@ -61,22 +61,24 @@ export default function TalentInvoiceNewPage() {
   useEffect(() => {
     const init = async () => {
       if (!offerId) return
-      const { data: offerData } = await supabase
-        .from('offers')
-        .select(
+      const [{ data: offerData }, { data: invData }] = await Promise.all([
+        supabase
+          .from('offers')
+          .select(
+            `
+            id, date, reward, message,
+            store:stores!offers_store_id_fkey(id, store_name)
           `
-          id, date, reward, message,
-          store:stores!offers_store_id_fkey(id, store_name)
-        `
-        )
-        .eq('id', offerId)
-        .single()
+          )
+          .eq('id', offerId)
+          .single(),
+        supabase
+          .from('invoices')
+          .select('id, amount, status, payment_status, invoice_url, due_date')
+          .eq('offer_id', offerId)
+          .maybeSingle(),
+      ])
       if (offerData) setOffer(offerData)
-      const { data: invData } = await supabase
-        .from('invoices')
-        .select('id, amount, status, payment_status, invoice_url, due_date')
-        .eq('offer_id', offerId)
-        .maybeSingle()
       if (invData) {
         setInvoice(invData)
         setBaseFee(String(invData.amount ?? ''))
@@ -313,9 +315,9 @@ export default function TalentInvoiceNewPage() {
   })()
 
   return (
-    <main className="p-6">
-      <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-[420px,1fr] gap-6">
-        <div className="flex items-center justify-between lg:col-span-2">
+    <main className="p-3 sm:p-5 lg:p-6">
+      <div className="mx-auto grid min-w-0 max-w-[1200px] grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[420px,1fr]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-2">
           <h1 className="text-xl font-bold">請求書を作成</h1>
           <div className="flex items-center gap-2 text-sm">
             <span>現在の状態:</span>
@@ -426,7 +428,7 @@ export default function TalentInvoiceNewPage() {
                     <div className="text-2xl font-bold text-right">
                       合計: ¥{total.toLocaleString()}
                     </div>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
                       <Button
                         type="button"
                         onClick={saveDraft}
@@ -459,7 +461,7 @@ export default function TalentInvoiceNewPage() {
                         onChange={e => setPdfMemo(e.target.value)}
                       />
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex">
                       <Button type="submit" disabled={loading || !pdfFile}>
                         提出する
                       </Button>
