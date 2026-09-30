@@ -1,6 +1,10 @@
 # 環境ファイル（全階層対応）
 .env
 **/.env
+.env.local
+**/.env.local
+.env.*.local
+**/.env.*.local
 
 # node_modules 全体を無視
 node_modules/
