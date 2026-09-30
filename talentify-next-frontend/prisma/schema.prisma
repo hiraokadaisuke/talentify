@@ -433,6 +433,18 @@ model talent_availability_settings {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 
+model talent_billing_profiles {
+  talent_id                   String   @id @db.Uuid
+  user_id                     String   @unique @db.Uuid
+  billing_name                String?
+  billing_address             String?
+  invoice_registration_number String?
+  updated_at                  DateTime @default(now()) @db.Timestamptz(6)
+  talents                     talents  @relation(fields: [talent_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
 model talent_payout_accounts {
   talent_id      String   @id @db.Uuid
   user_id        String   @unique @db.Uuid
@@ -500,6 +512,7 @@ model talents {
   offers                        offers[]
   reviews                       reviews[]
   talent_payout_accounts        talent_payout_accounts?
+  talent_billing_profiles        talent_billing_profiles?
 
   @@index([area], map: "idx_talents_area")
   @@index([genre], map: "idx_talents_genre")
