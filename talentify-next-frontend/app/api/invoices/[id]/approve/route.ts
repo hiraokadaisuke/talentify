@@ -64,11 +64,32 @@ export async function POST(
 
       const offer = await tx.offers.findUnique({
         where: { id: invoice.offer_id },
-        select: { id: true, status: true },
+        select: { id: true, status: true, date: true },
       })
 
       if (!offer) throw new Error('OFFER_NOT_FOUND')
       if (offer.status !== 'pending') throw new Error('OFFER_STATE_CHANGED')
+
+      // Serialize contract approvals for the same talent so concurrent stores
+      // cannot both confirm the same performer for the same day.
+      await tx.$queryRaw<{ id: string }[]>`
+        SELECT id
+        FROM public.talents
+        WHERE id = ${invoice.talent_id}::uuid
+        FOR UPDATE
+      `
+
+      const scheduleConflict = await tx.offers.findFirst({
+        where: {
+          id: { not: offer.id },
+          talent_id: invoice.talent_id,
+          date: offer.date,
+          status: { in: ['confirmed', 'completed'] },
+        },
+        select: { id: true },
+      })
+
+      if (scheduleConflict) throw new Error('TALENT_SCHEDULE_CONFLICT')
 
       const [storeSnapshot, talentSnapshot, payoutRows] = await Promise.all([
         tx.stores.findUnique({
@@ -184,6 +205,15 @@ export async function POST(
     if (message === 'ESTIMATE_NOT_SUBMITTED' || message === 'OFFER_STATE_CHANGED') {
       return NextResponse.json(
         { error: '見積または案件の状態が変更されています。画面を更新してください' },
+        { status: 409 }
+      )
+    }
+    if (message === 'TALENT_SCHEDULE_CONFLICT') {
+      return NextResponse.json(
+        {
+          error: 'この演者は同日に別の締結済み案件があります。日程を調整してください',
+          code: 'TALENT_SCHEDULE_CONFLICT',
+        },
         { status: 409 }
       )
     }
