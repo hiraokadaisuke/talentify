@@ -131,3 +131,16 @@ Supabase に関する移行履歴や手動 SQL は [supabase-docs/migration-note
 📄 ライセンス
 
 MIT License. See the LICENSE file for details.
+
+
+### 取引メール通知
+
+アプリ内通知と同じイベントから取引メールも送信できます。メール配信は Resend の REST API を使用します。
+
+```env
+NOTIFICATION_EMAIL_ENABLED=true
+RESEND_API_KEY=re_xxxxxxxxx
+NOTIFICATION_EMAIL_FROM=Talentify <noreply@example.com>
+```
+
+`NOTIFICATION_EMAIL_ENABLED` が `true` で、APIキーと送信元が設定されている場合のみ送信します。未設定・無効時もアプリ内通知や取引処理には影響しません。初期状態ではメッセージ受信はメール対象外とし、オファー・見積・締結・支払い・レビューなど重要な取引イベントだけをメール送信します。

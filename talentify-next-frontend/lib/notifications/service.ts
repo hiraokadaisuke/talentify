@@ -2,6 +2,7 @@ import { createNotification } from '@/lib/repositories/notifications'
 import { buildNotificationPayload, type RecipientRole } from './payload'
 import type { NotificationEvent } from './config'
 import { resolveActorName, resolveRecipientRole } from './resolve-recipient-role'
+import { sendNotificationEmail } from './email'
 
 export async function createActionableNotification(
   recipientUserId: string,
@@ -43,8 +44,24 @@ export async function createActionableNotification(
     finalRecipientRole,
   )
 
-  return createNotification({
+  const notification = await createNotification({
     user_id: recipientUserId,
     ...payload,
   })
+
+  try {
+    await sendNotificationEmail({
+      recipientUserId,
+      event,
+      payload,
+    })
+  } catch (emailError) {
+    console.error('[notifications][email] failed to send notification email', {
+      recipientUserId,
+      eventKind: event.kind,
+      error: emailError,
+    })
+  }
+
+  return notification
 }
