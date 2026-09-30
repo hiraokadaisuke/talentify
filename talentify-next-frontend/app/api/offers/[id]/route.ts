@@ -50,11 +50,14 @@ export async function PUT(
     }
 
     let allowedFields: string[] = []
+    let actorRole: 'store' | 'talent' | null = null
     const storeUserId = offerAccess.store_user_id ?? undefined
     const talentUserId = offerAccess.talent_user_id ?? undefined
     if (storeUserId && user.id === storeUserId) {
+      actorRole = 'store'
       allowedFields = ['status', 'contract_url']
     } else if (talentUserId && user.id === talentUserId) {
+      actorRole = 'talent'
       allowedFields = [
         'status',
         'agreed',
@@ -78,8 +81,15 @@ export async function PUT(
 
     if (updates.status !== undefined) {
       const normalizedStatus = toDbOfferStatus(String(updates.status))
-      if (normalizedStatus) updates.status = normalizedStatus
-      else delete updates.status
+      if (normalizedStatus) {
+        updates.status = normalizedStatus
+        if (normalizedStatus === 'canceled') {
+          updates.canceled_at = new Date().toISOString()
+          updates.canceled_by_role = actorRole
+        }
+      } else {
+        delete updates.status
+      }
     }
 
     if (Object.keys(updates).length === 0) {
@@ -93,7 +103,7 @@ export async function PUT(
     if (updatedStatus && recipientUserId) {
       try {
         const event =
-          updatedStatus === 'accepted'
+          updatedStatus === 'confirmed'
             ? {
                 kind: 'offer_accepted' as const,
                 offerId: id,

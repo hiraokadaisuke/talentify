@@ -1,42 +1,61 @@
-export type OfferStatusDb =
-  | 'offer_created'
-  | 'proposed'
-  | 'pending'
-  | 'confirmed'
-  | 'completed'
-  | 'canceled'
-  | 'no_show'
-  | 'rejected'
-  | 'expired'
-  | 'draft'
+import type { Database } from '@/types/supabase'
+
+export type OfferStatusDb = Database['public']['Enums']['status_type']
+
+const VALID_DB_STATUSES = new Set<OfferStatusDb>([
+  'draft',
+  'pending',
+  'approved',
+  'rejected',
+  'completed',
+  'offer_created',
+  'confirmed',
+  'canceled',
+  'no_show',
+  'submitted',
+])
 
 const MAP_UI_TO_DB: Record<string, OfferStatusDb> = {
   Draft: 'draft',
-  Proposed: 'proposed',
+  draft: 'draft',
+  Proposed: 'pending',
+  proposed: 'pending',
   Pending: 'pending',
+  pending: 'pending',
+  Approved: 'approved',
+  approved: 'approved',
+  Accepted: 'confirmed',
+  accepted: 'confirmed',
   Confirmed: 'confirmed',
+  confirmed: 'confirmed',
   Completed: 'completed',
+  completed: 'completed',
   Cancelled: 'canceled',
-  canceled: 'canceled',
   cancelled: 'canceled',
   Canceled: 'canceled',
+  canceled: 'canceled',
   NoShow: 'no_show',
+  no_show: 'no_show',
   Rejected: 'rejected',
-  Expired: 'expired',
+  rejected: 'rejected',
+  Expired: 'canceled',
+  expired: 'canceled',
   OfferCreated: 'offer_created',
+  offer_created: 'offer_created',
+  Submitted: 'submitted',
+  submitted: 'submitted',
 }
 
-export function toDbOfferStatus(
-  v?: string | null
-): OfferStatusDb | undefined {
+export function toDbOfferStatus(v?: string | null): OfferStatusDb | undefined {
   if (!v) return undefined
-  const direct = MAP_UI_TO_DB[v]
-  if (direct) return direct
-  const lower = v.toLowerCase()
-  return MAP_UI_TO_DB[lower] ?? (lower as OfferStatusDb)
+
+  const mapped = MAP_UI_TO_DB[v] ?? MAP_UI_TO_DB[v.toLowerCase()]
+  if (mapped) return mapped
+
+  const normalized = v.toLowerCase() as OfferStatusDb
+  return VALID_DB_STATUSES.has(normalized) ? normalized : undefined
 }
 
-// 表示用（任意：DB→UI）
 export function toUiOfferStatus(v?: string | null): string | undefined {
   if (!v) return undefined
   if (v === 'canceled') return 'Cancelled'

@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/utils/supabase/client"
-import { toDbOfferStatus } from "@/app/lib/offerStatus"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { toast } from "sonner"
@@ -22,7 +20,6 @@ export default function CancelOfferSection({
   initialStatus,
   initialCanceledAt = null,
 }: Props) {
-  const supabase = createClient()
   const router = useRouter()
   const [localStatus, setLocalStatus] = useState(initialStatus)
   const [canceledAt, setCanceledAt] = useState<string | null>(initialCanceledAt)
@@ -34,21 +31,16 @@ export default function CancelOfferSection({
 
     setIsCancelling(true)
     try {
-      const { data, error } = await supabase
-        .from("offers")
-        .update({
-          status: toDbOfferStatus("canceled"),
-          canceled_at: new Date().toISOString(),
-          canceled_by_role: "store",
-        })
-        .eq("id", offerId)
-        .select()
-        .single()
+      const response = await fetch(`/api/offers/${offerId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "canceled" }),
+      })
 
-      if (error) throw error
+      if (!response.ok) throw new Error("offer cancellation failed")
 
       setLocalStatus("canceled")
-      setCanceledAt(data.canceled_at ?? null)
+      setCanceledAt(new Date().toISOString())
       toast("オファーをキャンセルしました")
       router.refresh()
     } catch (e) {

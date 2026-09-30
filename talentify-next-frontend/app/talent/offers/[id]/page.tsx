@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { getOfferProgress } from '@/utils/offerProgress'
 import { toast } from 'sonner'
-import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { Badge } from '@/components/ui/badge'
@@ -101,11 +100,12 @@ export default function TalentOfferPage() {
     if (offer.status !== 'pending') return
     setActionLoading('accept')
     setOffer({ ...offer, status: 'confirmed' })
-    const { error } = await supabase
-      .from('offers')
-      .update({ status: toDbOfferStatus('confirmed') })
-      .eq('id', offer.id)
-    if (error) {
+    const response = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'confirmed' }),
+    })
+    if (!response.ok) {
       toast.error('承諾に失敗しました')
       setOffer((prev: any) => ({ ...prev, status: 'pending' }))
     } else {
@@ -118,11 +118,12 @@ export default function TalentOfferPage() {
     if (offer.status !== 'pending') return
     setActionLoading('decline')
     setOffer({ ...offer, status: 'rejected' })
-    const { error } = await supabase
-      .from('offers')
-      .update({ status: toDbOfferStatus('rejected') })
-      .eq('id', offer.id)
-    if (error) {
+    const response = await fetch(`/api/offers/${offer.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'rejected' }),
+    })
+    if (!response.ok) {
       toast.error('辞退に失敗しました')
       setOffer((prev: any) => ({ ...prev, status: 'pending' }))
     } else {
