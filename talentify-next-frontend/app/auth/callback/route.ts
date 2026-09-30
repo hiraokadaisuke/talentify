@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getAppUserByAuthUserId, upsertAppUser } from '@/lib/auth/app-user'
 import { SIGNUP_ROLES, type SignupRole } from '@/lib/auth/signup'
+import { ensureStoreProfile, ensureTalentProfile } from '@/lib/provision'
 
 function toSignupRole(value: string | null | undefined): SignupRole | undefined {
   if (!value) return undefined
@@ -46,11 +47,17 @@ export async function GET(req: NextRequest) {
       status: 'onboarding',
     })
 
+    if (role === 'store') {
+      await ensureStoreProfile(supabase, user.id)
+    } else if (role === 'talent') {
+      await ensureTalentProfile(supabase, user.id)
+    }
+
     const target =
       role === 'store'
-        ? '/store/edit'
+        ? '/store/dashboard'
         : role === 'talent'
-          ? '/talent/edit'
+          ? '/talent/dashboard'
           : '/account/role'
 
     return NextResponse.redirect(new URL(target, url))

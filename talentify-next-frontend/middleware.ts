@@ -8,12 +8,6 @@ function homeForRole(role: UserRole | null) {
   return '/account/role'
 }
 
-function onboardingForRole(role: UserRole | null) {
-  if (role === 'store') return '/store/edit'
-  if (role === 'talent') return '/talent/edit'
-  return '/account/role'
-}
-
 function redirectWithCookies(req: NextRequest, res: NextResponse, path: string) {
   const url = req.nextUrl.clone()
   url.pathname = path
@@ -57,7 +51,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
-  const { role, isSetupComplete, status } = await getUserRoleInfo(supabase, user.id)
+  const { role, status } = await getUserRoleInfo(supabase, user.id)
 
   if (status === 'suspended' && pathname !== '/account/suspended') {
     return redirectWithCookies(req, res, '/account/suspended')
@@ -71,13 +65,6 @@ export async function middleware(req: NextRequest) {
 
   if (pathname === '/account/role' || pathname === '/account/suspended') {
     return redirectWithCookies(req, res, homeForRole(role))
-  }
-
-  if ((status === 'onboarding' || !isSetupComplete) && protectedPath) {
-    const onboardingPath = onboardingForRole(role)
-    if (!pathname.startsWith(onboardingPath)) {
-      return redirectWithCookies(req, res, onboardingPath)
-    }
   }
 
   if (pathname.startsWith('/notifications')) {

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
+import { getTodayJstDateString } from '@/utils/jstDate'
 
 const supabase = createClient()
 
@@ -18,9 +19,27 @@ export default function OfferPage() {
   const [timeRange, setTimeRange] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const minVisitDate = getTodayJstDateString()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!visitDate) {
+      alert('希望日を選択してください')
+      return
+    }
+    if (visitDate < minVisitDate) {
+      alert('希望日は本日以降を選択してください')
+      return
+    }
+    if (!timeRange.trim()) {
+      alert('希望時間帯を入力してください')
+      return
+    }
+    if (!agreed) {
+      alert('出演条件への同意が必要です')
+      return
+    }
 
     const {
       data: { user },
@@ -81,7 +100,9 @@ export default function OfferPage() {
           <Input
             type="date"
             value={visitDate}
+            min={minVisitDate}
             onChange={e => setVisitDate(e.target.value)}
+            required
           />
         </div>
         <div>
@@ -89,7 +110,8 @@ export default function OfferPage() {
           <Input
             value={timeRange}
             onChange={e => setTimeRange(e.target.value)}
-            placeholder="例: 10:00~"
+            placeholder="例: 10:00〜18:00"
+            required
           />
         </div>
         <div className="flex items-center gap-2">

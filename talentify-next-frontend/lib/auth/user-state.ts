@@ -7,7 +7,7 @@ export type AppUserStatus =
 /**
  * Route guard / middleware guidance:
  * - pending_email_verification: show verification check / resend mail flow
- * - onboarding: lock to onboarding pages
+ * - onboarding: allow product browsing, but gate actions that require a completed profile
  * - active: allow full product access
  * - suspended: lock to suspended/support page
  */

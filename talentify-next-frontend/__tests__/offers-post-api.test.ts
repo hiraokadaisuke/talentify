@@ -54,7 +54,7 @@ describe('POST /api/offers', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-default' }, error: null })
-    mockedFindOfferAccessById.mockResolvedValue({ store_user_id: 'u1', talent_user_id: 'u2' })
+    mockedFindOfferAccessById.mockResolvedValue({ store_user_id: 'u1', talent_user_id: 'u2', status: 'pending' })
     mockedEmitNotification.mockResolvedValue(undefined as never)
   })
 
@@ -126,9 +126,37 @@ describe('POST /api/offers', () => {
     expect(mockedCreateOffer).not.toHaveBeenCalled()
   })
 
+  it('returns 409 when store profile is not complete', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u1' }, error: null })
+    mockedFindStoreByIdForAuthUser.mockResolvedValue({
+      id: 'store-1',
+      user_id: 'u1',
+      is_setup_complete: false,
+    })
+
+    const req = new NextRequest('http://localhost/api/offers', {
+      method: 'POST',
+      body: JSON.stringify({
+        store_id: 'store-1',
+        talent_id: 'talent-1',
+        date: '2099-01-01',
+        time_range: '10:00〜18:00',
+        agreed: true,
+      }),
+    })
+    const res = await POST(req)
+
+    expect(res.status).toBe(409)
+    await expect(res.json()).resolves.toMatchObject({
+      ok: false,
+      code: 'PROFILE_INCOMPLETE',
+    })
+    expect(mockedCreateOffer).not.toHaveBeenCalled()
+  })
+
   it('returns existing offer for idempotent create', async () => {
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u1' }, error: null })
-    mockedFindStoreByIdForAuthUser.mockResolvedValue({ id: 'store-1', user_id: 'u1' })
+    mockedFindStoreByIdForAuthUser.mockResolvedValue({ id: 'store-1', user_id: 'u1', is_setup_complete: true })
     mockedFindExistingOfferForCreate.mockResolvedValue({
       id: 'offer-existing',
       user_id: 'u1',
@@ -163,7 +191,7 @@ describe('POST /api/offers', () => {
 
   it('creates new offer successfully', async () => {
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u1' }, error: null })
-    mockedFindStoreByIdForAuthUser.mockResolvedValue({ id: 'store-1', user_id: 'u1' })
+    mockedFindStoreByIdForAuthUser.mockResolvedValue({ id: 'store-1', user_id: 'u1', is_setup_complete: true })
     mockedFindExistingOfferForCreate.mockResolvedValue(null)
     mockedCreateOffer.mockResolvedValue({
       id: 'offer-new',

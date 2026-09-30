@@ -3,20 +3,29 @@ import ResendConfirmationCard from './ResendConfirmationCard'
 
 export default function CheckEmailPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4">
-      <h1 className="mb-4 text-2xl font-bold text-gray-800">仮登録が完了しました</h1>
-      <p className="mb-6 text-center text-gray-600">
-        ご入力いただいたメールアドレス宛に確認メールをお送りしました。
-        <br />
-        メールに記載されたURLをクリックして、本登録を完了してください。
-      </p>
-      <p className="text-sm text-gray-500">
-        ※メールが届かない場合は、迷惑メールフォルダをご確認ください。
-      </p>
+    <div className="flex min-h-screen items-center justify-center bg-[#05050d] px-4 py-12 text-white">
+      <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-white/[0.06] p-7 text-center shadow-2xl sm:p-9">
+        <img src="/images/lp/logo.png" alt="Talentify" className="mx-auto h-10 w-auto" />
+        <p className="mt-6 text-xs font-black tracking-[0.18em] text-pink-300">TALENTIFY ACCOUNT</p>
+        <h1 className="mt-2 text-2xl font-black">確認メールを送信しました</h1>
+        <p className="mt-4 text-sm leading-7 text-white/70">
+          Talentifyのアカウント確認メールを、ご入力いただいたメールアドレスへ送信しました。
+          <br />
+          メール内のボタンまたはURLからメールアドレスを確認してください。
+        </p>
+        <p className="mt-4 text-xs leading-6 text-white/50">
+          メール確認後はダッシュボードへ進みます。プロフィール登録はあとから行えます。
+        </p>
+        <p className="mt-5 text-xs text-white/45">
+          届かない場合は迷惑メールフォルダもご確認ください。
+        </p>
 
-      <Suspense fallback={null}>
-        <ResendConfirmationCard />
-      </Suspense>
+        <div className="mt-6 text-left text-slate-900">
+          <Suspense fallback={null}>
+            <ResendConfirmationCard />
+          </Suspense>
+        </div>
+      </div>
     </div>
   )
 }

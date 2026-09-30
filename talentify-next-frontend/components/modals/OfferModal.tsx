@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
+import { getTodayJstDateString, toJstDateInputValue } from '@/utils/jstDate'
 
 interface OfferModalProps {
   open: boolean
@@ -46,6 +47,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
 
   const selectedTalent = talents.find(t => t.id === talentId)
   const timeRange = startTime && endTime ? `${startTime}〜${endTime}` : ''
+  const minVisitDate = getTodayJstDateString()
 
   useEffect(() => {
     if (open) {
@@ -56,7 +58,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialDate])
 
-  const formatDate = (d: Date) => d.toISOString().slice(0, 10)
+  const formatDate = (d: Date) => toJstDateInputValue(d)
 
   const loadTalents = async () => {
     const { data, error } = await supabase.from('talents').select('id, stage_name')
@@ -89,8 +91,28 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!talentId) {
+      alert('演者を選択してください')
+      return
+    }
+    if (!visitDate) {
+      alert('希望日を選択してください')
+      return
+    }
+    if (visitDate < minVisitDate) {
+      alert('希望日は本日以降を選択してください')
+      return
+    }
     if (!startTime || !endTime) {
       alert('希望時間帯を選択してください')
+      return
+    }
+    if (startTime >= endTime) {
+      alert('終了時間は開始時間より後を選択してください')
+      return
+    }
+    if (!agreed) {
+      alert('出演条件への同意が必要です')
       return
     }
 
@@ -150,6 +172,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     value={talentId}
                     onChange={e => setTalentId(e.target.value)}
                     className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    required
                   >
                     <option value="">選択してください</option>
                     {talents.map(t => (
@@ -188,7 +211,13 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
               <h3 className="text-sm font-semibold text-slate-700">オファー内容</h3>
               <div>
                 <label className="mb-1 block text-sm font-medium">希望日</label>
-                <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} />
+                <Input
+                  type="date"
+                  value={visitDate}
+                  min={minVisitDate}
+                  onChange={e => setVisitDate(e.target.value)}
+                  required
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -197,6 +226,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     value={startTime}
                     onChange={e => setStartTime(e.target.value)}
                     className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    required
                   >
                     <option value="">選択してください</option>
                     {timeOptions.map(time => (
@@ -212,6 +242,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     value={endTime}
                     onChange={e => setEndTime(e.target.value)}
                     className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    required
                   >
                     <option value="">選択してください</option>
                     {timeOptions

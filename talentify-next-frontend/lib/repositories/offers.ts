@@ -207,7 +207,11 @@ export async function findOfferByIdForAuthUser({
 export async function findStoreByIdForAuthUser({
   storeId,
   userId,
-}: FindStoreByIdForAuthUserParams): Promise<{ id: string; user_id: string | null } | null> {
+}: FindStoreByIdForAuthUserParams): Promise<{
+  id: string
+  user_id: string | null
+  is_setup_complete: boolean | null
+} | null> {
   const prisma = getPrismaClient()
 
   const store = await prisma.stores.findFirst({
@@ -218,6 +222,7 @@ export async function findStoreByIdForAuthUser({
     select: {
       id: true,
       user_id: true,
+      is_setup_complete: true,
     },
   })
 

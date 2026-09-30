@@ -76,17 +76,18 @@ export async function getStoreDashboardData() {
     throw new Error('failed to fetch user session')
   }
 
-  const {
-    data: store,
-    error: storeError,
-  } = await supabase
+  const { data: store } = await supabase
     .from('stores')
     .select('id')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
-  if (storeError || !store) {
-    throw new Error(storeError?.message ?? 'store not found')
+  if (!store) {
+    return {
+      offerStats: {} as Record<string, number>,
+      schedule: [] as ScheduleItem[],
+      unreadCount: 0,
+    }
   }
 
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'

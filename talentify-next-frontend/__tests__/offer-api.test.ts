@@ -26,7 +26,7 @@ describe('validateOfferPayload', () => {
       agreed: false,
       message: 'm',
     })
-    expect(err).toBe('agreed must be true')
+    expect(err).toBe('出演条件への同意が必要です')
   })
 
   it('passes with valid data', () => {

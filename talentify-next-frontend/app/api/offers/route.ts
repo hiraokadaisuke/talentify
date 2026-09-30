@@ -11,6 +11,7 @@ import {
   findOfferAccessById,
 } from '@/lib/repositories/offers'
 import { emitNotification } from '@/lib/notifications/emit'
+import { getTodayJstDateString } from '@/utils/jstDate'
 
 export const runtime = 'nodejs'
 
@@ -28,22 +29,20 @@ export interface OfferPayload {
 
 export function validateOfferPayload(payload: OfferPayload): string | null {
   const { store_id, talent_id, date, time_range, reward, agreed } = payload
-  if (!store_id || !talent_id || !date || !time_range) {
-    return 'missing fields'
-  }
-  if (agreed !== true) {
-    return 'agreed must be true'
-  }
-  const d = new Date(date)
-  if (Number.isNaN(d.getTime()) || d < new Date(new Date().toISOString().slice(0, 10))) {
-    return 'invalid date'
-  }
+
+  if (!store_id) return '店舗情報を確認してください'
+  if (!talent_id) return '演者を選択してください'
+  if (!date) return '希望日を選択してください'
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return '希望日の形式が正しくありません'
+  if (date < getTodayJstDateString()) return '希望日は本日以降を選択してください'
   if (typeof time_range !== 'string' || time_range.trim() === '') {
-    return 'invalid time_range'
+    return '希望時間帯を選択してください'
   }
+  if (agreed !== true) return '出演条件への同意が必要です'
   if (reward != null && (!Number.isFinite(reward) || reward < 0)) {
-    return 'invalid reward'
+    return '提示金額を確認してください'
   }
+
   return null
 }
 
@@ -74,7 +73,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = (await req.json()) as OfferPayload
+  const body = (await req.json().catch(() => null)) as OfferPayload | null
+  if (!body) {
+    return NextResponse.json(
+      { ok: false, code: 'VALIDATION_ERROR', reason: '入力内容を確認してください' },
+      { status: 400 }
+    )
+  }
+
   const validationError = validateOfferPayload(body)
   if (validationError) {
     return NextResponse.json({ ok: false, code: 'VALIDATION_ERROR', reason: validationError }, { status: 400 })
@@ -91,7 +97,20 @@ export async function POST(req: NextRequest) {
     userId: user.id,
   })
   if (!store) {
-    return NextResponse.json({ ok: false, code: 'FORBIDDEN', reason: 'invalid store' }, { status: 403 })
+    return NextResponse.json(
+      { ok: false, code: 'FORBIDDEN', reason: '店舗情報を確認してください' },
+      { status: 403 }
+    )
+  }
+  if (!store.is_setup_complete) {
+    return NextResponse.json(
+      {
+        ok: false,
+        code: 'PROFILE_INCOMPLETE',
+        reason: 'オファー送信前に店舗プロフィールを登録してください',
+      },
+      { status: 409 }
+    )
   }
 
   // check existing offer for idempotency

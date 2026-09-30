@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { toast } from 'sonner'
+import { getTodayJstDateString } from '@/utils/jstDate'
 
 type OfferTargetSummary = {
   stageName: string
@@ -61,6 +62,7 @@ export default function OfferComposerOverlay({
   )
 
   const timeRange = startTime && endTime ? `${startTime}〜${endTime}` : ''
+  const minVisitDate = getTodayJstDateString()
 
   useEffect(() => {
     const updateViewport = () => {
@@ -94,8 +96,24 @@ export default function OfferComposerOverlay({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (submitting) return
+    if (!visitDate) {
+      toast.error('希望日を選択してください')
+      return
+    }
+    if (visitDate < minVisitDate) {
+      toast.error('希望日は本日以降を選択してください')
+      return
+    }
+    if (!startTime || !endTime) {
+      toast.error('希望時間帯を選択してください')
+      return
+    }
     if (startTime >= endTime) {
       toast.error('希望時間帯の終了時刻は開始時刻より後を選択してください')
+      return
+    }
+    if (!agreed) {
+      toast.error('出演条件への同意が必要です')
       return
     }
 
@@ -188,7 +206,13 @@ export default function OfferComposerOverlay({
                 <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">希望日</label>
-                    <Input type="date" value={visitDate} onChange={e => setVisitDate(e.target.value)} />
+                    <Input
+                      type="date"
+                      value={visitDate}
+                      min={minVisitDate}
+                      onChange={e => setVisitDate(e.target.value)}
+                      required
+                    />
                   </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">希望時間帯</label>
