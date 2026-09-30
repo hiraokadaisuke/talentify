@@ -22,7 +22,7 @@ interface Invoice {
   transport_fee: number | null
   extra_fee: number | null
   notes: string | null
-  invoice_number: string | null
+  invoice_number: string
   due_date: string | null
   status: string
   payment_status: string | null
@@ -37,7 +37,7 @@ export default function TalentInvoiceDetailPage() {
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // 編集可能にするのは due_date のみ（請求書番号は自動採番・編集不可）
+  // 下書き中は支払期限とメモのみ編集可。請求書番号は自動採番・編集不可。
   const [dueDate, setDueDate] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -149,7 +149,7 @@ export default function TalentInvoiceDetailPage() {
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
 
           {/* 請求書番号は編集不可（自動採番・表示のみ） */}
-          <div>請求書番号: {invoice.invoice_number ?? '自動採番予定'}</div>
+          <div>請求書番号: {invoice.invoice_number}</div>
 
           <div className="flex items-center gap-2">
             <span className="shrink-0">支払期限:</span>

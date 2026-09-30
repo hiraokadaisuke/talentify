@@ -81,20 +81,20 @@ export async function POST(req: NextRequest) {
         .from('invoices')
         .update(updatePayload)
         .eq('id', existing.id)
-        .select('id, status')
+        .select('id, status, invoice_number')
         .single()
       if (updateError) throw updateError
       await service
         .from('offers')
         .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
         .eq('id', offer_id)
-      return NextResponse.json({ id: updated.id, status: updated.status }, { status: 200 })
+      return NextResponse.json({ id: updated.id, status: updated.status, invoice_number: updated.invoice_number }, { status: 200 })
     }
 
     const { data: inserted, error: insertError } = await service
       .from('invoices')
       .insert(payload)
-      .select('id, status')
+      .select('id, status, invoice_number')
       .single()
     if (insertError) throw insertError
 
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
       .update({ invoice_amount: null, invoice_date: null, paid: null, paid_at: null })
       .eq('id', offer_id)
 
-    return NextResponse.json({ id: inserted.id, status: inserted.status }, { status: 201 })
+    return NextResponse.json({ id: inserted.id, status: inserted.status, invoice_number: inserted.invoice_number }, { status: 201 })
   } catch (err: any) {
     console.error({ code: err.code, message: err.message })
     if (err.code === '23505' && offerId) {

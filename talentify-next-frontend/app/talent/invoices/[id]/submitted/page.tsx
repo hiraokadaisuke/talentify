@@ -19,7 +19,7 @@ interface Invoice {
   transport_fee: number | null
   extra_fee: number | null
   notes: string | null
-  invoice_number: string | null
+  invoice_number: string
   due_date: string | null
   status: string
   payment_status: string | null
@@ -97,7 +97,7 @@ export default function TalentInvoiceSubmittedPage() {
         </CardHeader>
         <CardContent className='space-y-2 text-sm'>
           <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>請求書番号: {invoice.invoice_number ?? '-'}</div>
+          <div>請求書番号: {invoice.invoice_number}</div>
           <div>
             支払期限:{' '}
             {invoice.due_date

@@ -21,7 +21,7 @@ export type Database = {
           due_date: string | null
           extra_fee: number | null
           id: string
-          invoice_number: string | null
+          invoice_number: string
           invoice_url: string | null
           notes: string | null
           offer_id: string | null
@@ -39,7 +39,7 @@ export type Database = {
           due_date?: string | null
           extra_fee?: number | null
           id?: string
-          invoice_number?: string | null
+          invoice_number?: string
           invoice_url?: string | null
           notes?: string | null
           offer_id?: string | null
@@ -57,7 +57,7 @@ export type Database = {
           due_date?: string | null
           extra_fee?: number | null
           id?: string
-          invoice_number?: string | null
+          invoice_number?: string
           invoice_url?: string | null
           notes?: string | null
           offer_id?: string | null
