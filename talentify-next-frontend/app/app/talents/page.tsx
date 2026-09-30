@@ -15,7 +15,7 @@ export default async function AppTalentsPage() {
   const { role } = await getUserRoleInfo(supabase, session.user.id)
 
   if (role === 'store') {
-    redirect('/store/talents')
+    redirect('/search')
   }
 
   if (role === 'talent') {

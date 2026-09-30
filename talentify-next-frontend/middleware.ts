@@ -54,7 +54,7 @@ export async function middleware(req: NextRequest) {
 
   if (
     !session &&
-    ['/app', '/dashboard', '/store/', '/talent/', '/profile', '/messages', '/manage'].some(
+    ['/app', '/dashboard', '/store/', '/talent/', '/messages'].some(
       (p) => pathname.startsWith(p)
     )
   ) {
@@ -74,8 +74,6 @@ export const config = {
     '/app/:path*',
     '/store/:path*',
     '/talent/:path*',
-    '/profile/:path*',
     '/messages/:path*',
-    '/manage/:path*',
   ],
 }

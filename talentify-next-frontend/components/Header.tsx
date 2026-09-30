@@ -31,7 +31,6 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/faq',
   '/guide',
   '/login',
-  '/manage',
   '/news',
   '/password-reset',
   '/privacy',

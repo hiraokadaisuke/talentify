@@ -664,45 +664,6 @@ export type Database = {
           },
         ]
       }
-      schedules: {
-        Row: {
-          created_at: string | null
-          date: string
-          description: string | null
-          end_time: string | null
-          id: string
-          related_offer_id: string | null
-          role: string | null
-          start_time: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          date: string
-          description?: string | null
-          end_time?: string | null
-          id?: string
-          related_offer_id?: string | null
-          role?: string | null
-          start_time?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          date?: string
-          description?: string | null
-          end_time?: string | null
-          id?: string
-          related_offer_id?: string | null
-          role?: string | null
-          start_time?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       stores: {
         Row: {
           avatar_url: string | null
@@ -780,45 +741,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
-      }
-      talent_availability_overrides: {
-        Row: {
-          created_at: string
-          date: string
-          status: Database["public"]["Enums"]["availability_status"]
-          talent_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          date: string
-          status: Database["public"]["Enums"]["availability_status"]
-          talent_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          status?: Database["public"]["Enums"]["availability_status"]
-          talent_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "talent_availability_overrides_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "public_talent_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "talent_availability_overrides_talent_id_fkey"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "talents"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       talent_availability_settings: {
         Row: {
@@ -1014,71 +936,6 @@ export type Database = {
           },
         ]
       }
-      visits: {
-        Row: {
-          created_at: string | null
-          id: string
-          note: string | null
-          offer_id: string | null
-          status: Database["public"]["Enums"]["status_type"] | null
-          store_id: string | null
-          talent_id: string | null
-          updated_at: string | null
-          visited_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          note?: string | null
-          offer_id?: string | null
-          status?: Database["public"]["Enums"]["status_type"] | null
-          store_id?: string | null
-          talent_id?: string | null
-          updated_at?: string | null
-          visited_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          note?: string | null
-          offer_id?: string | null
-          status?: Database["public"]["Enums"]["status_type"] | null
-          store_id?: string | null
-          talent_id?: string | null
-          updated_at?: string | null
-          visited_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_visits_offer_id"
-            columns: ["offer_id"]
-            isOneToOne: false
-            referencedRelation: "offers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_visits_store_id"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_visits_talent_id"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "public_talent_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_visits_talent_id"
-            columns: ["talent_id"]
-            isOneToOne: false
-            referencedRelation: "talents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       public_talent_profiles: {
@@ -1173,7 +1030,6 @@ export type Database = {
         | "offer"
         | "offer_accepted"
         | "schedule_fixed"
-      offer_status: "pending" | "accepted" | "rejected" | "confirmed"
       payment_status: "pending" | "paid" | "cancelled" | "completed"
       status_type:
         | "draft"
@@ -1186,8 +1042,6 @@ export type Database = {
         | "canceled"
         | "no_show"
         | "submitted"
-      visit_status: "scheduled" | "confirmed" | "visited"
-      your_enum_type: "value1" | "value2" | "value3"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1330,7 +1184,6 @@ export const Constants = {
         "offer_accepted",
         "schedule_fixed",
       ],
-      offer_status: ["pending", "accepted", "rejected", "confirmed"],
       payment_status: ["pending", "paid", "cancelled", "completed"],
       status_type: [
         "draft",
@@ -1344,8 +1197,6 @@ export const Constants = {
         "no_show",
         "submitted",
       ],
-      visit_status: ["scheduled", "confirmed", "visited"],
-      your_enum_type: ["value1", "value2", "value3"],
     },
   },
 } as const
