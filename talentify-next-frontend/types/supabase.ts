@@ -268,32 +268,83 @@ export type Database = {
           },
         ]
       }
+      notification_idempotency_keys: {
+        Row: {
+          created_at: string
+          endpoint: string
+          expires_at: string
+          key: string
+          response_snapshot: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          expires_at: string
+          key: string
+          response_snapshot: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          expires_at?: string
+          key?: string
+          response_snapshot?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
+          action_label: string | null
+          action_url: string | null
+          actor_name: string | null
           created_at: string | null
           data: Json | null
+          entity_id: string | null
+          entity_type: string | null
+          expires_at: string | null
+          group_key: string | null
           id: string
           is_read: boolean | null
+          priority: string
           read_at: string | null
           type: Database["public"]["Enums"]["notification_type"]
           updated_at: string
           user_id: string
         }
         Insert: {
+          action_label?: string | null
+          action_url?: string | null
+          actor_name?: string | null
           created_at?: string | null
           data?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          expires_at?: string | null
+          group_key?: string | null
           id?: string
           is_read?: boolean | null
+          priority?: string
           read_at?: string | null
           type: Database["public"]["Enums"]["notification_type"]
           updated_at?: string
           user_id: string
         }
         Update: {
+          action_label?: string | null
+          action_url?: string | null
+          actor_name?: string | null
           created_at?: string | null
           data?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          expires_at?: string | null
+          group_key?: string | null
           id?: string
           is_read?: boolean | null
+          priority?: string
           read_at?: string | null
           type?: Database["public"]["Enums"]["notification_type"]
           updated_at?: string
