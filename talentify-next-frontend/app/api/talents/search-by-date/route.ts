@@ -15,6 +15,7 @@ export type TalentRow =
   Pick<
     Database['public']['Tables']['talents']['Row'],
     | 'id'
+    | 'user_id'
     | 'stage_name'
     | 'genre'
     | 'area'
@@ -28,12 +29,12 @@ export type TalentRow =
 
 export type AvailabilitySettingRow = Pick<
   Database['public']['Tables']['talent_availability_settings']['Row'],
-  'talent_id' | 'default_mode'
+  'user_id' | 'default_mode'
 >
 
 export type AvailabilityDateRow = Pick<
   Database['public']['Tables']['talent_availability_dates']['Row'],
-  'talent_id' | 'status'
+  'user_id' | 'status'
 >
 
 type OfferRow = Pick<
@@ -88,18 +89,18 @@ export function mergeTalentAvailability({
 }): TalentSearchResult[] {
   const settingsMap = new Map<string, AvailabilitySettingRow['default_mode']>()
   availabilitySettings.forEach(setting => {
-    settingsMap.set(setting.talent_id, setting.default_mode)
+    settingsMap.set(setting.user_id, setting.default_mode)
   })
 
   const overridesMap = new Map<string, AvailabilityDateRow['status']>()
   availabilityDates.forEach(override => {
-    overridesMap.set(override.talent_id, override.status)
+    overridesMap.set(override.user_id, override.status)
   })
 
   return talents
     .map<TalentSearchResult>(talent => {
-      const defaultMode = settingsMap.get(talent.id) ?? 'default_ok'
-      const overrideStatus = overridesMap.get(talent.id)
+      const defaultMode = talent.user_id ? settingsMap.get(talent.user_id) ?? 'default_ok' : 'default_ok'
+      const overrideStatus = talent.user_id ? overridesMap.get(talent.user_id) : undefined
       const hasConfirmedOffer = confirmedTalentIds.has(talent.id)
 
       const availabilityStatus = computeAvailabilityStatus({
@@ -150,13 +151,13 @@ export async function GET(request: NextRequest) {
     supabase
       .from('talents')
       .select(
-        'id, stage_name, genre, area, avatar_url, rate, bio, media_appearance'
+        'id, user_id, stage_name, genre, area, avatar_url, rate, bio, media_appearance'
       )
       .eq('is_profile_complete', true),
-    supabase.from('talent_availability_settings').select('talent_id, default_mode'),
+    supabase.from('talent_availability_settings').select('user_id, default_mode'),
     supabase
       .from('talent_availability_dates')
-      .select('talent_id, status')
+      .select('user_id, status')
       .eq('the_date', date),
     supabase
       .from('offers')

@@ -57,12 +57,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const talentId = talent.id
+  const userId = user.id
 
   const { data: settingsData, error: settingsError } = await supabase
     .from('talent_availability_settings')
     .select('default_mode')
-    .eq('talent_id', talentId)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (settingsError) {
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     (settingsData?.default_mode ?? 'default_ok') === 'default_ok' ? 'ok' : 'ng'
 
   const toUpsert: {
-    talent_id: string
+    user_id: string
     the_date: string
     status: 'ok' | 'ng'
   }[] = []
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       toDelete.push(item.date)
     } else {
       toUpsert.push({
-        talent_id: talentId,
+        user_id: userId,
         the_date: item.date,
         status: item.status,
       })
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
   if (toUpsert.length > 0) {
     const { error: upsertError } = await supabase
       .from('talent_availability_dates')
-      .upsert(toUpsert, { onConflict: 'talent_id,the_date' })
+      .upsert(toUpsert, { onConflict: 'user_id,the_date' })
 
     if (upsertError) {
       console.error('Failed to upsert availability dates', upsertError)
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     const { error: deleteError } = await supabase
       .from('talent_availability_dates')
       .delete()
-      .eq('talent_id', talentId)
+      .eq('user_id', userId)
       .in('the_date', toDelete)
 
     if (deleteError) {
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
     const { error: insertSettingsError } = await supabase
       .from('talent_availability_settings')
       .upsert({
-        talent_id: talentId,
+        user_id: userId,
         default_mode: 'default_ok',
         timezone: DEFAULT_TIMEZONE,
       })
