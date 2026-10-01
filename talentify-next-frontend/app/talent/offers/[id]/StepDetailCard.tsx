@@ -9,6 +9,7 @@ import type { OfferProgressStatus, OfferStepKey } from '@/utils/offerProgress'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { resolveMainActionPhase } from '@/lib/offers/mainActionPhase'
+import OfferCancellationSection from '@/components/offers/OfferCancellationSection'
 
 type StepDetailCardProps = {
   activeStep: OfferStepKey
@@ -29,6 +30,12 @@ type StepDetailCardProps = {
   invoiceId: string | null
   onDeclineOffer?: () => void
   actionLoading?: 'decline' | null
+  cancellation?: {
+    canceledAt: string | null
+    canceledByRole: string | null
+    cancellationReason: string | null
+    cancellationStage: string | null
+  }
 }
 
 type StepDetail = {
@@ -69,6 +76,7 @@ export default function StepDetailCard({
   invoiceId,
   onDeclineOffer,
   actionLoading,
+  cancellation,
 }: StepDetailCardProps) {
   const formattedVisitDate = useMemo(() => offer.date ? format(new Date(offer.date), 'yyyy/MM/dd (EEE) HH:mm', { locale: ja }) : '未設定', [offer.date])
 
@@ -212,6 +220,20 @@ export default function StepDetailCard({
           {detail.secondaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.secondaryAction}</div>}
           {detail.primaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.primaryAction}</div>}
         </div>
+        {(offer.status === 'confirmed' || offer.status === 'accepted' || offer.status === 'canceled') && (
+          <div className="border-t border-dashed border-slate-200 pt-4">
+            <OfferCancellationSection
+              role="talent"
+              offerId={offer.id}
+              status={offer.status}
+              canceledAt={cancellation?.canceledAt ?? null}
+              canceledByRole={cancellation?.canceledByRole ?? null}
+              cancellationReason={cancellation?.cancellationReason ?? null}
+              cancellationStage={cancellation?.cancellationStage ?? null}
+              invoiceId={invoiceId}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   )
