@@ -87,6 +87,31 @@ describe('offer notification config integration', () => {
     })
   })
 
+  it('links estimate revision requests to an editable revision context', () => {
+    const payload = buildNotificationPayload(
+      {
+        kind: 'invoice_rejected_to_talent',
+        invoiceId: 'invoice-revision',
+        actorName: 'Store Revision',
+      },
+      'talent',
+    )
+
+    expect(payload.type).toBe('invoice_submitted')
+    expect(payload.action_url).toBe(
+      '/talent/invoices/invoice-revision?revision=1',
+    )
+    expect(payload.action_label).toBe('見積書を修正')
+    expect(payload.body).toBe(
+      '見積書を見直し、必要な修正を行って再提出してください。',
+    )
+    expect(payload.data).toMatchObject({
+      invoice_id: 'invoice-revision',
+      is_actionable: true,
+      recipient_role: 'talent',
+    })
+  })
+
   it('links a contract notification directly to the issued invoice', () => {
     const payload = buildNotificationPayload(
       {
