@@ -19,6 +19,10 @@
   - 送信・承認フロー: USING `EXISTS (SELECT 1 FROM talents t WHERE t.id = invoices.talent_id AND t.user_id = auth.uid()) AND status IN ('draft', 'submitted')`, CHECK 同条件かつ `status IN ('submitted', 'approved')`
 - ストアとタレントはいずれも自分の請求書を更新可能 (`UPDATE`): USING `(auth.uid() = store_id) OR (auth.uid() = talent_id)`
 
+### notification_idempotency_keys
+- クライアントからの直接アクセスは禁止。\`anon\` / \`authenticated\` はテーブル権限を剥奪し、RLSでも \`ALL\` を明示的に拒否。
+- サーバー側の \`service_role\` / \`prisma\` のみ利用し、通知APIの冪等性レスポンスを短時間保持する。
+
 ### notifications
 - サービスロールのみ通知を登録可能 (`INSERT`): CHECK `true`
 - 受信者のみ通知を閲覧・更新可能 (`SELECT`/`UPDATE`): USING `(auth.uid() = user_id)`, CHECK `(auth.uid() = user_id)`
