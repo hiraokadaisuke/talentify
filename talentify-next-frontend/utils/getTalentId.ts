@@ -9,7 +9,9 @@ const supabase = createClient()
  * Fetch the talent id for the currently authenticated user.
  * Returns `null` when no authenticated user or talent record exists.
  */
-export async function getTalentId(): Promise<string | null> {
+export async function getTalentId(options?: {
+  throwOnError?: boolean
+}): Promise<string | null> {
   const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return null
 
@@ -21,6 +23,7 @@ export async function getTalentId(): Promise<string | null> {
 
   if (error) {
     console.error('failed to fetch talent id', error)
+    if (options?.throwOnError) throw error
     return null
   }
 
