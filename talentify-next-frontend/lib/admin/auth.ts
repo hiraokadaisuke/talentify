@@ -13,21 +13,36 @@ export async function getAdminContext() {
   }
 
   const service = createServiceClient() as any
-  const { data, error } = await service
-    .from('admin_users')
-    .select('auth_user_id,is_active')
-    .eq('auth_user_id', user.id)
-    .eq('is_active', true)
-    .maybeSingle()
+  const [adminResult, appUserResult] = await Promise.all([
+    service
+      .from('admin_users')
+      .select('auth_user_id,is_active')
+      .eq('auth_user_id', user.id)
+      .eq('is_active', true)
+      .maybeSingle(),
+    service
+      .from('users')
+      .select('status')
+      .eq('auth_user_id', user.id)
+      .maybeSingle(),
+  ])
 
-  if (error) {
-    console.error('[admin] failed to verify admin membership', error)
-    throw error
+  if (adminResult.error) {
+    console.error('[admin] failed to verify admin membership', adminResult.error)
+    throw adminResult.error
   }
+
+  if (appUserResult.error) {
+    console.error('[admin] failed to verify app user status', appUserResult.error)
+    throw appUserResult.error
+  }
+
+  const appUserBlocked =
+    Boolean(appUserResult.data) && appUserResult.data.status !== 'active'
 
   return {
     user,
-    isAdmin: Boolean(data?.is_active),
+    isAdmin: Boolean(adminResult.data?.is_active) && !appUserBlocked,
   }
 }
 
