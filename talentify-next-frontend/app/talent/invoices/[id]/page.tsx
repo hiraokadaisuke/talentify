@@ -28,6 +28,13 @@ interface Invoice {
   status: string
   payment_status: string | null
   created_at: string | null
+  offers: {
+    status: string | null
+    canceled_at: string | null
+    canceled_by_role: string | null
+    cancel_reason: string | null
+    cancellation_phase: string | null
+  } | null
 }
 
 export default function TalentInvoiceDetailPage() {
@@ -51,7 +58,7 @@ export default function TalentInvoiceDetailPage() {
       const { data, error } = await supabase
         .from('invoices')
         .select(
-          'id,offer_id,amount,invoice_url,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at'
+          'id,offer_id,amount,invoice_url,transport_fee,extra_fee,notes,invoice_number,due_date,status,payment_status,created_at,offers(status,canceled_at,canceled_by_role,cancel_reason,cancellation_phase)'
         )
         .eq('id', id)
         .single()
@@ -143,6 +150,25 @@ export default function TalentInvoiceDetailPage() {
   return (
     <main className="space-y-4 p-3 sm:p-6">
       <h1 className="text-xl font-bold">{isEstimate ? '見積詳細' : '取引締結書兼請求書'}</h1>
+
+      {invoice.offers?.status === 'canceled' && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="font-semibold">この取引はキャンセル済みです</div>
+          <div className="mt-2 space-y-1">
+            <div>区分: {invoice.offers.cancellation_phase === 'post_contract' ? '契約成立後' : '契約成立前'}</div>
+            <div>実行者: {invoice.offers.canceled_by_role === 'talent' ? '演者' : '店舗'}</div>
+            {invoice.offers.canceled_at && (
+              <div>キャンセル日時: {formatJaDateTimeWithWeekday(invoice.offers.canceled_at)}</div>
+            )}
+            <div className="whitespace-pre-wrap">理由: {invoice.offers.cancel_reason || '-'}</div>
+          </div>
+          {!isEstimate && (
+            <p className="mt-2 text-xs text-amber-800">
+              締結書兼請求書は契約成立時点の履歴として保持されています。
+            </p>
+          )}
+        </div>
+      )}
 
       <Card>
         <CardHeader>
