@@ -32,8 +32,8 @@ interface Invoice {
     status: string | null
     canceled_at: string | null
     canceled_by_role: string | null
-    cancel_reason: string | null
-    cancellation_phase: string | null
+    cancellation_reason: string | null
+    cancellation_stage: string | null
   } | null
   talent_id: string | null
   payout: {
@@ -52,8 +52,8 @@ interface RawInvoice extends Omit<Invoice, 'offers' | 'payout'> {
         status: string | null
         canceled_at: string | null
         canceled_by_role: string | null
-        cancel_reason: string | null
-        cancellation_phase: string | null
+        cancellation_reason: string | null
+        cancellation_stage: string | null
       }>
     | null
 }
@@ -81,7 +81,7 @@ export default function StoreInvoiceDetail() {
     const { data } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid,status,canceled_at,canceled_by_role,cancel_reason,cancellation_phase)'
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid,status,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage)'
       )
       .eq('id', id)
       .maybeSingle()
@@ -195,6 +195,7 @@ export default function StoreInvoiceDetail() {
 
   const isEstimate = invoice.status === 'draft' || invoice.status === 'submitted' || invoice.status === 'rejected'
   const isContracted = invoice.status === 'approved'
+  const isCanceled = invoice.offers?.status === 'canceled'
 
   return (
     <main className='space-y-4 p-3 sm:p-6'>
@@ -203,12 +204,12 @@ export default function StoreInvoiceDetail() {
         <div className='rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900'>
           <div className='font-semibold'>この取引はキャンセル済みです</div>
           <div className='mt-2 space-y-1'>
-            <div>区分: {invoice.offers.cancellation_phase === 'post_contract' ? '契約成立後' : '契約成立前'}</div>
+            <div>区分: {invoice.offers.cancellation_stage === 'post_contract' ? '契約成立後' : '契約成立前'}</div>
             <div>実行者: {invoice.offers.canceled_by_role === 'talent' ? '演者' : '店舗'}</div>
             {invoice.offers.canceled_at && (
               <div>キャンセル日時: {formatJaDateTimeWithWeekday(invoice.offers.canceled_at)}</div>
             )}
-            <div className='whitespace-pre-wrap'>理由: {invoice.offers.cancel_reason || '-'}</div>
+            <div className='whitespace-pre-wrap'>理由: {invoice.offers.cancellation_reason || '-'}</div>
           </div>
           {isContracted && (
             <p className='mt-2 text-xs text-amber-800'>
@@ -296,7 +297,7 @@ export default function StoreInvoiceDetail() {
         {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
       </Button>
 
-      {invoice.status === 'submitted' && (
+      {invoice.status === 'submitted' && !isCanceled && (
         <div className='flex gap-2'>
           <Button onClick={handleApprove} disabled={updatingStatus}>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
@@ -309,14 +310,14 @@ export default function StoreInvoiceDetail() {
         </div>
       )}
 
-      {!invoice.offers?.paid && isContracted && invoice.offers?.status === 'completed' && (
+      {!isCanceled && !invoice.offers?.paid && isContracted && invoice.offers?.status === 'completed' && (
         <Button onClick={handlePay} disabled={paying}>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする
         </Button>
       )}
 
-      {!invoice.offers?.paid && isContracted && invoice.offers?.status !== 'completed' && (
+      {!isCanceled && !invoice.offers?.paid && isContracted && invoice.offers?.status !== 'completed' && (
         <div className='rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600'>
           来店完了を記録すると、支払い完了の操作ができるようになります。
         </div>
