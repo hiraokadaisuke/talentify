@@ -127,7 +127,15 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
   const inferredRole =
     sidebarRole ??
-    (pathname?.startsWith('/store/') ? 'store' : pathname?.startsWith('/talent/') ? 'talent' : undefined)
+    (pathname?.startsWith('/store/') ||
+    pathname === '/search' ||
+    pathname?.startsWith('/search/') ||
+    pathname === '/talents' ||
+    pathname?.startsWith('/talents/')
+      ? 'store'
+      : pathname?.startsWith('/talent/')
+        ? 'talent'
+        : undefined)
 
   const isPublicPage =
     !inferredRole &&
@@ -270,6 +278,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                     <SheetClose asChild>
                       <Link
                         href={homeHref}
+                        prefetch={false}
                         className={cn(mobileLinkClass, isHomeActive ? mobileActiveClass : '')}
                       >
                         ホーム
@@ -280,6 +289,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                       <SheetClose asChild>
                         <Link
                           href={roleNav.primaryHref}
+                          prefetch={false}
                           className={cn(mobileLinkClass, isPrimaryActive ? mobileActiveClass : '')}
                         >
                           {roleNav.primaryLabel}
@@ -290,6 +300,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                       <SheetClose asChild>
                         <Link
                           href="/store/favorites"
+                          prefetch={false}
                           className={cn(mobileLinkClass, isFavoritesActive ? mobileActiveClass : '')}
                         >
                           お気に入り
@@ -306,7 +317,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                       const active = pathname === item.href || pathname.startsWith(item.href + '/')
                       return (
                         <SheetClose asChild key={item.href}>
-                          <Link href={item.href} className={cn(mobileLinkClass, active ? mobileActiveClass : '')}>
+                          <Link href={item.href} prefetch={false} className={cn(mobileLinkClass, active ? mobileActiveClass : '')}>
                             {item.label}
                           </Link>
                         </SheetClose>
@@ -319,6 +330,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   <SheetClose asChild>
                     <Link
                       href={primaryGuideLink.href}
+                      prefetch={false}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(mobileLinkClass, isGuideActive ? mobileActiveClass : '')}
@@ -335,7 +347,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                       const active = pathname === item.href || pathname.startsWith(item.href + '/')
                       return (
                         <SheetClose asChild key={item.href}>
-                          <Link href={item.href} className={cn(mobileLinkClass, active ? mobileActiveClass : '')}>
+                          <Link href={item.href} prefetch={false} className={cn(mobileLinkClass, active ? mobileActiveClass : '')}>
                             {item.label}
                           </Link>
                         </SheetClose>
