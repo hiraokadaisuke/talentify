@@ -4,6 +4,7 @@ import MessageAlertCard from '@/components/MessageAlertCard'
 import NotificationListCard from '@/components/NotificationListCard'
 import { getTalentDashboardData } from '@/lib/queries/dashboard'
 import ProfileSetupBanner from '@/components/ProfileSetupBanner'
+import GettingStartedCard from '@/components/GettingStartedCard'
 
 export default async function TalentDashboard() {
   const { schedule, pendingOffersCount, unreadMessagesCount } = await getTalentDashboardData()
@@ -11,6 +12,7 @@ export default async function TalentDashboard() {
   return (
     <div className='space-y-4'>
       <ProfileSetupBanner role='talent' />
+      <GettingStartedCard role='talent' />
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-6'>
         <ScheduleCard items={schedule} className='lg:col-span-3' />
         <OfferSummaryCard
