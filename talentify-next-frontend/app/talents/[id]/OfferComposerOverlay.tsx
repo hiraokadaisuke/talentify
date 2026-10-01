@@ -46,7 +46,6 @@ export default function OfferComposerOverlay({
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [reward, setReward] = useState('')
-  const [agreed, setAgreed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false)
 
@@ -56,9 +55,8 @@ export default function OfferComposerOverlay({
       visitDate.length > 0 ||
       startTime.length > 0 ||
       endTime.length > 0 ||
-      reward.length > 0 ||
-      agreed,
-    [agreed, endTime, message, reward, startTime, visitDate]
+      reward.length > 0,
+    [endTime, message, reward, startTime, visitDate]
   )
 
   const timeRange = startTime && endTime ? `${startTime}〜${endTime}` : ''
@@ -79,7 +77,6 @@ export default function OfferComposerOverlay({
     setStartTime('')
     setEndTime('')
     setReward('')
-    setAgreed(false)
     setDiscardConfirmOpen(false)
     setSubmitting(false)
   }
@@ -112,11 +109,6 @@ export default function OfferComposerOverlay({
       toast.error('希望時間帯の終了時刻は開始時刻より後を選択してください')
       return
     }
-    if (!agreed) {
-      toast.error('出演条件への同意が必要です')
-      return
-    }
-
     setSubmitting(true)
 
     const {
@@ -148,7 +140,7 @@ export default function OfferComposerOverlay({
         end_time: endTime,
         time_range: timeRange,
         reward: reward.trim() ? Number(reward) : null,
-        agreed,
+        agreed: true,
         message,
       }),
     })
@@ -260,18 +252,6 @@ export default function OfferComposerOverlay({
                       placeholder="例: 30000"
                     />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      id="offer-agree"
-                      type="checkbox"
-                      checked={agreed}
-                      onChange={e => setAgreed(e.target.checked)}
-                      required
-                    />
-                    <label htmlFor="offer-agree" className="text-sm text-slate-700">
-                      出演条件に同意します
-                    </label>
-                  </div>
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-700">メッセージ</label>
                     <Textarea
@@ -284,7 +264,7 @@ export default function OfferComposerOverlay({
                 </section>
               </div>
 
-              <footer className="sticky bottom-0 flex items-center justify-end gap-2 border-t border-slate-200 bg-white px-4 py-3 md:px-5">
+              <footer className="sticky bottom-0 grid grid-cols-[auto_1fr] items-center gap-2 border-t border-slate-200 bg-white px-4 py-3 md:flex md:justify-end md:px-5">
                 <Button
                   type="button"
                   variant="outline"
@@ -294,7 +274,7 @@ export default function OfferComposerOverlay({
                 >
                   キャンセル
                 </Button>
-                <Button type="submit" disabled={submitting} className="bg-blue-600 text-white hover:bg-blue-700">
+                <Button type="submit" disabled={submitting} className="min-h-11 bg-blue-600 text-white hover:bg-blue-700 md:min-h-9">
                   {submitting ? '送信中...' : 'オファー送信'}
                 </Button>
               </footer>
