@@ -134,6 +134,20 @@ describe('PUT /api/offers/[id]', () => {
     expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
+  it('requires the dedicated no-show endpoint', async () => {
+    mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
+
+    const req = new NextRequest('http://localhost/api/offers/offer-1', {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'NoShow' }),
+    })
+    const res = await PUT(req, { params: { id: 'offer-1' } })
+
+    expect(res.status).toBe(400)
+    expect(mockedFindOfferAccessById).not.toHaveBeenCalled()
+    expect(mockedUpdateOfferById).not.toHaveBeenCalled()
+  })
+
   it('requires the dedicated cancellation endpoint', async () => {
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
 
