@@ -356,9 +356,12 @@ model users {
   email        String
   phone        String?
   role         String?
-  status       user_status @default(pending_email_verification)
-  created_at   DateTime?   @default(now()) @db.Timestamptz(6)
-  updated_at   DateTime?   @default(now()) @db.Timestamptz(6)
+  status            user_status @default(pending_email_verification)
+  terms_version     String?
+  privacy_version   String?
+  legal_accepted_at DateTime?   @db.Timestamptz(6)
+  created_at        DateTime?   @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?   @default(now()) @db.Timestamptz(6)
 
   @@index([email], map: "idx_users_email")
   @@index([role], map: "idx_users_role")
