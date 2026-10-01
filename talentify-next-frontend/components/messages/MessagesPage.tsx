@@ -253,7 +253,7 @@ export default function MessagesPage({
             date: data.date ?? data.event_date ?? null,
             reward: data.reward ?? data.fee ?? null,
             location: data.location ?? null,
-            time: data.start_time ?? data.time ?? null,
+            time: data.time_range ?? data.start_time ?? data.time ?? null,
           })
         } else {
           setOfferInfo(null)
