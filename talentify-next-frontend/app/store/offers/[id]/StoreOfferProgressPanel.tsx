@@ -7,6 +7,7 @@ import { ja } from 'date-fns/locale'
 import ProgressCard from './ProgressCard'
 import StepDetailCard from './StepDetailCard'
 import SubmittedOfferContentCard from './SubmittedOfferContentCard'
+import OfferScheduleEditor from './OfferScheduleEditor'
 
 interface StoreOfferProgressPanelProps {
   steps: OfferProgressStep[]
@@ -133,6 +134,13 @@ export default function StoreOfferProgressPanel({
           reward: offer.reward,
           message: offer.originalMessage,
         }}
+      />
+      <OfferScheduleEditor
+        offerId={offer.id}
+        status={offer.status}
+        date={offer.date}
+        timeRange={offer.timeRange}
+        invoiceStatus={invoice?.status ?? null}
       />
       <StepDetailCard
         activeStep={activeStep}
