@@ -93,6 +93,7 @@ export default function OfferChatThread({
     setLoading(true)
     setLoadError(false)
     setHistoryLoadError(false)
+    setReadSyncError(false)
 
     try {
       const { data } = await listOfferMessages(supabase, offerId, { limit: 50 })
@@ -197,7 +198,10 @@ export default function OfferChatThread({
         void markConversationAsRead()
       } else {
         setUnreadCount(prev => prev + 1)
-        void updateReadReceipts()
+        void updateReadReceipts().catch(error => {
+          console.error('failed to refresh offer read receipts', error)
+          setReadSyncError(true)
+        })
       }
     })
     const onFocus = () => {
