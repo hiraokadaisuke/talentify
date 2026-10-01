@@ -42,6 +42,9 @@ interface StoreOfferProgressPanelProps {
   cancelation: {
     initialStatus: string
     initialCanceledAt: string | null
+    initialCanceledByRole: string | null
+    initialCancelReason: string | null
+    initialCancellationPhase: string | null
   }
 }
 
