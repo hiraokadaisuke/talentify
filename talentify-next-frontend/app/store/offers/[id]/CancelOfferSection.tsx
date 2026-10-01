@@ -7,8 +7,8 @@ type Props = {
   initialStatus: string
   initialCanceledAt?: string | null
   initialCanceledByRole?: string | null
-  initialCancelReason?: string | null
-  initialCancellationPhase?: string | null
+  initialCancellationReason?: string | null
+  initialCancellationStage?: string | null
   invoiceId?: string | null
 }
 
@@ -17,8 +17,8 @@ export default function CancelOfferSection({
   initialStatus,
   initialCanceledAt = null,
   initialCanceledByRole = null,
-  initialCancelReason = null,
-  initialCancellationPhase = null,
+  initialCancellationReason = null,
+  initialCancellationStage = null,
   invoiceId = null,
 }: Props) {
   return (
@@ -28,8 +28,8 @@ export default function CancelOfferSection({
       status={initialStatus}
       canceledAt={initialCanceledAt}
       canceledByRole={initialCanceledByRole}
-      cancelReason={initialCancelReason}
-      cancellationPhase={initialCancellationPhase}
+      cancellationReason={initialCancellationReason}
+      cancellationStage={initialCancellationStage}
       invoiceId={invoiceId}
     />
   )
