@@ -57,6 +57,8 @@ const statusDisplay = (status: string) => {
       return { text: '辞退済み', badge: <Badge variant="secondary">辞退済み</Badge> }
     case 'canceled':
       return { text: 'キャンセル済み', badge: <Badge variant="destructive">キャンセル済み</Badge> }
+    case 'no_show':
+      return { text: '来店なし', badge: <Badge variant="destructive">来店なし</Badge> }
     default:
       return { text: '未承諾', badge: <Badge variant="secondary">未承諾</Badge> }
   }
@@ -175,6 +177,15 @@ export default function StepDetailCard({
         secondaryAction: offer.status === 'pending' && onDeclineOffer ? (
           <Button variant="outline" className={secondaryActionClass} onClick={onDeclineOffer} disabled={actionLoading !== null}>{actionLoading === 'decline' ? '処理中...' : '今回は対応できない'}</Button>
         ) : undefined,
+      }
+    }
+
+    if (offer.status === 'no_show') {
+      return {
+        title: '来店なし',
+        description: '店舗から来店なしとして記録されています。支払い・レビューには進みません。',
+        badge: <Badge variant="destructive">来店なし</Badge>,
+        meta: [{ label: '来店日時', value: formattedVisitDate }],
       }
     }
 

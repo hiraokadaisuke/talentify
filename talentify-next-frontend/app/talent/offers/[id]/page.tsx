@@ -32,7 +32,7 @@ export default function TalentOfferPage() {
         .from('offers')
         .select(
           `
-          id,status,date,time_range,reward,updated_at,created_at,message,talent_id,user_id,paid,paid_at,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage,
+          id,status,date,start_time,end_time,time_range,reward,updated_at,created_at,message,talent_id,user_id,paid,paid_at,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage,no_show_at,no_show_reason,no_show_reported_by_user_id,
           reviews(id),
           talents(stage_name,avatar_url,user_id),
           store:stores!offers_store_id_fkey(id, store_name, user_id)
@@ -57,6 +57,7 @@ export default function TalentOfferPage() {
         status: data.status,
         date: data.date,
         timeRange: data.time_range,
+        endTime: data.end_time,
         reward: data.reward,
         message: data.message,
         performerName: data.talents?.stage_name || '',
@@ -75,6 +76,8 @@ export default function TalentOfferPage() {
         canceledByRole: data.canceled_by_role ?? null,
         cancellationReason: data.cancellation_reason ?? null,
         cancellationStage: data.cancellation_stage ?? null,
+        noShowAt: data.no_show_at ?? null,
+        noShowReason: data.no_show_reason ?? null,
       })
       setInvoiceId(invoice?.id ?? null)
     } else {
@@ -160,6 +163,7 @@ export default function TalentOfferPage() {
               status: offer.status,
               date: offer.date,
               timeRange: offer.timeRange,
+              endTime: offer.endTime,
               reward: offer.reward,
               updatedAt: offer.updatedAt,
               submittedAt: offer.submittedAt,
@@ -174,6 +178,8 @@ export default function TalentOfferPage() {
               canceledByRole: offer.canceledByRole,
               cancellationReason: offer.cancellationReason,
               cancellationStage: offer.cancellationStage,
+              noShowAt: offer.noShowAt,
+              noShowReason: offer.noShowReason,
             }}
             invoiceId={invoiceId}
             onDeclineOffer={handleDecline}
@@ -205,6 +211,8 @@ function getStatusLabel(status: string) {
       return '辞退済み'
     case 'canceled':
       return 'キャンセル'
+    case 'no_show':
+      return '来店なし'
     case 'draft':
       return '下書き'
     default:
@@ -222,7 +230,8 @@ function getStatusBadgeClassName(status: string) {
       return 'bg-slate-200 text-slate-700'
     case 'rejected':
     case 'canceled':
-      return 'bg-slate-300 text-slate-700'
+    case 'no_show':
+      return 'bg-red-100 text-red-800'
     default:
       return 'bg-orange-400 text-white'
   }

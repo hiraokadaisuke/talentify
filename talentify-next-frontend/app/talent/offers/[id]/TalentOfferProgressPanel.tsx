@@ -8,6 +8,7 @@ import ProgressCard from './ProgressCard'
 import StepDetailCard from './StepDetailCard'
 import SubmittedOfferContentCard from './SubmittedOfferContentCard'
 import OfferCancellationSection from '@/components/offers/OfferCancellationSection'
+import OfferNoShowSection from '@/components/offers/OfferNoShowSection'
 
 type TalentOfferProgressPanelProps = {
   steps: OfferProgressStep[]
@@ -17,6 +18,7 @@ type TalentOfferProgressPanelProps = {
     status: string
     date: string | null
     timeRange: string | null
+    endTime: string | null
     reward: number | null
     updatedAt: string
     submittedAt: string | null
@@ -31,6 +33,8 @@ type TalentOfferProgressPanelProps = {
     canceledByRole: string | null
     cancellationReason: string | null
     cancellationStage: string | null
+    noShowAt: string | null
+    noShowReason: string | null
   }
   invoiceId: string | null
   onDeclineOffer?: () => void
@@ -132,6 +136,15 @@ export default function TalentOfferProgressPanel({
         canceledByRole={offer.canceledByRole}
         cancellationReason={offer.cancellationReason}
         cancellationStage={offer.cancellationStage}
+        invoiceId={invoiceId}
+      />
+      <OfferNoShowSection
+        offerId={offer.id}
+        role="talent"
+        status={offer.status}
+        scheduledEndAt={offer.endTime}
+        noShowAt={offer.noShowAt}
+        noShowReason={offer.noShowReason}
         invoiceId={invoiceId}
       />
     </div>
