@@ -14,8 +14,8 @@ type Props = {
   status: string
   canceledAt?: string | null
   canceledByRole?: string | null
-  cancelReason?: string | null
-  cancellationPhase?: string | null
+  cancellationReason?: string | null
+  cancellationStage?: string | null
   invoiceId?: string | null
 }
 
@@ -35,16 +35,16 @@ export default function OfferCancellationSection({
   status,
   canceledAt = null,
   canceledByRole = null,
-  cancelReason = null,
-  cancellationPhase = null,
+  cancellationReason = null,
+  cancellationStage = null,
   invoiceId = null,
 }: Props) {
   const router = useRouter()
   const [localStatus, setLocalStatus] = useState(status)
   const [localCanceledAt, setLocalCanceledAt] = useState(canceledAt)
   const [localCanceledByRole, setLocalCanceledByRole] = useState(canceledByRole)
-  const [localReason, setLocalReason] = useState(cancelReason)
-  const [localPhase, setLocalPhase] = useState(cancellationPhase)
+  const [localReason, setLocalReason] = useState(cancellationReason)
+  const [localPhase, setLocalPhase] = useState(cancellationStage)
   const [reason, setReason] = useState('')
   const [editing, setEditing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -93,8 +93,8 @@ export default function OfferCancellationSection({
 
   const submit = async () => {
     const trimmedReason = reason.trim()
-    if (trimmedReason.length < 5 || trimmedReason.length > 1000) {
-      toast.error('キャンセル理由は5文字以上1000文字以内で入力してください')
+    if (trimmedReason.length < 5 || trimmedReason.length > 500) {
+      toast.error('キャンセル理由は5文字以上500文字以内で入力してください')
       return
     }
 
@@ -120,8 +120,8 @@ export default function OfferCancellationSection({
       setLocalStatus('canceled')
       setLocalCanceledAt(body.canceled_at ?? new Date().toISOString())
       setLocalCanceledByRole(body.canceled_by_role ?? role)
-      setLocalReason(body.cancel_reason ?? trimmedReason)
-      setLocalPhase(body.cancellation_phase ?? (postContract ? 'post_contract' : 'pre_contract'))
+      setLocalReason(body.cancellation_reason ?? trimmedReason)
+      setLocalPhase(body.cancellation_stage ?? (postContract ? 'post_contract' : 'pre_contract'))
       setEditing(false)
       toast.success(postContract ? '締結済みの取引をキャンセルしました' : 'オファーを取り下げました')
       router.refresh()
@@ -151,12 +151,12 @@ export default function OfferCancellationSection({
             <textarea
               value={reason}
               onChange={event => setReason(event.target.value)}
-              maxLength={1000}
+              maxLength={500}
               rows={4}
               className="w-full rounded-md border border-input bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
               placeholder="相手に伝わるよう、理由を入力してください"
             />
-            <div className="mt-1 text-right text-xs text-slate-500">{reason.length}/1000</div>
+            <div className="mt-1 text-right text-xs text-slate-500">{reason.length}/500</div>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button
