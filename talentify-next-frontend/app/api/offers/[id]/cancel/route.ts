@@ -15,9 +15,9 @@ export async function POST(
     const body = (await req.json().catch(() => null)) as CancelPayload | null
     const reason = typeof body?.reason === 'string' ? body.reason.trim() : ''
 
-    if (reason.length < 5 || reason.length > 1000) {
+    if (reason.length < 5 || reason.length > 500) {
       return NextResponse.json(
-        { error: 'キャンセル理由は5文字以上1000文字以内で入力してください' },
+        { error: 'キャンセル理由は5文字以上500文字以内で入力してください' },
         { status: 400 }
       )
     }
@@ -66,14 +66,14 @@ export async function POST(
         throw new Error('OFFER_ALREADY_PERFORMED')
       }
 
-      let cancellationPhase: 'pre_contract' | 'post_contract'
+      let cancellationStage: 'pre_contract' | 'post_contract'
       if (offer.status === 'pending') {
         if (actorRole !== 'store') {
           throw new Error('USE_DECLINE_FOR_PENDING')
         }
-        cancellationPhase = 'pre_contract'
+        cancellationStage = 'pre_contract'
       } else if (offer.status === 'confirmed') {
-        cancellationPhase = 'post_contract'
+        cancellationStage = 'post_contract'
         if (offer.invoices?.status !== 'approved') {
           throw new Error('CONTRACT_STATE_INVALID')
         }
@@ -87,8 +87,9 @@ export async function POST(
           status: 'canceled',
           canceled_at: now,
           canceled_by_role: actorRole,
-          cancel_reason: reason,
-          cancellation_phase: cancellationPhase,
+          canceled_by_user_id: user.id,
+          cancellation_reason: reason,
+          cancellation_stage: cancellationStage,
           updated_at: now,
         },
       })
@@ -101,7 +102,7 @@ export async function POST(
         offerId: offer.id,
         actorRole,
         recipientUserId,
-        cancellationPhase,
+        cancellationStage,
         canceledAt: now.toISOString(),
       }
     })
@@ -117,7 +118,7 @@ export async function POST(
             actorId: user.id,
             actorName: result.actorRole === 'store' ? '店舗' : '演者',
             change: 'cancellation',
-            cancellationPhase: result.cancellationPhase,
+            cancellationStage: result.cancellationStage,
             cancelReason: reason,
           },
         })
@@ -132,8 +133,9 @@ export async function POST(
         status: 'canceled',
         canceled_at: result.canceledAt,
         canceled_by_role: result.actorRole,
-        cancel_reason: reason,
-        cancellation_phase: result.cancellationPhase,
+        canceled_by_user_id: user.id,
+        cancellation_reason: reason,
+        cancellation_stage: result.cancellationStage,
       },
       { status: 200 }
     )
