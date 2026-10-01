@@ -66,6 +66,10 @@ export async function POST(req: NextRequest) {
     return errorResponse(400, code, '登録に失敗しました')
   }
 
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    return errorResponse(409, 'EMAIL_ALREADY_EXISTS', 'このメールアドレスは既に登録されています')
+  }
+
   if (!data.user?.id || !data.user.email) {
     return errorResponse(500, 'SIGNUP_FAILED', '登録情報の作成に失敗しました')
   }
