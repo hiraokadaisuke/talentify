@@ -42,6 +42,7 @@ export async function getCompletedOffersForStore() {
     .select('id, talent_id, store_id, date, message, reviews(id), talents(stage_name)')
     .eq('store_id', store.id)
     .eq('status', completedStatus)
+    .eq('paid', true)
   if (error) {
     console.error('failed to fetch completed offers', error)
     return []
