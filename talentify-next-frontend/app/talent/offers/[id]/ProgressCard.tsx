@@ -17,9 +17,9 @@ export default function ProgressCard({ steps, activeStep, currentStep, onStepCha
     <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <CardHeader className="space-y-1 px-4 pt-4 sm:px-5 sm:pt-5">
         <CardTitle className="text-base font-semibold text-slate-900 sm:text-lg">進捗状況</CardTitle>
-        <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">オファーの進行状況と各ステップの対応内容を確認できます。</p>
+        <p className="hidden text-xs leading-relaxed text-muted-foreground sm:block sm:text-sm">オファーの進行状況と各ステップの対応内容を確認できます。</p>
       </CardHeader>
-      <CardContent className="px-4 pb-4 pt-1 sm:px-5 sm:pb-5">
+      <CardContent className="px-3 pb-3 pt-0 sm:px-5 sm:pb-5 sm:pt-1">
         <OfferProgressTracker steps={steps} selectedStep={activeStep} onStepSelect={onStepChange} />
         <CurrentStepNotice
           currentStep={currentStep}
