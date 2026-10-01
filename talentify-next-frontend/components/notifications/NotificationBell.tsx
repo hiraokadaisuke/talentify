@@ -162,6 +162,7 @@ export default function NotificationBell() {
         <div className="border-t bg-white">
           <Link
             href={notificationsPath}
+            prefetch={false}
             onClick={handleNavigate}
             className="block px-3 py-3 text-center text-sm font-semibold text-blue-600 hover:bg-blue-50"
           >
