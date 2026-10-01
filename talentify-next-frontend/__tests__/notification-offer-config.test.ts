@@ -41,6 +41,44 @@ describe('offer notification config integration', () => {
     expect(payload.data).toMatchObject({ status: 'rejected', offer_id: 'offer-2', recipient_role: 'store' })
   })
 
+  it('links a contract notification directly to the issued invoice', () => {
+    const payload = buildNotificationPayload(
+      {
+        kind: 'offer_accepted',
+        offerId: 'offer-3',
+        invoiceId: 'invoice-3',
+        actorName: 'Store C',
+      },
+      'talent',
+    )
+
+    expect(payload.type).toBe('offer_accepted')
+    expect(payload.action_url).toBe('/talent/invoices/invoice-3')
+    expect(payload.action_label).toBe('締結書兼請求書を見る')
+    expect(payload.entity_type).toBe('invoice')
+    expect(payload.entity_id).toBe('invoice-3')
+    expect(payload.data).toMatchObject({
+      offer_id: 'offer-3',
+      invoice_id: 'invoice-3',
+      recipient_role: 'talent',
+    })
+  })
+
+  it('keeps the offer detail fallback for legacy contract events without an invoice id', () => {
+    const payload = buildNotificationPayload(
+      {
+        kind: 'offer_accepted',
+        offerId: 'offer-legacy',
+        actorName: 'Store Legacy',
+      },
+      'talent',
+    )
+
+    expect(payload.action_url).toBe('/talent/offers/offer-legacy')
+    expect(payload.entity_type).toBe('offer')
+    expect(payload.entity_id).toBe('offer-legacy')
+  })
+
   it('resolveRecipientRole resolves offer recipient from actor side', async () => {
     const queryRaw = jest.fn().mockResolvedValue([
       {
