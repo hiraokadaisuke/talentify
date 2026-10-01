@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicAuthClient } from '@/lib/supabase/public-auth'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getRedirectUrl } from '@/lib/getRedirectUrl'
 import { upsertAppUser } from '@/lib/auth/app-user'
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     termsVersion,
     privacyVersion,
   } = parsed.data
-  const supabase = createClient()
+  const supabase = createPublicAuthClient()
 
   const { data, error } = await supabase.auth.signUp({
     email,
