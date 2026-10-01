@@ -326,6 +326,8 @@ model offers {
   visit_completed_at  DateTime?             @db.Timestamptz(6)
   canceled_at         DateTime?             @db.Timestamptz(6)
   canceled_by_role    String?
+  cancel_reason       String?
+  cancellation_phase String?
   invoices            invoices?
   message_threads     message_threads[]
   offer_messages      offer_messages[]
