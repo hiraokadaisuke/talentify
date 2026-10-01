@@ -38,7 +38,7 @@ const offerRowSchema = z.object({
 })
 
 export async function getOffersForTalent() {
-  const talentId = await getTalentId()
+  const talentId = await getTalentId({ throwOnError: true })
   if (!talentId) return [] as TalentOffer[]
 
   const { data, error } = await supabase
