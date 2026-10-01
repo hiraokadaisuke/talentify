@@ -1,63 +1,314 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: '利用規約 | Talentify',
+  description: 'Talentifyの利用条件について定める利用規約です。',
+}
+
+const sections = [
+  {
+    id: 'article1',
+    title: '第1条（適用）',
+    body: (
+      <>
+        <p>
+          本規約は、Talentify運営者（以下「運営者」といいます。）が提供する
+          「Talentify」（以下「本サービス」といいます。）の利用条件ならびに、
+          運営者と本サービスの利用者との間の権利義務関係を定めるものです。
+        </p>
+        <p>
+          利用者は、本サービスを利用することにより、本規約に同意したものとみなされます。
+          本サービス上で個別のルール、ガイドラインその他の定めが表示される場合、
+          それらも本規約の一部を構成します。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article2',
+    title: '第2条（利用者およびアカウント）',
+    body: (
+      <>
+        <p>
+          本サービスでは、主にパチンコ店その他出演依頼を行う事業者（以下「店舗」といいます。）と、
+          出演業務を受託する個人または事業者（以下「演者」といいます。）がアカウントを登録して利用します。
+        </p>
+        <p>
+          利用者は、登録情報を正確かつ最新の状態に保ち、アカウントおよび認証情報を自己の責任で管理するものとします。
+          第三者による不正利用のおそれを認識した場合は、速やかに運営者へ連絡してください。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article3',
+    title: '第3条（登録および利用制限）',
+    body: (
+      <>
+        <p>
+          利用希望者は、本規約および
+          <Link href="/privacy" className="mx-1 text-blue-700 underline underline-offset-2">
+            プライバシーポリシー
+          </Link>
+          に同意のうえ、運営者所定の方法で登録します。
+        </p>
+        <p>
+          運営者は、登録内容に虚偽がある場合、本サービスの安全な運営に支障がある場合、
+          過去に重大な規約違反があった場合その他合理的な理由がある場合、
+          登録を拒否し、または利用を制限できるものとします。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article4',
+    title: '第4条（本サービスの役割）',
+    body: (
+      <>
+        <p>
+          本サービスは、店舗と演者がプロフィール、予定、オファー、見積、メッセージその他の情報を共有し、
+          出演案件の検討・合意・管理を行うためのプラットフォームです。
+        </p>
+        <p>
+          本サービス上で別途明示する場合を除き、運営者は店舗と演者との出演契約そのものの当事者ではありません。
+          出演条件、報酬、交通費、日時、業務内容その他の取引条件については、
+          店舗と演者が十分に確認したうえで合意してください。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article5',
+    title: '第5条（オファー、見積および契約）',
+    body: (
+      <>
+        <p>
+          店舗は本サービスを通じて演者へオファーを送信できます。演者は内容を確認し、
+          必要に応じてメッセージや電話等で調整したうえで見積を提出できます。
+        </p>
+        <p>
+          店舗が提出済み見積を承認し、本サービス上で契約成立として記録された時点で、
+          当該店舗と演者との間で表示された内容に基づく出演契約が成立するものとします。
+          契約成立後の変更、キャンセル、無断不履行その他の取扱いは、
+          本サービス上に保存された記録および当事者間の合意に従います。
+        </p>
+        <p>
+          日時、報酬、交通費その他重要な条件を変更する場合は、
+          必要に応じて見積を修正し、再度相手方の確認を受けてください。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article6',
+    title: '第6条（料金および支払い）',
+    body: (
+      <>
+        <p>
+          本サービスの利用料金、手数料その他の費用が発生する場合、
+          その内容は
+          <Link href="/pricing" className="mx-1 text-blue-700 underline underline-offset-2">
+            料金ページ
+          </Link>
+          または申込み画面等で表示します。
+        </p>
+        <p>
+          店舗から演者への出演報酬その他の支払いについては、
+          本サービス上で提供される機能および当事者間で合意した方法に従ってください。
+          運営者が明示的に保証する場合を除き、運営者は利用者間の支払債務の履行を保証するものではありません。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article7',
+    title: '第7条（メッセージ、添付ファイルおよび記録）',
+    body: (
+      <>
+        <p>
+          利用者は、案件の相談、条件確認、連絡等のために本サービスのメッセージ機能および添付機能を利用できます。
+          利用者は、送信内容について必要な権利を有し、法令および第三者の権利を侵害しないことを保証するものとします。
+        </p>
+        <p>
+          契約条件や重要な変更事項については、口頭で合意した場合でも、
+          見積や本サービス上の記録に反映するなど、後から確認できる状態にしてください。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article8',
+    title: '第8条（レビューおよび投稿内容）',
+    body: (
+      <>
+        <p>
+          利用者は、実際の取引に基づきレビューその他の投稿を行うことができます。
+          虚偽、誹謗中傷、個人情報の不必要な掲載、権利侵害その他不適切な内容を投稿してはなりません。
+        </p>
+        <p>
+          運営者は、本サービスの安全な運営または第三者の権利保護のため必要と判断した場合、
+          投稿の非表示、削除その他合理的な措置を講じることがあります。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article9',
+    title: '第9条（禁止事項）',
+    body: (
+      <>
+        <p>利用者は、本サービスの利用にあたり、次の行為をしてはなりません。</p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li>法令、公序良俗または本規約に違反する行為</li>
+          <li>虚偽の登録、なりすまし、他人のアカウントの不正利用</li>
+          <li>相手方または第三者に対する詐欺、脅迫、嫌がらせ、差別、誹謗中傷</li>
+          <li>知的財産権、肖像権、プライバシーその他第三者の権利を侵害する行為</li>
+          <li>本サービスのシステムへ不正アクセスし、過度な負荷を与え、または正常な運営を妨害する行為</li>
+          <li>本サービスから取得した情報を、取引その他正当な目的を超えて利用する行為</li>
+          <li>その他、運営者が本サービスの安全または信頼を害すると合理的に判断する行為</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: 'article10',
+    title: '第10条（利用停止・退会）',
+    body: (
+      <>
+        <p>
+          運営者は、重大な規約違反、不正利用、安全上の問題その他合理的な理由がある場合、
+          事前通知なく機能の一部制限、利用停止または登録取消しを行うことがあります。
+        </p>
+        <p>
+          退会を希望する利用者は、
+          <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+            お問い合わせ
+          </Link>
+          から申請してください。契約、請求、支払い、トラブル対応その他のため必要な記録は、
+          法令および合理的な保存期間に従い退会後も保持する場合があります。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article11',
+    title: '第11条（サービスの変更・停止）',
+    body: (
+      <p>
+        運営者は、保守、障害対応、セキュリティ確保、法令対応その他必要な場合、
+        本サービスの全部または一部を変更、停止または終了することがあります。
+        重要な変更については、合理的な方法で事前または事後に案内します。
+      </p>
+    ),
+  },
+  {
+    id: 'article12',
+    title: '第12条（知的財産権）',
+    body: (
+      <p>
+        本サービスのシステム、デザイン、文章、ロゴその他運営者が作成したコンテンツに関する権利は、
+        運営者または正当な権利者に帰属します。利用者が投稿したプロフィール、画像、文章その他の内容については、
+        利用者に権利が留保されますが、運営者は本サービスの提供・表示・保守・改善に必要な範囲で利用できるものとします。
+      </p>
+    ),
+  },
+  {
+    id: 'article13',
+    title: '第13条（免責および責任の範囲）',
+    body: (
+      <>
+        <p>
+          運営者は、利用者間の取引内容、出演結果、相手方の信用、支払い能力、
+          投稿内容その他利用者自身が提供する情報の完全性を保証するものではありません。
+        </p>
+        <p>
+          運営者の責任を法令上制限できる場合、運営者は通常かつ直接の損害の範囲で責任を負うものとし、
+          特別損害、間接損害、逸失利益等については、運営者に故意または重過失がある場合を除き責任を負わないものとします。
+          法令上制限できない責任については、当該法令が優先します。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'article14',
+    title: '第14条（規約の変更）',
+    body: (
+      <p>
+        運営者は、法令の変更、本サービスの内容変更その他必要に応じて本規約を変更することがあります。
+        利用者の権利義務に重要な影響を与える変更については、
+        効力発生日および変更内容を本サービス上その他合理的な方法で案内します。
+      </p>
+    ),
+  },
+  {
+    id: 'article15',
+    title: '第15条（準拠法・裁判管轄）',
+    body: (
+      <p>
+        本規約は日本法に準拠します。本サービスに関して運営者との間で紛争が生じた場合、
+        法令により別段の定めがある場合を除き、運営者の主たる事業所の所在地を管轄する日本の裁判所を
+        第一審の合意管轄裁判所とします。
+      </p>
+    ),
+  },
+  {
+    id: 'article16',
+    title: '第16条（お問い合わせ）',
+    body: (
+      <p>
+        本規約に関するお問い合わせは、
+        <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+          お問い合わせフォーム
+        </Link>
+        からご連絡ください。
+      </p>
+    ),
+  },
+]
+
 export default function TermsPage() {
   return (
-    <main className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-2">利用規約</h1>
-      <p className="mb-4">Talentify（以下、「当サービス」といいます。）のご利用にあたり、以下の通り本規約を定めます。</p>
-      <p className="mb-6 text-sm">最終改定日: 2025年04月01日</p>
-
-      <h2 className="text-xl font-semibold mb-2">目次</h2>
-      <ul className="list-disc list-inside mb-6 space-y-1">
-        <li>
-          <a href="#article1" className="text-blue-600 underline">第1条 (適用)</a>
-        </li>
-        <li>
-          <a href="#article2" className="text-blue-600 underline">第2条 (定義)</a>
-        </li>
-        <li>
-          <a href="#article3" className="text-blue-600 underline">第3条 (登録)</a>
-        </li>
-        <li>
-          <a href="#article4" className="text-blue-600 underline">第4条 (禁止事項)</a>
-        </li>
-        <li>
-          <a href="#article5" className="text-blue-600 underline">第5条 (免責事項)</a>
-        </li>
-      </ul>
-
-      <section id="article1" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">第1条 (適用)</h3>
-        <p>
-          本規約は、当サービスの提供条件および当サービスの利用に関する当社と利用者との間の権利義務関係を定めるものです。
+    <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
+      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">TERMS OF SERVICE</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">利用規約</h1>
+        <p className="mt-3 text-sm leading-7 text-slate-600">
+          店舗と演者が安心して案件を進めるための、Talentifyの基本的な利用条件です。
         </p>
-      </section>
+        <p className="mt-4 text-xs text-slate-400">最終改定日：2026年10月1日</p>
+      </header>
 
-      <section id="article2" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">第2条 (定義)</h3>
-        <p>
-          本規約において「利用者」とは、当サービスを利用するすべての個人および法人を指します。
-        </p>
-      </section>
+      <nav className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <h2 className="text-sm font-semibold text-slate-900">目次</h2>
+        <ol className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+          {sections.map((section) => (
+            <li key={section.id}>
+              <a href={`#${section.id}`} className="hover:text-blue-700 hover:underline">
+                {section.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-      <section id="article3" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">第3条 (登録)</h3>
-        <p>
-          利用希望者は本規約に同意の上、当社の定める方法により登録申請を行い、当社がこれを承認することによって、利用者として登録されるものとします。
-        </p>
-      </section>
+      <div className="mt-8 space-y-8">
+        {sections.map((section) => (
+          <section
+            key={section.id}
+            id={section.id}
+            className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+          >
+            <h2 className="text-lg font-semibold text-slate-950">{section.title}</h2>
+            <div className="mt-3 space-y-3 text-sm leading-7 text-slate-700">
+              {section.body}
+            </div>
+          </section>
+        ))}
+      </div>
 
-      <section id="article4" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">第4条 (禁止事項)</h3>
-        <p>
-          利用者は、以下に定める行為をしてはなりません。これに違反した場合、当社は利用者の利用停止、登録抹消その他必要な措置を講じることができます。
-        </p>
-      </section>
-
-      <section id="article5" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">第5条 (免責事項)</h3>
-        <p>
-          当社は、当サービスに関して利用者に生じた損害について、当社に故意又は重過失がない限り責任を負いません。
-        </p>
-      </section>
+      <p className="mt-8 text-xs leading-6 text-slate-400">
+        本ページは本サービスの現行仕様を前提として整備しています。法令またはサービス内容の変更に応じて更新する場合があります。
+      </p>
     </main>
-  );
+  )
 }
