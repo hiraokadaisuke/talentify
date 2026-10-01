@@ -110,7 +110,12 @@ export default function TalentOfferProgressPanel({
 
   return (
     <div className="space-y-4">
-      <ProgressCard steps={progressSteps} activeStep={activeStep} onStepChange={setActiveStep} />
+      <ProgressCard
+        steps={progressSteps}
+        activeStep={activeStep}
+        currentStep={initialActiveStep}
+        onStepChange={setActiveStep}
+      />
       <SubmittedOfferContentCard
         submittedOffer={{
           preferredDate: offer.date,
