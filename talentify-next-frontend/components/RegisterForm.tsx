@@ -20,12 +20,14 @@ export default function RegisterForm() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [agreed, setAgreed] = useState(false)
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [rateLimitError, setRateLimitError] = useState<string | null>(null)
   const [emailError, setEmailError] = useState<string | null>(null)
   const [phoneError, setPhoneError] = useState<string | null>(null)
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [confirmError, setConfirmError] = useState<string | null>(null)
+  const [agreementError, setAgreementError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const getSignUpErrorMessage = (code?: string) => {
@@ -103,6 +105,7 @@ export default function RegisterForm() {
     setPhoneError(null)
     setPasswordError(null)
     setConfirmError(null)
+    setAgreementError(null)
 
     let hasError = false
 
@@ -136,6 +139,11 @@ export default function RegisterForm() {
       hasError = true
     } else if (password !== confirm) {
       setConfirmError('パスワードが一致しません')
+      hasError = true
+    }
+
+    if (!agreed) {
+      setAgreementError('利用規約とプライバシーポリシーへの同意が必要です')
       hasError = true
     }
 
@@ -267,8 +275,44 @@ export default function RegisterForm() {
           {confirmError && <p className="text-red-600 text-sm mt-1">{confirmError}</p>}
         </div>
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? '送信中...' : '登録'}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+          <label className="flex items-start gap-3 text-sm leading-6 text-white/75">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(event) => setAgreed(event.target.checked)}
+              disabled={isSubmitting}
+              className="mt-1 size-4 shrink-0"
+              required
+            />
+            <span>
+              <Link
+                href="/terms"
+                target="_blank"
+                className="font-semibold text-white underline underline-offset-4"
+              >
+                利用規約
+              </Link>
+              {' '}および{' '}
+              <Link
+                href="/privacy"
+                target="_blank"
+                className="font-semibold text-white underline underline-offset-4"
+              >
+                プライバシーポリシー
+              </Link>
+              を確認し、同意します。
+            </span>
+          </label>
+          {agreementError && (
+            <p className="mt-2 text-sm text-red-400" role="alert">
+              {agreementError}
+            </p>
+          )}
+        </div>
+
+        <Button type="submit" disabled={isSubmitting || !agreed} className="w-full">
+          {isSubmitting ? '送信中...' : '同意して登録'}
         </Button>
       </form>
 
