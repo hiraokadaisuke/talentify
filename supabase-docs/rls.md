@@ -19,21 +19,6 @@
   - 送信・承認フロー: USING `EXISTS (SELECT 1 FROM talents t WHERE t.id = invoices.talent_id AND t.user_id = auth.uid()) AND status IN ('draft', 'submitted')`, CHECK 同条件かつ `status IN ('submitted', 'approved')`
 - ストアとタレントはいずれも自分の請求書を更新可能 (`UPDATE`): USING `(auth.uid() = store_id) OR (auth.uid() = talent_id)`
 
-### message_threads
-- 参加者のみスレッドを登録可能 (`INSERT`): CHECK `(auth.uid() = ANY (participant_user_ids))`
-- 参加者のみスレッドを閲覧可能 (`SELECT`): USING `(auth.uid() = ANY (participant_user_ids))`
-
-### messages
-- スレッド参加者のみメッセージを登録可能 (`INSERT`): CHECK `sender_user_id = auth.uid()` かつ `EXISTS (SELECT 1 FROM message_threads t WHERE t.id = messages.thread_id AND auth.uid() = ANY (t.participant_user_ids))`
-- スレッド参加者のみメッセージを閲覧可能 (`SELECT`): USING `EXISTS (SELECT 1 FROM message_threads t WHERE t.id = messages.thread_id AND auth.uid() = ANY (t.participant_user_ids))`
-- 既存の直接送受信フィールドでも閲覧可能 (`SELECT`): USING `((auth.uid() = sender_id) OR (auth.uid() = receiver_id))`
-
-### message_read_receipts
-- スレッド参加者のみ既読情報を登録可能 (`INSERT`):
-  - CHECK `user_id = auth.uid()`
-  - CHECK `EXISTS (SELECT 1 FROM messages m JOIN message_threads t ON t.id = m.thread_id WHERE m.id = message_read_receipts.message_id AND auth.uid() = ANY (t.participant_user_ids))`
-- スレッド参加者のみ既読情報を閲覧可能 (`SELECT`): USING `EXISTS (SELECT 1 FROM messages m JOIN message_threads t ON t.id = m.thread_id WHERE m.id = message_read_receipts.message_id AND auth.uid() = ANY (t.participant_user_ids))`
-
 ### notifications
 - サービスロールのみ通知を登録可能 (`INSERT`): CHECK `true`
 - 受信者のみ通知を閲覧・更新可能 (`SELECT`/`UPDATE`): USING `(auth.uid() = user_id)`, CHECK `(auth.uid() = user_id)`
