@@ -41,6 +41,7 @@ export async function middleware(req: NextRequest) {
     '/messages',
     '/notifications',
     '/account/',
+    '/admin',
   ].some((prefix) => pathname.startsWith(prefix))
 
   if (!user) {
@@ -55,6 +56,10 @@ export async function middleware(req: NextRequest) {
 
   if (status === 'suspended' && pathname !== '/account/suspended') {
     return redirectWithCookies(req, res, '/account/suspended')
+  }
+
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return res
   }
 
   if (!role) {
@@ -96,5 +101,6 @@ export const config = {
     '/messages/:path*',
     '/notifications/:path*',
     '/account/:path*',
+    '/admin/:path*',
   ],
 }
