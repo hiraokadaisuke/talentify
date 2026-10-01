@@ -251,6 +251,36 @@ describe('POST /api/messages/send attachments', () => {
     expect(insert).not.toHaveBeenCalled()
   })
 
+  it('rejects invalid receiver and offer ids before authorization', async () => {
+    const invalidReceiver = await POST(
+      request({
+        receiverUserId: 'not-a-uuid',
+        offerId: OFFER_ID,
+        body: '確認お願いします',
+      }),
+    )
+
+    expect(invalidReceiver.status).toBe(400)
+    await expect(invalidReceiver.json()).resolves.toEqual({
+      error: 'invalid_target',
+    })
+
+    const invalidOffer = await POST(
+      request({
+        receiverUserId: RECEIVER_ID,
+        offerId: 'not-a-uuid',
+        body: '確認お願いします',
+      }),
+    )
+
+    expect(invalidOffer.status).toBe(400)
+    await expect(invalidOffer.json()).resolves.toEqual({
+      error: 'invalid_target',
+    })
+    expect(authorizeMessageTarget).not.toHaveBeenCalled()
+    expect(createServiceClient).not.toHaveBeenCalled()
+  })
+
   it('does not allow attachments without an offer context', async () => {
     const res = await POST(
       request({
