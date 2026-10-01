@@ -32,14 +32,13 @@ export default function TalentOfferPage() {
         .from('offers')
         .select(
           `
-          id,status,date,time_range,reward,updated_at,created_at,message,talent_id,user_id,paid,paid_at,
+          id,status,date,time_range,reward,updated_at,created_at,message,talent_id,user_id,paid,paid_at,canceled_at,canceled_by_role,cancel_reason,cancellation_phase,
           reviews(id),
           talents(stage_name,avatar_url,user_id),
           store:stores!offers_store_id_fkey(id, store_name, user_id)
         `
         )
         .eq('id', params.id)
-        .or('and(status.eq.canceled,accepted_at.not.is.null),status.neq.canceled')
         .single(),
       supabase
         .from('invoices')
@@ -72,6 +71,10 @@ export default function TalentOfferPage() {
         invoiceStatusLabel: getInvoiceStatusLabel(invoice?.status),
         paymentStatusLabel: getPaymentStatusLabel(invoice?.payment_status, data.paid),
         storeUserId: data.store?.user_id ?? null,
+        canceledAt: data.canceled_at ?? null,
+        canceledByRole: data.canceled_by_role ?? null,
+        cancelReason: data.cancel_reason ?? null,
+        cancellationPhase: data.cancellation_phase ?? null,
       })
       setInvoiceId(invoice?.id ?? null)
     } else {
@@ -167,6 +170,10 @@ export default function TalentOfferPage() {
               paymentStatusLabel: offer.paymentStatusLabel,
               reviewCompleted: offer.reviewCompleted,
               message: offer.message,
+              canceledAt: offer.canceledAt,
+              canceledByRole: offer.canceledByRole,
+              cancelReason: offer.cancelReason,
+              cancellationPhase: offer.cancellationPhase,
             }}
             invoiceId={invoiceId}
             onDeclineOffer={handleDecline}
