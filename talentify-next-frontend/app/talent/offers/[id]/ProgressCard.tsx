@@ -1,16 +1,18 @@
 'use client'
 
 import OfferProgressTracker from '@/components/offer/OfferProgressTracker'
+import CurrentStepNotice from '@/components/offer/CurrentStepNotice'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { OfferProgressStep, OfferStepKey } from '@/utils/offerProgress'
 
 type ProgressCardProps = {
   steps: OfferProgressStep[]
   activeStep: OfferStepKey
+  currentStep: OfferStepKey
   onStepChange: (step: OfferStepKey) => void
 }
 
-export default function ProgressCard({ steps, activeStep, onStepChange }: ProgressCardProps) {
+export default function ProgressCard({ steps, activeStep, currentStep, onStepChange }: ProgressCardProps) {
   return (
     <Card className="rounded-xl border border-slate-200 bg-white shadow-sm">
       <CardHeader className="space-y-1 px-4 pt-4 sm:px-5 sm:pt-5">
@@ -19,6 +21,11 @@ export default function ProgressCard({ steps, activeStep, onStepChange }: Progre
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-1 sm:px-5 sm:pb-5">
         <OfferProgressTracker steps={steps} selectedStep={activeStep} onStepSelect={onStepChange} />
+        <CurrentStepNotice
+          currentStep={currentStep}
+          selectedStep={activeStep}
+          onReturn={() => onStepChange(currentStep)}
+        />
       </CardContent>
     </Card>
   )
