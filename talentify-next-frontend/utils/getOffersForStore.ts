@@ -39,11 +39,16 @@ export async function getOffersForStore() {
   const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return [] as Offer[]
 
-  const { data: store } = await supabase
+  const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('id')
     .eq('user_id', user.id)
     .single()
+
+  if (storeError) {
+    console.error('failed to fetch store for offers:', storeError)
+    throw storeError
+  }
   if (!store) return [] as Offer[]
 
   const { data, error } = await supabase
@@ -56,7 +61,7 @@ export async function getOffersForStore() {
 
   if (error) {
     console.error('failed to fetch offers:', error)
-    return [] as Offer[]
+    throw error
   }
 
   const offers = (data ?? []) as unknown as RawOffer[]
