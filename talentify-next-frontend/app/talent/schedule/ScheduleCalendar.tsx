@@ -42,6 +42,7 @@ import {
   mapOfferStatus,
 } from '@/utils/storeSchedule'
 import { toast } from 'sonner'
+import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
 
 const locales = { ja }
 
@@ -112,13 +113,8 @@ function buildDateTime(dateStr?: string | null, timeStr?: string | null) {
   const trimmedDate = dateStr.trim()
   if (!trimmedDate) return null
 
-  let normalizedTime = '00:00:00'
-  if (timeStr && timeStr.trim()) {
-    const trimmedTime = timeStr.trim()
-    normalizedTime = /^\d{2}:\d{2}$/.test(trimmedTime)
-      ? `${trimmedTime}:00`
-      : trimmedTime
-  }
+  const clock = storedOfferTimeToClock(timeStr)
+  const normalizedTime = clock ? `${clock}:00` : '00:00:00'
 
   const iso = `${trimmedDate}T${normalizedTime}`
   const parsed = parseISO(iso)
