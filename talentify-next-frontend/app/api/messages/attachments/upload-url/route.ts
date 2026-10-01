@@ -49,8 +49,17 @@ export async function POST(req: NextRequest) {
       .from(OFFER_ATTACHMENT_BUCKET)
       .createSignedUploadUrl(path, { upsert: false })
 
-    if (error || !data?.token) {
+    if (error || !data) {
       console.error('[offer attachment signed upload]', error)
+      return NextResponse.json(
+        { error: 'signed_upload_url_failed' },
+        { status: 500 },
+      )
+    }
+
+    const token = data.token
+    if (!token) {
+      console.error('[offer attachment signed upload] token missing')
       return NextResponse.json(
         { error: 'signed_upload_url_failed' },
         { status: 500 },
@@ -61,11 +70,11 @@ export async function POST(req: NextRequest) {
       {
         data: {
           bucket: OFFER_ATTACHMENT_BUCKET,
-          path: data.path,
-          token: data.token,
+          path,
+          token,
           expiresIn: OFFER_ATTACHMENT_SIGNED_UPLOAD_EXPIRES_IN,
           attachment: {
-            path: data.path,
+            path,
             name: fileName,
             type: contentType,
             size,
