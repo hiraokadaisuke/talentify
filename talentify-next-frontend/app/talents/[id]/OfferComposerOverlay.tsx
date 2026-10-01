@@ -144,6 +144,8 @@ export default function OfferComposerOverlay({
         store_id: store.id,
         talent_id: talentId,
         date: visitDate,
+        start_time: startTime,
+        end_time: endTime,
         time_range: timeRange,
         reward: reward.trim() ? Number(reward) : null,
         agreed,
