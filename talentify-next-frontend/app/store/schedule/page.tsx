@@ -20,6 +20,7 @@ import { createClient } from '@/utils/supabase/client'
 import { type OfferStatusDb, toDbOfferStatus } from '@/app/lib/offerStatus'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import OfferModal from '@/components/modals/OfferModal'
+import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -123,7 +124,7 @@ export default function StoreSchedulePage() {
       const { data, error } = await supabase
         .from('offers')
         .select(
-          'id, talent_id, date, status, start_time, notes, talents(stage_name)'
+          'id, talent_id, date, status, start_time, end_time, notes, talents(stage_name)'
         )
         .eq('store_id', store.id)
         .in('status', normalizedStatuses)
@@ -133,21 +134,25 @@ export default function StoreSchedulePage() {
         return
       }
 
-      const mapped = (data || []).map((o: any) => ({
-        title: o.talents?.stage_name || '出演',
-        start: new Date(
-          o.start_time ? `${o.date}T${o.start_time}` : `${o.date}`
-        ),
-        end: new Date(
-          o.start_time ? `${o.date}T${o.start_time}` : `${o.date}`
-        ),
-        talentId: o.talent_id,
-        offerId: o.id,
-        talentName: o.talents?.stage_name || '出演',
-        status: mapOfferStatus(o.status),
-        startTime: o.start_time,
-        notes: o.notes,
-      })) as StoreScheduleEvent[]
+      const mapped = (data || []).map((o: any) => {
+        const dateKey = typeof o.date === 'string' ? o.date.slice(0, 10) : ''
+        const startClock = storedOfferTimeToClock(o.start_time)
+        const endClock = storedOfferTimeToClock(o.end_time)
+        const fallbackClock = startClock ?? '00:00'
+
+        return {
+          title: o.talents?.stage_name || '出演',
+          start: new Date(`${dateKey}T${fallbackClock}:00`),
+          end: new Date(`${dateKey}T${endClock ?? fallbackClock}:00`),
+          allDay: !startClock || !endClock,
+          talentId: o.talent_id,
+          offerId: o.id,
+          talentName: o.talents?.stage_name || '出演',
+          status: mapOfferStatus(o.status),
+          startTime: startClock,
+          notes: o.notes,
+        }
+      }) as StoreScheduleEvent[]
 
       setEvents(mapped)
     }
