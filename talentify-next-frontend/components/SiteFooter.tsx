@@ -24,32 +24,32 @@ const legalLinks = [
 export default function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-slate-800 bg-[#05050d] text-white">
-      <div className="mx-auto w-full max-w-6xl px-4 py-8">
-        <div className="grid gap-7 sm:grid-cols-[1.2fr_1fr_1fr]">
+      <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:py-8">
+        <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr_1fr] sm:gap-7">
           <div>
-            <Link href="/" className="text-lg font-black tracking-tight text-white">
+            <Link href="/" className="text-base font-black tracking-tight text-white sm:text-lg">
               Talentify
             </Link>
-            <p className="mt-2 max-w-sm text-xs leading-6 text-white/50">
+            <p className="mt-1.5 max-w-sm text-[11px] leading-5 text-white/45 sm:mt-2 sm:text-xs sm:leading-6">
               パチンコ店と演者の出会いから、オファー・見積・契約・案件管理までをつなぐプラットフォーム。
             </p>
             <Link
               href="/login"
-              className="mt-4 inline-flex text-xs font-semibold text-white/70 underline underline-offset-4 transition hover:text-white"
+              className="mt-2 inline-flex text-[11px] font-semibold text-white/70 underline underline-offset-4 transition hover:text-white sm:mt-4 sm:text-xs"
             >
               ログイン
             </Link>
           </div>
 
-          <nav aria-label="サービス・サポート" className="grid grid-cols-2 gap-6 sm:contents">
+          <nav aria-label="サービス・サポート" className="grid grid-cols-2 gap-4 sm:contents sm:gap-6">
             <div>
-              <p className="text-xs font-semibold text-white/85">サービス</p>
-              <ul className="mt-3 space-y-2">
+              <p className="text-[11px] font-semibold text-white/85 sm:text-xs">サービス</p>
+              <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                 {serviceLinks.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-xs text-white/55 transition hover:text-white hover:underline"
+                      className="text-[11px] text-white/55 transition hover:text-white hover:underline sm:text-xs"
                     >
                       {link.label}
                     </Link>
@@ -59,8 +59,8 @@ export default function SiteFooter() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-white/85">サポート・運営</p>
-              <ul className="mt-3 space-y-2">
+              <p className="text-[11px] font-semibold text-white/85 sm:text-xs">サポート・運営</p>
+              <ul className="mt-2 space-y-1.5 sm:mt-3 sm:space-y-2">
                 {supportLinks.map((link) => (
                   <li key={link.href}>
                     <Link
@@ -76,7 +76,7 @@ export default function SiteFooter() {
           </nav>
         </div>
 
-        <div className="mt-7 flex flex-col gap-3 border-t border-white/10 pt-5 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4 text-[10px] text-white/40 sm:mt-7 sm:gap-3 sm:pt-5 sm:text-xs sm:flex-row sm:items-center sm:justify-between">
           <nav aria-label="法務" className="flex flex-wrap gap-x-4 gap-y-2">
             {legalLinks.map((link) => (
               <Link
