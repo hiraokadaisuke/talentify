@@ -42,7 +42,6 @@ type MarkAllNotificationsReadParams = {
 const ACTION_REQUIRED_TYPES: NotificationType[] = [
   'message',
   'offer_created',
-  'offer_updated',
   'invoice_submitted',
 ]
 
