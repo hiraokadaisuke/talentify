@@ -778,11 +778,14 @@ export default function ScheduleCalendar() {
   const { Calendar: BigCalendar, Views, localizer } = calendarLib
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
-      <div className="sticky top-0 z-10 space-y-3 bg-background pb-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold">スケジュール管理</h1>
-          <div className="flex items-center gap-1 self-start rounded-md border bg-white p-1 shadow-sm dark:bg-neutral-900">
+    <main className="mx-auto w-full max-w-6xl space-y-3 px-3 py-4 sm:space-y-4 sm:p-4">
+      <div className="sticky top-0 z-10 space-y-3 border-b border-slate-200 bg-background/95 pb-3 backdrop-blur">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">スケジュール管理</h1>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">日付をタップして出演可否を切り替えます。</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-1 rounded-lg border bg-white p-1 shadow-sm dark:bg-neutral-900">
             <Button
               type="button"
               size="sm"
@@ -791,7 +794,7 @@ export default function ScheduleCalendar() {
                   ? 'default'
                   : 'ghost'
               }
-              className="px-3"
+              className="h-9 px-3 text-xs sm:text-sm"
               onClick={() => handleDefaultModeChange('default_ok')}
               disabled={updatingDefaultMode}
             >
@@ -805,7 +808,7 @@ export default function ScheduleCalendar() {
                   ? 'default'
                   : 'ghost'
               }
-              className="px-3"
+              className="h-9 px-3 text-xs sm:text-sm"
               onClick={() => handleDefaultModeChange('default_ng')}
               disabled={updatingDefaultMode}
             >
@@ -813,27 +816,29 @@ export default function ScheduleCalendar() {
             </Button>
           </div>
         </div>
-        <div className="flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
+        <div className="space-y-2 text-sm">
+          <div className="grid grid-cols-[44px_1fr_44px] items-center gap-2">
             <Button
               variant="outline"
               size="sm"
+              className="h-10 w-11 p-0 text-base"
               onClick={() => setCalendarDate(subMonths(calendarDate, 1))}
               aria-label="前の月"
             >
-              ◀
+              ‹
             </Button>
-            <span className="text-lg font-semibold">{headerLabel}</span>
+            <span className="text-center text-lg font-bold text-slate-950 sm:text-xl">{headerLabel}</span>
             <Button
               variant="outline"
               size="sm"
+              className="h-10 w-11 p-0 text-base"
               onClick={() => setCalendarDate(addMonths(calendarDate, 1))}
               aria-label="次の月"
             >
-              ▶
+              ›
             </Button>
           </div>
-          <div className="flex flex-col items-start gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -841,7 +846,7 @@ export default function ScheduleCalendar() {
                   size="sm"
                   variant="outline"
                   disabled={bulkUpdating || !availabilitySettings}
-                  className="text-xs"
+                  className="h-9 text-xs"
                 >
                   月一括設定
                 </Button>
@@ -867,7 +872,7 @@ export default function ScheduleCalendar() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <span
                   aria-hidden
@@ -889,7 +894,7 @@ export default function ScheduleCalendar() {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white p-4 shadow-sm dark:bg-neutral-900">
+      <div className="rounded-xl border bg-white p-2 shadow-sm sm:p-4 dark:bg-neutral-900">
         {loading && (
           <p className="mb-2 text-sm text-muted-foreground">読み込み中…</p>
         )}
@@ -910,7 +915,7 @@ export default function ScheduleCalendar() {
               dayPropGetter={dayPropGetter}
               components={{ event: EventComponent }}
               formats={{ weekdayFormat: 'eee' }}
-              style={{ height: 430 }}
+              style={{ height: 'clamp(380px, 105vw, 460px)' }}
               eventPropGetter={(event) => {
                 const calendarEvent = event as TalentCalendarEvent
                 if (calendarEvent.isMore) {
@@ -952,7 +957,9 @@ export default function ScheduleCalendar() {
         }
         @media (max-width: 640px) {
           .talent-calendar .rbc-month-view { font-size: 10px; }
-          .talent-calendar .rbc-date-cell { padding-right: 2px; }
+          .talent-calendar .rbc-header { padding: 4px 0; font-weight: 700; }
+          .talent-calendar .rbc-date-cell { padding-right: 4px; padding-top: 2px; }
+          .talent-calendar .rbc-month-row { min-height: 64px; }
           .talent-calendar .rbc-event-content { font-size: 9px; }
           .talent-calendar .rbc-event { min-height: 14px; }
         }
