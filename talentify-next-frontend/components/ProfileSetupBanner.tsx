@@ -1,16 +1,15 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { createClient } from '@/lib/supabase/server'
-import { getCurrentUser } from '@/lib/auth/getCurrentUser'
-import { getUserRoleInfo, type UserRole } from '@/lib/getUserRole'
+import type { UserRole } from '@/lib/getUserRole'
 
-export default async function ProfileSetupBanner({ role }: { role: UserRole }) {
-  const supabase = createClient()
-  const { user } = await getCurrentUser()
-  if (!user) return null
-
-  const info = await getUserRoleInfo(supabase, user.id)
-  if (info.role !== role || info.isSetupComplete) return null
+export default function ProfileSetupBanner({
+  role,
+  isSetupComplete,
+}: {
+  role: UserRole
+  isSetupComplete: boolean
+}) {
+  if (isSetupComplete) return null
 
   const href = role === 'store' ? '/store/edit' : '/talent/edit'
   const label = role === 'store' ? '店舗プロフィールを登録' : '演者プロフィールを登録'
@@ -27,7 +26,7 @@ export default async function ProfileSetupBanner({ role }: { role: UserRole }) {
         </p>
       </div>
       <Button asChild className="mt-3 shrink-0 sm:mt-0">
-        <Link href={href}>{label}</Link>
+        <Link href={href} prefetch={false}>{label}</Link>
       </Button>
     </section>
   )
