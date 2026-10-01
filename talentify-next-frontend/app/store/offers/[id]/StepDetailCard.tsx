@@ -45,6 +45,9 @@ type StepDetailCardProps = {
   cancelation?: {
     initialStatus: string
     initialCanceledAt: string | null
+    initialCanceledByRole: string | null
+    initialCancelReason: string | null
+    initialCancellationPhase: string | null
   }
 }
 
@@ -206,6 +209,10 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
                 offerId={offer.id}
                 initialStatus={cancelation.initialStatus}
                 initialCanceledAt={cancelation.initialCanceledAt}
+                initialCanceledByRole={cancelation.initialCanceledByRole}
+                initialCancelReason={cancelation.initialCancelReason}
+                initialCancellationPhase={cancelation.initialCancellationPhase}
+                invoiceId={invoice?.id ?? null}
               />
             ),
           }
