@@ -56,9 +56,12 @@ export function subscribeOfferMessages(
 }
 
 export async function upsertReadReceipt(client: SupabaseClient, offerId: string) {
-  const { user } = await getCurrentUserWithClient(client)
-  if (!user) return
-  await client.from('offer_read_receipts').upsert(
+  const { user, error: userError } = await getCurrentUserWithClient(client)
+  if (userError || !user) {
+    throw userError ?? new Error('Authenticated user not found')
+  }
+
+  const { error } = await client.from('offer_read_receipts').upsert(
     {
       offer_id: offerId,
       user_id: user.id,
@@ -66,6 +69,8 @@ export async function upsertReadReceipt(client: SupabaseClient, offerId: string)
     },
     { onConflict: 'offer_id,user_id' }
   )
+
+  if (error) throw error
 }
 
 export async function getReadReceipts(client: SupabaseClient, offerId: string) {
