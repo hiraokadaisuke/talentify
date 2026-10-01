@@ -38,6 +38,11 @@ export function buildNotificationPayload(event: NotificationEvent, recipientRole
   const notificationsRoot = getNotificationsRootPath(recipientRole)
 
   const config = notificationConfig[event.kind]
+  const isActionable =
+    typeof config.isActionable === 'function'
+      ? (config.isActionable as (input: NotificationEvent) => boolean)(event)
+      : config.isActionable
+
   const built = (config.build as (ctx: {
     actorName: string
     recipientRole: RecipientRole
@@ -75,7 +80,7 @@ export function buildNotificationPayload(event: NotificationEvent, recipientRole
       recipient_role: recipientRole,
       actor_name: actorName,
       category: config.category,
-      is_actionable: config.isActionable,
+      is_actionable: isActionable,
       ...built.data,
     },
   }
