@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { Search as SearchIcon, Sparkles } from 'lucide-react'
 import { getStoreDashboardData } from '@/lib/queries/dashboard'
 import ProfileSetupBanner from '@/components/ProfileSetupBanner'
+import GettingStartedCard from '@/components/GettingStartedCard'
 
 export default async function StoreDashboard() {
   const { offerStats, schedule, unreadCount } = await getStoreDashboardData()
@@ -18,6 +19,7 @@ export default async function StoreDashboard() {
   return (
     <div className='space-y-4'>
       <ProfileSetupBanner role='store' />
+      <GettingStartedCard role='store' />
       {!hasData ? (
         <EmptyState
           title='まだオファーがありません'
