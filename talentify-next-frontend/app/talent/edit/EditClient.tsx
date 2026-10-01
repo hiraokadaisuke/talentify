@@ -504,7 +504,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">自己紹介<span className="ml-1 text-red-500">*</span></label>
               <p className="text-sm text-gray-500">
-                自己紹介（bio）とプロフィール詳細のどちらか一方を20文字以上入力してください。
+                自己紹介とプロフィール詳細のどちらか一方を20文字以上入力してください。
               </p>
               <Textarea
                 name="bio"
