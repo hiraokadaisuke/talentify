@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createPublicAuthClient } from '@/lib/supabase/public-auth'
 import { createServiceClient } from '@/lib/supabase/service'
 import {
   mapSupabaseResendError,
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  const supabase = createClient()
+  const supabase = createPublicAuthClient()
   const { error } = await supabase.auth.resend({
     type: 'signup',
     email,
