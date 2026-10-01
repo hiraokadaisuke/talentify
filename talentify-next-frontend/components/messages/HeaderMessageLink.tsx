@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { MessageSquare } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
-import { getUnreadMessageCount } from '@/utils/messages'
+import { getUnreadMessageCount, MESSAGES_CHANGED_EVENT } from '@/utils/messages'
 import { formatUnreadCount } from '@/utils/notifications'
 import { useUserRole } from '@/utils/useRole'
 
@@ -18,22 +18,33 @@ export default function HeaderMessageLink() {
     if (role !== 'store' && role !== 'talent') return
 
     const refresh = async () => {
-      const c = await getUnreadMessageCount()
-      setCount(c)
+      try {
+        const nextCount = await getUnreadMessageCount()
+        setCount(nextCount)
+      } catch (error) {
+        console.error('failed to refresh unread message count', error)
+      }
     }
 
-    refresh()
+    void refresh()
     const channel = supabase
       .channel('header-message')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'offer_messages' },
-        refresh,
+        () => void refresh(),
       )
       .subscribe()
-    const interval = setInterval(refresh, 60000)
+
+    const onMessagesChanged = () => {
+      void refresh()
+    }
+    window.addEventListener(MESSAGES_CHANGED_EVENT, onMessagesChanged)
+
+    const interval = setInterval(() => void refresh(), 60000)
     return () => {
       supabase.removeChannel(channel)
+      window.removeEventListener(MESSAGES_CHANGED_EVENT, onMessagesChanged)
       clearInterval(interval)
     }
   }, [role])
