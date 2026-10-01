@@ -41,6 +41,52 @@ describe('offer notification config integration', () => {
     expect(payload.data).toMatchObject({ status: 'rejected', offer_id: 'offer-2', recipient_role: 'store' })
   })
 
+  it('keeps schedule changes actionable but treats cancellation and no-show as informational', () => {
+    const schedule = buildNotificationPayload(
+      {
+        kind: 'offer_updated',
+        offerId: 'offer-schedule',
+        change: 'schedule',
+        date: '2026-10-10',
+        timeRange: '10:00-12:00',
+      },
+      'talent',
+    )
+    const cancellation = buildNotificationPayload(
+      {
+        kind: 'offer_updated',
+        offerId: 'offer-cancel',
+        change: 'cancellation',
+        cancellationStage: 'post_contract',
+        cancelReason: '予定変更',
+      },
+      'talent',
+    )
+    const noShow = buildNotificationPayload(
+      {
+        kind: 'offer_updated',
+        offerId: 'offer-no-show',
+        change: 'no_show',
+        status: 'no_show',
+        noShowReason: '来店確認できず',
+      },
+      'talent',
+    )
+
+    expect(schedule.data).toMatchObject({
+      is_actionable: true,
+      change: 'schedule',
+    })
+    expect(cancellation.data).toMatchObject({
+      is_actionable: false,
+      change: 'cancellation',
+    })
+    expect(noShow.data).toMatchObject({
+      is_actionable: false,
+      change: 'no_show',
+    })
+  })
+
   it('links a contract notification directly to the issued invoice', () => {
     const payload = buildNotificationPayload(
       {
