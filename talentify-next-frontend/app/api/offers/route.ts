@@ -12,6 +12,13 @@ import {
 } from '@/lib/repositories/offers'
 import { emitNotification } from '@/lib/notifications/emit'
 import { getTodayJstDateString } from '@/utils/jstDate'
+import {
+  buildOfferStorageDate,
+  formatOfferTimeRange,
+  offerClockFromMinutes,
+  parseOfferClockRange,
+  parseOfferTimeRange,
+} from '@/lib/offers/timeRange'
 
 export const runtime = 'nodejs'
 
@@ -21,22 +28,39 @@ export interface OfferPayload {
   store_id: string
   talent_id: string
   date: string
-  time_range: string
+  time_range?: string
+  start_time?: string
+  end_time?: string
   reward?: number | null
   agreed: boolean
   message?: string
 }
 
+function resolveOfferTimePayload(payload: OfferPayload) {
+  const structuredRange = parseOfferClockRange(payload.start_time, payload.end_time)
+  const legacyRange = parseOfferTimeRange(payload.time_range)
+  const range = structuredRange ?? legacyRange
+
+  if (!range) return null
+
+  return {
+    range,
+    startClock: offerClockFromMinutes(range.startMinutes),
+    endClock: offerClockFromMinutes(range.endMinutes),
+    timeRange: formatOfferTimeRange(range),
+  }
+}
+
 export function validateOfferPayload(payload: OfferPayload): string | null {
-  const { store_id, talent_id, date, time_range, reward, agreed } = payload
+  const { store_id, talent_id, date, reward, agreed } = payload
 
   if (!store_id) return '店舗情報を確認してください'
   if (!talent_id) return '演者を選択してください'
   if (!date) return '希望日を選択してください'
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return '希望日の形式が正しくありません'
   if (date < getTodayJstDateString()) return '希望日は本日以降を選択してください'
-  if (typeof time_range !== 'string' || time_range.trim() === '') {
-    return '希望時間帯を選択してください'
+  if (!resolveOfferTimePayload(payload)) {
+    return '希望時間帯を確認してください'
   }
   if (agreed !== true) return '出演条件への同意が必要です'
   if (reward != null && (!Number.isFinite(reward) || reward < 0)) {
@@ -113,13 +137,23 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  const normalizedTime = resolveOfferTimePayload(body)
+  if (!normalizedTime) {
+    return NextResponse.json(
+      { ok: false, code: 'VALIDATION_ERROR', reason: '希望時間帯を確認してください' },
+      { status: 400 }
+    )
+  }
+
   // check existing offer for idempotency
   const offerDate = new Date(body.date)
+  const startTime = buildOfferStorageDate(body.date, normalizedTime.range.startMinutes)
+  const endTime = buildOfferStorageDate(body.date, normalizedTime.range.endMinutes)
   const existing = await findExistingOfferForCreate({
     storeId: body.store_id,
     talentId: body.talent_id,
     date: offerDate,
-    timeRange: body.time_range,
+    timeRange: normalizedTime.timeRange,
   })
   if (existing) {
     return NextResponse.json({ ok: true, offer: existing })
@@ -131,7 +165,9 @@ export async function POST(req: NextRequest) {
       store_id: body.store_id,
       talent_id: body.talent_id,
       date: offerDate,
-      time_range: body.time_range,
+      start_time: startTime,
+      end_time: endTime,
+      time_range: normalizedTime.timeRange,
       reward: body.reward ?? null,
       agreed: body.agreed,
       message: body.message ?? '',
@@ -162,7 +198,7 @@ export async function POST(req: NextRequest) {
         storeId: body.store_id,
         talentId: body.talent_id,
         date: offerDate,
-        timeRange: body.time_range,
+        timeRange: normalizedTime.timeRange,
       })
       if (fallback) {
         return NextResponse.json({ ok: true, offer: fallback })
