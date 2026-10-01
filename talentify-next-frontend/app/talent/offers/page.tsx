@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ArrowUpDown } from 'lucide-react'
-import { toast } from 'sonner'
+import { AlertCircle, ArrowUpDown, RotateCcw } from 'lucide-react'
 import { getOffersForTalent, TalentOffer } from '@/utils/getOffersForTalent'
 import { getOfferProgress } from '@/utils/offerProgress'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -49,6 +48,7 @@ export default function TalentOffersPage() {
   const router = useRouter()
   const [offers, setOffers] = useState<TalentOffer[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [tab, setTab] = useState<OfferTab>('active')
   const [searchWord, setSearchWord] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -57,20 +57,24 @@ export default function TalentOffersPage() {
   const [sortKey, setSortKey] = useState<SortKey>('visit')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getOffersForTalent()
-        setOffers(data)
-      } catch (error) {
-        console.error('failed to load offers', error)
-        toast.error('オファーの取得に失敗しました')
-      } finally {
-        setLoading(false)
-      }
+  const loadOffers = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+
+    try {
+      const data = await getOffersForTalent()
+      setOffers(data)
+    } catch (error) {
+      console.error('failed to load talent offers', error)
+      setLoadError(true)
+    } finally {
+      setLoading(false)
     }
-    load()
   }, [])
+
+  useEffect(() => {
+    void loadOffers()
+  }, [loadOffers])
 
   const offersWithProgress = useMemo(() => {
     return offers.map(offer => {
@@ -142,6 +146,19 @@ export default function TalentOffersPage() {
 
     return rows
   }, [dateFrom, dateTo, offersWithProgress, searchWord, sortKey, sortOrder, statusFilter, tab])
+
+  const hasActiveFilters =
+    searchWord.trim().length > 0 ||
+    statusFilter !== 'all' ||
+    Boolean(dateFrom) ||
+    Boolean(dateTo)
+
+  const resetFilters = () => {
+    setSearchWord('')
+    setStatusFilter('all')
+    setDateFrom('')
+    setDateTo('')
+  }
 
   const handleRowClick = (offerId: string) => {
     router.push(`/talent/offers/${offerId}`)
@@ -221,8 +238,53 @@ export default function TalentOffersPage() {
 
           {loading ? (
             <TableSkeleton rows={4} />
+          ) : loadError ? (
+            <div
+              role="alert"
+              className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center"
+            >
+              <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
+              <h2 className="mt-2 text-sm font-semibold text-red-900">
+                オファーを読み込めませんでした
+              </h2>
+              <p className="mt-1 text-xs leading-relaxed text-red-700">
+                通信状況を確認して、もう一度お試しください。
+              </p>
+              <button
+                type="button"
+                onClick={() => void loadOffers()}
+                className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-md border border-red-200 bg-white px-4 text-sm font-semibold text-red-800 transition hover:bg-red-100"
+              >
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                再読み込み
+              </button>
+            </div>
           ) : processed.length === 0 ? (
-            <EmptyState title="対象のオファーがありません" />
+            hasActiveFilters ? (
+              <div className="text-center space-y-4 py-10">
+                <div>
+                  <h3 className="text-lg font-semibold">条件に一致するオファーがありません</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    検索条件を変えるか、条件をリセットしてください。
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[#e2e8f0] bg-white px-4 text-sm font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
+                >
+                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  条件をリセット
+                </button>
+              </div>
+            ) : offersWithProgress.length === 0 ? (
+              <EmptyState
+                title="まだオファーがありません"
+                description="店舗からオファーが届くと、ここで内容と進捗を確認できます。"
+              />
+            ) : (
+              <EmptyState title="このタブに表示するオファーはありません" />
+            )
           ) : (
             <>
               <section className="hidden overflow-x-auto rounded-xl border border-[#e2e8f0] md:block">
