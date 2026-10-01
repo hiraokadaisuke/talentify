@@ -141,6 +141,8 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
         store_id: store.id,
         talent_id: talentId,
         date: visitDate,
+        start_time: startTime,
+        end_time: endTime,
         time_range: timeRange,
         reward: reward ? Number(reward) : null,
         agreed,
