@@ -50,7 +50,7 @@ export type NotificationEvent =
       change?: 'schedule' | 'cancellation'
       date?: string | null
       timeRange?: string | null
-      cancellationPhase?: 'pre_contract' | 'post_contract'
+      cancellationStage?: 'pre_contract' | 'post_contract'
       cancelReason?: string | null
     }
   | {
@@ -221,7 +221,7 @@ export const notificationConfig: {
         event.change === 'schedule'
           ? 'オファーの日時が変更されました'
           : event.change === 'cancellation'
-            ? event.cancellationPhase === 'post_contract'
+            ? event.cancellationStage === 'post_contract'
               ? '締結済みの取引がキャンセルされました'
               : 'オファーがキャンセルされました'
             : 'オファーのステータスが更新されました',
@@ -243,7 +243,7 @@ export const notificationConfig: {
         change: event.change ?? null,
         date: event.date ?? null,
         time_range: event.timeRange ?? null,
-        cancellation_phase: event.cancellationPhase ?? null,
+        cancellation_stage: event.cancellationStage ?? null,
         cancel_reason: event.cancelReason ?? null,
       },
     }),
