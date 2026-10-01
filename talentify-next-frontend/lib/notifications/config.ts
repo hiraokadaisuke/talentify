@@ -47,9 +47,11 @@ export type NotificationEvent =
       actorId?: string | null
       offerId: string
       status?: string | null
-      change?: 'schedule'
+      change?: 'schedule' | 'cancellation'
       date?: string | null
       timeRange?: string | null
+      cancellationStage?: 'pre_contract' | 'post_contract'
+      reason?: string | null
     }
   | {
       kind: 'offer_accepted'
@@ -208,21 +210,32 @@ export const notificationConfig: {
     category: 'notification',
     isActionable: true,
     priority: 'medium',
-    dedupeStrategy: (event) =>
-      event.change === 'schedule'
-        ? `offer-rescheduled:${event.offerId}:${event.date ?? 'unknown'}:${event.timeRange ?? 'unknown'}`
-        : `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
+    dedupeStrategy: (event) => {
+      if (event.change === 'schedule') {
+        return `offer-rescheduled:${event.offerId}:${event.date ?? 'unknown'}:${event.timeRange ?? 'unknown'}`
+      }
+      if (event.change === 'cancellation') {
+        return `offer-canceled:${event.offerId}:${event.cancellationStage ?? 'unknown'}`
+      }
+      return `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`
+    },
     build: ({ roleRootPath, event }) => ({
       title:
         event.change === 'schedule'
           ? 'オファーの日時が変更されました'
-          : 'オファーのステータスが更新されました',
+          : event.change === 'cancellation'
+            ? event.cancellationStage === 'post_contract'
+              ? '締結済み案件がキャンセルされました'
+              : 'オファーがキャンセルされました'
+            : 'オファーのステータスが更新されました',
       body:
         event.change === 'schedule'
           ? `新しい予定: ${event.date ?? '-'} ${event.timeRange ?? '-'}。内容を確認してください。`
-          : event.status
-            ? `現在のステータス: ${event.status}`
-            : '最新状態を確認してください。',
+          : event.change === 'cancellation'
+            ? `理由: ${event.reason ?? '未記載'}`
+            : event.status
+              ? `現在のステータス: ${event.status}`
+              : '最新状態を確認してください。',
       actionUrl: `${roleRootPath}/offers/${event.offerId}`,
       actionLabel: 'オファー詳細を見る',
       entityType: 'offer',
@@ -233,6 +246,8 @@ export const notificationConfig: {
         change: event.change ?? null,
         date: event.date ?? null,
         time_range: event.timeRange ?? null,
+        cancellation_stage: event.cancellationStage ?? null,
+        reason: event.reason ?? null,
       },
     }),
   },
