@@ -47,9 +47,11 @@ export type NotificationEvent =
       actorId?: string | null
       offerId: string
       status?: string | null
-      change?: 'schedule'
+      change?: 'schedule' | 'cancellation'
       date?: string | null
       timeRange?: string | null
+      cancellationPhase?: 'pre_contract' | 'post_contract'
+      cancelReason?: string | null
     }
   | {
       kind: 'offer_accepted'
@@ -211,18 +213,26 @@ export const notificationConfig: {
     dedupeStrategy: (event) =>
       event.change === 'schedule'
         ? `offer-rescheduled:${event.offerId}:${event.date ?? 'unknown'}:${event.timeRange ?? 'unknown'}`
-        : `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
+        : event.change === 'cancellation'
+          ? `offer-canceled:${event.offerId}`
+          : `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
     build: ({ roleRootPath, event }) => ({
       title:
         event.change === 'schedule'
           ? 'オファーの日時が変更されました'
-          : 'オファーのステータスが更新されました',
+          : event.change === 'cancellation'
+            ? event.cancellationPhase === 'post_contract'
+              ? '締結済みの取引がキャンセルされました'
+              : 'オファーがキャンセルされました'
+            : 'オファーのステータスが更新されました',
       body:
         event.change === 'schedule'
           ? `新しい予定: ${event.date ?? '-'} ${event.timeRange ?? '-'}。内容を確認してください。`
-          : event.status
-            ? `現在のステータス: ${event.status}`
-            : '最新状態を確認してください。',
+          : event.change === 'cancellation'
+            ? `キャンセル理由: ${event.cancelReason ?? '理由未登録'}`
+            : event.status
+              ? `現在のステータス: ${event.status}`
+              : '最新状態を確認してください。',
       actionUrl: `${roleRootPath}/offers/${event.offerId}`,
       actionLabel: 'オファー詳細を見る',
       entityType: 'offer',
@@ -233,6 +243,8 @@ export const notificationConfig: {
         change: event.change ?? null,
         date: event.date ?? null,
         time_range: event.timeRange ?? null,
+        cancellation_phase: event.cancellationPhase ?? null,
+        cancel_reason: event.cancelReason ?? null,
       },
     }),
   },
