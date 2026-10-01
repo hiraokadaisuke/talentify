@@ -74,9 +74,7 @@ export async function PUT(
 
     if (storeUserId && user.id === storeUserId) {
       actorRole = 'store'
-      transitionAllowed =
-        requestedStatus === 'canceled' &&
-        (currentStatus === 'pending' || currentStatus === 'confirmed')
+      transitionAllowed = false
     } else if (talentUserId && user.id === talentUserId) {
       actorRole = 'talent'
       transitionAllowed =
@@ -94,12 +92,6 @@ export async function PUT(
     }
 
     const updates: Record<string, unknown> = { status: requestedStatus }
-    const now = new Date().toISOString()
-
-    if (requestedStatus === 'canceled') {
-      updates.canceled_at = now
-      updates.canceled_by_role = actorRole
-    }
 
     const updatedCount = await updateOfferById(id, updates, currentStatus)
     if (updatedCount !== 1) {
