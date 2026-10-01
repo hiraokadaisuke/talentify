@@ -213,9 +213,16 @@ export default function StoreProfileEditPage() {
 
   if (loadError) {
     return (
-      <main className="min-h-screen bg-gray-100 px-4 py-10">
+      <main className="min-h-screen bg-gray-100 px-4 pb-10 pt-6 sm:py-10">
         <div className="mx-auto w-full max-w-5xl">
-          <h1 className="mb-6 text-3xl font-bold tracking-tight">店舗プロフィール編集</h1>
+          <h1 className="mb-2 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl">
+          {showIncomplete ? '店舗情報を登録' : '店舗プロフィール編集'}
+        </h1>
+        {showIncomplete && (
+          <p className="mb-5 text-sm leading-6 text-slate-600">
+            まずは店舗名だけ登録すれば利用を開始できます。自己紹介や画像はあとから追加できます。
+          </p>
+        )}
           <div
             role="alert"
             className="rounded-2xl border border-red-200 bg-red-50 px-5 py-8 text-center shadow-sm"
@@ -265,35 +272,43 @@ export default function StoreProfileEditPage() {
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium">自己紹介</label>
-              <Textarea
-                name="bio"
-                value={profile.bio}
-                onChange={handleChange}
-                rows={4}
-                className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
-              />
-            </div>
+            {!showIncomplete && (
+              <>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium">
+                    自己紹介 <span className="text-xs font-normal text-slate-400">（任意）</span>
+                  </label>
+                  <Textarea
+                    name="bio"
+                    value={profile.bio}
+                    onChange={handleChange}
+                    rows={4}
+                    className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                  />
+                </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium">アバター画像</label>
-              {avatarPreview && (
-                <img
-                  src={avatarPreview}
-                  alt="avatar preview"
-                  className="mb-2 h-24 w-24 rounded-lg object-cover"
-                />
-              )}
-              <Input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={handleAvatar}
-                className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
-              />
-              <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
-              {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
-            </div>
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-medium">
+                    店舗画像 <span className="text-xs font-normal text-slate-400">（任意）</span>
+                  </label>
+                  {avatarPreview && (
+                    <img
+                      src={avatarPreview}
+                      alt="店舗画像プレビュー"
+                      className="mb-2 h-24 w-24 rounded-lg object-cover"
+                    />
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleAvatar}
+                    className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                  />
+                  <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
+                  {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
+                </div>
+              </>
+            )}
 
             <Button
               onClick={handleSave}
