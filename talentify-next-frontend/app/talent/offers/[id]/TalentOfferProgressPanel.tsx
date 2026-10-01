@@ -29,8 +29,8 @@ type TalentOfferProgressPanelProps = {
     message: string | null
     canceledAt: string | null
     canceledByRole: string | null
-    cancelReason: string | null
-    cancellationPhase: string | null
+    cancellationReason: string | null
+    cancellationStage: string | null
   }
   invoiceId: string | null
   onDeclineOffer?: () => void
@@ -130,8 +130,8 @@ export default function TalentOfferProgressPanel({
         status={offer.status}
         canceledAt={offer.canceledAt}
         canceledByRole={offer.canceledByRole}
-        cancelReason={offer.cancelReason}
-        cancellationPhase={offer.cancellationPhase}
+        cancellationReason={offer.cancellationReason}
+        cancellationStage={offer.cancellationStage}
         invoiceId={invoiceId}
       />
     </div>
