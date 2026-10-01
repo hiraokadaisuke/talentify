@@ -1,138 +1,235 @@
+import Link from 'next/link'
+
+export const metadata = {
+  title: 'プライバシーポリシー | Talentify',
+  description: 'Talentifyにおける個人情報および利用情報の取扱いについて説明します。',
+}
+
+const sections = [
+  {
+    id: 'section1',
+    title: '1. 基本方針',
+    body: (
+      <p>
+        Talentify運営者（以下「運営者」といいます。）は、
+        本サービスの提供にあたり取り扱う個人情報その他の利用者情報を適切に管理し、
+        個人情報の保護に関する法律その他の関係法令を遵守します。
+      </p>
+    ),
+  },
+  {
+    id: 'section2',
+    title: '2. 取得する情報',
+    body: (
+      <>
+        <p>運営者は、本サービスの提供に必要な範囲で、主に次の情報を取得します。</p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li>メールアドレス、電話番号、認証情報その他アカウント登録に必要な情報</li>
+          <li>氏名・活動名、プロフィール、画像、活動地域、出演条件、連絡方法等の演者情報</li>
+          <li>店舗名、店舗プロフィール、担当者が入力した情報等の店舗情報</li>
+          <li>オファー、見積、契約、請求、支払い状況、キャンセル、無断不履行、レビュー等の案件情報</li>
+          <li>メッセージ本文、添付ファイル、既読情報等のコミュニケーション情報</li>
+          <li>お問い合わせ内容および対応履歴</li>
+          <li>IPアドレス、Cookie、端末・ブラウザ情報、アクセス日時、操作ログ等の技術情報</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: 'section3',
+    title: '3. 利用目的',
+    body: (
+      <>
+        <p>取得した情報は、主に次の目的で利用します。</p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li>本人確認、アカウント作成、ログインその他認証機能の提供</li>
+          <li>演者検索、プロフィール表示、予定確認、オファー送受信その他マッチング機能の提供</li>
+          <li>見積、契約、請求、支払い状況、レビュー等の案件管理機能の提供</li>
+          <li>メッセージ、添付ファイル、通知等の連絡機能の提供</li>
+          <li>お問い合わせへの回答、不具合対応、本人確認、サポート</li>
+          <li>不正利用の防止、セキュリティ確保、障害調査、監査</li>
+          <li>利用状況の分析、サービス品質およびUI・UXの改善</li>
+          <li>規約変更、重要な機能変更、障害その他サービス運営上必要な案内</li>
+          <li>法令上の義務への対応、紛争・トラブルへの対応、権利の保全</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    id: 'section4',
+    title: '4. 他の利用者への情報表示',
+    body: (
+      <>
+        <p>
+          マッチングおよび案件遂行のため、利用者が登録した情報の一部を相手方利用者へ表示します。
+          たとえば、店舗には演者の公開プロフィールや案件に必要な情報を、
+          演者には依頼元店舗や案件に必要な情報を表示します。
+        </p>
+        <p>
+          電話番号等の連絡先は、本サービスの設定および案件上の必要性に応じて表示範囲を制御します。
+          演者の電話番号については、演者が電話連絡を許可した案件等、
+          本サービス上で表示条件を満たす場合に相手方店舗へ表示します。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'section5',
+    title: '5. 第三者提供および業務委託',
+    body: (
+      <>
+        <p>
+          運営者は、法令に基づく場合、本人の同意がある場合、
+          または本サービス上で相手方利用者への提供が明示されている場合等を除き、
+          個人データを第三者へ提供しません。
+        </p>
+        <p>
+          運営者は、ホスティング、データベース、ストレージ、認証、メール配信、
+          システム保守その他本サービスの提供に必要な業務を外部事業者へ委託することがあります。
+          この場合、必要な範囲で情報を取り扱わせ、委託先の選定・契約・監督等を通じて適切な管理に努めます。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'section6',
+    title: '6. Cookie・アクセスログ',
+    body: (
+      <>
+        <p>
+          本サービスでは、ログイン状態の維持、セキュリティ確保、利用状況の把握、
+          機能改善等のためにCookie、ローカルストレージ、アクセスログその他の技術を利用することがあります。
+        </p>
+        <p>
+          ブラウザの設定によりCookieを制限できますが、
+          認証その他本サービスの一部機能が正常に利用できなくなる場合があります。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'section7',
+    title: '7. 安全管理措置',
+    body: (
+      <p>
+        運営者は、アクセス制御、認証、通信の暗号化、保存先のアクセス権限管理、
+        ログ確認その他、本サービスの規模および取り扱う情報に応じた合理的な安全管理措置を講じます。
+        また、必要に応じて委託先の安全管理状況を確認します。
+      </p>
+    ),
+  },
+  {
+    id: 'section8',
+    title: '8. 保存期間および削除',
+    body: (
+      <>
+        <p>
+          運営者は、利用目的の達成に必要な期間、法令上必要な期間、
+          または契約・請求・支払い・トラブル対応等のため合理的に必要な期間、情報を保存します。
+        </p>
+        <p>
+          退会後も、契約書類、請求・支払い記録、メッセージその他、
+          取引の証跡として保存が必要な情報を一定期間保持する場合があります。
+          保存の必要がなくなった情報は、合理的な方法で削除または匿名化します。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'section9',
+    title: '9. 開示・訂正・利用停止等の請求',
+    body: (
+      <>
+        <p>
+          本人は、法令に基づき、保有個人データの利用目的の通知、開示、訂正、追加、削除、
+          利用停止、消去、第三者提供の停止等を請求できる場合があります。
+        </p>
+        <p>
+          ご希望の場合は
+          <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+            お問い合わせフォーム
+          </Link>
+          からご連絡ください。本人確認のうえ、法令に従って対応します。
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'section10',
+    title: '10. 本ポリシーの変更',
+    body: (
+      <p>
+        運営者は、法令、本サービスの内容または取り扱う情報の変更等に応じて、
+        本ポリシーを変更することがあります。
+        重要な変更については、本サービス上その他合理的な方法で案内します。
+      </p>
+    ),
+  },
+  {
+    id: 'section11',
+    title: '11. お問い合わせ窓口',
+    body: (
+      <p>
+        個人情報の取扱いに関するお問い合わせは、
+        <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+          お問い合わせフォーム
+        </Link>
+        からご連絡ください。
+      </p>
+    ),
+  },
+]
+
 export default function PrivacyPage() {
   return (
-    <main className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-2">プライバシーポリシー</h1>
-      <p className="mb-2">個人情報の取り扱いについて</p>
-      <p className="mb-6 text-sm">最終改定日: 2025年04月01日</p>
-
-      <h2 className="text-xl font-semibold mb-2">目次</h2>
-      <ul className="list-disc list-inside mb-6 space-y-1">
-        <li>
-          <a href="#section1" className="text-blue-600 underline">1. 個人情報の定義</a>
-        </li>
-        <li>
-          <a href="#section2" className="text-blue-600 underline">2. 個人情報の収集方法</a>
-        </li>
-        <li>
-          <a href="#section3" className="text-blue-600 underline">3. 個人情報の利用目的</a>
-        </li>
-        <li>
-          <a href="#section4" className="text-blue-600 underline">4. 個人情報の第三者提供</a>
-        </li>
-        <li>
-          <a href="#section5" className="text-blue-600 underline">5. 個人情報の安全管理</a>
-        </li>
-        <li>
-          <a href="#section6" className="text-blue-600 underline">6. 個人情報の開示・訂正・削除</a>
-        </li>
-        <li>
-          <a href="#section7" className="text-blue-600 underline">7. Cookieの使用について</a>
-        </li>
-        <li>
-          <a href="#section8" className="text-blue-600 underline">8. アクセス解析ツール</a>
-        </li>
-        <li>
-          <a href="#section9" className="text-blue-600 underline">9. 広告配信について</a>
-        </li>
-        <li>
-          <a href="#section10" className="text-blue-600 underline">10. 免責事項</a>
-        </li>
-        <li>
-          <a href="#section11" className="text-blue-600 underline">11. お問い合わせ窓口</a>
-        </li>
-      </ul>
-
-      <section id="section1" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">1. 個人情報の定義</h3>
-        <p>
-          本ポリシーにおける「個人情報」とは、氏名、住所、電話番号、メールアドレス
-          など、特定の個人を識別できる情報を指します。
+    <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
+      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">PRIVACY POLICY</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
+          プライバシーポリシー
+        </h1>
+        <p className="mt-3 text-sm leading-7 text-slate-600">
+          Talentifyで取り扱う個人情報・案件情報・メッセージ等の利用目的と管理方法を説明します。
         </p>
-      </section>
+        <p className="mt-4 text-xs text-slate-400">最終改定日：2026年10月1日</p>
+      </header>
 
-      <section id="section2" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">2. 個人情報の収集方法</h3>
-        <p>
-          当社は、登録フォームへの入力、Cookie、アクセスログの取得等によりユーザー
-          の個人情報を収集します。
-        </p>
-      </section>
+      <nav className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <h2 className="text-sm font-semibold text-slate-900">目次</h2>
+        <ol className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+          {sections.map((section) => (
+            <li key={section.id}>
+              <a href={`#${section.id}`} className="hover:text-blue-700 hover:underline">
+                {section.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-      <section id="section3" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">3. 個人情報の利用目的</h3>
-        <p>収集した個人情報は以下の目的で利用します。</p>
-        <ul className="list-disc list-inside mt-2 space-y-1">
-          <li>サービスの提供・運営</li>
-          <li>利用状況の分析によるサービス改善</li>
-          <li>問い合わせへの対応や重要なお知らせの送付</li>
-          <li>マーケティングおよび広告配信</li>
-        </ul>
-      </section>
+      <div className="mt-8 space-y-8">
+        {sections.map((section) => (
+          <section
+            key={section.id}
+            id={section.id}
+            className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+          >
+            <h2 className="text-lg font-semibold text-slate-950">{section.title}</h2>
+            <div className="mt-3 space-y-3 text-sm leading-7 text-slate-700">
+              {section.body}
+            </div>
+          </section>
+        ))}
+      </div>
 
-      <section id="section4" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">4. 個人情報の第三者提供</h3>
-        <p>
-          法令に基づく場合を除き、本人の同意なく個人情報を第三者に提供することはあ
-          りません。
-        </p>
-      </section>
-
-      <section id="section5" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">5. 個人情報の安全管理</h3>
-        <p>個人情報への不正アクセスや漏えいを防ぐため、適切なセキュリティ対策を講じます。</p>
-      </section>
-
-      <section id="section6" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">6. 個人情報の開示・訂正・削除</h3>
-        <p>
-          ユーザーからの求めがあった場合、合理的な範囲で速やかに開示・訂正・削除に
-          応じます。
-        </p>
-      </section>
-
-      <section id="section7" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">7. Cookieの使用について</h3>
-        <p>
-          本サービスではユーザー体験向上のためCookieを利用することがあります。ブラ
-          ウザ設定によりCookieの無効化が可能ですが、一部機能が利用できなくなる場合
-          があります。
-        </p>
-      </section>
-
-      <section id="section8" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">8. アクセス解析ツール</h3>
-        <p>
-          当社はサイト利用状況を把握するため、Google Analytics等のアクセス解析ツー
-          ルを使用することがあります。
-        </p>
-      </section>
-
-      <section id="section9" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">9. 広告配信について</h3>
-        <p>
-          第三者配信事業者による広告サービスを利用する場合があります。ユーザーは広
-          告設定ページでパーソナライズ広告を無効にできます。
-        </p>
-      </section>
-
-      <section id="section10" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">10. 免責事項</h3>
-        <p>
-          不可抗力等、当社の責に帰さない事由によって生じた個人情報の漏えいについて
-          当社は一切の責任を負いません。
-        </p>
-      </section>
-
-      <section id="section11" className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">11. お問い合わせ窓口</h3>
-        <p>
-          プライバシーポリシーに関するご質問は、
-          <a href="/contact" className="text-blue-600 underline">
-            お問い合わせフォーム
-          </a>
-          よりご連絡ください。
-        </p>
-      </section>
+      <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-5 text-sm leading-7 text-blue-950">
+        アカウントの退会をご希望の場合も
+        <Link href="/contact" className="mx-1 font-semibold underline underline-offset-2">
+          お問い合わせフォーム
+        </Link>
+        からご連絡ください。退会と、法令上の個人データの削除等の請求は、
+        内容に応じてそれぞれ確認のうえ対応します。
+      </div>
     </main>
-  );
+  )
 }
