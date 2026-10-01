@@ -43,7 +43,7 @@ export async function getOffersForStore() {
     .from('stores')
     .select('id')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   if (storeError) {
     console.error('failed to fetch store for offers:', storeError)
