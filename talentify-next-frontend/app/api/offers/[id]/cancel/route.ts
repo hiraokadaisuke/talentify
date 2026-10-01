@@ -77,8 +77,7 @@ export async function POST(
       }
 
       const isPreContract = offer.status === 'pending'
-      const isPostContract =
-        offer.status === 'confirmed' || offer.status === 'accepted'
+      const isPostContract = offer.status === 'confirmed'
 
       if (actorRole === 'store') {
         if (!isPreContract && !isPostContract) {
@@ -91,6 +90,10 @@ export async function POST(
 
       const cancellationStage = isPostContract ? 'post_contract' : 'pre_contract'
       const invoice = offer.invoices ?? null
+
+      if (isPostContract && invoice?.status !== 'approved') {
+        throw new Error('CONTRACT_INVOICE_NOT_APPROVED')
+      }
 
       const updated = await tx.offers.updateMany({
         where: {
@@ -188,6 +191,12 @@ export async function POST(
     if (message === 'OFFER_STATE_CHANGED') {
       return NextResponse.json(
         { error: '案件の状態が変更されています。画面を更新してください' },
+        { status: 409 }
+      )
+    }
+    if (message === 'CONTRACT_INVOICE_NOT_APPROVED') {
+      return NextResponse.json(
+        { error: '締結書兼請求書の状態が正しくないためキャンセルできません' },
         { status: 409 }
       )
     }
