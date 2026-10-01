@@ -278,6 +278,8 @@ export default function OfferChatInput({
   const onKeyDown = (
     event: KeyboardEvent<HTMLTextAreaElement>,
   ) => {
+    if (event.nativeEvent.isComposing) return
+
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
       void handleSend()
@@ -353,6 +355,7 @@ export default function OfferChatInput({
         onKeyDown={onKeyDown}
         disabled={sending}
         placeholder="メッセージを入力"
+        maxLength={5000}
         rows={2}
         className="min-h-[72px] resize-none rounded-3xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus-visible:border-emerald-400 focus-visible:ring-emerald-200"
       />
@@ -386,7 +389,7 @@ export default function OfferChatInput({
 
           <p className="truncate">
             {receiverUserId
-              ? `最大${MAX_OFFER_MESSAGE_ATTACHMENTS}件・1件10MBまで / Shift + Enterで改行`
+              ? `最大${MAX_OFFER_MESSAGE_ATTACHMENTS}件・1件10MBまで / Shift + Enterで改行 / ${body.length}/5000文字`
               : '送信先ユーザー情報を読み込み中です。'}
           </p>
         </div>
