@@ -6,6 +6,8 @@ import { Prisma } from '@prisma/client'
 import { getPrismaClient } from '@/lib/prisma'
 import { emitNotification } from '@/lib/notifications/emit'
 import {
+  formatOfferTimeRange,
+  offerClockFromMinutes,
   parseOfferTimeRange,
   parseStoredOfferTimeRange,
   timeRangesOverlap,
@@ -82,6 +84,8 @@ export async function POST(
           start_time: true,
           end_time: true,
           time_range: true,
+          event_name: true,
+          message: true,
         },
       })
 
@@ -111,13 +115,15 @@ export async function POST(
         parseStoredOfferTimeRange(offer.start_time, offer.end_time) ??
         parseOfferTimeRange(offer.time_range)
 
+      if (!candidateRange) throw new Error('OFFER_TIME_INVALID')
+
       const scheduleConflict = blockingOffers.find(existingOffer => {
         const existingRange =
           parseStoredOfferTimeRange(existingOffer.start_time, existingOffer.end_time) ??
           parseOfferTimeRange(existingOffer.time_range)
 
-        // Legacy or malformed ranges are treated conservatively as a same-day conflict.
-        if (!candidateRange || !existingRange) return true
+        // Legacy or malformed existing ranges are treated conservatively as a same-day conflict.
+        if (!existingRange) return true
 
         return timeRangesOverlap(candidateRange, existingRange)
       })
@@ -150,7 +156,7 @@ export async function POST(
       const payoutSnapshot = payoutRows[0] ?? null
       const billingSnapshot = billingRows[0] ?? null
       const contractSnapshot: Prisma.InputJsonValue = {
-        version: 1,
+        version: 2,
         captured_at: now.toISOString(),
         store_name: storeSnapshot?.store_name ?? '店舗名未設定',
         store_address: storeSnapshot?.store_address ?? null,
@@ -160,6 +166,15 @@ export async function POST(
           talentSnapshot?.display_name ??
           talentSnapshot?.name ??
           '演者名未設定',
+        performance: {
+          offer_id: offer.id,
+          date: offer.date.toISOString().slice(0, 10),
+          start_time: offerClockFromMinutes(candidateRange.startMinutes),
+          end_time: offerClockFromMinutes(candidateRange.endMinutes),
+          time_range: formatOfferTimeRange(candidateRange),
+          event_name: offer.event_name ?? null,
+          offer_message: offer.message?.trim() || null,
+        },
         invoice: {
           invoice_number: invoice.invoice_number,
           amount: invoice.amount,
@@ -254,6 +269,12 @@ export async function POST(
     if (message === 'ESTIMATE_NOT_SUBMITTED' || message === 'OFFER_STATE_CHANGED') {
       return NextResponse.json(
         { error: '見積または案件の状態が変更されています。画面を更新してください' },
+        { status: 409 }
+      )
+    }
+    if (message === 'OFFER_TIME_INVALID') {
+      return NextResponse.json(
+        { error: '案件の出演時間が正しくありません。案件内容を確認してください' },
         { status: 409 }
       )
     }
