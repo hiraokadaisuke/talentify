@@ -32,8 +32,11 @@ export default function TalentReviewPage() {
   }, [loadReviews])
 
   return (
-    <div className="max-w-screen-md mx-auto py-8 space-y-6">
-      <h1 className="text-2xl font-bold mb-4">評価・レビュー一覧</h1>
+    <main className="mx-auto w-full max-w-screen-md space-y-4 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8">
+      <header>
+        <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">評価・レビュー</h1>
+        <p className="mt-1 text-sm text-slate-500">店舗から届いた公開レビューを確認できます。</p>
+      </header>
 
       {loading ? (
         <TableSkeleton rows={3} />
@@ -65,9 +68,9 @@ export default function TalentReviewPage() {
         />
       ) : (
         reviews.map(review => (
-          <Card key={review.id}>
-            <CardHeader>
-              <CardTitle className="text-base">
+          <Card key={review.id} className="overflow-hidden rounded-2xl border-slate-200 shadow-sm">
+            <CardHeader className="space-y-2 p-4 sm:p-5">
+              <CardTitle className="break-words text-base leading-6 sm:text-lg">
                 {review.store.name ?? '店舗不明'}（
                 {new Date(review.created_at).toLocaleDateString('ja-JP', {
                   year: 'numeric',
@@ -77,18 +80,18 @@ export default function TalentReviewPage() {
                 ）
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex items-center gap-1 text-yellow-500">
+            <CardContent className="space-y-3 border-t border-slate-100 p-4 text-sm sm:p-5">
+              <div className="flex flex-wrap items-center gap-1 text-yellow-500">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} size={16} fill={i < review.rating ? 'currentColor' : 'none'} />
                 ))}
-                <span className="text-gray-500 ml-2">{review.rating} / 5</span>
+                <span className="ml-2 font-semibold text-slate-700">{review.rating} / 5</span>
               </div>
               {review.category_ratings && (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                <div className="grid gap-2 rounded-xl bg-slate-50 p-3 sm:grid-cols-2 sm:gap-x-4">
                   {Object.entries(review.category_ratings).map(([key, val]) => (
-                    <div key={key} className="flex items-center gap-1 text-yellow-500 text-xs">
-                      <span className="text-gray-600 w-16">
+                    <div key={key} className="flex min-w-0 items-center gap-1 text-xs text-yellow-500">
+                      <span className="w-20 shrink-0 text-slate-600">
                         {key === 'time' ? '時間厳守' : key === 'attitude' ? '接客態度' : key === 'fan' ? 'ファンサービス' : key === 'play' ? '遊技姿勢' : key}
                       </span>
                       {[...Array(5)].map((_, i) => (
@@ -98,13 +101,13 @@ export default function TalentReviewPage() {
                   ))}
                 </div>
               )}
-              <p className="text-gray-700">
+              <p className="whitespace-pre-wrap break-words leading-6 text-slate-700">
                 {review.comment ? review.comment : 'コメントなし'}
               </p>
             </CardContent>
           </Card>
         ))
       )}
-    </div>
+    </main>
   )
 }
