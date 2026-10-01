@@ -6,7 +6,6 @@
 | set_updated_at_invoices | invoices | BEFORE | UPDATE | update_updated_at_column |
 | set_updated_at_notifications | notifications | BEFORE | UPDATE | update_updated_at_column |
 | set_updated_at_on_notifications | notifications | BEFORE | UPDATE | update_updated_at_column |
-| set_participants_key | message_threads | BEFORE | INSERT OR UPDATE | normalize_participants_key |
 | set_updated_at_offers | offers | BEFORE | UPDATE | update_updated_at_column |
 | trg_notify_talent_on_offer_created | offers | AFTER | INSERT | notify_talent_on_offer_created |
 | trg_create_payment_on_offer_confirmed | offers | AFTER | UPDATE | create_payment_on_offer_confirmed |
