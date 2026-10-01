@@ -55,6 +55,13 @@ export async function PUT(
       return NextResponse.json<{ error: string }>({ error: '有効なステータスを指定してください' }, { status: 400 })
     }
 
+    if (requestedStatus === 'canceled') {
+      return NextResponse.json<{ error: string }>(
+        { error: 'キャンセルは理由入力が必要です。専用のキャンセル操作を使用してください' },
+        { status: 400 }
+      )
+    }
+
     const extraFields = Object.keys(body).filter(field => field !== 'status')
     if (extraFields.length > 0) {
       return NextResponse.json<{ error: string }>({ error: 'このAPIではステータスのみ更新できます' }, { status: 400 })
@@ -74,9 +81,7 @@ export async function PUT(
 
     if (storeUserId && user.id === storeUserId) {
       actorRole = 'store'
-      transitionAllowed =
-        requestedStatus === 'canceled' &&
-        (currentStatus === 'pending' || currentStatus === 'confirmed')
+      transitionAllowed = false
     } else if (talentUserId && user.id === talentUserId) {
       actorRole = 'talent'
       transitionAllowed =
@@ -94,13 +99,6 @@ export async function PUT(
     }
 
     const updates: Record<string, unknown> = { status: requestedStatus }
-    const now = new Date().toISOString()
-
-    if (requestedStatus === 'canceled') {
-      updates.canceled_at = now
-      updates.canceled_by_role = actorRole
-    }
-
     const updatedCount = await updateOfferById(id, updates, currentStatus)
     if (updatedCount !== 1) {
       return NextResponse.json<{ error: string }>(
