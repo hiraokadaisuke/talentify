@@ -124,14 +124,18 @@ export default function NotificationBell() {
           )}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] max-w-[360px] p-0">
-        <div className="flex items-center justify-between border-b px-3 py-2">
-          <p className="text-sm font-semibold">通知</p>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-[min(420px,calc(100vw-1rem))] overflow-hidden rounded-2xl border-slate-200 p-0 shadow-2xl"
+      >
+        <div className="flex items-center justify-between border-b bg-white px-4 py-3">
+          <p className="text-base font-bold text-slate-900">通知</p>
           <Button variant="ghost" size="sm" onClick={handleReadAll} disabled={count === 0}>
             すべて既読
           </Button>
         </div>
-        <div className="max-h-96 overflow-y-auto p-2 space-y-2">
+        <div className="max-h-[min(65vh,440px)] space-y-2 overflow-y-auto bg-slate-50/60 p-2">
           {isLoading && <p className="text-sm text-muted-foreground px-2 py-4">読み込み中...</p>}
           {!isLoading && loadError && (
             <div className="px-2 py-4 space-y-2">
@@ -155,11 +159,11 @@ export default function NotificationBell() {
             />
             ))}
         </div>
-        <div className="border-t">
+        <div className="border-t bg-white">
           <Link
             href={notificationsPath}
             onClick={handleNavigate}
-            className="block px-3 py-2 text-center text-sm text-blue-600 hover:underline"
+            className="block px-3 py-3 text-center text-sm font-semibold text-blue-600 hover:bg-blue-50"
           >
             すべて見る
           </Link>
