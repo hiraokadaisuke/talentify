@@ -20,7 +20,7 @@ export default function CheckEmailPage() {
           届かない場合は迷惑メールフォルダもご確認ください。
         </p>
 
-        <div className="mt-6 text-left text-slate-900">
+        <div className="mt-6 text-left">
           <Suspense fallback={null}>
             <ResendConfirmationCard />
           </Suspense>
