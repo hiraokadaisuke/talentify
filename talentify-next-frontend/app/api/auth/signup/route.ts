@@ -34,7 +34,14 @@ export async function POST(req: NextRequest) {
     return errorResponse(400, 'INVALID_INPUT', '入力内容を確認してください')
   }
 
-  const { email, phone, password, role } = parsed.data
+  const {
+    email,
+    phone,
+    password,
+    role,
+    termsVersion,
+    privacyVersion,
+  } = parsed.data
   const supabase = createClient()
 
   const { data, error } = await supabase.auth.signUp({
@@ -70,6 +77,9 @@ export async function POST(req: NextRequest) {
       phone,
       role,
       status: 'pending_email_verification',
+      termsVersion,
+      privacyVersion,
+      legalAcceptedAt: new Date().toISOString(),
     })
   } catch (appUserError) {
     console.error('failed to create app user on signup', appUserError)
