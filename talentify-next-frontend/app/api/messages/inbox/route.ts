@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createClient } from '@/lib/supabase/server'
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 export async function GET(req: NextRequest) {
   const supabase = await createClient()
   const { user, error: userError } = await getCurrentUser()
@@ -13,6 +16,14 @@ export async function GET(req: NextRequest) {
   const offerId = searchParams.get('offerId')
   const withUser = searchParams.get('userId')
   const type = searchParams.get('type')
+
+  if (
+    (offerId && !UUID_PATTERN.test(offerId)) ||
+    (withUser && !UUID_PATTERN.test(withUser)) ||
+    (type !== null && type !== 'offer' && type !== 'direct')
+  ) {
+    return NextResponse.json({ error: 'invalid_query' }, { status: 400 })
+  }
 
   let query = supabase
     .from('offer_messages')
