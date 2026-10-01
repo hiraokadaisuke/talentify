@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const service = createServiceClient()
     const { data, error } = await service.storage
       .from(OFFER_ATTACHMENT_BUCKET)
-      .createSignedUploadUrl(path, { upsert: false })
+      .createSignedUploadUrl(path)
 
     if (error || !data) {
       console.error('[offer attachment signed upload]', error)
