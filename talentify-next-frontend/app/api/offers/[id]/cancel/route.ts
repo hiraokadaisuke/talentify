@@ -46,6 +46,7 @@ export async function POST(
           id: true,
           status: true,
           paid: true,
+          visit_completed_at: true,
           store_id: true,
           talent_id: true,
           stores: { select: { user_id: true } },
@@ -62,7 +63,7 @@ export async function POST(
 
       if (!offer) throw new Error('OFFER_NOT_FOUND')
       if (offer.status === 'canceled') throw new Error('ALREADY_CANCELED')
-      if (offer.paid) throw new Error('PAYMENT_COMPLETED')
+      if (offer.paid || offer.visit_completed_at) throw new Error('OFFER_ALREADY_PERFORMED')
 
       const storeUserId = offer.stores?.user_id ?? null
       const talentUserId = offer.talents?.user_id ?? null
@@ -176,9 +177,9 @@ export async function POST(
     if (message === 'ALREADY_CANCELED') {
       return NextResponse.json({ error: 'すでにキャンセルされています' }, { status: 409 })
     }
-    if (message === 'PAYMENT_COMPLETED') {
+    if (message === 'OFFER_ALREADY_PERFORMED') {
       return NextResponse.json(
-        { error: '支払い完了後の案件はキャンセルできません' },
+        { error: '来店完了後または支払い完了後の案件はキャンセルできません' },
         { status: 409 }
       )
     }
