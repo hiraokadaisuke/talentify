@@ -21,10 +21,6 @@
 ### public スキーマ
 - companies: PRIMARY KEY → id
 - invoices: PRIMARY KEY → id
-- message_read_receipts: PRIMARY KEY → (message_id, user_id)
-- message_threads: PRIMARY KEY → id
-- messages: PRIMARY KEY → id
-- messages_old: PRIMARY KEY → id
 - notifications: PRIMARY KEY → id
 - offer_messages: PRIMARY KEY → id
 - offer_read_receipts: PRIMARY KEY → id
@@ -59,9 +55,6 @@
 - invoices.offer_id → offers.id (ON DELETE RESTRICT)
 - invoices.store_id → stores.id (ON DELETE RESTRICT)
 - invoices.talent_id → talents.id (ON DELETE RESTRICT)
-- message_read_receipts.message_id → messages.id (ON DELETE CASCADE)
-- message_threads.offer_id → offers.id (ON DELETE SET NULL)
-- messages.thread_id → message_threads.id (ON DELETE CASCADE)
 - offer_messages.offer_id → offers.id (ON DELETE CASCADE)
 - offer_read_receipts.offer_id → offers.id (ON DELETE CASCADE)
 - offers.store_id → stores.id (ON DELETE SET NULL)
@@ -99,7 +92,6 @@
 
 ### public スキーマ
 - invoices(offer_id)
-- message_threads(participants_key) ※ `type = 'direct'` の場合のみ
 - offer_read_receipts(offer_id, user_id)
 - payments(offer_id)
 - reviews(offer_id, store_id)
@@ -120,7 +112,6 @@
 ## チェック制約
 
 ### public スキーマ
-- message_threads.type: `type = ANY('{"direct","offer"}')`
 - offer_messages.sender_role: `sender_role = ANY('{"store","talent","admin"}')`
 - schedules.role: `role = ANY('{"store","talent"}')`
 - reviews.rating: `rating BETWEEN 1 AND 5`
