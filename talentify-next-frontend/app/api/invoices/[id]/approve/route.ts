@@ -5,7 +5,11 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { Prisma } from '@prisma/client'
 import { getPrismaClient } from '@/lib/prisma'
 import { emitNotification } from '@/lib/notifications/emit'
-import { parseOfferTimeRange, timeRangesOverlap } from '@/lib/offers/timeRange'
+import {
+  parseOfferTimeRange,
+  parseStoredOfferTimeRange,
+  timeRangesOverlap,
+} from '@/lib/offers/timeRange'
 
 type PayoutSnapshotRow = {
   bank_name: string | null
@@ -71,7 +75,14 @@ export async function POST(
 
       const offer = await tx.offers.findUnique({
         where: { id: invoice.offer_id },
-        select: { id: true, status: true, date: true, time_range: true },
+        select: {
+          id: true,
+          status: true,
+          date: true,
+          start_time: true,
+          end_time: true,
+          time_range: true,
+        },
       })
 
       if (!offer) throw new Error('OFFER_NOT_FOUND')
@@ -93,12 +104,17 @@ export async function POST(
           date: offer.date,
           status: { in: ['confirmed', 'completed'] },
         },
-        select: { id: true, time_range: true },
+        select: { id: true, start_time: true, end_time: true, time_range: true },
       })
 
-      const candidateRange = parseOfferTimeRange(offer.time_range)
+      const candidateRange =
+        parseStoredOfferTimeRange(offer.start_time, offer.end_time) ??
+        parseOfferTimeRange(offer.time_range)
+
       const scheduleConflict = blockingOffers.find(existingOffer => {
-        const existingRange = parseOfferTimeRange(existingOffer.time_range)
+        const existingRange =
+          parseStoredOfferTimeRange(existingOffer.start_time, existingOffer.end_time) ??
+          parseOfferTimeRange(existingOffer.time_range)
 
         // Legacy or malformed ranges are treated conservatively as a same-day conflict.
         if (!candidateRange || !existingRange) return true
