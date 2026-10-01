@@ -13,6 +13,13 @@ import {
 type BillingRow = BillingSnapshot
 type PayoutRow = PayoutSnapshot
 
+type CancellationRecord = {
+  canceled_at: string
+  canceled_by_role: 'store' | 'talent'
+  cancel_reason: string
+  cancellation_phase: 'pre_contract' | 'post_contract'
+}
+
 type InvoiceRow = {
   id: string
   amount: number
@@ -26,6 +33,7 @@ type InvoiceRow = {
   updated_at: string | null
   store_id: string
   talent_id: string
+  offer_id: string
   contract_snapshot: unknown
 }
 
@@ -59,6 +67,7 @@ function buildInvoicePdf(params: {
   billing: BillingRow
   payout: PayoutRow
   performance: PerformanceContractSnapshot | null
+  cancellation: CancellationRecord | null
 }) {
   const {
     invoice,
@@ -68,6 +77,7 @@ function buildInvoicePdf(params: {
     billing,
     payout,
     performance,
+    cancellation,
   } = params
 
   const pageWidth = 595
@@ -114,6 +124,21 @@ function buildInvoicePdf(params: {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
+    }).format(date)
+  }
+
+  const formatDateTime = (value: string | null) => {
+    if (!value) return '-'
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return value
+    return new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
     }).format(date)
   }
 
@@ -295,6 +320,23 @@ function buildInvoicePdf(params: {
     drawWrappedSection('案件内容（オファー時）', performance.offer_message)
     drawWrappedSection('見積備考', invoice.notes)
 
+    if (cancellation) {
+      ensureSpace(160)
+      jp(detailPage, 'キャンセル記録', 50, y, 13)
+      line(detailPage, 50, y - 10, 545, y - 10)
+      y -= 36
+      drawSimpleRow(
+        '区分',
+        cancellation.cancellation_phase === 'post_contract' ? '契約成立後' : '契約成立前'
+      )
+      drawSimpleRow(
+        '実行者',
+        cancellation.canceled_by_role === 'talent' ? '演者' : '店舗'
+      )
+      drawSimpleRow('キャンセル日時', formatDateTime(cancellation.canceled_at))
+      drawWrappedSection('キャンセル理由', cancellation.cancel_reason)
+    }
+
     ensureSpace(170)
     jp(detailPage, '振込先情報', 50, y, 13)
     line(detailPage, 50, y - 10, 545, y - 10)
@@ -386,7 +428,7 @@ export async function GET(
     const { data: invoice, error: invError } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,notes,invoice_number,status,due_date,created_at,updated_at,store_id,talent_id,contract_snapshot'
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,status,due_date,created_at,updated_at,store_id,talent_id,offer_id,contract_snapshot'
       )
       .eq('id', id)
       .single<InvoiceRow>()
@@ -407,8 +449,33 @@ export async function GET(
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
+    const service = createServiceClient()
     const contractSnapshot =
       invoice.status === 'approved' ? readContractSnapshot(invoice.contract_snapshot) : null
+
+    const { data: canceledOffer } =
+      invoice.status === 'approved'
+        ? await service
+            .from('offers')
+            .select('status,canceled_at,canceled_by_role,cancel_reason,cancellation_phase')
+            .eq('id', invoice.offer_id)
+            .maybeSingle()
+        : { data: null }
+
+    const cancellation: CancellationRecord | null =
+      canceledOffer?.status === 'canceled' &&
+      canceledOffer.canceled_at &&
+      (canceledOffer.canceled_by_role === 'store' || canceledOffer.canceled_by_role === 'talent') &&
+      canceledOffer.cancel_reason &&
+      (canceledOffer.cancellation_phase === 'pre_contract' ||
+        canceledOffer.cancellation_phase === 'post_contract')
+        ? {
+            canceled_at: canceledOffer.canceled_at,
+            canceled_by_role: canceledOffer.canceled_by_role,
+            cancel_reason: canceledOffer.cancel_reason,
+            cancellation_phase: canceledOffer.cancellation_phase,
+          }
+        : null
 
     let pdfInvoice = invoice
     let storeName: string
@@ -436,7 +503,6 @@ export async function GET(
       payout = contractSnapshot.payout
       performance = getPerformanceSnapshot(contractSnapshot)
     } else {
-      const service = createServiceClient()
       const [{ data: store }, { data: talent }, { data: payoutRow }, billingResult] = await Promise.all([
         service
           .from('stores')
@@ -476,6 +542,7 @@ export async function GET(
       billing,
       payout,
       performance,
+      cancellation,
     })
 
     return new NextResponse(new Uint8Array(pdfBytes), {
