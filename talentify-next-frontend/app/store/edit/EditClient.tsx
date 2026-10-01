@@ -250,9 +250,16 @@ export default function StoreProfileEditPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-10">
+    <main className="min-h-screen bg-gray-100 px-4 pb-10 pt-6 sm:py-10">
       <div className="mx-auto w-full max-w-5xl">
-        <h1 className="mb-6 text-3xl font-bold tracking-tight">店舗プロフィール編集</h1>
+        <h1 className="mb-2 text-2xl font-bold tracking-tight sm:text-3xl">
+          {showIncomplete ? '店舗情報を登録' : '店舗プロフィール編集'}
+        </h1>
+        {showIncomplete && (
+          <p className="mb-5 text-sm leading-6 text-slate-600">
+            まずは店舗名だけ登録すれば利用を開始できます。自己紹介や画像はあとから追加できます。
+          </p>
+        )}
         <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           {showIncomplete && !errorMessage && (
