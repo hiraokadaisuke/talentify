@@ -11,6 +11,9 @@ type UpsertAppUserParams = {
   phone?: string
   role?: SignupRole
   status: AppUserStatus
+  termsVersion?: string
+  privacyVersion?: string
+  legalAcceptedAt?: string
 }
 
 type AppUserRow = {
@@ -20,6 +23,9 @@ type AppUserRow = {
   phone?: string | null
   role?: string | null
   status?: AppUserStatus | null
+  terms_version?: string | null
+  privacy_version?: string | null
+  legal_accepted_at?: string | null
 } | null
 
 function toSignupRole(value: string | null | undefined): SignupRole | undefined {
@@ -36,7 +42,7 @@ async function findByAuthUserId(authUserId: string): Promise<AppUserRow> {
   const service = createServiceClient()
   const { data, error } = await service
     .from('users' as any)
-    .select('id, auth_user_id, email, phone, role, status')
+    .select('id, auth_user_id, email, phone, role, status, terms_version, privacy_version, legal_accepted_at')
     .eq('auth_user_id', authUserId)
     .maybeSingle()
 
@@ -64,6 +70,9 @@ export async function upsertAppUser(params: UpsertAppUserParams) {
     phone: params.phone ?? existing?.phone ?? null,
     role: resolvedRole ?? existing?.role ?? null,
     status: resolvedStatus,
+    terms_version: params.termsVersion ?? existing?.terms_version ?? null,
+    privacy_version: params.privacyVersion ?? existing?.privacy_version ?? null,
+    legal_accepted_at: params.legalAcceptedAt ?? existing?.legal_accepted_at ?? null,
   }
 
   const upsertResult = await service
