@@ -3,7 +3,8 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AlertCircle, Eye, RefreshCw, Search, ShieldCheck } from 'lucide-react'
-import { Button } from '@/components/ui/button'\nimport AdminDetailPanel from './AdminDetailPanel'
+import { Button } from '@/components/ui/button'
+import AdminDetailPanel from './AdminDetailPanel'
 
 type Summary = {
   users: number
@@ -118,7 +119,8 @@ export default function AdminConsole() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [tab, setTab] = useState<Tab>('users')
-  const [actionId, setActionId] = useState<string | null>(null)\n  const [detailTarget, setDetailTarget] = useState<{ kind: 'user' | 'offer'; id: string } | null>(null)
+  const [actionId, setActionId] = useState<string | null>(null)
+  const [detailTarget, setDetailTarget] = useState<{ kind: 'user' | 'offer'; id: string } | null>(null)
 
   const [queryInput, setQueryInput] = useState('')
   const [query, setQuery] = useState('')
