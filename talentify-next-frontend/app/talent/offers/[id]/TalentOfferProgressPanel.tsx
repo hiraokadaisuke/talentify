@@ -7,6 +7,7 @@ import type { OfferProgressStep, OfferProgressStatus, OfferStepKey } from '@/uti
 import ProgressCard from './ProgressCard'
 import StepDetailCard from './StepDetailCard'
 import SubmittedOfferContentCard from './SubmittedOfferContentCard'
+import OfferCancellationSection from '@/components/offers/OfferCancellationSection'
 
 type TalentOfferProgressPanelProps = {
   steps: OfferProgressStep[]
@@ -26,6 +27,10 @@ type TalentOfferProgressPanelProps = {
     paymentStatusLabel: string
     reviewCompleted: boolean
     message: string | null
+    canceledAt: string | null
+    canceledByRole: string | null
+    cancelReason: string | null
+    cancellationPhase: string | null
   }
   invoiceId: string | null
   onDeclineOffer?: () => void
@@ -118,6 +123,16 @@ export default function TalentOfferProgressPanel({
         invoiceId={invoiceId}
         onDeclineOffer={onDeclineOffer}
         actionLoading={actionLoading}
+      />
+      <OfferCancellationSection
+        offerId={offer.id}
+        role="talent"
+        status={offer.status}
+        canceledAt={offer.canceledAt}
+        canceledByRole={offer.canceledByRole}
+        cancelReason={offer.cancelReason}
+        cancellationPhase={offer.cancellationPhase}
+        invoiceId={invoiceId}
       />
     </div>
   )
