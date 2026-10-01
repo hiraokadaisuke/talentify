@@ -47,11 +47,12 @@ export type NotificationEvent =
       actorId?: string | null
       offerId: string
       status?: string | null
-      change?: 'schedule' | 'cancellation'
+      change?: 'schedule' | 'cancellation' | 'no_show'
       date?: string | null
       timeRange?: string | null
       cancellationStage?: 'pre_contract' | 'post_contract'
       cancelReason?: string | null
+      noShowReason?: string | null
     }
   | {
       kind: 'offer_accepted'
@@ -215,7 +216,9 @@ export const notificationConfig: {
         ? `offer-rescheduled:${event.offerId}:${event.date ?? 'unknown'}:${event.timeRange ?? 'unknown'}`
         : event.change === 'cancellation'
           ? `offer-canceled:${event.offerId}`
-          : `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
+          : event.change === 'no_show'
+            ? `offer-no-show:${event.offerId}`
+            : `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
     build: ({ roleRootPath, event }) => ({
       title:
         event.change === 'schedule'
@@ -224,13 +227,17 @@ export const notificationConfig: {
             ? event.cancellationStage === 'post_contract'
               ? '締結済みの取引がキャンセルされました'
               : 'オファーがキャンセルされました'
-            : 'オファーのステータスが更新されました',
+            : event.change === 'no_show'
+              ? '来店なしが記録されました'
+              : 'オファーのステータスが更新されました',
       body:
         event.change === 'schedule'
           ? `新しい予定: ${event.date ?? '-'} ${event.timeRange ?? '-'}。内容を確認してください。`
           : event.change === 'cancellation'
             ? `キャンセル理由: ${event.cancelReason ?? '理由未登録'}`
-            : event.status
+            : event.change === 'no_show'
+              ? `来店なしの理由: ${event.noShowReason ?? '理由未登録'}`
+              : event.status
               ? `現在のステータス: ${event.status}`
               : '最新状態を確認してください。',
       actionUrl: `${roleRootPath}/offers/${event.offerId}`,
@@ -245,6 +252,7 @@ export const notificationConfig: {
         time_range: event.timeRange ?? null,
         cancellation_stage: event.cancellationStage ?? null,
         cancellation_reason: event.cancelReason ?? null,
+        no_show_reason: event.noShowReason ?? null,
       },
     }),
   },

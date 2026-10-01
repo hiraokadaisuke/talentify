@@ -18,6 +18,7 @@ const statusLabels: Record<string, string> = {
   pending: '保留中',
   confirmed: '承諾済',
   canceled: 'キャンセル済み',
+  no_show: '来店なし',
   rejected: '拒否',
   completed: '来店完',
   expired: '期限切れ',
@@ -26,7 +27,7 @@ const statusLabels: Record<string, string> = {
 type OfferTab = 'active' | 'history' | 'cancel'
 type SortKey = 'visit' | 'updated' | 'created'
 
-const CANCEL_STATUSES = new Set(['canceled', 'rejected', 'expired'])
+const CANCEL_STATUSES = new Set(['canceled', 'rejected', 'expired', 'no_show'])
 
 const badgeToneByCategory = {
   neutral: 'border-[#e2e8f0] bg-white text-[#64748b]',
@@ -159,7 +160,7 @@ export default function TalentOffersPage() {
             {([
               { key: 'active', label: '進行中', count: tabCounts.active },
               { key: 'history', label: '履歴', count: tabCounts.history },
-              { key: 'cancel', label: 'キャンセル', count: tabCounts.cancel },
+              { key: 'cancel', label: '中止・来店なし', count: tabCounts.cancel },
             ] as const).map(item => (
               <button
                 key={item.key}
@@ -257,7 +258,7 @@ export default function TalentOffersPage() {
                         </TableCell>
                         <TableCell className="px-4">
                           {o.isCanceled ? (
-                            <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[11px] ${badgeToneByCategory.danger}`}>キャンセル済み</Badge>
+                            <Badge variant="outline" className={`rounded-md px-2 py-0.5 text-[11px] ${badgeToneByCategory.danger}`}>{statusLabels[o.status ?? 'pending'] ?? '終了'}</Badge>
                           ) : (
                             <div className="space-y-1">
                               <p className="text-xs font-semibold text-[#334155]">{o.badge.label}</p>
@@ -290,7 +291,7 @@ export default function TalentOffersPage() {
                       </Badge>
                     </div>
                     <p className="mt-2 text-base font-semibold">{o.store_name ?? '-'}</p>
-                    <p className="mt-2 text-xs font-semibold">{o.isCanceled ? 'キャンセル済み' : o.badge.label}</p>
+                    <p className="mt-2 text-xs font-semibold">{o.isCanceled ? (statusLabels[o.status ?? 'pending'] ?? '終了') : o.badge.label}</p>
                     {!o.isCanceled && (
                       <div className="mt-1 flex gap-1.5">
                         {o.steps.map(step => (

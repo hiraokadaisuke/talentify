@@ -44,6 +44,10 @@ function resolveProgressBadge({
   paid,
   reviewCompleted,
 }: ProgressParams): OfferProgressBadge {
+  if (status === 'no_show') {
+    return { label: '来店なし', variant: 'secondary' }
+  }
+
   if ((paid || invoiceStatus === 'paid') && !reviewCompleted) {
     return {
       label: 'レビュー待ち',
@@ -116,6 +120,11 @@ export function getOfferProgress({
 
   const completed = new Set<OfferStepKey>(['offer_submitted'])
 
+  if (status === 'no_show') {
+    completed.add('approval')
+    completed.add('invoice')
+  }
+
   if (invoiceStatus !== 'not_submitted' || ['confirmed', 'completed'].includes(status)) {
     completed.add('approval')
   }
@@ -136,7 +145,9 @@ export function getOfferProgress({
     completed.add('review')
   }
 
-  const current = order.find(step => !completed.has(step)) ?? 'review'
+  const current = status === 'no_show'
+    ? 'visit'
+    : order.find(step => !completed.has(step)) ?? 'review'
 
   const steps: OfferProgressStep[] = order.map(step => ({
     key: step,

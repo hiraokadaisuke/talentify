@@ -20,6 +20,7 @@ export function deriveActiveStep({
   paidAt,
   reviewedAt,
 }: DeriveActiveStepParams): OfferStepKey {
+  if (status === 'no_show') return 'visit'
   if (reviewedAt) return 'review'
   if (paidAt || paid || invoiceStatus === 'paid') return 'payment'
   if (status === 'completed') return 'payment'
