@@ -1,7 +1,7 @@
 'use client'
 
 
-import { useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { isProfileComplete } from '@/utils/isProfileComplete'
@@ -10,6 +10,7 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { AlertCircle, RotateCcw } from 'lucide-react'
 
 const prefectures = [
   '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
@@ -28,6 +29,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const router = useRouter()
   const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [isNew, setIsNew] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showIncomplete, setShowIncomplete] = useState(false)
@@ -130,17 +132,22 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
   // プロフィール読み込み
 
-  useEffect(() => {
-    const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+    setErrorMessage(null)
+
+    try {
       const {
         data: { user },
         error: authError,
       } = await supabase.auth.getUser()
+
       if (authError || !user) {
         console.error('ユーザー取得失敗:', authError)
-        setLoading(false)
-        return
+        throw authError ?? new Error('Authenticated user not found')
       }
+
       setUserId(user.id)
 
       const fields =
@@ -160,8 +167,11 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       ])
 
       if (error || appUserError) {
-        console.error('プロフィールの取得に失敗:', error)
-        setErrorMessage('プロフィールの取得に失敗しました')
+        console.error('プロフィールの取得に失敗:', {
+          talentError: error,
+          userError: appUserError,
+        })
+        throw error ?? appUserError
       }
 
       if (data) {
@@ -196,11 +206,18 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         setIsNew(true)
         setShowIncomplete(true)
       }
+    } catch (error) {
+      console.error('演者プロフィールの読み込みに失敗:', error)
+      setUserId(null)
+      setLoadError(true)
+    } finally {
       setLoading(false)
     }
-
-    loadProfile()
   }, [])
+
+  useEffect(() => {
+    void loadProfile()
+  }, [loadProfile])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -371,6 +388,37 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   }
 
   if (loading) return <p className="p-4">読み込み中...</p>
+
+  if (loadError) {
+    return (
+      <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mx-auto w-full max-w-3xl">
+          <h1 className="mb-6 text-3xl font-bold tracking-tight">演者プロフィール編集</h1>
+          <div
+            role="alert"
+            className="rounded-2xl border border-red-200 bg-red-50 px-5 py-8 text-center shadow-sm"
+          >
+            <AlertCircle className="mx-auto h-7 w-7 text-red-600" aria-hidden="true" />
+            <h2 className="mt-3 text-base font-semibold text-red-900">
+              プロフィールを読み込めませんでした
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-red-700">
+              既存プロフィールを保護するため、編集フォームは表示していません。通信状況を確認して、もう一度お試しください。
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-5 min-h-10"
+              onClick={() => void loadProfile()}
+            >
+              <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              再読み込み
+            </Button>
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   const fieldClassName = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
   const sectionClassName = 'space-y-4'
