@@ -1,82 +1,36 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { toast } from "sonner"
-import { formatJaDateTimeWithWeekday } from "@/utils/formatJaDateTimeWithWeekday"
+import OfferCancellationSection from '@/components/offers/OfferCancellationSection'
 
 type Props = {
   offerId: string
   initialStatus: string
   initialCanceledAt?: string | null
+  initialCanceledByRole?: string | null
+  initialCancelReason?: string | null
+  initialCancellationPhase?: string | null
+  invoiceId?: string | null
 }
-
-const cancellable = new Set(["pending", "accepted", "confirmed"])
 
 export default function CancelOfferSection({
   offerId,
   initialStatus,
   initialCanceledAt = null,
+  initialCanceledByRole = null,
+  initialCancelReason = null,
+  initialCancellationPhase = null,
+  invoiceId = null,
 }: Props) {
-  const router = useRouter()
-  const [localStatus, setLocalStatus] = useState(initialStatus)
-  const [canceledAt, setCanceledAt] = useState<string | null>(initialCanceledAt)
-  const [isCancelling, setIsCancelling] = useState(false)
-
-  const handleCancel = async () => {
-    if (isCancelling || !cancellable.has(localStatus)) return
-    if (!confirm("このオファーを取り下げますか？")) return
-
-    setIsCancelling(true)
-    try {
-      const response = await fetch(`/api/offers/${offerId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "canceled" }),
-      })
-
-      if (!response.ok) throw new Error("offer cancellation failed")
-
-      setLocalStatus("canceled")
-      setCanceledAt(new Date().toISOString())
-      toast("オファーをキャンセルしました")
-      router.refresh()
-    } catch (e) {
-      console.error("cancel offer failed", e)
-      toast.error("キャンセルに失敗しました")
-    } finally {
-      setIsCancelling(false)
-    }
-  }
-
-  if (!cancellable.has(localStatus) && localStatus !== "canceled") {
-    return null
-  }
-
-  if (localStatus === "canceled") {
-    return (
-      <Alert className="mb-4">
-        <AlertTitle>キャンセル済み</AlertTitle>
-        {canceledAt && (
-          <AlertDescription>
-            {formatJaDateTimeWithWeekday(canceledAt)}
-          </AlertDescription>
-        )}
-      </Alert>
-    )
-  }
-
   return (
-    <Button
-      variant="outline"
-      onClick={handleCancel}
-      disabled={isCancelling}
-      data-testid="offer-cancel-button"
-    >
-      {isCancelling ? "キャンセル中..." : "オファーをキャンセル"}
-    </Button>
+    <OfferCancellationSection
+      offerId={offerId}
+      role="store"
+      status={initialStatus}
+      canceledAt={initialCanceledAt}
+      canceledByRole={initialCanceledByRole}
+      cancelReason={initialCancelReason}
+      cancellationPhase={initialCancellationPhase}
+      invoiceId={invoiceId}
+    />
   )
 }
-
