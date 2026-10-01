@@ -1,14 +1,17 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react'
 import Image from 'next/image'
-import { ArrowDownToLine, Search, ChevronLeft } from 'lucide-react'
+import { AlertCircle, Search, ChevronLeft, RotateCcw } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { ListSkeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/ui/empty-state'
 import OfferSummary, { OfferSummaryInfo } from './OfferSummary'
 import { toast } from 'sonner'
+import type { Attachment } from '@/lib/supabase/offerMessages'
+import { SecureMessageAttachment } from '@/components/offer/ChatMessageBubble'
+import { MESSAGES_CHANGED_EVENT } from '@/utils/messages'
 
 const supabase = createClient()
 
@@ -18,13 +21,11 @@ type MessageRow = {
   id: string
   sender_user: string
   receiver_user: string
-  body: string
+  body: string | null
   created_at: string | null
   offer_id: string | null
   read_at?: string | null
-  attachment_url?: string | null
-  attachment_name?: string | null
-  attachment_size?: number | null
+  attachments?: Attachment[] | null
 }
 
 type ThreadMessage = {
@@ -32,9 +33,7 @@ type ThreadMessage = {
   from: UserRole
   text: string
   time: string | null
-  attachmentUrl?: string | null
-  attachmentName?: string | null
-  attachmentSize?: number | null
+  attachments: Attachment[]
 }
 
 interface Thread {
@@ -64,11 +63,19 @@ function formatDateLabel(value: string | null) {
   })
 }
 
-function formatSize(size: number | null | undefined) {
-  if (!size) return '-'
-  if (size < 1024) return `${size} B`
-  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`
-  return `${(size / (1024 * 1024)).toFixed(1)} MB`
+function messagePreviewText(message: MessageRow) {
+  const body = message.body?.trim()
+  if (body) return body
+
+  const attachments = message.attachments ?? []
+  if (attachments.length === 1) {
+    return `添付: ${attachments[0].name}`
+  }
+  if (attachments.length > 1) {
+    return `添付ファイル ${attachments.length}件`
+  }
+
+  return 'メッセージ'
 }
 
 function groupMessages(
@@ -89,7 +96,7 @@ function groupMessages(
         partnerId: partner,
         name: type === 'offer' ? `オファー ${key.slice(0, 8)}` : `ユーザー ${partner.slice(0, 8)}`,
         avatar: '/avatar-default.svg',
-        latest: m.body,
+        latest: messagePreviewText(m),
         unread: 0,
         updatedAt: m.created_at,
         statusLabel: type === 'offer' ? 'オファー中' : '進行中',
@@ -103,15 +110,13 @@ function groupMessages(
     th.messages.push({
       id: m.id,
       from: m.sender_user === userId ? role : role === 'store' ? 'talent' : 'store',
-      text: m.body,
+      text: m.body ?? '',
       time: m.created_at,
-      attachmentUrl: m.attachment_url,
-      attachmentName: m.attachment_name,
-      attachmentSize: m.attachment_size,
+      attachments: m.attachments ?? [],
     })
     if (th.updatedAt && m.created_at && new Date(th.updatedAt) < new Date(m.created_at)) {
       th.updatedAt = m.created_at
-      th.latest = m.body
+      th.latest = messagePreviewText(m)
     }
   }
   return Array.from(map.values()).map(thread => ({
@@ -140,36 +145,45 @@ export default function MessagesPage({
   const [query, setQuery] = useState('')
   const [offerInfo, setOfferInfo] = useState<OfferSummaryInfo | null>(null)
   const [sending, setSending] = useState(false)
+  const [readSyncError, setReadSyncError] = useState(false)
   const [mobileThreadOpen, setMobileThreadOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    const init = async () => {
-      setLoading(true)
-      setError(null)
+  const loadMessages = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
       const {
         data: { user },
+        error: authError,
       } = await supabase.auth.getUser()
-      if (user) setUserId(user.id)
 
-      try {
-        const res = await fetch(`/api/messages/inbox?type=${type}`)
-        if (res.ok) {
-          const { data }: { data: MessageRow[] } = await res.json()
-          setMessages(data)
-        } else {
-          setError('メッセージの取得に失敗しました')
-          setMessages([])
-        }
-      } catch (e) {
-        console.error(e)
-        setError('メッセージの取得に失敗しました')
-        setMessages([])
+      if (authError || !user) {
+        throw authError ?? new Error('Authenticated user not found')
       }
+
+      setUserId(user.id)
+
+      const res = await fetch(`/api/messages/inbox?type=${type}`)
+      if (!res.ok) {
+        throw new Error('failed to fetch messages')
+      }
+
+      const payload = (await res.json()) as { data?: MessageRow[] }
+      setMessages(Array.isArray(payload.data) ? payload.data : [])
+    } catch (loadError) {
+      console.error('failed to load messages', loadError)
+      setError('メッセージを読み込めませんでした')
+      setMessages([])
+    } finally {
       setLoading(false)
     }
-    init()
   }, [type])
+
+  useEffect(() => {
+    void loadMessages()
+  }, [loadMessages])
 
   useEffect(() => {
     if (!userId) return
@@ -180,7 +194,11 @@ export default function MessagesPage({
         if (m.sender_user === userId || m.receiver_user === userId) {
           if (type === 'direct' && m.offer_id) return
           if (type === 'offer' && !m.offer_id) return
-          setMessages(prev => [...prev, m])
+          setMessages(prev =>
+            prev.some(message => message.id === m.id)
+              ? prev
+              : [...prev, m],
+          )
         }
       })
     channel.subscribe()
@@ -268,8 +286,9 @@ export default function MessagesPage({
 
   const activeThread = filteredThreads.find(t => t.id === activeId)
 
-  const markThreadRead = async (thread: Thread) => {
+  const markThreadRead = useCallback(async (thread: Thread) => {
     if (!userId || thread.unread <= 0) return
+
     const payload =
       type === 'offer'
         ? { offerId: thread.id }
@@ -281,7 +300,12 @@ export default function MessagesPage({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      if (!res.ok) return
+
+      if (!res.ok) {
+        throw new Error('failed to mark message thread as read')
+      }
+
+      setReadSyncError(false)
       const now = new Date().toISOString()
       setMessages(prev =>
         prev.map(message => {
@@ -295,34 +319,35 @@ export default function MessagesPage({
             : message
         }),
       )
-    } catch (error) {
-      console.error('failed to mark message thread as read', error)
+      window.dispatchEvent(new Event(MESSAGES_CHANGED_EVENT))
+    } catch (markError) {
+      console.error('failed to mark message thread as read', markError)
+      setReadSyncError(true)
     }
-  }
+  }, [type, userId])
 
   useEffect(() => {
     if (!activeThread || !userId) return
-    const visible = mobileThreadOpen || window.matchMedia('(min-width: 768px)').matches
+
+    const visible =
+      mobileThreadOpen ||
+      window.matchMedia('(min-width: 768px)').matches
+
     if (visible && activeThread.unread > 0) {
       void markThreadRead(activeThread)
     }
-  // Marking read updates messages and therefore activeThread; avoid a repeated request loop.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeId, mobileThreadOpen, userId, type])
+  }, [
+    activeId,
+    activeThread?.unread,
+    markThreadRead,
+    mobileThreadOpen,
+    userId,
+  ])
 
   const handleSend = async () => {
-    if (!input.trim() || !activeThread || sending) return
-    const tempId = `temp-${Date.now()}`
-    const newMsg: MessageRow = {
-      id: tempId,
-      sender_user: userId || '',
-      receiver_user: activeThread.partnerId,
-      body: input.trim(),
-      created_at: new Date().toISOString(),
-      offer_id: type === 'offer' ? activeThread.id : null,
-    }
-    setMessages(prev => [...prev, newMsg])
-    setInput('')
+    const messageBody = input.trim()
+    if (!messageBody || !activeThread || !userId || sending) return
+
     setSending(true)
 
     try {
@@ -331,16 +356,29 @@ export default function MessagesPage({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           receiverUserId: activeThread.partnerId,
-          body: newMsg.body,
+          body: messageBody,
           ...(type === 'offer' ? { offerId: activeThread.id } : {}),
         }),
       })
-      if (!res.ok) throw new Error('failed')
-      const { data }: { data: MessageRow } = await res.json()
-      setMessages(prev => prev.map(m => (m.id === tempId ? data : m)))
-    } catch (err) {
-      setMessages(prev => prev.filter(m => m.id !== tempId))
-      toast.error('送信に失敗しました')
+
+      const payload = (await res.json().catch(() => null)) as {
+        data?: MessageRow
+        error?: string
+      } | null
+
+      if (!res.ok || !payload?.data) {
+        throw new Error(payload?.error ?? 'message_send_failed')
+      }
+
+      setMessages(prev =>
+        prev.some(message => message.id === payload.data!.id)
+          ? prev
+          : [...prev, payload.data!],
+      )
+      setInput('')
+    } catch (sendError) {
+      console.error('failed to send message', sendError)
+      toast.error('送信に失敗しました。入力内容は残っています。')
     } finally {
       setSending(false)
     }
@@ -390,7 +428,24 @@ export default function MessagesPage({
                 {loading ? (
                   <ListSkeleton count={6} className="p-3" />
                 ) : error ? (
-                  <EmptyState title={error} description="時間をおいて再度お試しください" className="p-4" />
+                  <div
+                    role="alert"
+                    className="m-2 rounded-xl border border-red-200 bg-red-50 px-4 py-5 text-center"
+                  >
+                    <AlertCircle className="mx-auto h-5 w-5 text-red-600" aria-hidden="true" />
+                    <p className="mt-2 text-sm font-semibold text-red-900">{error}</p>
+                    <p className="mt-1 text-xs text-red-700">
+                      通信状況を確認して、もう一度お試しください。
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void loadMessages()}
+                      className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-md border border-red-200 bg-white px-3 text-xs font-semibold text-red-800 hover:bg-red-100"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                      再読み込み
+                    </button>
+                  </div>
                 ) : filteredThreads.length === 0 ? (
                   <EmptyState title="スレッドがありません" description="メッセージが届くとここに表示されます" className="p-4" />
                 ) : (
@@ -443,6 +498,16 @@ export default function MessagesPage({
                   <p className="truncate text-xs text-gray-500">
                     {type === 'offer' ? `ステータス: ${offerInfo?.status ?? '確認中'} / 最終返信: ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}` : `最終返信: ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}`}
                   </p>
+                  {readSyncError && activeThread?.unread ? (
+                    <button
+                      type="button"
+                      onClick={() => void markThreadRead(activeThread)}
+                      className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 underline"
+                    >
+                      <RotateCcw className="h-3 w-3" aria-hidden="true" />
+                      既読状態を再同期
+                    </button>
+                  ) : null}
                 </div>
                 {type === 'offer' && activeId && (
                   <Link
@@ -476,15 +541,15 @@ export default function MessagesPage({
                           <div key={msg.id} className={`flex ${msg.from === role ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm shadow-sm md:max-w-xl ${msg.from === role ? 'rounded-br-md bg-blue-100 text-gray-800' : 'rounded-bl-md border border-gray-200 bg-white text-gray-800'}`}>
                               <p className="whitespace-pre-wrap break-words">{msg.text}</p>
-                              {msg.attachmentUrl && (
-                                <a href={msg.attachmentUrl} target="_blank" rel="noreferrer" className="mt-2 flex items-center justify-between rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700">
-                                  <div className="min-w-0">
-                                    <p className="truncate font-medium">{msg.attachmentName ?? '添付ファイル'}</p>
-                                    <p className="text-gray-500">{formatSize(msg.attachmentSize)}</p>
-                                  </div>
-                                  <ArrowDownToLine className="h-4 w-4 shrink-0" />
-                                </a>
-                              )}
+                              {type === 'offer' &&
+                                msg.attachments.map(attachment => (
+                                  <SecureMessageAttachment
+                                    key={attachment.path}
+                                    messageId={msg.id}
+                                    attachment={attachment}
+                                    isMine={msg.from === role}
+                                  />
+                                ))}
                               <p className="mt-1 text-right text-[11px] text-gray-400">{formatTime(msg.time)}</p>
                             </div>
                           </div>
@@ -504,13 +569,19 @@ export default function MessagesPage({
                     placeholder="メッセージを入力"
                     className="max-h-36 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-gray-400"
                     rows={1}
+                    disabled={sending}
+                    maxLength={5000}
                     onKeyDown={e => {
+                      if (e.nativeEvent.isComposing) return
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()
-                        handleSend()
+                        void handleSend()
                       }
                     }}
                   />
+                  <div className="shrink-0 text-[10px] text-gray-400">
+                    {input.length}/5000
+                  </div>
                   <button
                     type="button"
                     onClick={handleSend}
