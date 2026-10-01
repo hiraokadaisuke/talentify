@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { AlertCircle, Eye, RefreshCw, Search, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import AdminDetailPanel from './AdminDetailPanel'
+import AdminAttentionCenter from './AdminAttentionCenter'
 
 type Summary = {
   users: number
@@ -121,6 +122,7 @@ export default function AdminConsole() {
   const [tab, setTab] = useState<Tab>('users')
   const [actionId, setActionId] = useState<string | null>(null)
   const [detailTarget, setDetailTarget] = useState<{ kind: 'user' | 'offer'; id: string } | null>(null)
+  const [attentionRefreshKey, setAttentionRefreshKey] = useState(0)
 
   const [queryInput, setQueryInput] = useState('')
   const [query, setQuery] = useState('')
@@ -231,12 +233,28 @@ export default function AdminConsole() {
       })
       if (!response.ok) throw new Error('inquiry_status_update_failed')
       await load()
+      setAttentionRefreshKey(value => value + 1)
     } catch (error) {
       console.error(error)
       window.alert('お問い合わせ状態を変更できませんでした。')
     } finally {
       setActionId(null)
     }
+  }
+
+  const refreshAll = () => {
+    setAttentionRefreshKey(value => value + 1)
+    void load()
+  }
+
+  const showInquiries = () => {
+    setTab('inquiries')
+    setInquiryStatus('')
+    requestAnimationFrame(() => {
+      document
+        .getElementById('admin-workspace')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   const summaryItems = data
@@ -265,7 +283,7 @@ export default function AdminConsole() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => void load()} disabled={loading}>
+            <Button variant="outline" onClick={refreshAll} disabled={loading}>
               <RefreshCw className="mr-2 h-4 w-4" />
               再読み込み
             </Button>
@@ -295,7 +313,16 @@ export default function AdminConsole() {
               ))}
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <AdminAttentionCenter
+              refreshKey={attentionRefreshKey}
+              onOpenOffer={offerId => setDetailTarget({ kind: 'offer', id: offerId })}
+              onShowInquiries={showInquiries}
+            />
+
+            <section
+              id="admin-workspace"
+              className="scroll-mt-4 rounded-2xl border border-slate-200 bg-white shadow-sm"
+            >
               <div className="border-b border-slate-200 p-4">
                 <div className="flex flex-wrap gap-2">
                   {([
