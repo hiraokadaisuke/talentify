@@ -244,7 +244,7 @@ export const notificationConfig: {
         date: event.date ?? null,
         time_range: event.timeRange ?? null,
         cancellation_stage: event.cancellationStage ?? null,
-        cancel_reason: event.cancelReason ?? null,
+        cancellation_reason: event.cancelReason ?? null,
       },
     }),
   },
