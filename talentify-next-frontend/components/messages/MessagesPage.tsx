@@ -63,6 +63,21 @@ function formatDateLabel(value: string | null) {
   })
 }
 
+const OFFER_STATUS_LABELS: Record<string, string> = {
+  pending: '回答待ち',
+  accepted: '承認済み',
+  confirmed: '確定',
+  completed: '完了',
+  canceled: 'キャンセル',
+  rejected: '辞退',
+  no_show: '来店なし',
+}
+
+function formatOfferStatus(value?: string | null) {
+  if (!value) return '確認中'
+  return OFFER_STATUS_LABELS[value] ?? value
+}
+
 function messagePreviewText(message: MessageRow) {
   const body = message.body?.trim()
   if (body) return body
@@ -396,9 +411,9 @@ export default function MessagesPage({
   }, [activeThread])
 
   return (
-    <main className="bg-gray-100 px-2 pb-4 md:px-4">
+    <main className="bg-gray-100 pb-2 md:px-4 md:pb-4">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="h-[calc(100vh-9rem)] min-h-[560px] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="h-[calc(100dvh-8.5rem)] min-h-[480px] overflow-hidden border-y border-gray-200 bg-white shadow-sm md:h-[calc(100vh-9rem)] md:min-h-[560px] md:rounded-2xl md:border">
           <div className="flex h-full">
             <aside className={`${mobileThreadOpen ? 'hidden' : 'flex'} w-full flex-col border-r border-gray-200 md:flex md:w-80 md:min-w-80`}>
               <div className="border-b border-gray-200 p-4 space-y-3">
@@ -487,16 +502,20 @@ export default function MessagesPage({
             </aside>
 
             <section className={`${mobileThreadOpen ? 'flex' : 'hidden'} min-w-0 flex-1 flex-col md:flex`}>
-              <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
+              <header className="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
                 <div className="min-w-0">
                   <div className="mb-1 flex items-center gap-2">
                     <button type="button" className="rounded-md p-1 text-gray-500 hover:bg-gray-100 md:hidden" onClick={() => setMobileThreadOpen(false)}>
                       <ChevronLeft className="h-5 w-5" />
                     </button>
-                    <h3 className="truncate text-base font-semibold text-gray-900">{activeThread?.name ?? (type === 'offer' ? 'オファー詳細' : 'メッセージ')}</h3>
+                    <h3 className="truncate text-base font-semibold text-gray-900">
+                      {type === 'offer' ? 'オファーのメッセージ' : activeThread?.name ?? 'メッセージ'}
+                    </h3>
                   </div>
                   <p className="truncate text-xs text-gray-500">
-                    {type === 'offer' ? `ステータス: ${offerInfo?.status ?? '確認中'} / 最終返信: ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}` : `最終返信: ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}`}
+                    {type === 'offer'
+                      ? `${formatOfferStatus(offerInfo?.status)} ・ 最終返信 ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}`
+                      : `最終返信 ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}`}
                   </p>
                   {readSyncError && activeThread?.unread ? (
                     <button
@@ -512,20 +531,21 @@ export default function MessagesPage({
                 {type === 'offer' && activeId && (
                   <Link
                     href={`/${role}/offers/${activeId}`}
-                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50"
+                    className="shrink-0 rounded-lg border border-gray-200 px-2.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 sm:px-3"
                   >
-                    オファー内容を見る
+                    <span className="sm:hidden">詳細</span>
+                    <span className="hidden sm:inline">オファー内容を見る</span>
                   </Link>
                 )}
               </header>
 
               {type === 'offer' && (
-                <div className="border-b border-gray-200 bg-white px-4 py-3">
+                <div className="border-b border-gray-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
                   <OfferSummary offer={offerInfo} role={role} offerId={activeId} />
                 </div>
               )}
 
-              <div className="flex-1 overflow-y-auto bg-gray-100/70 p-4">
+              <div className="flex-1 overflow-y-auto bg-gray-100/70 p-3 sm:p-4">
                 {!activeThread ? (
                   <EmptyState title="会話を選択してください" description="左のメッセージ一覧からスレッドを選ぶと会話が表示されます" className="mx-auto mt-16 max-w-md" />
                 ) : groupedMessages.length === 0 ? (
@@ -561,13 +581,13 @@ export default function MessagesPage({
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="border-t border-gray-200 bg-white p-3">
-                <div className="flex items-end gap-2 rounded-2xl border border-gray-200 bg-white p-2">
+              <div className="border-t border-gray-200 bg-white px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:p-3">
+                <div className="flex items-end gap-2 rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
                   <textarea
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     placeholder="メッセージを入力"
-                    className="max-h-36 min-h-[40px] flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-gray-400"
+                    className="max-h-32 min-h-[42px] flex-1 resize-none bg-transparent px-2 py-2 text-base outline-none placeholder:text-gray-400 sm:max-h-36 sm:text-sm"
                     rows={1}
                     disabled={sending}
                     maxLength={5000}
@@ -586,7 +606,7 @@ export default function MessagesPage({
                     type="button"
                     onClick={handleSend}
                     disabled={!input.trim() || !activeThread || sending}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                    className="min-h-10 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                   >
                     {sending ? '送信中...' : '送信'}
                   </button>
