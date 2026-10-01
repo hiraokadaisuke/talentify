@@ -55,6 +55,13 @@ export async function PUT(
       return NextResponse.json<{ error: string }>({ error: '有効なステータスを指定してください' }, { status: 400 })
     }
 
+    if (requestedStatus === 'canceled') {
+      return NextResponse.json<{ error: string }>(
+        { error: 'キャンセルは理由入力が必要です。専用のキャンセル操作を使用してください' },
+        { status: 400 }
+      )
+    }
+
     const extraFields = Object.keys(body).filter(field => field !== 'status')
     if (extraFields.length > 0) {
       return NextResponse.json<{ error: string }>({ error: 'このAPIではステータスのみ更新できます' }, { status: 400 })
