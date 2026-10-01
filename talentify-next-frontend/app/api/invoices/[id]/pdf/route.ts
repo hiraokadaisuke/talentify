@@ -16,8 +16,8 @@ type PayoutRow = PayoutSnapshot
 type CancellationRecord = {
   canceled_at: string
   canceled_by_role: 'store' | 'talent'
-  cancel_reason: string
-  cancellation_phase: 'pre_contract' | 'post_contract'
+  cancellation_reason: string
+  cancellation_stage: 'pre_contract' | 'post_contract'
 }
 
 type InvoiceRow = {
@@ -327,14 +327,14 @@ function buildInvoicePdf(params: {
       y -= 36
       drawSimpleRow(
         '区分',
-        cancellation.cancellation_phase === 'post_contract' ? '契約成立後' : '契約成立前'
+        cancellation.cancellation_stage === 'post_contract' ? '契約成立後' : '契約成立前'
       )
       drawSimpleRow(
         '実行者',
         cancellation.canceled_by_role === 'talent' ? '演者' : '店舗'
       )
       drawSimpleRow('キャンセル日時', formatDateTime(cancellation.canceled_at))
-      drawWrappedSection('キャンセル理由', cancellation.cancel_reason)
+      drawWrappedSection('キャンセル理由', cancellation.cancellation_reason)
     }
 
     ensureSpace(170)
@@ -457,7 +457,7 @@ export async function GET(
       invoice.status === 'approved'
         ? await service
             .from('offers')
-            .select('status,canceled_at,canceled_by_role,cancel_reason,cancellation_phase')
+            .select('status,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage')
             .eq('id', invoice.offer_id)
             .maybeSingle()
         : { data: null }
@@ -466,14 +466,14 @@ export async function GET(
       canceledOffer?.status === 'canceled' &&
       canceledOffer.canceled_at &&
       (canceledOffer.canceled_by_role === 'store' || canceledOffer.canceled_by_role === 'talent') &&
-      canceledOffer.cancel_reason &&
-      (canceledOffer.cancellation_phase === 'pre_contract' ||
-        canceledOffer.cancellation_phase === 'post_contract')
+      canceledOffer.cancellation_reason &&
+      (canceledOffer.cancellation_stage === 'pre_contract' ||
+        canceledOffer.cancellation_stage === 'post_contract')
         ? {
             canceled_at: canceledOffer.canceled_at,
             canceled_by_role: canceledOffer.canceled_by_role,
-            cancel_reason: canceledOffer.cancel_reason,
-            cancellation_phase: canceledOffer.cancellation_phase,
+            cancellation_reason: canceledOffer.cancellation_reason,
+            cancellation_stage: canceledOffer.cancellation_stage,
           }
         : null
 
