@@ -56,6 +56,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'cannot_change_own_status' }, { status: 400 })
   }
 
+  const validTransition =
+    (target.status === 'active' && parsed.data.status === 'suspended') ||
+    (target.status === 'suspended' && parsed.data.status === 'active')
+
+  if (!validTransition) {
+    return NextResponse.json({ error: 'invalid_status_transition' }, { status: 400 })
+  }
+
   const { error } = await service
     .from('users')
     .update({
