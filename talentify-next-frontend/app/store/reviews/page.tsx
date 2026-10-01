@@ -43,6 +43,7 @@ export default function StoreReviewsPage() {
   const [selectedOffer, setSelectedOffer] = useState<CompletedOffer | null>(null)
   const [selectedReview, setSelectedReview] = useState<ReviewDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState(false)
 
   const loadReviews = useCallback(async () => {
     setLoading(true)
@@ -91,6 +92,7 @@ export default function StoreReviewsPage() {
   const openDetail = async (offer: CompletedOffer) => {
     setSelectedOffer(offer)
     setSelectedReview(null)
+    setDetailError(false)
     setDetailOpen(true)
     setDetailLoading(true)
 
@@ -103,6 +105,9 @@ export default function StoreReviewsPage() {
 
     if (error) {
       console.error('failed to fetch review detail', error)
+      setDetailError(true)
+      setDetailLoading(false)
+      return
     }
 
     setSelectedReview(data as ReviewDetail | null)
@@ -258,6 +263,31 @@ export default function StoreReviewsPage() {
           </ModalHeader>
           {detailLoading ? (
             <p className="text-sm text-gray-500">読み込み中...</p>
+          ) : detailError ? (
+            <div
+              role="alert"
+              className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-center"
+            >
+              <AlertCircle className="mx-auto h-5 w-5 text-red-600" aria-hidden="true" />
+              <p className="mt-2 text-sm font-semibold text-red-900">
+                レビュー詳細を読み込めませんでした
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-red-700">
+                通信状況を確認して、もう一度お試しください。
+              </p>
+              {selectedOffer && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 min-h-9"
+                  onClick={() => void openDetail(selectedOffer)}
+                >
+                  <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                  再読み込み
+                </Button>
+              )}
+            </div>
           ) : !selectedOffer || !selectedReview ? (
             <p className="text-sm text-gray-500">レビューが見つかりませんでした。</p>
           ) : (
