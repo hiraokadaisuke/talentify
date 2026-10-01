@@ -138,8 +138,8 @@ export default function StoreOffersPage() {
         return new Date(value).getTime()
       }
 
-      const aTime = sortKey === 'created' ? getTime(a.created_at) : sortKey === 'updated' ? getTime(a.created_at) : getTime(a.date)
-      const bTime = sortKey === 'created' ? getTime(b.created_at) : sortKey === 'updated' ? getTime(b.created_at) : getTime(b.date)
+      const aTime = sortKey === 'created' ? getTime(a.created_at) : sortKey === 'updated' ? getTime(a.updated_at) : getTime(a.date)
+      const bTime = sortKey === 'created' ? getTime(b.created_at) : sortKey === 'updated' ? getTime(b.updated_at) : getTime(b.date)
 
       return sortOrder === 'asc' ? aTime - bTime : bTime - aTime
     })
@@ -332,7 +332,7 @@ export default function StoreOffersPage() {
                             </div>
                           )}
                         </TableCell>
-                        <TableCell className="px-4 text-xs text-[#64748b]">{formatDate(o.created_at, 'yyyy/MM/dd HH:mm')}</TableCell>
+                        <TableCell className="px-4 text-xs text-[#64748b]">{formatDate(o.updated_at, 'yyyy/MM/dd HH:mm')}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -362,7 +362,7 @@ export default function StoreOffersPage() {
                       </div>
                     )}
                     <div className="mt-3 flex items-center justify-between text-xs text-[#64748b]">
-                      <span>最終更新: {formatDate(o.created_at, 'yyyy/MM/dd HH:mm')}</span>
+                      <span>最終更新: {formatDate(o.updated_at, 'yyyy/MM/dd HH:mm')}</span>
                     </div>
                   </article>
                 ))}
