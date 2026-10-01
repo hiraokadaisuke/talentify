@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -14,6 +15,23 @@ import { toast } from 'sonner'
 import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
 
 const supabase = createClient()
+
+function DetailRow({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 px-5 py-3.5 text-sm">
+      <dt className="text-slate-500">{label}</dt>
+      <dd className="max-w-[62vw] break-words text-right font-medium text-slate-900 sm:max-w-md">
+        {children}
+      </dd>
+    </div>
+  )
+}
 
 interface Invoice {
   id: string
@@ -189,22 +207,29 @@ export default function TalentInvoiceDetailPage() {
     (invoice.status === 'draft' || invoice.status === 'submitted' || invoice.status === 'rejected')
 
   return (
-    <main className="space-y-4 p-3 sm:p-6">
-      <h1 className="text-xl font-bold">{isEstimate ? '見積詳細' : '取引締結書兼請求書'}</h1>
+    <main className="mx-auto w-full max-w-3xl space-y-4 px-4 pb-28 pt-6 sm:px-6 sm:pb-8">
+      <div>
+        <Link href="/talent/invoices" className="text-sm font-medium text-slate-500 hover:text-slate-900">
+          ← 見積・請求一覧
+        </Link>
+        <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+          {isEstimate ? '見積詳細' : '取引締結書兼請求書'}
+        </h1>
+      </div>
 
       {isRevisionRequest && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <div className="font-semibold">店舗から見積書の修正依頼が届いています</div>
-          <p className="mt-1 leading-relaxed text-amber-800">
-            見積内容を見直し、必要な修正を行ってから「見積書を提出」で再提出してください。
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="font-bold">店舗から見積書の修正依頼が届いています</div>
+          <p className="mt-1 leading-6 text-amber-800">
+            内容を見直して保存し、「見積書を提出」で再提出してください。
           </p>
         </div>
       )}
 
       {invoice.offers?.status === 'canceled' && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <div className="font-semibold">この取引はキャンセル済みです</div>
-          <div className="mt-2 space-y-1">
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="font-bold">この取引はキャンセル済みです</div>
+          <div className="mt-2 space-y-1 leading-6">
             <div>区分: {invoice.offers.cancellation_stage === 'post_contract' ? '契約成立後' : '契約成立前'}</div>
             <div>実行者: {invoice.offers.canceled_by_role === 'talent' ? '演者' : '店舗'}</div>
             {invoice.offers.canceled_at && (
@@ -212,118 +237,120 @@ export default function TalentInvoiceDetailPage() {
             )}
             <div className="whitespace-pre-wrap">理由: {invoice.offers.cancellation_reason || '-'}</div>
           </div>
-          {!isEstimate && (
-            <p className="mt-2 text-xs text-amber-800">
-              締結書兼請求書は契約成立時点の履歴として保持されています。
-            </p>
-          )}
         </div>
       )}
 
       {isNoShow && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-          <div className="font-semibold">この取引は来店なしとして記録されています</div>
-          <div className="mt-2 space-y-1">
-            <div>記録者: 店舗</div>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+          <div className="font-bold">この取引は来店なしとして記録されています</div>
+          <div className="mt-2 space-y-1 leading-6">
             {invoice.offers?.no_show_at && (
               <div>記録日時: {formatJaDateTimeWithWeekday(invoice.offers.no_show_at)}</div>
             )}
             <div className="whitespace-pre-wrap">理由: {invoice.offers?.no_show_reason || '-'}</div>
           </div>
-          <p className="mt-2 text-xs text-red-800">
-            支払い・レビューには進みません。締結書兼請求書は契約成立時点の履歴として保持されています。
-          </p>
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{isEstimate ? '見積情報' : '締結・請求情報'}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-
-          {/* 請求書番号は編集不可（自動採番・表示のみ） */}
-          <div>{isEstimate ? '管理番号' : '締結書兼請求書番号'}: {invoice.invoice_number}</div>
-
-          <div className="flex items-center gap-2">
-            <span className="shrink-0">支払期限:</span>
-            {invoice.status === 'draft' && !isClosed ? (
-              <Input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-48"
-              />
-            ) : invoice.due_date ? (
-              <span>{formatJaDateTimeWithWeekday(invoice.due_date)}</span>
-            ) : (
-              <span>-</span>
-            )}
-          </div>
-
-          <div>
-            {isEstimate ? '見積ステータス' : '取引ステータス'}:{' '}
-            <Badge variant="outline">{getInvoiceStatusLabel(invoice.status)}</Badge>
-          </div>
-          <div>
-            支払い状態:{' '}
-            <Badge variant={invoice.payment_status === 'paid' ? 'success' : 'secondary'}>
-              {getPaymentStatusLabel(invoice.payment_status)}
+      <Card className="overflow-hidden border-slate-200 shadow-sm">
+        <CardHeader className="space-y-4 border-b border-slate-100 bg-slate-50/80 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <CardTitle className="text-lg">{isEstimate ? '見積情報' : '締結・請求情報'}</CardTitle>
+            <Badge variant="outline" className="bg-white">
+              {getInvoiceStatusLabel(invoice.status)}
             </Badge>
           </div>
+          <div>
+            <p className="text-xs font-semibold tracking-wide text-slate-500">合計金額</p>
+            <p className="mt-1 text-3xl font-black tracking-tight text-slate-950">
+              ¥{invoice.amount.toLocaleString('ja-JP')}
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <dl className="divide-y divide-slate-100">
+            <DetailRow label="作成日">
+              {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}
+            </DetailRow>
+            <DetailRow label={isEstimate ? '管理番号' : '締結書兼請求書番号'}>
+              {invoice.invoice_number}
+            </DetailRow>
+            <DetailRow label="支払期限">
+              {invoice.status === 'draft' && !isClosed ? (
+                <Input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="h-9 w-[10.5rem] text-right"
+                />
+              ) : invoice.due_date ? (
+                formatJaDateTimeWithWeekday(invoice.due_date)
+              ) : (
+                '-'
+              )}
+            </DetailRow>
+            <DetailRow label="支払い状態">
+              <Badge variant={invoice.payment_status === 'paid' ? 'success' : 'secondary'}>
+                {getPaymentStatusLabel(invoice.payment_status)}
+              </Badge>
+            </DetailRow>
+          </dl>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>金額内訳</CardTitle>
+      <Card className="overflow-hidden border-slate-200 shadow-sm">
+        <CardHeader className="border-b border-slate-100 p-5">
+          <CardTitle className="text-lg">金額内訳</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div>基本報酬: ¥{baseFee.toLocaleString('ja-JP')}</div>
-          <div>交通費: ¥{(invoice.transport_fee ?? 0).toLocaleString('ja-JP')}</div>
-          <div>追加料金: ¥{(invoice.extra_fee ?? 0).toLocaleString('ja-JP')}</div>
-
-          <div className="space-y-1">
-            <div>メモ:</div>
+        <CardContent className="p-0">
+          <dl className="divide-y divide-slate-100">
+            <DetailRow label="基本報酬">¥{baseFee.toLocaleString('ja-JP')}</DetailRow>
+            <DetailRow label="交通費">¥{(invoice.transport_fee ?? 0).toLocaleString('ja-JP')}</DetailRow>
+            <DetailRow label="追加料金">¥{(invoice.extra_fee ?? 0).toLocaleString('ja-JP')}</DetailRow>
+          </dl>
+          <div className="border-t border-slate-100 px-5 py-4">
+            <p className="mb-2 text-sm text-slate-500">メモ</p>
             {invoice.status === 'draft' && !isClosed ? (
-              <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="min-h-28"
+                placeholder="必要な補足があれば入力"
+              />
             ) : (
-              <div>{invoice.notes || 'なし'}</div>
+              <p className="whitespace-pre-wrap text-sm font-medium text-slate-900">
+                {invoice.notes || 'なし'}
+              </p>
             )}
           </div>
         </CardContent>
       </Card>
 
-      {invoice.status === 'draft' && !isClosed && (
-        <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={saving}>
-            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            保存
+      <div className="grid gap-2 sm:grid-cols-2">
+        {invoice.invoice_url && (
+          <Button asChild variant="outline" className="min-h-11 w-full">
+            <a href={`/api/invoices/${id}/attachment`} target="_blank" rel="noreferrer">
+              アップロード済みPDFを開く
+            </a>
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting}>
+        )}
+        <Button onClick={handleDownload} disabled={downloading} variant="outline" className="min-h-11 w-full">
+          {downloading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
+        </Button>
+      </div>
+
+      {invoice.status === 'draft' && !isClosed && (
+        <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:rounded-2xl sm:border sm:p-4 sm:shadow-sm">
+          <Button onClick={handleSave} disabled={saving} variant="outline" className="min-h-12">
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            下書き保存
+          </Button>
+          <Button onClick={handleSubmit} disabled={submitting} className="min-h-12 bg-blue-600 text-white hover:bg-blue-700">
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             見積書を提出
           </Button>
         </div>
       )}
-
-      {invoice.invoice_url && (
-        <Button asChild variant='outline'>
-          <a
-            href={`/api/invoices/${id}/attachment`}
-            target='_blank'
-            rel='noreferrer'
-          >
-            アップロード済みPDFを開く
-          </a>
-        </Button>
-      )}
-
-      <Button onClick={handleDownload} disabled={downloading} variant='outline'>
-        {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-        {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
-      </Button>
     </main>
-  )
-}
+  )}
