@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getInvoicesForStore, type Invoice } from '@/utils/getInvoicesForStore'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TableSkeleton } from '@/components/ui/skeleton'
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
 import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
+import { AlertCircle, RotateCcw } from 'lucide-react'
 
 function renderStatus(inv: Invoice) {
   return <Badge variant='secondary'>{getInvoiceStatusLabel(inv.status)}</Badge>
@@ -26,13 +27,26 @@ function renderPaymentStatus(inv: Invoice) {
 export default function StoreInvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+
+  const loadInvoices = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+
+    try {
+      const data = await getInvoicesForStore()
+      setInvoices(data)
+    } catch (error) {
+      console.error('failed to load store invoices', error)
+      setLoadError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    getInvoicesForStore().then(data => {
-      setInvoices(data)
-      setLoading(false)
-    })
-  }, [])
+    void loadInvoices()
+  }, [loadInvoices])
 
   return (
     <main className='min-h-screen bg-gray-100 px-3 py-5 sm:px-4 sm:py-8'>
@@ -41,8 +55,32 @@ export default function StoreInvoicesPage() {
         <section className='rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6'>
           {loading ? (
             <TableSkeleton rows={3} />
+          ) : loadError ? (
+            <div
+              role='alert'
+              className='rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center'
+            >
+              <AlertCircle className='mx-auto h-6 w-6 text-red-600' aria-hidden='true' />
+              <h2 className='mt-2 text-sm font-semibold text-red-900'>
+                請求情報を読み込めませんでした
+              </h2>
+              <p className='mt-1 text-xs leading-relaxed text-red-700'>
+                通信状況を確認して、もう一度お試しください。
+              </p>
+              <button
+                type='button'
+                onClick={() => void loadInvoices()}
+                className='mt-4 inline-flex min-h-10 items-center gap-2 rounded-md border border-red-200 bg-white px-4 text-sm font-semibold text-red-800 transition hover:bg-red-100'
+              >
+                <RotateCcw className='h-4 w-4' aria-hidden='true' />
+                再読み込み
+              </button>
+            </div>
           ) : invoices.length === 0 ? (
-            <EmptyState title='まだ請求がありません' />
+            <EmptyState
+              title='まだ請求がありません'
+              description='見積が提出・承認されると、ここで請求情報を確認できます。'
+            />
           ) : (
             <>
               <div className='space-y-3 md:hidden'>
