@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { PRIVACY_VERSION, TERMS_VERSION } from '@/lib/legal/version'
 
 export default function RegisterForm() {
   const router = useRouter()
@@ -167,6 +168,10 @@ export default function RegisterForm() {
           phone: normalizedPhone,
           password,
           role,
+          acceptTerms: agreed,
+          acceptPrivacy: agreed,
+          termsVersion: TERMS_VERSION,
+          privacyVersion: PRIVACY_VERSION,
         }),
       })
 
