@@ -62,6 +62,13 @@ export async function PUT(
       )
     }
 
+    if (requestedStatus === 'no_show') {
+      return NextResponse.json<{ error: string }>(
+        { error: '来店なしは理由入力と予定時刻確認が必要です。専用の操作を使用してください' },
+        { status: 400 }
+      )
+    }
+
     const extraFields = Object.keys(body).filter(field => field !== 'status')
     if (extraFields.length > 0) {
       return NextResponse.json<{ error: string }>({ error: 'このAPIではステータスのみ更新できます' }, { status: 400 })
