@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -66,6 +66,7 @@ export default function TalentInvoiceDetailPage() {
   const params = useParams()
   const id = params?.id as string
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   const [invoice, setInvoice] = useState<Invoice | null>(null)
   const [loading, setLoading] = useState(true)
@@ -117,6 +118,10 @@ export default function TalentInvoiceDetailPage() {
   const isCanceled = invoice.offers?.status === 'canceled'
   const isNoShow = invoice.offers?.status === 'no_show'
   const isClosed = isCanceled || isNoShow
+  const isRevisionRequest =
+    searchParams.get('revision') === '1' &&
+    invoice.status === 'draft' &&
+    !isClosed
 
   const updatePayload = {
     due_date: dueDate || null,
@@ -186,6 +191,15 @@ export default function TalentInvoiceDetailPage() {
   return (
     <main className="space-y-4 p-3 sm:p-6">
       <h1 className="text-xl font-bold">{isEstimate ? '見積詳細' : '取引締結書兼請求書'}</h1>
+
+      {isRevisionRequest && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          <div className="font-semibold">店舗から見積書の修正依頼が届いています</div>
+          <p className="mt-1 leading-relaxed text-amber-800">
+            見積内容を見直し、必要な修正を行ってから「見積書を提出」で再提出してください。
+          </p>
+        </div>
+      )}
 
       {invoice.offers?.status === 'canceled' && (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
