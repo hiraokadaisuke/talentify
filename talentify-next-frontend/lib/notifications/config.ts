@@ -59,6 +59,7 @@ export type NotificationEvent =
       actorName?: string | null
       actorId?: string | null
       offerId: string
+      invoiceId?: string | null
     }
 
 type NotificationCategory = 'announcement' | 'notification'
@@ -265,12 +266,15 @@ export const notificationConfig: {
     build: ({ roleRootPath, event }) => ({
       title: '見積書が承認され、取引が締結されました',
       body: '取引締結書兼請求書が発行されました。内容をご確認ください。',
-      actionUrl: `${roleRootPath}/offers/${event.offerId}`,
-      actionLabel: '締結内容を見る',
-      entityType: 'offer',
-      entityId: event.offerId,
+      actionUrl: event.invoiceId
+        ? `${roleRootPath}/invoices/${event.invoiceId}`
+        : `${roleRootPath}/offers/${event.offerId}`,
+      actionLabel: '締結書兼請求書を見る',
+      entityType: event.invoiceId ? 'invoice' : 'offer',
+      entityId: event.invoiceId ?? event.offerId,
       data: {
         offer_id: event.offerId,
+        invoice_id: event.invoiceId ?? null,
       },
     }),
   },
