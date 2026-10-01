@@ -7,7 +7,6 @@ import {
   OFFER_ATTACHMENT_SIGNED_UPLOAD_EXPIRES_IN,
   validateOfferAttachmentMetadata,
 } from '@/lib/messages/attachments'
-import { createServiceClient } from '@/lib/supabase/service'
 
 export const runtime = 'nodejs'
 
@@ -44,34 +43,12 @@ export async function POST(req: NextRequest) {
     }
 
     const path = `${offerId}/${user.id}/${randomUUID()}.${extension}`
-    const service = createServiceClient()
-    const { data, error } = await service.storage
-      .from(OFFER_ATTACHMENT_BUCKET)
-      .createSignedUploadUrl(path)
-
-    if (error || !data) {
-      console.error('[offer attachment signed upload]', error)
-      return NextResponse.json(
-        { error: 'signed_upload_url_failed' },
-        { status: 500 },
-      )
-    }
-
-    const token = data.token
-    if (!token) {
-      console.error('[offer attachment signed upload] token missing')
-      return NextResponse.json(
-        { error: 'signed_upload_url_failed' },
-        { status: 500 },
-      )
-    }
-
     return NextResponse.json(
       {
+        error: 'signed_upload_diagnostic',
         data: {
           bucket: OFFER_ATTACHMENT_BUCKET,
           path,
-          token,
           expiresIn: OFFER_ATTACHMENT_SIGNED_UPLOAD_EXPIRES_IN,
           attachment: {
             path,
@@ -81,7 +58,7 @@ export async function POST(req: NextRequest) {
           },
         },
       },
-      { status: 201 },
+      { status: 501 },
     )
   } catch (error) {
     console.error('[POST /api/messages/attachments/upload-url]', error)
