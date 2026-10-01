@@ -75,7 +75,7 @@ type BuildContext<E extends NotificationEvent> = {
 type NotificationConfig<E extends NotificationEvent = NotificationEvent> = {
   type: NotificationType
   category: NotificationCategory
-  isActionable: boolean
+  isActionable: boolean | ((event: E) => boolean)
   priority: 'low' | 'medium' | 'high'
   dedupeStrategy: (event: E) => string | null
   build: (
@@ -210,7 +210,8 @@ export const notificationConfig: {
   offer_updated: {
     type: 'offer_updated',
     category: 'notification',
-    isActionable: true,
+    isActionable: (event) =>
+      event.change !== 'cancellation' && event.change !== 'no_show',
     priority: 'medium',
     dedupeStrategy: (event) =>
       event.change === 'schedule'
