@@ -1,81 +1,35 @@
 import {
-  mergeTalentAvailability,
-  type AvailabilityDateRow,
-  type AvailabilitySettingRow,
-  type TalentRow,
-} from '@/app/api/talents/search-by-date/route'
+  extractAreaTokens,
+  isDeclaredAvailable,
+  isValidSearchWindow,
+  matchesTalentFilter,
+} from '@/lib/search/calendarAvailability'
 
-describe('mergeTalentAvailability', () => {
-  const baseTalent = (overrides: Partial<TalentRow> = {}): TalentRow => ({
-    id: 'talent-1',
-    stage_name: 'Stage Name',
-    genre: 'Pop',
-    area: 'Tokyo',
-    avatar_url: 'https://example.com/avatar.png',
-    rate: 10000,
-    rating: 4.5,
-    bio: 'Performer bio',
-    media_appearance: 'Recent achievements',
-    ...overrides,
+describe('calendar availability helpers', () => {
+  it('uses date override before the default availability mode', () => {
+    expect(isDeclaredAvailable('default_ok', 'ng')).toBe(false)
+    expect(isDeclaredAvailable('default_ng', 'ok')).toBe(true)
   })
 
-  it('excludes talents when default_ok but the date is overridden to ng', () => {
-    const talents: TalentRow[] = [baseTalent({ id: 'talent-ok-ng' })]
-    const settings: AvailabilitySettingRow[] = [
-      { talent_id: 'talent-ok-ng', default_mode: 'default_ok' },
-    ]
-    const overrides: AvailabilityDateRow[] = [
-      { talent_id: 'talent-ok-ng', status: 'ng' },
-    ]
-
-    const results = mergeTalentAvailability({
-      talents,
-      availabilitySettings: settings,
-      availabilityDates: overrides,
-      confirmedTalentIds: new Set(),
-    })
-
-    expect(results).toHaveLength(0)
+  it('defaults to available when no availability setting exists', () => {
+    expect(isDeclaredAvailable(undefined, undefined)).toBe(true)
   })
 
-  it('includes talents when default_ng but overridden to ok', () => {
-    const talents: TalentRow[] = [baseTalent({ id: 'talent-ng-ok' })]
-    const settings: AvailabilitySettingRow[] = [
-      { talent_id: 'talent-ng-ok', default_mode: 'default_ng' },
-    ]
-    const overrides: AvailabilityDateRow[] = [
-      { talent_id: 'talent-ng-ok', status: 'ok' },
-    ]
-
-    const results = mergeTalentAvailability({
-      talents,
-      availabilitySettings: settings,
-      availabilityDates: overrides,
-      confirmedTalentIds: new Set(),
-    })
-
-    expect(results).toHaveLength(1)
-    expect(results[0]).toMatchObject({
-      id: 'talent-ng-ok',
-      availability_status: 'ok',
-      display_name: 'Stage Name',
-      achievements: 'Recent achievements',
-    })
+  it('requires the end time to be after the start time', () => {
+    expect(isValidSearchWindow('13:00', '15:00')).toBe(true)
+    expect(isValidSearchWindow('15:00', '15:00')).toBe(false)
+    expect(isValidSearchWindow('16:00', '15:00')).toBe(false)
   })
 
-  it('excludes talents that already have a confirmed offer on the date', () => {
-    const talents: TalentRow[] = [baseTalent({ id: 'talent-confirmed' })]
-    const settings: AvailabilitySettingRow[] = [
-      { talent_id: 'talent-confirmed', default_mode: 'default_ok' },
-    ]
+  it('normalizes JSON-like area strings used by existing talent profiles', () => {
+    expect(extractAreaTokens('["石川県","大阪府"]')).toEqual(['石川県', '大阪府'])
+  })
 
-    const results = mergeTalentAvailability({
-      talents,
-      availabilitySettings: settings,
-      availabilityDates: [],
-      confirmedTalentIds: new Set(['talent-confirmed']),
-    })
+  it('matches area and genre without requiring both filters', () => {
+    const talent = { area: '["石川県"]', genre: 'ライター' }
 
-    expect(results).toHaveLength(0)
+    expect(matchesTalentFilter(talent, '石川県', 'ライター')).toBe(true)
+    expect(matchesTalentFilter(talent, '大阪府', 'ライター')).toBe(false)
+    expect(matchesTalentFilter(talent, undefined, 'ライター')).toBe(true)
   })
 })
