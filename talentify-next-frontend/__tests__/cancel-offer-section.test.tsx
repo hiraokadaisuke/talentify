@@ -28,8 +28,8 @@ describe('CancelOfferSection', () => {
         initialStatus="canceled"
         initialCanceledAt="2026-10-01T01:00:00.000Z"
         initialCanceledByRole="store"
-        initialCancelReason="店舗都合により日程の実施が難しくなったため"
-        initialCancellationPhase="post_contract"
+        initialCancellationReason="店舗都合により日程の実施が難しくなったため"
+        initialCancellationStage="post_contract"
         invoiceId="invoice-1"
       />
     )
