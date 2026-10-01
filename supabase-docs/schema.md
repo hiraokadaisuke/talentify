@@ -24,10 +24,6 @@
 ### public スキーマ
 - companies
 - invoices
-- message_read_receipts
-- message_threads
-- messages
-- messages_old
 - notifications
 - offer_messages
 - offer_read_receipts
@@ -42,7 +38,6 @@
 - visits
 
 ### realtime スキーマ
-- messages
 - messages_2025_10_07
 - messages_2025_10_08
 - messages_2025_10_09
