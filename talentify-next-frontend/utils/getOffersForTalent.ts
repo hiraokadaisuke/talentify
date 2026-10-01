@@ -12,6 +12,7 @@ export type TalentOffer = {
   store_id: string
   store_name: string | null
   created_at: string | null
+  updated_at: string | null
   date: string | null
   status: string | null
   paid?: boolean | null
@@ -23,6 +24,7 @@ const offerRowSchema = z.object({
   id: z.string(),
   store_id: z.string(),
   created_at: z.string().nullable(),
+  updated_at: z.string().nullable(),
   date: z.string().nullable(),
   status: z.string().nullable(),
   paid: z.boolean().nullable(),
@@ -45,7 +47,7 @@ export async function getOffersForTalent() {
     .from('offers')
     .select(
       `
-      id, store_id, created_at, date, status, paid, paid_at, reviews(id),
+      id, store_id, created_at, updated_at, date, status, paid, paid_at, reviews(id),
       store:stores!offers_store_id_fkey(id, store_name, is_setup_complete)
     `
     )
@@ -98,6 +100,7 @@ export async function getOffersForTalent() {
       store_id: o.store_id,
       store_name: storeName,
       created_at: o.created_at,
+      updated_at: o.updated_at,
       date: o.date,
       status: o.status,
       paid: o.paid,
