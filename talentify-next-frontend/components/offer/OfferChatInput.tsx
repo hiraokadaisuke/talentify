@@ -19,7 +19,7 @@ import {
   uploadOfferAttachment,
   type UploadedOfferAttachment,
 } from '@/lib/messages/upload-offer-attachment'
-import { FileText, Loader2, Paperclip, X } from 'lucide-react'
+import { FileText, Loader2, MessageSquareText, Paperclip, X } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface OfferChatInputProps {
@@ -92,13 +92,33 @@ function fileFingerprint(file: File) {
   ].join(':')
 }
 
+const QUICK_REPLIES = {
+  store: [
+    'オファーをご確認いただけますでしょうか。よろしくお願いいたします。',
+    '日程について相談させてください。ご都合はいかがでしょうか。',
+    '見積内容を確認しました。ありがとうございます。',
+    '見積内容について一部相談したい点があります。',
+  ],
+  talent: [
+    'オファーありがとうございます。内容を確認いたします。',
+    '日程問題ありません。よろしくお願いいたします。',
+    '見積を提出しました。ご確認をお願いいたします。',
+    '確認のうえ、改めてご連絡いたします。',
+  ],
+  admin: [
+    '運営よりご連絡いたします。内容をご確認ください。',
+  ],
+} as const
+
 export default function OfferChatInput({
   offerId,
+  senderRole,
   receiverUserId,
   onSent,
 }: OfferChatInputProps) {
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
+  const [showQuickReplies, setShowQuickReplies] = useState(false)
   const [attachments, setAttachments] = useState<PendingAttachment[]>([])
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const attachmentSequence = useRef(0)
@@ -291,6 +311,16 @@ export default function OfferChatInput({
     !sending &&
     (!!body.trim() || attachments.length > 0)
 
+  const insertQuickReply = (text: string) => {
+    setBody(current => {
+      const trimmed = current.trim()
+      if (!trimmed) return text
+      const separator = current.endsWith('\n') ? '' : '\n'
+      return `${current}${separator}${text}`.slice(0, 5000)
+    })
+    setShowQuickReplies(false)
+  }
+
   return (
     <div className="space-y-2.5">
       {attachments.length > 0 && (
@@ -346,6 +376,35 @@ export default function OfferChatInput({
               </div>
             )
           })}
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setShowQuickReplies(current => !current)}
+          disabled={sending}
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+        >
+          <MessageSquareText className="size-4" aria-hidden="true" />
+          よく使うメッセージ
+        </button>
+        <span className="text-[11px] text-slate-400">選んでも自動送信されません</span>
+      </div>
+
+      {showQuickReplies && (
+        <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+          {QUICK_REPLIES[senderRole].map(text => (
+            <button
+              key={text}
+              type="button"
+              onClick={() => insertQuickReply(text)}
+              disabled={sending}
+              className="rounded-full border border-slate-200 bg-white px-3 py-2 text-left text-xs leading-5 text-slate-700 transition hover:border-emerald-300 hover:text-emerald-800 disabled:opacity-50"
+            >
+              {text}
+            </button>
+          ))}
         </div>
       )}
 
