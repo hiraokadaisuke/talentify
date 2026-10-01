@@ -5,12 +5,26 @@ import { createServiceClient } from '@/lib/supabase/service'
 
 export const runtime = 'nodejs'
 
+function isSameOrigin(request: NextRequest) {
+  const origin = request.headers.get('origin')
+  if (!origin) return true
+  try {
+    return origin === new URL(request.url).origin
+  } catch {
+    return false
+  }
+}
+
 const schema = z.object({
   inquiryId: z.string().uuid(),
   status: z.enum(['new', 'in_progress', 'resolved', 'spam']),
 })
 
 export async function POST(request: NextRequest) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ error: 'invalid_origin' }, { status: 403 })
+  }
+
   const admin = await getAdminContext()
   if (!admin.user) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
