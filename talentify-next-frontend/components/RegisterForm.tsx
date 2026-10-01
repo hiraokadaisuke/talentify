@@ -36,7 +36,7 @@ export default function RegisterForm() {
       case 'RATE_LIMITED':
         return '確認メールの送信回数が上限に達しました。しばらく時間をおいてから再度お試しください。'
       case 'EMAIL_ALREADY_EXISTS':
-        return 'このメールアドレスは既に登録されています'
+        return 'このメールアドレスは既に登録されています。ログインしてください。'
       case 'INVALID_EMAIL':
         return 'メールアドレスの形式が正しくありません'
       case 'INVALID_INPUT':
