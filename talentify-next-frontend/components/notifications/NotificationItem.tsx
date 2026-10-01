@@ -59,30 +59,43 @@ export default function NotificationItem({ notification, onRead, onNavigate, cla
     <button
       onClick={handleClick}
       className={cn(
-        'relative flex w-full items-start gap-3 rounded-md border p-3 text-left transition hover:bg-accent focus:outline-none',
+        'relative flex w-full items-start gap-3 rounded-xl border p-3.5 text-left transition hover:bg-accent focus:outline-none',
         isUnread ? 'bg-blue-50/70 border-blue-100' : 'bg-white',
         isHigh && 'border-l-4 border-l-amber-500',
         className
       )}
     >
-      <Icon className={cn('h-4 w-4 mt-0.5', isHigh ? 'text-amber-600' : 'text-muted-foreground')} />
-      <div className="flex-1 min-w-0 text-sm">
-        <div className="flex items-center justify-between gap-2">
-          <p className={cn('leading-snug truncate', isUnread && 'font-semibold')}>{notification.title}</p>
-          {isUnread && <span className="h-2.5 w-2.5 rounded-full bg-blue-500" aria-label="未読" />}
+      <div className={cn(
+        'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+        isHigh ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500',
+      )}>
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1 text-sm">
+        <div className="flex items-start justify-between gap-2">
+          <p className={cn('break-words font-medium leading-snug text-slate-900', isUnread && 'font-bold')}>
+            {notification.title}
+          </p>
+          {isUnread && <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" aria-label="未読" />}
         </div>
         {notification.body && (
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{notification.body}</p>
+          <p className="mt-1 line-clamp-3 text-xs leading-5 text-muted-foreground">{notification.body}</p>
         )}
-        <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
-          {notification.actor_name && <span>{notification.actor_name}</span>}
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+          {notification.actor_name && (
+            <span className="max-w-[10rem] truncate">{notification.actor_name}</span>
+          )}
           <span>
             {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: ja })}
           </span>
           {isResurfacedNotification(notification.created_at, notification.updated_at) && (
-            <span className="text-amber-700">再通知</span>
+            <span className="rounded-full bg-amber-50 px-1.5 py-0.5 font-medium text-amber-700">
+              再通知
+            </span>
           )}
-          <span className="ml-auto text-primary">{getActionLabel(notification)}</span>
+          <span className="basis-full font-semibold text-primary sm:ml-auto sm:basis-auto">
+            {getActionLabel(notification)}
+          </span>
         </div>
       </div>
     </button>
