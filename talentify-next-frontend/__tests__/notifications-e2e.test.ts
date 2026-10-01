@@ -179,6 +179,40 @@ describe('notifications quality e2e', () => {
     expect(isActionRequired(offer)).toBe(true)
   })
 
+  it('E2. cancellation and no-show notifications are informational while schedule changes remain actionable', () => {
+    const schedule = buildNotification({
+      type: 'offer_updated',
+      data: {
+        recipient_role: 'talent',
+        offer_id: 'offer-1',
+        change: 'schedule',
+        is_actionable: true,
+      },
+    })
+    const cancellation = buildNotification({
+      type: 'offer_updated',
+      data: {
+        recipient_role: 'talent',
+        offer_id: 'offer-2',
+        change: 'cancellation',
+        is_actionable: false,
+      },
+    })
+    const noShow = buildNotification({
+      type: 'offer_updated',
+      data: {
+        recipient_role: 'talent',
+        offer_id: 'offer-3',
+        change: 'no_show',
+        is_actionable: false,
+      },
+    })
+
+    expect(isActionRequired(schedule)).toBe(true)
+    expect(isActionRequired(cancellation)).toBe(false)
+    expect(isActionRequired(noShow)).toBe(false)
+  })
+
   it('F. client mutation locks prevent duplicate network calls during rapid clicks', async () => {
     jest.resetModules()
 
