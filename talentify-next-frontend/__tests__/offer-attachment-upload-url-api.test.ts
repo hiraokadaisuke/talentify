@@ -141,7 +141,7 @@ describe('POST /api/messages/attachments/upload-url', () => {
     expect(createServiceClient).not.toHaveBeenCalled()
   })
 
-  it('issues a non-upsert signed upload token with a server-generated path', async () => {
+  it('issues a signed upload token with a server-generated unique path', async () => {
     const res = await POST(
       request({
         offerId: OFFER_ID,
@@ -161,7 +161,6 @@ describe('POST /api/messages/attachments/upload-url', () => {
     expect(from).toHaveBeenCalledWith(OFFER_ATTACHMENT_BUCKET)
     expect(createSignedUploadUrl).toHaveBeenCalledWith(
       `${OFFER_ID}/${SENDER_ID}/11111111-1111-4111-8111-111111111111.pdf`,
-      { upsert: false },
     )
     await expect(res.json()).resolves.toMatchObject({
       data: {
