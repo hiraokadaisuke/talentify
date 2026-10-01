@@ -20,6 +20,11 @@ type CancellationRecord = {
   cancellation_stage: 'pre_contract' | 'post_contract'
 }
 
+type NoShowRecord = {
+  no_show_at: string
+  no_show_reason: string
+}
+
 type InvoiceRow = {
   id: string
   amount: number
@@ -68,6 +73,7 @@ function buildInvoicePdf(params: {
   payout: PayoutRow
   performance: PerformanceContractSnapshot | null
   cancellation: CancellationRecord | null
+  noShow: NoShowRecord | null
 }) {
   const {
     invoice,
@@ -78,6 +84,7 @@ function buildInvoicePdf(params: {
     payout,
     performance,
     cancellation,
+    noShow,
   } = params
 
   const pageWidth = 595
@@ -337,6 +344,17 @@ function buildInvoicePdf(params: {
       drawWrappedSection('キャンセル理由', cancellation.cancellation_reason)
     }
 
+    if (noShow) {
+      ensureSpace(150)
+      jp(detailPage, '来店なし記録', 50, y, 13)
+      line(detailPage, 50, y - 10, 545, y - 10)
+      y -= 36
+      drawSimpleRow('記録者', '店舗')
+      drawSimpleRow('記録日時', formatDateTime(noShow.no_show_at))
+      drawWrappedSection('理由', noShow.no_show_reason)
+      drawSimpleRow('取引状態', '支払い・レビュー対象外')
+    }
+
     ensureSpace(170)
     jp(detailPage, '振込先情報', 50, y, 13)
     line(detailPage, 50, y - 10, 545, y - 10)
@@ -457,7 +475,7 @@ export async function GET(
       invoice.status === 'approved'
         ? await service
             .from('offers')
-            .select('status,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage')
+            .select('status,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage,no_show_at,no_show_reason')
             .eq('id', invoice.offer_id)
             .maybeSingle()
         : { data: null }
@@ -474,6 +492,16 @@ export async function GET(
             canceled_by_role: canceledOffer.canceled_by_role,
             cancellation_reason: canceledOffer.cancellation_reason,
             cancellation_stage: canceledOffer.cancellation_stage,
+          }
+        : null
+
+    const noShow: NoShowRecord | null =
+      canceledOffer?.status === 'no_show' &&
+      canceledOffer.no_show_at &&
+      canceledOffer.no_show_reason
+        ? {
+            no_show_at: canceledOffer.no_show_at,
+            no_show_reason: canceledOffer.no_show_reason,
           }
         : null
 
@@ -543,6 +571,7 @@ export async function GET(
       payout,
       performance,
       cancellation,
+      noShow,
     })
 
     return new NextResponse(new Uint8Array(pdfBytes), {

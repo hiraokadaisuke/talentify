@@ -34,6 +34,8 @@ interface Invoice {
     canceled_by_role: string | null
     cancellation_reason: string | null
     cancellation_stage: string | null
+    no_show_at: string | null
+    no_show_reason: string | null
   } | null
   talent_id: string | null
   payout: {
@@ -54,6 +56,8 @@ interface RawInvoice extends Omit<Invoice, 'offers' | 'payout'> {
         canceled_by_role: string | null
         cancellation_reason: string | null
         cancellation_stage: string | null
+        no_show_at: string | null
+        no_show_reason: string | null
       }>
     | null
 }
@@ -81,7 +85,7 @@ export default function StoreInvoiceDetail() {
     const { data } = await supabase
       .from('invoices')
       .select(
-        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid,status,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage)'
+        'id,amount,transport_fee,extra_fee,notes,invoice_number,due_date,invoice_url,status,payment_status,created_at,offer_id,talent_id,offers(paid,status,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage,no_show_at,no_show_reason)'
       )
       .eq('id', id)
       .maybeSingle()
@@ -196,6 +200,8 @@ export default function StoreInvoiceDetail() {
   const isEstimate = invoice.status === 'draft' || invoice.status === 'submitted' || invoice.status === 'rejected'
   const isContracted = invoice.status === 'approved'
   const isCanceled = invoice.offers?.status === 'canceled'
+  const isNoShow = invoice.offers?.status === 'no_show'
+  const isClosed = isCanceled || isNoShow
 
   return (
     <main className='space-y-4 p-3 sm:p-6'>
@@ -216,6 +222,22 @@ export default function StoreInvoiceDetail() {
               締結書兼請求書は契約成立時点の履歴として保持されています。
             </p>
           )}
+        </div>
+      )}
+
+      {isNoShow && (
+        <div className='rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900'>
+          <div className='font-semibold'>この取引は来店なしとして記録されています</div>
+          <div className='mt-2 space-y-1'>
+            <div>記録者: 店舗</div>
+            {invoice.offers?.no_show_at && (
+              <div>記録日時: {formatJaDateTimeWithWeekday(invoice.offers.no_show_at)}</div>
+            )}
+            <div className='whitespace-pre-wrap'>理由: {invoice.offers?.no_show_reason || '-'}</div>
+          </div>
+          <p className='mt-2 text-xs text-red-800'>
+            支払い・レビューには進みません。締結書兼請求書は契約成立時点の履歴として保持されています。
+          </p>
         </div>
       )}
 
@@ -297,7 +319,7 @@ export default function StoreInvoiceDetail() {
         {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
       </Button>
 
-      {invoice.status === 'submitted' && !isCanceled && (
+      {invoice.status === 'submitted' && !isClosed && (
         <div className='flex gap-2'>
           <Button onClick={handleApprove} disabled={updatingStatus}>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
@@ -310,14 +332,14 @@ export default function StoreInvoiceDetail() {
         </div>
       )}
 
-      {!isCanceled && !invoice.offers?.paid && isContracted && invoice.offers?.status === 'completed' && (
+      {!isClosed && !invoice.offers?.paid && isContracted && invoice.offers?.status === 'completed' && (
         <Button onClick={handlePay} disabled={paying}>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする
         </Button>
       )}
 
-      {!isCanceled && !invoice.offers?.paid && isContracted && invoice.offers?.status !== 'completed' && (
+      {!isClosed && !invoice.offers?.paid && isContracted && invoice.offers?.status !== 'completed' && (
         <div className='rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600'>
           来店完了を記録すると、支払い完了の操作ができるようになります。
         </div>
