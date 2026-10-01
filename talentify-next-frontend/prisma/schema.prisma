@@ -304,8 +304,8 @@ model offers {
   is_read_by_talent   Boolean?              @default(false)
   updated_at          DateTime?             @default(now()) @db.Timestamptz(6)
   event_name          String?
-  start_time          DateTime?             @db.Timestamp(6)
-  end_time            DateTime?             @db.Timestamp(6)
+  start_time          DateTime              @db.Timestamp(6)
+  end_time            DateTime              @db.Timestamp(6)
   reward              Int?
   question_allowed    Boolean?              @default(false)
   notes               String?
@@ -320,7 +320,7 @@ model offers {
 
   invoice_submitted   Boolean?              @default(false)
   contract_url        String?
-  time_range          String?
+  time_range          String
   invoice_url         String?
   accepted_at         DateTime?             @db.Timestamptz(6)
   visit_completed_at  DateTime?             @db.Timestamptz(6)
