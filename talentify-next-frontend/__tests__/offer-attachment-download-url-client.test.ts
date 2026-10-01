@@ -143,6 +143,20 @@ describe('getOfferAttachmentDownloadUrl', () => {
     })
   })
 
+  it('returns a stable request error when the API cannot be reached', async () => {
+    fetchMock.mockRejectedValue(new Error('network down'))
+
+    const promise = getOfferAttachmentDownloadUrl({
+      messageId: MESSAGE_ID,
+      path: PATH,
+    })
+
+    await expect(promise).rejects.toMatchObject({
+      name: 'OfferAttachmentDownloadUrlError',
+      code: 'attachment_download_url_request_failed',
+    })
+  })
+
   it('uses a stable error class', () => {
     const error = new OfferAttachmentDownloadUrlError('forbidden', 403)
 
