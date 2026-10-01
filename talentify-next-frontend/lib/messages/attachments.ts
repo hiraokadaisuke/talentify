@@ -22,13 +22,16 @@ export const OFFER_ATTACHMENT_MIME_TO_EXTENSION = {
 
 export type OfferAttachmentMimeType = keyof typeof OFFER_ATTACHMENT_MIME_TO_EXTENSION
 
-export type ValidOfferAttachmentMetadata = {
-  offerId: string
-  receiverUserId: string
+export type ValidOfferAttachmentFileMetadata = {
   fileName: string
   contentType: OfferAttachmentMimeType
   size: number
   extension: string
+}
+
+export type ValidOfferAttachmentMetadata = ValidOfferAttachmentFileMetadata & {
+  offerId: string
+  receiverUserId: string
 }
 
 export type OfferAttachmentValidationError =
@@ -41,27 +44,20 @@ function isUuid(value: string) {
   return UUID_PATTERN.test(value)
 }
 
-export function validateOfferAttachmentMetadata(
+export function validateOfferAttachmentFileMetadata(
   payload: unknown,
 ):
-  | { ok: true; data: ValidOfferAttachmentMetadata }
+  | { ok: true; data: ValidOfferAttachmentFileMetadata }
   | { ok: false; error: OfferAttachmentValidationError } {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
     return { ok: false, error: 'invalid_payload' }
   }
 
   const input = payload as Record<string, unknown>
-  const offerId = typeof input.offerId === 'string' ? input.offerId.trim() : ''
-  const receiverUserId =
-    typeof input.receiverUserId === 'string' ? input.receiverUserId.trim() : ''
   const fileName = typeof input.fileName === 'string' ? input.fileName.trim() : ''
   const contentType =
     typeof input.contentType === 'string' ? input.contentType.trim().toLowerCase() : ''
   const size = input.size
-
-  if (!isUuid(offerId) || !isUuid(receiverUserId)) {
-    return { ok: false, error: 'invalid_payload' }
-  }
 
   if (
     !fileName ||
@@ -88,12 +84,43 @@ export function validateOfferAttachmentMetadata(
   return {
     ok: true,
     data: {
-      offerId,
-      receiverUserId,
       fileName,
       contentType: typedContentType,
       size,
       extension: OFFER_ATTACHMENT_MIME_TO_EXTENSION[typedContentType],
+    },
+  }
+}
+
+export function validateOfferAttachmentMetadata(
+  payload: unknown,
+):
+  | { ok: true; data: ValidOfferAttachmentMetadata }
+  | { ok: false; error: OfferAttachmentValidationError } {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return { ok: false, error: 'invalid_payload' }
+  }
+
+  const input = payload as Record<string, unknown>
+  const offerId = typeof input.offerId === 'string' ? input.offerId.trim() : ''
+  const receiverUserId =
+    typeof input.receiverUserId === 'string' ? input.receiverUserId.trim() : ''
+
+  if (!isUuid(offerId) || !isUuid(receiverUserId)) {
+    return { ok: false, error: 'invalid_payload' }
+  }
+
+  const fileValidation = validateOfferAttachmentFileMetadata(input)
+  if (fileValidation.ok === false) {
+    return fileValidation
+  }
+
+  return {
+    ok: true,
+    data: {
+      offerId,
+      receiverUserId,
+      ...fileValidation.data,
     },
   }
 }
