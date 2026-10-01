@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import {
   OFFER_ATTACHMENT_BUCKET,
+  validateOfferAttachmentFileMetadata,
   validateOfferAttachmentMetadata,
   type OfferAttachmentMimeType,
 } from '@/lib/messages/attachments'
@@ -89,9 +90,7 @@ function parseSignedUploadData(payload: unknown): SignedUploadData | null {
     return null
   }
 
-  const validation = validateOfferAttachmentMetadata({
-    offerId: '00000000-0000-4000-8000-000000000000',
-    receiverUserId: '00000000-0000-4000-8000-000000000001',
+  const validation = validateOfferAttachmentFileMetadata({
     fileName: attachment.name,
     contentType: attachment.type,
     size: attachment.size,
