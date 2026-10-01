@@ -14,6 +14,7 @@ import ChatMessageBubble from './ChatMessageBubble'
 import OfferChatInput from './OfferChatInput'
 import { format } from 'date-fns'
 import { AlertCircle, MessageCircle, RotateCcw } from 'lucide-react'
+import { MESSAGES_CHANGED_EVENT } from '@/utils/messages'
 
 interface OfferChatThreadProps {
   offerId: string
@@ -72,6 +73,7 @@ export default function OfferChatThread({
       }
 
       setUnreadCount(0)
+      window.dispatchEvent(new Event(MESSAGES_CHANGED_EVENT))
 
       try {
         await upsertReadReceipt(supabase, offerId)
