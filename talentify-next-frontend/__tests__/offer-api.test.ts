@@ -22,7 +22,7 @@ describe('validateOfferPayload', () => {
       store_id: 's',
       talent_id: 't',
       date: '2099-01-01',
-      time_range: '10:00~',
+      time_range: '10:00〜12:00',
       agreed: false,
       message: 'm',
     })
@@ -34,7 +34,7 @@ describe('validateOfferPayload', () => {
       store_id: 's',
       talent_id: 't',
       date: '2099-01-01',
-      time_range: '10:00~',
+      time_range: '10:00〜12:00',
       agreed: true,
       message: 'm',
     })
