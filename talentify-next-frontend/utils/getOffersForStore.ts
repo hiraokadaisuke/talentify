@@ -13,6 +13,7 @@ export type Offer = {
   talent_id: string
   talent_name: string | null
   created_at: string | null
+  updated_at: string | null
   date: string | null
   status: string | null
   paid?: boolean | null
@@ -27,6 +28,7 @@ type RawOffer = {
   store_id: string
   talent_id: string
   created_at: string | null
+  updated_at: string | null
   date: string | null
   status: string | null
   paid: boolean | null
@@ -54,7 +56,7 @@ export async function getOffersForStore() {
   const { data, error } = await supabase
     .from('offers')
     .select(
-      'id,user_id,store_id,talent_id,date,created_at,status,paid,paid_at,talents(stage_name),reviews(id)'
+      'id,user_id,store_id,talent_id,date,created_at,updated_at,status,paid,paid_at,talents(stage_name),reviews(id)'
     )
     .eq('store_id', store.id)
     .order('created_at', { ascending: false })
@@ -100,6 +102,7 @@ export async function getOffersForStore() {
       talent_id: o.talent_id,
       talent_name: o.talents?.stage_name ?? null,
       created_at: o.created_at,
+      updated_at: o.updated_at,
       date: o.date,
       status: o.status,
       paid: o.paid,
