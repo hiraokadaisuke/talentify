@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
@@ -23,6 +23,7 @@ import OfferModal from '@/components/modals/OfferModal'
 import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { AlertCircle, RotateCcw } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
@@ -96,17 +97,29 @@ export default function StoreSchedulePage() {
   }, [q])
 
   const [events, setEvents] = useState<StoreScheduleEvent[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [profileMissing, setProfileMissing] = useState(false)
   const [date, setDate] = useState(new Date())
   const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
   const [selected, setSelected] = useState<StoreScheduleEvent | null>(null)
 
-  useEffect(() => {
-    const loadOffers = async () => {
+  const loadOffers = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+    setProfileMissing(false)
+
+    try {
       const {
         data: { user },
+        error: authError,
       } = await supabase.auth.getUser()
-      if (!user) return
+
+      if (authError || !user) {
+        console.error('Failed to retrieve authenticated user', authError)
+        throw authError ?? new Error('Authenticated user not found')
+      }
 
       const statusesQuery = ['confirmed', 'canceled', 'no_show']
       if (includeCompleted) statusesQuery.push('completed')
@@ -114,12 +127,22 @@ export default function StoreSchedulePage() {
         .map(status => toDbOfferStatus(status))
         .filter((status): status is OfferStatusDb => Boolean(status))
 
-      const { data: store } = await supabase
+      const { data: store, error: storeError } = await supabase
         .from('stores')
         .select('id')
         .eq('user_id', user.id)
-        .single()
-      if (!store) return
+        .maybeSingle()
+
+      if (storeError) {
+        console.error('Failed to fetch store for schedule', storeError)
+        throw storeError
+      }
+
+      if (!store) {
+        setEvents([])
+        setProfileMissing(true)
+        return
+      }
 
       const { data, error } = await supabase
         .from('offers')
@@ -131,7 +154,7 @@ export default function StoreSchedulePage() {
 
       if (error) {
         console.error('Failed to fetch offers', error)
-        return
+        throw error
       }
 
       const mapped = (data || []).map((o: any) => {
@@ -155,10 +178,18 @@ export default function StoreSchedulePage() {
       }) as StoreScheduleEvent[]
 
       setEvents(mapped)
+    } catch (error) {
+      console.error('Failed to load store schedule', error)
+      setEvents([])
+      setLoadError(true)
+    } finally {
+      setLoading(false)
     }
+  }, [includeCompleted, supabase])
 
-    loadOffers()
-  }, [supabase, includeCompleted])
+  useEffect(() => {
+    void loadOffers()
+  }, [loadOffers])
 
   useEffect(() => {
     const params = new URLSearchParams()
@@ -223,6 +254,61 @@ export default function StoreSchedulePage() {
     if (isToday) className = 'bg-blue-50'
     else if (dow === 0 || dow === 6) className = 'bg-gray-50'
     return { className, title: title || undefined }
+  }
+
+  if (loading) {
+    return (
+      <main className="min-w-0 p-3 sm:p-4">
+        <h1 className="mb-4 text-2xl font-bold">スケジュール</h1>
+        <p className="text-sm text-muted-foreground">スケジュールを読み込んでいます…</p>
+      </main>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <main className="min-w-0 p-3 sm:p-4">
+        <h1 className="mb-4 text-2xl font-bold">スケジュール</h1>
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center"
+        >
+          <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
+          <h2 className="mt-2 text-sm font-semibold text-red-900">
+            スケジュールを読み込めませんでした
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-red-700">
+            案件予定を正しく表示できていません。通信状況を確認して、もう一度お試しください。
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 min-h-10"
+            onClick={() => void loadOffers()}
+          >
+            <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden="true" />
+            再読み込み
+          </Button>
+        </div>
+      </main>
+    )
+  }
+
+  if (profileMissing) {
+    return (
+      <main className="min-w-0 p-3 sm:p-4">
+        <h1 className="mb-4 text-2xl font-bold">スケジュール</h1>
+        <div className="rounded-xl border bg-white px-4 py-6 text-center shadow-sm">
+          <h2 className="text-sm font-semibold">店舗プロフィールの登録が必要です</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            スケジュールを確認する前に、店舗プロフィールを登録してください。
+          </p>
+          <Button asChild className="mt-4 min-h-10">
+            <Link href="/store/edit">店舗プロフィールを登録</Link>
+          </Button>
+        </div>
+      </main>
+    )
   }
 
   const EventComponent = ({ event }: { event: CalendarEvent }) => {
