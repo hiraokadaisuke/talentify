@@ -316,7 +316,7 @@ export default function AdminConsole() {
                               >
                                 利用再開
                               </Button>
-                            ) : (
+                            ) : user.status === 'active' ? (
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -325,6 +325,8 @@ export default function AdminConsole() {
                               >
                                 利用停止
                               </Button>
+                            ) : (
+                              <span className="text-xs text-slate-400">状態変更不可</span>
                             )}
                           </td>
                         </tr>
