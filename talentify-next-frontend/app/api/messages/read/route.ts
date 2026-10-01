@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
 import { createServiceClient } from '@/lib/supabase/service'
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 export async function POST(req: NextRequest) {
   try {
     const { user, error: userError } = await getCurrentUser()
@@ -15,6 +18,12 @@ export async function POST(req: NextRequest) {
 
     if (!offerId && !withUser) {
       return NextResponse.json({ error: 'offerId or withUser is required' }, { status: 400 })
+    }
+    if (
+      (offerId && !UUID_PATTERN.test(offerId)) ||
+      (withUser && !UUID_PATTERN.test(withUser))
+    ) {
+      return NextResponse.json({ error: 'invalid_target' }, { status: 400 })
     }
 
     const service = createServiceClient()
