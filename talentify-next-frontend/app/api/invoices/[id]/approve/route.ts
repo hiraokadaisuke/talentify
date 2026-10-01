@@ -247,6 +247,7 @@ export async function POST(
             event: {
               kind: 'offer_accepted',
               offerId: result.offerId,
+              invoiceId: result.invoice.id,
               actorName: '店舗',
               actorId: user.id,
             },
