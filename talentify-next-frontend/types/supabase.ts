@@ -398,7 +398,7 @@ export type Database = {
           contract_url: string | null
           created_at: string | null
           date: string
-          end_time: string | null
+          end_time: string
           event_name: string | null
           id: string
           invoice_amount: number | null
@@ -413,11 +413,11 @@ export type Database = {
           question_allowed: boolean | null
           respond_deadline: string | null
           reward: number | null
-          start_time: string | null
+          start_time: string
           status: Database["public"]["Enums"]["status_type"] | null
           store_id: string | null
           talent_id: string | null
-          time_range: string | null
+          time_range: string
           updated_at: string | null
           user_id: string | null
         }
@@ -429,7 +429,7 @@ export type Database = {
           contract_url?: string | null
           created_at?: string | null
           date: string
-          end_time?: string | null
+          end_time: string
           event_name?: string | null
           id?: string
           invoice_amount?: number | null
@@ -444,11 +444,11 @@ export type Database = {
           question_allowed?: boolean | null
           respond_deadline?: string | null
           reward?: number | null
-          start_time?: string | null
+          start_time: string
           status?: Database["public"]["Enums"]["status_type"] | null
           store_id?: string | null
           talent_id?: string | null
-          time_range?: string | null
+          time_range: string
           updated_at?: string | null
           user_id?: string | null
         }
@@ -460,7 +460,7 @@ export type Database = {
           contract_url?: string | null
           created_at?: string | null
           date?: string
-          end_time?: string | null
+          end_time?: string
           event_name?: string | null
           id?: string
           invoice_amount?: number | null
@@ -475,11 +475,11 @@ export type Database = {
           question_allowed?: boolean | null
           respond_deadline?: string | null
           reward?: number | null
-          start_time?: string | null
+          start_time?: string
           status?: Database["public"]["Enums"]["status_type"] | null
           store_id?: string | null
           talent_id?: string | null
-          time_range?: string | null
+          time_range?: string
           updated_at?: string | null
           user_id?: string | null
         }
