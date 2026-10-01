@@ -13,6 +13,7 @@ import CancelOfferSection from './CancelOfferSection'
 import ReviewModal from '@/components/modals/ReviewModal'
 import { resolveMainActionPhase } from '@/lib/offers/mainActionPhase'
 import { toast } from 'sonner'
+import OfferNoShowSection from '@/components/offers/OfferNoShowSection'
 
 type StepDetailCardProps = {
   activeStep: OfferStepKey
@@ -25,6 +26,7 @@ type StepDetailCardProps = {
     updatedAt: string
     respondDeadline: string | null
     date: string | null
+    endTime: string | null
     paid: boolean
     paidAt: string | null
     invoiceStatus: 'not_submitted' | 'submitted' | 'paid'
@@ -49,6 +51,10 @@ type StepDetailCardProps = {
     initialCancellationReason: string | null
     initialCancellationStage: string | null
   }
+  noShow?: {
+    initialNoShowAt: string | null
+    initialNoShowReason: string | null
+  }
 }
 
 type StepDetail = {
@@ -71,6 +77,8 @@ const statusBadge = (status: string) => {
       return <Badge variant="secondary">辞退済み</Badge>
     case 'canceled':
       return <Badge variant="destructive">キャンセル済み</Badge>
+    case 'no_show':
+      return <Badge variant="destructive">来店なし</Badge>
     default:
       return <Badge variant="outline">相談中</Badge>
   }
@@ -85,12 +93,14 @@ const getStatusText = (status: string) => {
       return '辞退済み'
     case 'canceled':
       return 'キャンセル済み'
+    case 'no_show':
+      return '来店なし'
     default:
       return '相談中'
   }
 }
 
-export default function StepDetailCard({ activeStep, activeStatus, offer, invoice, paymentLink, cancelation }: StepDetailCardProps) {
+export default function StepDetailCard({ activeStep, activeStatus, offer, invoice, paymentLink, cancelation, noShow }: StepDetailCardProps) {
   const router = useRouter()
   const [visitCompleting, setVisitCompleting] = useState(false)
 
@@ -248,23 +258,28 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
     }
 
     if (activeStep === 'visit') {
-      result = {
-        title: '来店実施',
-        description: '来店日時と当日の連絡事項を確認し、来店後に完了を記録してください。',
-        badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
-        meta: [
-          { label: '来店日時', value: formattedVisitDate },
-        ],
-        primaryAction: offer.status === 'confirmed' ? (
-          <Button
-            className={primaryActionClass}
-            onClick={() => void handleVisitComplete()}
-            disabled={visitCompleting}
-          >
-            {visitCompleting ? '記録中...' : '来店完了にする'}
-          </Button>
-        ) : undefined,
-      }
+      result = offer.status === 'no_show'
+        ? {
+            title: '来店なし',
+            description: '予定終了後、店舗から来店なしとして記録されています。支払い・レビューには進みません。',
+            badge: <Badge variant="destructive">来店なし</Badge>,
+            meta: [{ label: '来店日時', value: formattedVisitDate }],
+          }
+        : {
+            title: '来店実施',
+            description: '来店日時と当日の連絡事項を確認し、来店後に完了を記録してください。',
+            badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
+            meta: [{ label: '来店日時', value: formattedVisitDate }],
+            primaryAction: offer.status === 'confirmed' ? (
+              <Button
+                className={primaryActionClass}
+                onClick={() => void handleVisitComplete()}
+                disabled={visitCompleting}
+              >
+                {visitCompleting ? '記録中...' : '来店完了にする'}
+              </Button>
+            ) : undefined,
+          }
     }
 
     return cancelation
@@ -305,6 +320,19 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
           {detail.primaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.primaryAction}</div>}
         </div>
         {detail.footer && <div className="space-y-4 border-t border-dashed border-slate-200 pt-4">{detail.footer}</div>}
+        {activeStep === 'visit' && noShow && (
+          <div className="border-t border-dashed border-slate-200 pt-4">
+            <OfferNoShowSection
+              role="store"
+              offerId={offer.id}
+              status={offer.status}
+              scheduledEndAt={offer.endTime}
+              noShowAt={noShow.initialNoShowAt}
+              noShowReason={noShow.initialNoShowReason}
+              invoiceId={invoice?.id ?? null}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   )

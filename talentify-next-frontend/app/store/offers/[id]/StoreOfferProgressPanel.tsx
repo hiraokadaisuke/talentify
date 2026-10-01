@@ -29,6 +29,7 @@ interface StoreOfferProgressPanelProps {
     talentId: string | null
     reviewCompleted: boolean
     timeRange: string | null
+    endTime: string | null
     originalMessage: string | null
   }
   invoice?: {
@@ -46,6 +47,10 @@ interface StoreOfferProgressPanelProps {
     initialCancellationReason: string | null
     initialCancellationStage: string | null
   }
+  noShow: {
+    initialNoShowAt: string | null
+    initialNoShowReason: string | null
+  }
 }
 
 export default function StoreOfferProgressPanel({
@@ -55,6 +60,7 @@ export default function StoreOfferProgressPanel({
   invoice,
   paymentLink,
   cancelation,
+  noShow,
 }: StoreOfferProgressPanelProps) {
   const [activeStep, setActiveStep] = useState<OfferStepKey>(initialActiveStep)
 
@@ -152,6 +158,7 @@ export default function StoreOfferProgressPanel({
         invoice={invoice}
         paymentLink={paymentLink}
         cancelation={cancelation}
+        noShow={noShow}
       />
     </div>
   )

@@ -28,7 +28,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
       .from('offers')
       .select(
         `
-        id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage,accepted_at,paid,paid_at,
+        id,status,date,start_time,end_time,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage,no_show_at,no_show_reason,no_show_reported_by_user_id,accepted_at,paid,paid_at,
         reviews(id), talents(stage_name,avatar_url,user_id,preferred_contact_method,phone_contact_allowed,phone_available_hours),
         store:stores!offers_store_id_fkey(id, store_name, user_id)
       `
@@ -90,6 +90,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
     paymentStatusLabel,
     reward: data.reward as number | null,
     timeRange: data.time_range as string | null,
+    endTime: data.end_time as string | null,
     talentId: data.talent_id as string | null,
     reviewCompleted,
     talentUserId: data.talents?.user_id as string | null,
@@ -177,6 +178,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
               storeName: offer.storeName,
               reward: offer.reward,
               timeRange: offer.timeRange,
+              endTime: offer.endTime,
               originalMessage: offer.message,
               talentId: offer.talentId,
               reviewCompleted: offer.reviewCompleted,
@@ -189,6 +191,10 @@ export default async function StoreOfferPage({ params }: PageProps) {
               initialCanceledByRole: data.canceled_by_role as string | null,
               initialCancellationReason: data.cancellation_reason as string | null,
               initialCancellationStage: data.cancellation_stage as string | null,
+            }}
+            noShow={{
+              initialNoShowAt: data.no_show_at as string | null,
+              initialNoShowReason: data.no_show_reason as string | null,
             }}
           />
         </div>
@@ -244,6 +250,8 @@ function getStatusLabel(status: string) {
       return '辞退済み'
     case 'canceled':
       return 'キャンセル'
+    case 'no_show':
+      return '来店なし'
     case 'draft':
       return '下書き'
     default:
@@ -261,7 +269,8 @@ function getStatusBadgeClassName(status: string) {
       return 'bg-slate-200 text-slate-700'
     case 'rejected':
     case 'canceled':
-      return 'bg-slate-300 text-slate-700'
+    case 'no_show':
+      return 'bg-red-100 text-red-800'
     default:
       return 'bg-orange-400 text-white'
   }
