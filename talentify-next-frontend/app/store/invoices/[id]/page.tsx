@@ -46,7 +46,16 @@ interface Invoice {
 }
 
 interface RawInvoice extends Omit<Invoice, 'offers' | 'payout'> {
-  offers: { paid: boolean | null; status: string | null }[] | null
+  offers:
+    | Array<{
+        paid: boolean | null
+        status: string | null
+        canceled_at: string | null
+        canceled_by_role: string | null
+        cancel_reason: string | null
+        cancellation_phase: string | null
+      }>
+    | null
 }
 
 function statusLabel(inv: Invoice): string {
