@@ -1,11 +1,46 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createMiddlewareClient } from '@/lib/supabase/server'
-import { getUserRoleInfo, type UserRole } from '@/lib/getUserRole'
+import { getUserRoleInfo, type AppUserStatus, type UserRole } from '@/lib/getUserRole'
 
 function homeForRole(role: UserRole | null) {
   if (role === 'store') return '/store/dashboard'
   if (role === 'talent') return '/talent/dashboard'
   return '/account/role'
+}
+
+function isUserRole(value: unknown): value is UserRole {
+  return value === 'store' || value === 'talent'
+}
+
+function isAppUserStatus(value: unknown): value is AppUserStatus {
+  return (
+    value === 'pending_email_verification' ||
+    value === 'onboarding' ||
+    value === 'active' ||
+    value === 'suspended'
+  )
+}
+
+async function getAccessState(
+  supabase: ReturnType<typeof createMiddlewareClient>,
+  userId: string,
+): Promise<{ role: UserRole | null; status: AppUserStatus | null }> {
+  const { data: appUser, error } = await supabase
+    .from('users')
+    .select('role, status')
+    .eq('auth_user_id', userId)
+    .maybeSingle()
+
+  if (!error && appUser) {
+    return {
+      role: isUserRole(appUser.role) ? appUser.role : null,
+      status: isAppUserStatus(appUser.status) ? appUser.status : null,
+    }
+  }
+
+  // Legacy fallback for accounts that predate the users.role field.
+  const legacy = await getUserRoleInfo(supabase, userId)
+  return { role: legacy.role, status: legacy.status }
 }
 
 function redirectWithCookies(req: NextRequest, res: NextResponse, path: string) {
@@ -21,6 +56,7 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   if (
+    pathname === '/' ||
     pathname.startsWith('/auth/callback') ||
     pathname.startsWith('/auth/recovery')
   ) {
@@ -45,14 +81,14 @@ export async function middleware(req: NextRequest) {
   ].some((prefix) => pathname.startsWith(prefix))
 
   if (!user) {
-    if (!protectedPath || pathname === '/') return res
+    if (!protectedPath) return res
     const loginUrl = req.nextUrl.clone()
     loginUrl.pathname = '/login'
     loginUrl.searchParams.set('redirectedFrom', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  const { role, status } = await getUserRoleInfo(supabase, user.id)
+  const { role, status } = await getAccessState(supabase, user.id)
 
   if (status === 'suspended' && pathname !== '/account/suspended') {
     return redirectWithCookies(req, res, '/account/suspended')
