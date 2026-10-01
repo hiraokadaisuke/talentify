@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      contact_inquiries: {
+        Row: {
+          category: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          source_hash: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          source_hash?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          source_hash?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount: number
