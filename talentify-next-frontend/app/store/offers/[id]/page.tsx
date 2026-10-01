@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { getOfferProgress } from '@/utils/offerProgress'
 import StoreOfferProgressPanel from './StoreOfferProgressPanel'
-import { deriveActiveStep } from '@/lib/offers/deriveActiveStep'
 import {
   deriveOfferInvoiceProgressStatus,
   getInvoiceStatusLabel,
@@ -113,20 +112,11 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const showActions = ['accepted', 'confirmed', 'completed'].includes(data.status as string)
   const paymentLink = showActions && invoice ? `/store/invoices/${invoice.id}` : undefined
 
-  const { steps } = getOfferProgress({
+  const { steps, current: currentStep } = getOfferProgress({
     status: offer.status,
     invoiceStatus: offer.invoiceStatus,
     paid: offer.paid,
     reviewCompleted: offer.reviewCompleted,
-  })
-
-  const activeStep = deriveActiveStep({
-    status: offer.status,
-    acceptedAt: offer.acceptedAt,
-    visitScheduledAt: offer.date,
-    invoiceStatus: offer.invoiceStatus,
-    paid: offer.paid,
-    paidAt: offer.paidAt,
   })
 
   const formattedUpdatedAt = format(new Date(offer.updatedAt), 'yyyy/MM/dd HH:mm', { locale: ja })
@@ -162,7 +152,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
 
           <StoreOfferProgressPanel
             steps={steps}
-            initialActiveStep={activeStep}
+            initialActiveStep={currentStep}
             offer={{
               id: offer.id,
               status: offer.status,
