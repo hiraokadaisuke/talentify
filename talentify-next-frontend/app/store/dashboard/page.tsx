@@ -12,13 +12,13 @@ import ProfileSetupBanner from '@/components/ProfileSetupBanner'
 import GettingStartedCard from '@/components/GettingStartedCard'
 
 export default async function StoreDashboard() {
-  const { offerStats, schedule, unreadCount } = await getStoreDashboardData()
+  const { offerStats, schedule, unreadCount, isSetupComplete } = await getStoreDashboardData()
   const hasData =
     (Object.values(offerStats) as number[]).reduce((acc, v) => acc + v, 0) > 0
 
   return (
     <div className='space-y-4'>
-      <ProfileSetupBanner role='store' />
+      <ProfileSetupBanner role='store' isSetupComplete={isSetupComplete} />
       <GettingStartedCard role='store' />
       {!hasData ? (
         <EmptyState
