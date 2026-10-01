@@ -142,9 +142,9 @@ export const notificationConfig: {
     dedupeStrategy: (event) => `invoice-reject:${event.invoiceId}`,
     build: ({ roleRootPath, event }) => ({
       title: '見積書の修正依頼が届きました',
-      body: '修正内容を確認し、見積書を再提出してください。',
-      actionUrl: `${roleRootPath}/invoices/${event.invoiceId}`,
-      actionLabel: '再提出する',
+      body: '見積書を見直し、必要な修正を行って再提出してください。',
+      actionUrl: `${roleRootPath}/invoices/${event.invoiceId}?revision=1`,
+      actionLabel: '見積書を修正',
       entityType: 'invoice',
       entityId: event.invoiceId,
       data: {
