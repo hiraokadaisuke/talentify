@@ -59,7 +59,7 @@ const STATUS_LABEL: Record<string, string> = {
   scheduled: '予定',
   completed: '完了',
   cancelled: 'キャンセル',
-  no_show: '欠席',
+  no_show: '来店なし',
 }
 
 const STATUS_BADGE: Record<
