@@ -37,6 +37,25 @@ interface Invoice {
   } | null
 }
 
+interface RawInvoice extends Omit<Invoice, 'offers'> {
+  offers:
+    | Array<{
+        status: string | null
+        canceled_at: string | null
+        canceled_by_role: string | null
+        cancel_reason: string | null
+        cancellation_phase: string | null
+      }>
+    | {
+        status: string | null
+        canceled_at: string | null
+        canceled_by_role: string | null
+        cancel_reason: string | null
+        cancellation_phase: string | null
+      }
+    | null
+}
+
 export default function TalentInvoiceDetailPage() {
   const params = useParams()
   const id = params?.id as string
@@ -69,7 +88,13 @@ export default function TalentInvoiceDetailPage() {
         return
       }
 
-      const inv = data as Invoice | null
+      const raw = data as unknown as RawInvoice | null
+      const inv: Invoice | null = raw
+        ? {
+            ...raw,
+            offers: Array.isArray(raw.offers) ? raw.offers[0] ?? null : raw.offers,
+          }
+        : null
       setInvoice(inv)
       setDueDate(inv?.due_date ?? '')
       setNotes(inv?.notes ?? '')
