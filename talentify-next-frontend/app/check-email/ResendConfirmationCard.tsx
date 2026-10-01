@@ -95,14 +95,14 @@ export default function ResendConfirmationCard() {
   }
 
   return (
-    <div className="mt-8 w-full max-w-md rounded-lg border border-slate-200 p-5">
-      <h2 className="text-base font-semibold">確認メールの再送</h2>
-      <p className="mt-2 text-sm text-gray-600">
+    <div className="mt-8 w-full max-w-md rounded-2xl border border-white/15 bg-white/[0.03] p-5 text-left">
+      <h2 className="text-base font-semibold text-white">確認メールの再送</h2>
+      <p className="mt-2 text-sm leading-6 text-white/55">
         リンクの有効期限が切れた場合は、こちらから確認メールを再送できます。
       </p>
 
       <form className="mt-4 space-y-3" onSubmit={onResend}>
-        <label className="block text-sm font-medium text-gray-700">メールアドレス</label>
+        <label className="block text-sm font-medium text-white/70">メールアドレス</label>
         <Input
           type="email"
           value={email}
@@ -110,34 +110,35 @@ export default function ResendConfirmationCard() {
           placeholder="you@example.com"
           disabled={isSubmitting}
           required
+          className="border-white/20 bg-white/[0.06] text-white placeholder:text-white/30 focus-visible:ring-pink-300"
         />
 
         {error && (
-          <p className="text-sm text-red-600" role="alert" aria-live="polite">
+          <p className="text-sm text-red-300" role="alert" aria-live="polite">
             {error}
           </p>
         )}
 
         {message && (
-          <p className="text-sm text-emerald-700" role="status" aria-live="polite">
+          <p className="text-sm text-emerald-300" role="status" aria-live="polite">
             {message}
           </p>
         )}
 
         {cooldown > 0 && (
-          <p className="text-xs text-amber-700">再送は {cooldown} 秒後に可能です。</p>
+          <p className="text-xs text-amber-300">再送は {cooldown} 秒後に可能です。</p>
         )}
 
-        <Button type="submit" disabled={!canSubmit}>
+        <Button type="submit" disabled={!canSubmit} className="w-full bg-white text-slate-950 hover:bg-white/90 disabled:bg-white/20 disabled:text-white/35">
           {isSubmitting ? '再送中...' : '確認メールを再送する'}
         </Button>
       </form>
 
-      <p className="mt-3 text-xs text-gray-500">
+      <p className="mt-3 text-xs leading-5 text-white/45">
         セキュリティ保護のため、アカウントの存在有無に関わらず同様の案内を表示する場合があります。
       </p>
 
-      <Link href="/" className="mt-4 inline-block text-sm text-blue-600 underline">
+      <Link href="/" className="mt-4 inline-block text-sm font-medium text-blue-300 underline underline-offset-4">
         トップページに戻る
       </Link>
     </div>
