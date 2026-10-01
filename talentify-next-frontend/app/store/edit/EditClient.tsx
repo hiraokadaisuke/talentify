@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { toast } from 'sonner'
+import { AlertCircle, RotateCcw } from 'lucide-react'
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -17,6 +18,7 @@ const supabase = createClient()
 export default function StoreProfileEditPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [isNew, setIsNew] = useState(false)
   const [profile, setProfile] = useState({
     store_name: '',
@@ -62,17 +64,20 @@ export default function StoreProfileEditPage() {
     return data.publicUrl
   }
 
-  useEffect(() => {
-    const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+    setErrorMessage(null)
+
+    try {
       const {
         data: { user },
         error: authError,
       } = await supabase.auth.getUser()
+
       if (authError || !user) {
         console.error('ユーザー取得失敗:', authError)
-        setErrorMessage('ユーザー情報の取得に失敗しました')
-        setLoading(false)
-        return
+        throw authError ?? new Error('Authenticated user not found')
       }
 
       const { data, error } = await supabase
@@ -87,7 +92,7 @@ export default function StoreProfileEditPage() {
           details: error?.details,
           hint: error?.hint,
         })
-        setErrorMessage('プロフィールの取得に失敗しました')
+        throw error
       }
 
       if (data) {
@@ -102,11 +107,17 @@ export default function StoreProfileEditPage() {
         setIsNew(true)
         setShowIncomplete(true)
       }
+    } catch (error) {
+      console.error('店舗プロフィールの読み込みに失敗:', error)
+      setLoadError(true)
+    } finally {
       setLoading(false)
     }
-
-    loadProfile()
   }, [])
+
+  useEffect(() => {
+    void loadProfile()
+  }, [loadProfile])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value })
@@ -199,6 +210,37 @@ export default function StoreProfileEditPage() {
   }
 
   if (loading) return <p className="p-4">読み込み中...</p>
+
+  if (loadError) {
+    return (
+      <main className="min-h-screen bg-gray-100 px-4 py-10">
+        <div className="mx-auto w-full max-w-5xl">
+          <h1 className="mb-6 text-3xl font-bold tracking-tight">店舗プロフィール編集</h1>
+          <div
+            role="alert"
+            className="rounded-2xl border border-red-200 bg-red-50 px-5 py-8 text-center shadow-sm"
+          >
+            <AlertCircle className="mx-auto h-7 w-7 text-red-600" aria-hidden="true" />
+            <h2 className="mt-3 text-base font-semibold text-red-900">
+              プロフィールを読み込めませんでした
+            </h2>
+            <p className="mt-1 text-sm leading-relaxed text-red-700">
+              既存プロフィールを保護するため、編集フォームは表示していません。通信状況を確認して、もう一度お試しください。
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-5 min-h-10"
+              onClick={() => void loadProfile()}
+            >
+              <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              再読み込み
+            </Button>
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-10">
