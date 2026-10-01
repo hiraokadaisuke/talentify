@@ -7,6 +7,7 @@ import MessagesPage from '@/components/messages/MessagesPage'
 export default function TalentMessagesPage() {
   const params = useSearchParams()
   const tabParam = params.get('tab') === 'offer' ? 'offer' : 'direct'
+  const partnerId = tabParam === 'direct' ? params.get('partner') : null
   return (
     <main className="p-4">
       <div className="border-b mb-4 flex space-x-4">
@@ -23,7 +24,12 @@ export default function TalentMessagesPage() {
           オファー
         </Link>
       </div>
-      <MessagesPage role="talent" type={tabParam} />
+      <MessagesPage
+        role="talent"
+        type={tabParam}
+        basePath="/talent/messages"
+        initialPartnerId={partnerId}
+      />
     </main>
   )
 }
