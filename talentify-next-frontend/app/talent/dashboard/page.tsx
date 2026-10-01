@@ -7,11 +7,11 @@ import ProfileSetupBanner from '@/components/ProfileSetupBanner'
 import GettingStartedCard from '@/components/GettingStartedCard'
 
 export default async function TalentDashboard() {
-  const { schedule, pendingOffersCount, unreadMessagesCount } = await getTalentDashboardData()
+  const { schedule, pendingOffersCount, unreadMessagesCount, isSetupComplete } = await getTalentDashboardData()
 
   return (
     <div className='space-y-4'>
-      <ProfileSetupBanner role='talent' />
+      <ProfileSetupBanner role='talent' isSetupComplete={isSetupComplete} />
       <GettingStartedCard role='talent' />
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-6'>
         <ScheduleCard items={schedule} className='lg:col-span-3' />
