@@ -65,7 +65,7 @@ describe('POST /api/offers', () => {
         store_id: 'store-1',
         talent_id: 'talent-1',
         date: '2099-01-01',
-        time_range: '10:00~',
+        time_range: '10:00〜12:00',
         agreed: false,
       }),
     })
@@ -89,7 +89,7 @@ describe('POST /api/offers', () => {
         store_id: 'store-1',
         talent_id: 'talent-1',
         date: '2099-01-01',
-        time_range: '10:00~',
+        time_range: '10:00〜12:00',
         agreed: true,
       }),
     })
@@ -112,7 +112,7 @@ describe('POST /api/offers', () => {
         store_id: 'store-1',
         talent_id: 'talent-1',
         date: '2099-01-01',
-        time_range: '10:00~',
+        time_range: '10:00〜12:00',
         agreed: true,
       }),
     })
@@ -163,7 +163,7 @@ describe('POST /api/offers', () => {
       store_id: 'store-1',
       talent_id: 'talent-1',
       date: new Date('2099-01-01T00:00:00.000Z'),
-      time_range: '10:00~',
+      time_range: '10:00〜12:00',
       agreed: true,
       message: '',
       status: 'pending',
@@ -175,7 +175,7 @@ describe('POST /api/offers', () => {
         store_id: 'store-1',
         talent_id: 'talent-1',
         date: '2099-01-01',
-        time_range: '10:00~',
+        time_range: '10:00〜12:00',
         agreed: true,
       }),
     })
@@ -199,7 +199,7 @@ describe('POST /api/offers', () => {
       store_id: 'store-1',
       talent_id: 'talent-1',
       date: new Date('2099-01-01T00:00:00.000Z'),
-      time_range: '10:00~',
+      time_range: '10:00〜12:00',
       agreed: true,
       message: '',
       status: 'pending',
@@ -211,7 +211,7 @@ describe('POST /api/offers', () => {
         store_id: 'store-1',
         talent_id: 'talent-1',
         date: '2099-01-01',
-        time_range: '10:00~',
+        time_range: '10:00〜12:00',
         agreed: true,
       }),
     })
