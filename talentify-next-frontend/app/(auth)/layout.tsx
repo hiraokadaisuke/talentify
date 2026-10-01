@@ -3,10 +3,6 @@
 export const dynamic = "auto";
 
 import React from "react";
-import "../globals.css";
-import Header from "@/components/Header";
-import { createClient } from "@/lib/supabase/server";
-import { SupabaseProvider } from "@/lib/supabase/provider";
 
 export const metadata = {
   title: "Talentify",
@@ -16,24 +12,10 @@ export const metadata = {
   },
 };
 
-export default async function AuthLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  return (
-    <html lang="ja" className="h-full">
-      <body className="font-sans antialiased bg-white text-black min-h-screen flex flex-col">
-        <SupabaseProvider session={session}>
-          <Header />
-          <main className="flex-1">{children}</main>
-        </SupabaseProvider>
-      </body>
-    </html>
-  );
+  return <>{children}</>;
 }
