@@ -35,14 +35,14 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
   const completedCount = steps.filter(step => step.status === 'complete').length
 
   return (
-    <div className="min-w-0 space-y-3">
+    <div className="min-w-0 space-y-2 sm:space-y-3">
       <div className="flex items-center justify-end">
         <span className="text-xs font-medium text-[#64748b]">
-          {completedCount}/{steps.length}ステップ完了
+          {completedCount}/{steps.length} 完了
         </span>
       </div>
 
-      <div className="space-y-1 sm:hidden">
+      <div className="space-y-0.5 sm:hidden">
         {steps.map((step, index) => {
           const isSelected = step.key === activeStep
           const iconStyles = iconStylesByStatus[step.status]
@@ -52,7 +52,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
               {index < steps.length - 1 && (
                 <span
                   className={cn(
-                    'absolute left-[19px] top-10 h-[calc(100%-1.5rem)] w-0.5',
+                    'absolute left-[17px] top-9 h-[calc(100%-1.25rem)] w-0.5',
                     connectorActive ? 'bg-[#2f4da0]' : 'bg-slate-200',
                   )}
                   aria-hidden="true"
@@ -62,26 +62,26 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                 type="button"
                 onClick={() => onStepSelect?.(step.key)}
                 className={cn(
-                  'relative z-10 flex w-full items-start gap-3 rounded-xl px-2 py-2 text-left transition-colors',
+                  'relative z-10 flex w-full items-start gap-2.5 rounded-xl px-2 py-1.5 text-left transition-colors',
                   isSelected ? 'bg-blue-50' : 'hover:bg-slate-50',
                 )}
                 aria-pressed={isSelected}
               >
                 <div
                   className={cn(
-                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white',
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white',
                     iconStyles.outer,
                     isSelected && 'ring-2 ring-[#2f4da0]/25 ring-offset-1',
                   )}
                 >
-                  <div className={cn('flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold', iconStyles.inner)}>
+                  <div className={cn('flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold', iconStyles.inner)}>
                     {step.status === 'complete' ? <Check className="h-4 w-4" /> : index + 1}
                   </div>
                 </div>
                 <div className="min-w-0 flex-1 pt-0.5">
                   <div className={cn('text-sm font-semibold', titleColorByStatus[step.status])}>{step.title}</div>
                   {step.subLabel ? (
-                    <div className={cn('mt-0.5 break-words text-xs leading-5', dateColorByStatus[step.status])}>
+                    <div className={cn('mt-0.5 line-clamp-1 break-words text-[11px] leading-4', dateColorByStatus[step.status])}>
                       {step.subLabel}
                     </div>
                   ) : null}
