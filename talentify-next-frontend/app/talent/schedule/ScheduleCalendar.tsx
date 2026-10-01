@@ -68,7 +68,7 @@ const STATUS_LABEL: Record<DisplayStatus, string> = {
   scheduled: '予定',
   completed: '完了',
   cancelled: 'キャンセル',
-  no_show: '欠席',
+  no_show: '来店なし',
 }
 
 const STATUS_BADGE: Record<
@@ -333,7 +333,7 @@ export default function ScheduleCalendar() {
         .eq('talent_id', talentId)
         .gte('date', startUTC)
         .lte('date', endUTC)
-        .in('status', ['confirmed', 'completed'])
+        .in('status', ['confirmed', 'completed', 'no_show'])
 
       if (offerError) {
         throw offerError
