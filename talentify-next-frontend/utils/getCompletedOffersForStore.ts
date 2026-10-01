@@ -28,11 +28,16 @@ export async function getCompletedOffersForStore() {
   const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return [] as CompletedOffer[]
 
-  const { data: store } = await supabase
+  const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('id')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
+
+  if (storeError) {
+    console.error('failed to fetch store for completed offers', storeError)
+    throw storeError
+  }
   if (!store) return [] as CompletedOffer[]
 
   const completedStatus = toDbOfferStatus('completed') ?? 'completed'
@@ -45,7 +50,7 @@ export async function getCompletedOffersForStore() {
     .eq('paid', true)
   if (error) {
     console.error('failed to fetch completed offers', error)
-    return []
+    throw error
   }
   const offers = (data || []) as unknown as RawCompletedOffer[]
   return offers.map(o => ({
