@@ -211,7 +211,11 @@ export default function RegisterForm() {
 
       {globalError && <p className="text-red-600">{globalError}</p>}
       {rateLimitError && (
-        <p className="text-amber-700" role="alert" aria-live="polite">
+        <p
+          className="rounded-xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm font-semibold leading-6 text-amber-200"
+          role="alert"
+          aria-live="polite"
+        >
           {rateLimitError}
         </p>
       )}
@@ -316,9 +320,18 @@ export default function RegisterForm() {
           )}
         </div>
 
-        <Button type="submit" disabled={isSubmitting || !agreed} className="w-full">
-          {isSubmitting ? '送信中...' : '同意して登録'}
-        </Button>
+        <div className="pt-1">
+          <Button
+            type="submit"
+            disabled={isSubmitting || !agreed}
+            className="h-14 w-full rounded-2xl border border-white/15 bg-gradient-to-r from-orange-400 via-pink-500 to-fuchsia-500 text-base font-black text-white shadow-[0_12px_32px_rgba(236,72,153,0.28)] transition hover:brightness-105 disabled:border-white/10 disabled:bg-none disabled:bg-white/10 disabled:text-white/35 disabled:shadow-none"
+          >
+            {isSubmitting ? '確認メールを送信中...' : '同意して登録する'}
+          </Button>
+          <p className="mt-2 text-center text-xs text-white/45">
+            登録後、メールアドレス確認用のメールを送信します。
+          </p>
+        </div>
       </form>
 
       <p className="text-sm text-center text-white/65">
