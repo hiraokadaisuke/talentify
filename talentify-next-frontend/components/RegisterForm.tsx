@@ -126,6 +126,9 @@ export default function RegisterForm() {
     if (!password) {
       setPasswordError('パスワードを入力してください')
       hasError = true
+    } else if (password.length < 8) {
+      setPasswordError('パスワードは8文字以上で入力してください')
+      hasError = true
     }
 
     if (!confirm) {
@@ -239,8 +242,11 @@ export default function RegisterForm() {
             onChange={(e) => setPassword(e.target.value)}
             aria-invalid={!!passwordError}
             disabled={isSubmitting}
+            minLength={8}
+            autoComplete="new-password"
             required
           />
+          <p className="mt-1 text-xs text-white/45">8文字以上で設定してください。</p>
           {passwordError && (
             <p className="text-red-600 text-sm mt-1">{passwordError}</p>
           )}
@@ -254,6 +260,8 @@ export default function RegisterForm() {
             onChange={(e) => setConfirm(e.target.value)}
             aria-invalid={!!confirmError}
             disabled={isSubmitting}
+            minLength={8}
+            autoComplete="new-password"
             required
           />
           {confirmError && <p className="text-red-600 text-sm mt-1">{confirmError}</p>}
