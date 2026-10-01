@@ -10,6 +10,61 @@ export type OfferSummaryInfo = {
   time?: string | null
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  pending: '回答待ち',
+  accepted: '承認済み',
+  confirmed: '確定',
+  completed: '完了',
+  canceled: 'キャンセル',
+  rejected: '辞退',
+  no_show: '来店なし',
+}
+
+function formatOfferDate(value?: string | null) {
+  if (!value) return '未設定'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+  })
+}
+
+function formatReward(value?: string | number | null) {
+  if (value === null || value === undefined || value === '') return '未設定'
+  const parsed = typeof value === 'number' ? value : Number(value)
+  if (!Number.isFinite(parsed)) return String(value)
+  return `${parsed.toLocaleString('ja-JP')}円`
+}
+
+function statusLabel(value?: string | null) {
+  if (!value) return '確認中'
+  return STATUS_LABELS[value] ?? value
+}
+
+function SummaryGrid({ offer }: { offer: OfferSummaryInfo }) {
+  const rows = [
+    ['来店日', formatOfferDate(offer.date)],
+    ['希望時間', offer.time || '未設定'],
+    ['報酬', formatReward(offer.reward)],
+    ['ステータス', statusLabel(offer.status)],
+  ] as const
+
+  return (
+    <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+      {rows.map(([label, value]) => (
+        <div key={label} className="min-w-0">
+          <dt className="text-[11px] font-medium text-slate-500">{label}</dt>
+          <dd className="mt-0.5 break-words text-sm font-semibold text-slate-900">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 export default function OfferSummary({
   offer,
   role,
@@ -28,24 +83,46 @@ export default function OfferSummary({
   }
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-3">
-      <h4 className="mb-2 text-sm font-semibold text-gray-900">オファー概要</h4>
-      <div className="grid gap-2 text-xs text-gray-700 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-white px-2 py-1.5">来店日: {offer.date ?? '未設定'}</div>
-        <div className="rounded-lg bg-white px-2 py-1.5">報酬: {offer.reward ?? '未設定'}</div>
-        <div className="rounded-lg bg-white px-2 py-1.5">希望時間: {offer.time ?? '未設定'}</div>
-        <div className="rounded-lg bg-white px-2 py-1.5">ステータス: {offer.status ?? '確認中'}</div>
-      </div>
-      {offerId && (
-        <div className="mt-3">
-          <Link
-            href={'/' + role + '/offers/' + offerId}
-            className="inline-flex rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-100"
-          >
-            オファー詳細で確認・操作
-          </Link>
+    <>
+      <details className="rounded-xl border border-slate-200 bg-slate-50 sm:hidden">
+        <summary className="cursor-pointer list-none px-3 py-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-900">オファー情報</p>
+              <p className="mt-0.5 truncate text-xs text-slate-500">
+                {formatOfferDate(offer.date)} ・ {offer.time || '時間未設定'} ・ {statusLabel(offer.status)}
+              </p>
+            </div>
+            <span className="shrink-0 text-xs font-semibold text-blue-600">確認</span>
+          </div>
+        </summary>
+        <div className="border-t border-slate-200 px-3 py-3">
+          <SummaryGrid offer={offer} />
+          {offerId && (
+            <Link
+              href={'/' + role + '/offers/' + offerId}
+              className="mt-3 inline-flex text-xs font-semibold text-blue-600 hover:underline"
+            >
+              オファー詳細を開く →
+            </Link>
+          )}
         </div>
-      )}
-    </div>
+      </details>
+
+      <div className="hidden rounded-xl border border-gray-200 bg-gray-50 p-3 sm:block">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h4 className="text-sm font-semibold text-gray-900">オファー概要</h4>
+          {offerId && (
+            <Link
+              href={'/' + role + '/offers/' + offerId}
+              className="text-xs font-semibold text-blue-600 hover:underline"
+            >
+              詳細を見る
+            </Link>
+          )}
+        </div>
+        <SummaryGrid offer={offer} />
+      </div>
+    </>
   )
 }
