@@ -269,7 +269,11 @@ function buildInvoicePdf(params: {
       y -= 24
 
       for (const textLine of lines) {
-        ensureSpace(20)
+        if (y - 20 < 82) {
+          startDetailPage(true)
+          jp(detailPage, `${label}（続き）`, 60, y, 11)
+          y -= 24
+        }
         jp(detailPage, textLine || ' ', 75, y, 9)
         y -= 18
       }
