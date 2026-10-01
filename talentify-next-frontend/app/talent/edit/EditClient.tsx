@@ -420,20 +420,20 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     )
   }
 
-  const fieldClassName = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
-  const sectionClassName = 'space-y-4'
+  const fieldClassName = 'min-h-11 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
+  const sectionClassName = 'space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5'
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 sm:py-10">
+    <main className="min-h-screen bg-gray-100 px-3 py-5 sm:px-6 sm:py-10">
       <div className="mx-auto w-full max-w-3xl">
-        <header className="mb-6 sm:mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">演者プロフィール編集</h1>
+        <header className="mb-4 sm:mb-8">
+          <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">演者プロフィール編集</h1>
           <p className="mt-2 text-sm text-gray-600">
             プロフィールを充実させると、案件掲載時に見つけてもらいやすくなります。
           </p>
         </header>
 
-        <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:space-y-8 sm:p-8">
+        <section className="space-y-4 pb-4 sm:space-y-6">
           {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
 
           {showIncomplete && !errorMessage && (
@@ -443,8 +443,9 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             </div>
           )}
 
-          <section className="rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
-            <h2 className="mb-3 text-base font-semibold text-gray-900">公開の最低条件（MVP）</h2>
+          <section className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 sm:p-5">
+            <h2 className="mb-1 text-base font-bold text-slate-900">公開に必要な項目</h2>
+            <p className="mb-3 text-xs leading-5 text-slate-600">すべて入力するとプロフィールが公開状態になります。</p>
             <ul className="space-y-2 text-sm text-gray-700">
               {[
                 { key: 'stage_name', label: 'ステージ名', done: requirements.stage_name },
@@ -472,7 +473,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </section>
 
           <section className={sectionClassName}>
-            <h2 className="text-xl font-semibold">基本情報</h2>
+            <h2 className="text-lg font-bold text-slate-950">基本情報</h2>
 
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">本名<span className="ml-1 text-red-500">*</span></label>
@@ -501,7 +502,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-800">自己紹介（bio）<span className="ml-1 text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-800">自己紹介<span className="ml-1 text-red-500">*</span></label>
               <p className="text-sm text-gray-500">
                 自己紹介（bio）とプロフィール詳細のどちらか一方を20文字以上入力してください。
               </p>
@@ -594,7 +595,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </section>
 
           <section className={sectionClassName}>
-            <h2 className="text-xl font-semibold">連絡方法</h2>
+            <h2 className="text-lg font-bold text-slate-950">連絡方法</h2>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">登録電話番号</label>
               <Input
@@ -658,7 +659,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </section>
 
           <section className={sectionClassName}>
-            <h2 className="text-xl font-semibold">出演条件</h2>
+            <h2 className="text-lg font-bold text-slate-950">出演条件</h2>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">出演可能時間帯</label>
               <Input
@@ -738,7 +739,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </section>
 
           <section className={sectionClassName}>
-            <h2 className="text-xl font-semibold">実績・PR</h2>
+            <h2 className="text-lg font-bold text-slate-950">実績・PR</h2>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">来店実績<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
               <Textarea
@@ -792,7 +793,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </section>
 
           <section className={sectionClassName}>
-            <h2 className="text-xl font-semibold">SNSリンク</h2>
+            <h2 className="text-lg font-bold text-slate-950">SNSリンク</h2>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">X (旧Twitter)<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
               <Input
@@ -828,7 +829,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="mt-2 h-11 w-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            className="sticky bottom-[calc(0.5rem+env(safe-area-inset-bottom))] z-20 mt-2 h-12 w-full bg-blue-600 text-base font-semibold text-white shadow-lg shadow-blue-900/15 hover:bg-blue-700 disabled:opacity-50 sm:static sm:h-11 sm:text-sm sm:shadow-none"
           >
             {saving ? '保存中...' : '保存する'}
           </Button>
