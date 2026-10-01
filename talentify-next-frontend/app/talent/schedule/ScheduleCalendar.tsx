@@ -42,6 +42,7 @@ import {
   mapOfferStatus,
 } from '@/utils/storeSchedule'
 import { toast } from 'sonner'
+import { AlertCircle, RotateCcw } from 'lucide-react'
 import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
 
 const locales = { ja }
@@ -171,6 +172,10 @@ export default function ScheduleCalendar() {
   const [events, setEvents] = useState<TalentCalendarEvent[]>([])
   const [calendarEvents, setCalendarEvents] = useState<TalentCalendarEvent[]>([])
   const [loading, setLoading] = useState(false)
+  const [identityLoading, setIdentityLoading] = useState(true)
+  const [identityError, setIdentityError] = useState(false)
+  const [calendarLoadError, setCalendarLoadError] = useState(false)
+  const [hasLoadedCalendarData, setHasLoadedCalendarData] = useState(false)
   const [updatingDates, setUpdatingDates] = useState<Record<string, boolean>>({})
   const [updatingDefaultMode, setUpdatingDefaultMode] = useState(false)
   const [bulkUpdating, setBulkUpdating] = useState(false)
@@ -231,37 +236,37 @@ export default function ScheduleCalendar() {
     setReady(true)
   }, [])
 
-  useEffect(() => {
-    let mounted = true
-    getTalentId()
-      .then((id) => {
-        if (mounted) setTalentId(id)
-      })
-      .catch((error) => {
-        console.error('Failed to resolve talent id', error)
-        toast.error('タレント情報の取得に失敗しました')
-      })
-    return () => {
-      mounted = false
-    }
-  }, [])
+  const loadIdentity = useCallback(async () => {
+    setIdentityLoading(true)
+    setIdentityError(false)
 
-  useEffect(() => {
-    let mounted = true
-    void (async () => {
-      const { data, error } = await supabase.auth.getUser()
-      if (!mounted) return
+    try {
+      const [{ data, error }, id] = await Promise.all([
+        supabase.auth.getUser(),
+        getTalentId({ throwOnError: true }),
+      ])
+
       if (error || !data.user) {
         console.error('Failed to retrieve authenticated user', error)
-        toast.error('ユーザー情報の取得に失敗しました')
-        return
+        throw error ?? new Error('Authenticated user not found')
       }
+
       setUserId(data.user.id)
-    })()
-    return () => {
-      mounted = false
+      setTalentId(id)
+    } catch (error) {
+      console.error('Failed to load talent schedule identity', error)
+      setUserId(null)
+      setTalentId(null)
+      setIdentityError(true)
+      toast.error('ユーザー情報の取得に失敗しました')
+    } finally {
+      setIdentityLoading(false)
     }
   }, [supabase])
+
+  useEffect(() => {
+    void loadIdentity()
+  }, [loadIdentity])
 
   const fetchCalendarData = useCallback(async () => {
     if (!talentId || !userId || !calendarDate || !jstFormatter) return
@@ -273,6 +278,7 @@ export default function ScheduleCalendar() {
     const { from, to } = monthRange(calendarDate)
 
     setLoading(true)
+    setHasLoadedCalendarData(false)
     try {
       const availabilityUrl = new URL(
         '/api/availability',
@@ -377,8 +383,15 @@ export default function ScheduleCalendar() {
         .filter((event): event is TalentCalendarEvent => event != null)
 
       setEvents(mappedEvents)
+      setCalendarLoadError(false)
+      setHasLoadedCalendarData(true)
     } catch (error) {
       console.error('Failed to load talent schedule data', error)
+      setAvailabilitySettings(null)
+      setOverrides({})
+      setEvents([])
+      setCalendarLoadError(true)
+      setHasLoadedCalendarData(false)
       toast.error('スケジュールの取得に失敗しました')
     } finally {
       setLoading(false)
@@ -661,11 +674,103 @@ export default function ScheduleCalendar() {
     !calendarLib.localizer ||
     !calendarLib.Calendar ||
     !calendarLib.Views ||
-    !jstFormatter
+    !jstFormatter ||
+    identityLoading
   ) {
     return (
       <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
         <p className="text-sm text-muted-foreground">カレンダーを読み込んでいます…</p>
+      </main>
+    )
+  }
+
+  if (identityError) {
+    return (
+      <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
+        <h1 className="text-2xl font-bold">スケジュール管理</h1>
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center"
+        >
+          <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
+          <h2 className="mt-2 text-sm font-semibold text-red-900">
+            ユーザー情報を読み込めませんでした
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-red-700">
+            通信状況を確認して、もう一度お試しください。
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 min-h-10"
+            onClick={() => void loadIdentity()}
+          >
+            <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden="true" />
+            再読み込み
+          </Button>
+        </div>
+      </main>
+    )
+  }
+
+  if (!talentId || !userId) {
+    return (
+      <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
+        <h1 className="text-2xl font-bold">スケジュール管理</h1>
+        <div className="rounded-xl border bg-white px-4 py-6 text-center shadow-sm">
+          <h2 className="text-sm font-semibold">演者プロフィールの登録が必要です</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            スケジュールを設定する前に、演者プロフィールを登録してください。
+          </p>
+          <Button
+            type="button"
+            className="mt-4 min-h-10"
+            onClick={() => {
+              window.location.href = '/talent/edit'
+            }}
+          >
+            プロフィールを登録
+          </Button>
+        </div>
+      </main>
+    )
+  }
+
+  if (!hasLoadedCalendarData && !calendarLoadError) {
+    return (
+      <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
+        <h1 className="text-2xl font-bold">スケジュール管理</h1>
+        <p className="text-sm text-muted-foreground">スケジュールを読み込んでいます…</p>
+      </main>
+    )
+  }
+
+  if (calendarLoadError) {
+    return (
+      <main className="mx-auto w-full max-w-6xl space-y-4 p-4">
+        <h1 className="text-2xl font-bold">スケジュール管理</h1>
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center"
+        >
+          <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
+          <h2 className="mt-2 text-sm font-semibold text-red-900">
+            スケジュールを読み込めませんでした
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-red-700">
+            空き状況や案件予定を正しく表示できていません。通信状況を確認して、もう一度お試しください。
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 min-h-10"
+            disabled={loading}
+            onClick={() => void fetchCalendarData()}
+          >
+            <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden="true" />
+            {loading ? '再読み込み中…' : '再読み込み'}
+          </Button>
+        </div>
       </main>
     )
   }
