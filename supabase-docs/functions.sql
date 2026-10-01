@@ -881,26 +881,6 @@ BEGIN
 END;
 $function$;
 
--- public.normalize_participants_key
-CREATE OR REPLACE FUNCTION public.normalize_participants_key()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-begin
-  if new.participant_user_ids is null then
-    new.participants_key := null;
-  else
-    new.participants_key :=
-      array_to_string(
-        (select array_agg(u::text order by u::text)
-           from unnest(new.participant_user_ids) as u),
-        ','
-      );
-  end if;
-  return new;
-end;
-$function$;
-
 -- public.notify_review_received
 CREATE OR REPLACE FUNCTION public.notify_review_received()
  RETURNS trigger
