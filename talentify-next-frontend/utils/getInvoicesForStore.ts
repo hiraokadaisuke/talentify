@@ -17,11 +17,16 @@ export async function getInvoicesForStore() {
   const { user } = await getCurrentUserWithClient(supabase)
   if (!user) return [] as Invoice[]
 
-  const { data: store } = await supabase
+  const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('id')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
+
+  if (storeError) {
+    console.error('failed to fetch store for invoices', storeError)
+    throw storeError
+  }
   if (!store) return [] as Invoice[]
 
   const { data, error } = await supabase
@@ -33,7 +38,7 @@ export async function getInvoicesForStore() {
 
   if (error) {
     console.error('failed to fetch invoices', error)
-    return [] as Invoice[]
+    throw error
   }
   const raw = (data ?? []) as unknown as RawInvoice[]
   return raw.map(inv => ({
