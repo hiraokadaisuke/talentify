@@ -329,6 +329,9 @@ model offers {
   cancellation_reason String?
   cancellation_stage  String?
   canceled_by_user_id String?               @db.Uuid
+  no_show_at           DateTime?             @db.Timestamptz(6)
+  no_show_reason       String?
+  no_show_reported_by_user_id String?        @db.Uuid
   invoices            invoices?
   message_threads     message_threads[]
   offer_messages      offer_messages[]

@@ -398,6 +398,9 @@ export type Database = {
           canceled_by_user_id: string | null
           cancellation_reason: string | null
           cancellation_stage: string | null
+          no_show_at: string | null
+          no_show_reason: string | null
+          no_show_reported_by_user_id: string | null
           contract_url: string | null
           created_at: string | null
           date: string
@@ -432,6 +435,9 @@ export type Database = {
           canceled_by_user_id?: string | null
           cancellation_reason?: string | null
           cancellation_stage?: string | null
+          no_show_at?: string | null
+          no_show_reason?: string | null
+          no_show_reported_by_user_id?: string | null
           contract_url?: string | null
           created_at?: string | null
           date: string
@@ -466,6 +472,9 @@ export type Database = {
           canceled_by_user_id?: string | null
           cancellation_reason?: string | null
           cancellation_stage?: string | null
+          no_show_at?: string | null
+          no_show_reason?: string | null
+          no_show_reported_by_user_id?: string | null
           contract_url?: string | null
           created_at?: string | null
           date?: string
