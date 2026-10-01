@@ -47,6 +47,9 @@ export type NotificationEvent =
       actorId?: string | null
       offerId: string
       status?: string | null
+      change?: 'schedule'
+      date?: string | null
+      timeRange?: string | null
     }
   | {
       kind: 'offer_accepted'
@@ -205,10 +208,21 @@ export const notificationConfig: {
     category: 'notification',
     isActionable: true,
     priority: 'medium',
-    dedupeStrategy: (event) => `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
+    dedupeStrategy: (event) =>
+      event.change === 'schedule'
+        ? `offer-rescheduled:${event.offerId}:${event.date ?? 'unknown'}:${event.timeRange ?? 'unknown'}`
+        : `offer-updated:${event.offerId}:${event.status ?? 'unknown'}`,
     build: ({ roleRootPath, event }) => ({
-      title: 'オファーのステータスが更新されました',
-      body: event.status ? `現在のステータス: ${event.status}` : '最新状態を確認してください。',
+      title:
+        event.change === 'schedule'
+          ? 'オファーの日時が変更されました'
+          : 'オファーのステータスが更新されました',
+      body:
+        event.change === 'schedule'
+          ? `新しい予定: ${event.date ?? '-'} ${event.timeRange ?? '-'}。内容を確認してください。`
+          : event.status
+            ? `現在のステータス: ${event.status}`
+            : '最新状態を確認してください。',
       actionUrl: `${roleRootPath}/offers/${event.offerId}`,
       actionLabel: 'オファー詳細を見る',
       entityType: 'offer',
@@ -216,6 +230,9 @@ export const notificationConfig: {
       data: {
         offer_id: event.offerId,
         status: event.status ?? null,
+        change: event.change ?? null,
+        date: event.date ?? null,
+        time_range: event.timeRange ?? null,
       },
     }),
   },
