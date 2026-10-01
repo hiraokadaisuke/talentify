@@ -70,6 +70,23 @@ function paymentStatusLabel(inv: Invoice): string {
   return getPaymentStatusLabel(inv.payment_status, inv.offers?.paid)
 }
 
+function DetailRow({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className='grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 px-5 py-3.5 text-sm'>
+      <dt className='text-slate-500'>{label}</dt>
+      <dd className='max-w-[62vw] break-words text-right font-medium text-slate-900 sm:max-w-md'>
+        {children}
+      </dd>
+    </div>
+  )
+}
+
 export default function StoreInvoiceDetail() {
   const params = useParams()
   const id = params?.id as string
@@ -204,12 +221,22 @@ export default function StoreInvoiceDetail() {
   const isClosed = isCanceled || isNoShow
 
   return (
-    <main className='space-y-4 p-3 sm:p-6'>
-      <h1 className='text-xl font-bold'>{isEstimate ? '見積詳細' : '取引締結書兼請求書'}</h1>
+    <main className='mx-auto w-full max-w-3xl space-y-4 px-4 pb-28 pt-6 sm:px-6 sm:pb-8'>
+      <div className='flex items-center justify-between gap-3'>
+        <div>
+          <Link href='/store/invoices' className='text-sm font-medium text-slate-500 hover:text-slate-900'>
+            ← 見積・請求一覧
+          </Link>
+          <h1 className='mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl'>
+            {isEstimate ? '見積詳細' : '取引締結書兼請求書'}
+          </h1>
+        </div>
+      </div>
+
       {invoice.offers?.status === 'canceled' && (
-        <div className='rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900'>
-          <div className='font-semibold'>この取引はキャンセル済みです</div>
-          <div className='mt-2 space-y-1'>
+        <div className='rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900'>
+          <div className='font-bold'>この取引はキャンセル済みです</div>
+          <div className='mt-2 space-y-1 leading-6'>
             <div>区分: {invoice.offers.cancellation_stage === 'post_contract' ? '契約成立後' : '契約成立前'}</div>
             <div>実行者: {invoice.offers.canceled_by_role === 'talent' ? '演者' : '店舗'}</div>
             {invoice.offers.canceled_at && (
@@ -218,7 +245,7 @@ export default function StoreInvoiceDetail() {
             <div className='whitespace-pre-wrap'>理由: {invoice.offers.cancellation_reason || '-'}</div>
           </div>
           {isContracted && (
-            <p className='mt-2 text-xs text-amber-800'>
+            <p className='mt-2 text-xs leading-5 text-amber-800'>
               締結書兼請求書は契約成立時点の履歴として保持されています。
             </p>
           )}
@@ -226,124 +253,135 @@ export default function StoreInvoiceDetail() {
       )}
 
       {isNoShow && (
-        <div className='rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900'>
-          <div className='font-semibold'>この取引は来店なしとして記録されています</div>
-          <div className='mt-2 space-y-1'>
+        <div className='rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900'>
+          <div className='font-bold'>この取引は来店なしとして記録されています</div>
+          <div className='mt-2 space-y-1 leading-6'>
             <div>記録者: 店舗</div>
             {invoice.offers?.no_show_at && (
               <div>記録日時: {formatJaDateTimeWithWeekday(invoice.offers.no_show_at)}</div>
             )}
             <div className='whitespace-pre-wrap'>理由: {invoice.offers?.no_show_reason || '-'}</div>
           </div>
-          <p className='mt-2 text-xs text-red-800'>
+          <p className='mt-2 text-xs leading-5 text-red-800'>
             支払い・レビューには進みません。締結書兼請求書は契約成立時点の履歴として保持されています。
           </p>
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{isEstimate ? '見積情報' : '締結・請求情報'}</CardTitle>
-        </CardHeader>
-        <CardContent className='space-y-2 text-sm'>
-          <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>金額: ¥{invoice.amount.toLocaleString('ja-JP')}</div>
-          <div>{isEstimate ? '管理番号' : '締結書兼請求書番号'}: {invoice.invoice_number ?? '-'}</div>
-          <div>
-            支払期限:{' '}
-            {invoice.due_date
-              ? formatJaDateTimeWithWeekday(invoice.due_date)
-              : '-'}
-          </div>
-          <div>
-            {isEstimate ? '見積ステータス' : '取引ステータス'}:{' '}
-            <Badge variant='outline'>{statusLabel(invoice)}</Badge>
-          </div>
-          <div>
-            支払い状態:{' '}
-            <Badge variant={invoice.offers?.paid ? 'success' : 'secondary'}>
-              {paymentStatusLabel(invoice)}
+      <Card className='overflow-hidden border-slate-200 shadow-sm'>
+        <CardHeader className='space-y-4 border-b border-slate-100 bg-slate-50/80 p-5'>
+          <div className='flex flex-wrap items-center justify-between gap-2'>
+            <CardTitle className='text-lg'>{isEstimate ? '見積情報' : '締結・請求情報'}</CardTitle>
+            <Badge variant='outline' className='bg-white'>
+              {statusLabel(invoice)}
             </Badge>
           </div>
-          {invoice.invoice_url && (
-            <div>
-              <Link
-                href={`/api/invoices/${invoice.id}/attachment`}
-                className='text-blue-600 underline'
-                target='_blank'
-              >
-                PDFを開く
-              </Link>
-            </div>
-          )}
+          <div>
+            <p className='text-xs font-semibold tracking-wide text-slate-500'>合計金額</p>
+            <p className='mt-1 text-3xl font-black tracking-tight text-slate-950'>
+              ¥{invoice.amount.toLocaleString('ja-JP')}
+            </p>
+          </div>
+        </CardHeader>
+        <CardContent className='p-0'>
+          <dl className='divide-y divide-slate-100'>
+            <DetailRow label='作成日'>{formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</DetailRow>
+            <DetailRow label={isEstimate ? '管理番号' : '締結書兼請求書番号'}>
+              {invoice.invoice_number ?? '-'}
+            </DetailRow>
+            <DetailRow label='支払期限'>
+              {invoice.due_date ? formatJaDateTimeWithWeekday(invoice.due_date) : '-'}
+            </DetailRow>
+            <DetailRow label='支払い状態'>
+              <Badge variant={invoice.offers?.paid ? 'success' : 'secondary'}>
+                {paymentStatusLabel(invoice)}
+              </Badge>
+            </DetailRow>
+          </dl>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>金額内訳</CardTitle>
+      <Card className='overflow-hidden border-slate-200 shadow-sm'>
+        <CardHeader className='border-b border-slate-100 p-5'>
+          <CardTitle className='text-lg'>金額内訳</CardTitle>
         </CardHeader>
-        <CardContent className='space-y-2 text-sm'>
-          <div>基本報酬: ¥{baseFee.toLocaleString('ja-JP')}</div>
-          <div>
-            交通費: ¥{(invoice.transport_fee ?? 0).toLocaleString('ja-JP')}
-          </div>
-          <div>
-            追加料金: ¥{(invoice.extra_fee ?? 0).toLocaleString('ja-JP')}
-          </div>
-          <div>メモ: {invoice.notes || 'なし'}</div>
+        <CardContent className='p-0'>
+          <dl className='divide-y divide-slate-100'>
+            <DetailRow label='基本報酬'>¥{baseFee.toLocaleString('ja-JP')}</DetailRow>
+            <DetailRow label='交通費'>¥{(invoice.transport_fee ?? 0).toLocaleString('ja-JP')}</DetailRow>
+            <DetailRow label='追加料金'>¥{(invoice.extra_fee ?? 0).toLocaleString('ja-JP')}</DetailRow>
+            <DetailRow label='メモ'>{invoice.notes || 'なし'}</DetailRow>
+          </dl>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>振込先情報</CardTitle>
+      <Card className='overflow-hidden border-slate-200 shadow-sm'>
+        <CardHeader className='border-b border-slate-100 p-5'>
+          <CardTitle className='text-lg'>振込先情報</CardTitle>
         </CardHeader>
-        <CardContent className='space-y-2 text-sm'>
+        <CardContent className='p-0'>
           {hasBankInfo && bank ? (
-            <>
-              <div>銀行名: {bank.bank_name}</div>
-              <div>支店名: {bank.branch_name}</div>
-              <div>口座種別: {bank.account_type}</div>
-              <div>口座番号: {bank.account_number}</div>
-              <div>口座名義: {bank.account_holder}</div>
-            </>
+            <dl className='divide-y divide-slate-100'>
+              <DetailRow label='銀行名'>{bank.bank_name || '-'}</DetailRow>
+              <DetailRow label='支店名'>{bank.branch_name || '-'}</DetailRow>
+              <DetailRow label='口座種別'>{bank.account_type || '-'}</DetailRow>
+              <DetailRow label='口座番号'>{bank.account_number || '-'}</DetailRow>
+              <DetailRow label='口座名義'>{bank.account_holder || '-'}</DetailRow>
+            </dl>
           ) : (
-            <div>未登録</div>
+            <div className='px-5 py-5 text-sm text-slate-500'>未登録</div>
           )}
         </CardContent>
       </Card>
 
-      <Button onClick={handleDownload} disabled={downloading}>
-        {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-        {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
-      </Button>
+      <div className='grid gap-2 sm:grid-cols-2'>
+        {invoice.invoice_url && (
+          <Button asChild variant='outline' className='min-h-11 w-full'>
+            <Link href={`/api/invoices/${invoice.id}/attachment`} target='_blank'>
+              アップロード済みPDFを開く
+            </Link>
+          </Button>
+        )}
+        <Button
+          onClick={handleDownload}
+          disabled={downloading}
+          variant='outline'
+          className='min-h-11 w-full'
+        >
+          {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+          {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
+        </Button>
+      </div>
 
       {invoice.status === 'submitted' && !isClosed && (
-        <div className='flex gap-2'>
-          <Button onClick={handleApprove} disabled={updatingStatus}>
+        <div className='fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-2 border-t border-slate-200 bg-white/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur sm:static sm:rounded-2xl sm:border sm:p-4 sm:shadow-sm'>
+          <Button
+            onClick={handleReject}
+            disabled={updatingStatus}
+            variant='outline'
+            className='min-h-12'
+          >
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            この見積内容で締結する
+            修正を依頼
           </Button>
-          <Button onClick={handleReject} disabled={updatingStatus} variant='outline'>
+          <Button onClick={handleApprove} disabled={updatingStatus} className='min-h-12 bg-blue-600 text-white hover:bg-blue-700'>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-            修正を依頼する
+            この内容で締結
           </Button>
         </div>
       )}
 
       {!isClosed && !invoice.offers?.paid && isContracted && invoice.offers?.status === 'completed' && (
-        <Button onClick={handlePay} disabled={paying}>
+        <Button onClick={handlePay} disabled={paying} className='min-h-12 w-full bg-blue-600 text-white hover:bg-blue-700'>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする
         </Button>
       )}
 
       {!isClosed && !invoice.offers?.paid && isContracted && invoice.offers?.status !== 'completed' && (
-        <div className='rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600'>
+        <div className='rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600'>
           来店完了を記録すると、支払い完了の操作ができるようになります。
         </div>
       )}
     </main>
-  )
-}
+  )}
