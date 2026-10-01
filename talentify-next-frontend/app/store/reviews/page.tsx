@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { getCompletedOffersForStore, CompletedOffer } from '@/utils/getCompletedOffersForStore'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,9 @@ import {
   ModalTitle,
 } from '@/components/ui/modal'
 import { createClient } from '@/utils/supabase/client'
+import { AlertCircle, RotateCcw } from 'lucide-react'
+import { EmptyState } from '@/components/ui/empty-state'
+import { TableSkeleton } from '@/components/ui/skeleton'
 
 type ReviewDetail = {
   offer_id: string
@@ -35,37 +38,55 @@ export default function StoreReviewsPage() {
   const [offers, setOffers] = useState<CompletedOffer[]>([])
   const [reviewByOfferId, setReviewByOfferId] = useState<Record<string, ReviewSummary>>({})
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedOffer, setSelectedOffer] = useState<CompletedOffer | null>(null)
   const [selectedReview, setSelectedReview] = useState<ReviewDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
-  useEffect(() => {
-    const load = async () => {
+  const loadReviews = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+
+    try {
       const data = await getCompletedOffersForStore()
       setOffers(data)
-      if (data.length > 0) {
-        const offerIds = data.map((offer) => offer.id)
-        const { data: reviewData, error } = await supabase
-          .from('reviews')
-          .select('offer_id, rating')
-          .in('offer_id', offerIds)
-        if (error) {
-          console.error('failed to fetch review summary', error)
-        } else {
-          const summaryMap = (reviewData ?? []).reduce<Record<string, ReviewSummary>>((acc, item) => {
-            if (!acc[item.offer_id]) {
-              acc[item.offer_id] = item as ReviewSummary
-            }
-            return acc
-          }, {})
-          setReviewByOfferId(summaryMap)
-        }
+
+      if (data.length === 0) {
+        setReviewByOfferId({})
+        return
       }
+
+      const offerIds = data.map((offer) => offer.id)
+      const { data: reviewData, error } = await supabase
+        .from('reviews')
+        .select('offer_id, rating')
+        .in('offer_id', offerIds)
+
+      if (error) {
+        console.error('failed to fetch review summary', error)
+        throw error
+      }
+
+      const summaryMap = (reviewData ?? []).reduce<Record<string, ReviewSummary>>((acc, item) => {
+        if (!acc[item.offer_id]) {
+          acc[item.offer_id] = item as ReviewSummary
+        }
+        return acc
+      }, {})
+
+      setReviewByOfferId(summaryMap)
+    } catch (error) {
+      console.error('failed to load store reviews', error)
+      setLoadError(true)
+    } finally {
       setLoading(false)
     }
-    load()
   }, [])
+
+  useEffect(() => {
+    void loadReviews()
+  }, [loadReviews])
 
   const openDetail = async (offer: CompletedOffer) => {
     setSelectedOffer(offer)
@@ -94,9 +115,33 @@ export default function StoreReviewsPage() {
         <h1 className="mb-4 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl">レビュー投稿一覧</h1>
         <section className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6">
           {loading ? (
-            <p>読み込み中...</p>
+            <TableSkeleton rows={4} />
+          ) : loadError ? (
+            <div
+              role="alert"
+              className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center"
+            >
+              <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
+              <h2 className="mt-2 text-sm font-semibold text-red-900">
+                レビュー対象を読み込めませんでした
+              </h2>
+              <p className="mt-1 text-xs leading-relaxed text-red-700">
+                通信状況を確認して、もう一度お試しください。
+              </p>
+              <button
+                type="button"
+                onClick={() => void loadReviews()}
+                className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-md border border-red-200 bg-white px-4 text-sm font-semibold text-red-800 transition hover:bg-red-100"
+              >
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                再読み込み
+              </button>
+            </div>
           ) : offers.length === 0 ? (
-            <p>該当するオファーはありません。</p>
+            <EmptyState
+              title="レビューできる案件はまだありません"
+              description="来店と支払いが完了した案件があると、ここからレビューを投稿できます。"
+            />
           ) : (
             <>
               <div className="space-y-3 md:hidden">
