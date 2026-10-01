@@ -8,7 +8,7 @@ const supabase = createClient()
 export type Invoice = Database['public']['Tables']['invoices']['Row']
 
 export async function getInvoicesForTalent() {
-  const talentId = await getTalentId()
+  const talentId = await getTalentId({ throwOnError: true })
   if (!talentId) return [] as Invoice[]
 
   const { data, error } = await supabase
@@ -21,7 +21,7 @@ export async function getInvoicesForTalent() {
 
   if (error) {
     console.error('failed to fetch invoices', error)
-    return []
+    throw error
   }
   return (data ?? []) as Invoice[]
 }
