@@ -23,6 +23,8 @@ export type StoreOfferListItem = {
   status: OfferStatusType | null
   date: Date
   time_range: string | null
+  start_time: Date | null
+  end_time: Date | null
   message: string | null
   agreed: boolean | null
   created_at: Date | null
@@ -36,6 +38,8 @@ export type OfferDetailForUser = {
   status: OfferStatusType | null
   date: Date
   time_range: string | null
+  start_time: Date | null
+  end_time: Date | null
   message: string | null
   agreed: boolean | null
   created_at: Date | null
@@ -77,6 +81,8 @@ export type OfferCreateInput = {
   talent_id: string
   date: Date
   time_range: string
+  start_time: Date
+  end_time: Date
   reward?: number | null
   agreed: boolean
   message: string
@@ -125,6 +131,8 @@ export async function findStoreOffersByAuthUser({
       status: true,
       date: true,
       time_range: true,
+      start_time: true,
+      end_time: true,
       message: true,
       agreed: true,
       created_at: true,
@@ -156,6 +164,8 @@ export async function findOfferByIdForAuthUser({
       status: true,
       date: true,
       time_range: true,
+      start_time: true,
+      end_time: true,
       message: true,
       agreed: true,
       created_at: true,
@@ -190,6 +200,8 @@ export async function findOfferByIdForAuthUser({
     status: offer.status,
     date: offer.date,
     time_range: offer.time_range,
+    start_time: offer.start_time,
+    end_time: offer.end_time,
     message: offer.message,
     agreed: offer.agreed,
     created_at: offer.created_at,
