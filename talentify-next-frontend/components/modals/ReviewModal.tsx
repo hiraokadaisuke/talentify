@@ -89,7 +89,16 @@ export default function ReviewModal({
       onSubmitted?.()
     } else {
       console.error('[reviews.insert] failed', { payload, error })
-      toast.error(`投稿に失敗しました: ${error.message}`)
+      const paymentRequired =
+        error?.code === '23514' ||
+        error?.code === '42501' ||
+        error?.message?.includes('payment completion')
+
+      toast.error(
+        paymentRequired
+          ? 'レビューは来店完了・支払い完了後に投稿できます'
+          : `投稿に失敗しました: ${error.message}`
+      )
     }
   }
 
