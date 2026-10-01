@@ -1,6 +1,7 @@
 export const OFFER_ATTACHMENT_BUCKET = 'offer-attachments'
 export const MAX_OFFER_ATTACHMENT_SIZE = 10 * 1024 * 1024
 export const OFFER_ATTACHMENT_SIGNED_UPLOAD_EXPIRES_IN = 2 * 60 * 60
+export const MAX_OFFER_MESSAGE_ATTACHMENTS = 3
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
@@ -34,11 +35,22 @@ export type ValidOfferAttachmentMetadata = ValidOfferAttachmentFileMetadata & {
   receiverUserId: string
 }
 
+export type OfferMessageAttachment = {
+  path: string
+  name: string
+  type: OfferAttachmentMimeType
+  size: number
+}
+
 export type OfferAttachmentValidationError =
   | 'invalid_payload'
   | 'invalid_file_name'
   | 'unsupported_file_type'
   | 'invalid_file_size'
+
+export type OfferMessageAttachmentValidationError =
+  | OfferAttachmentValidationError
+  | 'invalid_attachment_path'
 
 function isUuid(value: string) {
   return UUID_PATTERN.test(value)
@@ -121,6 +133,66 @@ export function validateOfferAttachmentMetadata(
       offerId,
       receiverUserId,
       ...fileValidation.data,
+    },
+  }
+}
+
+export function validateOfferMessageAttachment(
+  payload: unknown,
+  context: { offerId: string; senderUserId: string },
+):
+  | { ok: true; data: OfferMessageAttachment }
+  | { ok: false; error: OfferMessageAttachmentValidationError } {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return { ok: false, error: 'invalid_payload' }
+  }
+
+  const input = payload as Record<string, unknown>
+  const path = typeof input.path === 'string' ? input.path.trim() : ''
+  const name = typeof input.name === 'string' ? input.name.trim() : ''
+  const type = typeof input.type === 'string' ? input.type.trim().toLowerCase() : ''
+  const size = input.size
+
+  const fileValidation = validateOfferAttachmentFileMetadata({
+    fileName: name,
+    contentType: type,
+    size,
+  })
+  if (fileValidation.ok === false) {
+    return fileValidation
+  }
+
+  const parts = path.split('/')
+  if (
+    parts.length !== 3 ||
+    parts[0] !== context.offerId ||
+    parts[1] !== context.senderUserId
+  ) {
+    return { ok: false, error: 'invalid_attachment_path' }
+  }
+
+  const storageFileName = parts[2]
+  const dotIndex = storageFileName.lastIndexOf('.')
+  if (dotIndex <= 0 || dotIndex === storageFileName.length - 1) {
+    return { ok: false, error: 'invalid_attachment_path' }
+  }
+
+  const objectId = storageFileName.slice(0, dotIndex)
+  const extension = storageFileName.slice(dotIndex + 1).toLowerCase()
+  if (
+    !isUuid(objectId) ||
+    extension !== fileValidation.data.extension
+  ) {
+    return { ok: false, error: 'invalid_attachment_path' }
+  }
+
+  return {
+    ok: true,
+    data: {
+      path,
+      name: fileValidation.data.fileName,
+      type: fileValidation.data.contentType,
+      size: fileValidation.data.size,
     },
   }
 }
