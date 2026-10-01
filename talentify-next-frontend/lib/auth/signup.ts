@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { PRIVACY_VERSION, TERMS_VERSION } from '@/lib/legal/version'
 
 export const SIGNUP_ROLES = ['talent', 'store'] as const
 export const signUpSchema = z.object({
@@ -6,6 +7,10 @@ export const signUpSchema = z.object({
   phone: z.string().transform(value => value.replace(/\D/g, '')).refine(value => /^\d{10,11}$/.test(value)),
   password: z.string().min(8),
   role: z.enum(SIGNUP_ROLES),
+  acceptTerms: z.literal(true),
+  acceptPrivacy: z.literal(true),
+  termsVersion: z.literal(TERMS_VERSION),
+  privacyVersion: z.literal(PRIVACY_VERSION),
 })
 
 export type SignupRole = (typeof SIGNUP_ROLES)[number]
