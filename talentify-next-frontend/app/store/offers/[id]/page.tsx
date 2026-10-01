@@ -28,7 +28,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
       .from('offers')
       .select(
         `
-        id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,canceled_by_role,cancel_reason,cancellation_phase,accepted_at,paid,paid_at,
+        id,status,date,time_range,respond_deadline,reward,created_at,updated_at,message,talent_id,user_id,canceled_at,canceled_by_role,cancellation_reason,cancellation_stage,accepted_at,paid,paid_at,
         reviews(id), talents(stage_name,avatar_url,user_id,preferred_contact_method,phone_contact_allowed,phone_available_hours),
         store:stores!offers_store_id_fkey(id, store_name, user_id)
       `
@@ -187,8 +187,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
               initialStatus: data.status as string,
               initialCanceledAt: data.canceled_at as string | null,
               initialCanceledByRole: data.canceled_by_role as string | null,
-              initialCancelReason: data.cancel_reason as string | null,
-              initialCancellationPhase: data.cancellation_phase as string | null,
+              initialCancellationReason: data.cancellation_reason as string | null,
+              initialCancellationStage: data.cancellation_stage as string | null,
             }}
           />
         </div>
