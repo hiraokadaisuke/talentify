@@ -395,8 +395,9 @@ export type Database = {
           agreed: boolean | null
           canceled_at: string | null
           canceled_by_role: string | null
-          cancel_reason: string | null
-          cancellation_phase: string | null
+          canceled_by_user_id: string | null
+          cancellation_reason: string | null
+          cancellation_stage: string | null
           contract_url: string | null
           created_at: string | null
           date: string
@@ -428,8 +429,9 @@ export type Database = {
           agreed?: boolean | null
           canceled_at?: string | null
           canceled_by_role?: string | null
-          cancel_reason?: string | null
-          cancellation_phase?: string | null
+          canceled_by_user_id?: string | null
+          cancellation_reason?: string | null
+          cancellation_stage?: string | null
           contract_url?: string | null
           created_at?: string | null
           date: string
@@ -461,8 +463,9 @@ export type Database = {
           agreed?: boolean | null
           canceled_at?: string | null
           canceled_by_role?: string | null
-          cancel_reason?: string | null
-          cancellation_phase?: string | null
+          canceled_by_user_id?: string | null
+          cancellation_reason?: string | null
+          cancellation_stage?: string | null
           contract_url?: string | null
           created_at?: string | null
           date?: string
