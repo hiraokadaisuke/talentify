@@ -1,77 +1,69 @@
 import Link from 'next/link'
 
+const commonLinks = [
+  ['/', 'ホーム'],
+  ['/guide', 'ご利用ガイド'],
+  ['/faq', 'よくある質問'],
+  ['/pricing', '料金'],
+  ['/news', 'お知らせ'],
+  ['/about', 'このサイトについて'],
+  ['/contact', 'お問い合わせ'],
+  ['/terms', '利用規約'],
+  ['/privacy', 'プライバシーポリシー'],
+  ['/login', 'ログイン'],
+  ['/password-reset', 'パスワード再設定'],
+]
+
 export default function SitemapPage() {
   return (
-    <main className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">サイトマップ</h1>
+    <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
+      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">SITEMAP</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">サイトマップ</h1>
+        <p className="mt-3 text-sm leading-7 text-slate-600">
+          Talentifyの主なページをご案内します。
+        </p>
+      </header>
 
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">共通ページ</h2>
-        <ul className="list-disc list-inside space-y-1">
-          <li>
-            <Link href="/" className="text-blue-600 underline">
-              ホーム
-            </Link>
-          </li>
-          <li>
-            <Link href="/sitemap" className="text-blue-600 underline">
-              サイトマップ
-            </Link>
-          </li>
-          <li>
-            <Link href="/faq" className="text-blue-600 underline">
-              よくある質問
-            </Link>
-          </li>
-          <li>
-            <Link href="/contact" className="text-blue-600 underline">
-              お問い合わせ
-            </Link>
-          </li>
-          <li>
-            <Link href="/terms" className="text-blue-600 underline">
-              利用規約
-            </Link>
-          </li>
-          <li>
-            <Link href="/privacy" className="text-blue-600 underline">
-              プライバシーポリシー
-            </Link>
-          </li>
-          <li>
-            <Link href="/login" className="text-blue-600 underline">
-              ログイン
-            </Link>
-          </li>
-          <li>
-            <Link href="/password-reset" className="text-blue-600 underline">
-              パスワード再設定
-            </Link>
-          </li>
-        </ul>
-      </section>
+      <div className="mt-6 grid gap-5 md:grid-cols-3">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:col-span-2">
+          <h2 className="text-base font-semibold text-slate-950">サービス・サポート</h2>
+          <ul className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+            {commonLinks.map(([href, label]) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className="font-medium text-slate-700 transition hover:text-blue-700 hover:underline"
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">パチンコ店向けページ</h2>
-        <ul className="list-disc list-inside space-y-1">
-          <li>
-            <Link href="/register?role=store" className="text-blue-600 underline">
-              店舗登録
-            </Link>
-          </li>
-        </ul>
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">演者向けページ</h2>
-        <ul className="list-disc list-inside space-y-1">
-          <li>
-            <Link href="/register?role=talent" className="text-blue-600 underline">
-              演者登録
-            </Link>
-          </li>
-        </ul>
-      </section>
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h2 className="text-base font-semibold text-slate-950">新規登録</h2>
+          <ul className="mt-4 space-y-3 text-sm">
+            <li>
+              <Link
+                href="/register?role=store"
+                className="font-medium text-slate-700 transition hover:text-blue-700 hover:underline"
+              >
+                店舗として登録
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/register?role=talent"
+                className="font-medium text-slate-700 transition hover:text-blue-700 hover:underline"
+              >
+                演者として登録
+              </Link>
+            </li>
+          </ul>
+        </section>
+      </div>
     </main>
-  );
+  )
 }
