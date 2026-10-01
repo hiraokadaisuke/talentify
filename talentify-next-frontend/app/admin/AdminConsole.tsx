@@ -2,8 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AlertCircle, RefreshCw, Search, ShieldCheck } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { AlertCircle, Eye, RefreshCw, Search, ShieldCheck } from 'lucide-react'
+import { Button } from '@/components/ui/button'\nimport AdminDetailPanel from './AdminDetailPanel'
 
 type Summary = {
   users: number
@@ -118,7 +118,7 @@ export default function AdminConsole() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [tab, setTab] = useState<Tab>('users')
-  const [actionId, setActionId] = useState<string | null>(null)
+  const [actionId, setActionId] = useState<string | null>(null)\n  const [detailTarget, setDetailTarget] = useState<{ kind: 'user' | 'offer'; id: string } | null>(null)
 
   const [queryInput, setQueryInput] = useState('')
   const [query, setQuery] = useState('')
@@ -431,6 +431,14 @@ export default function AdminConsole() {
                                 <p className="text-xs font-medium text-slate-600">{user.profile_label}</p>
                               )}
                               <p className="text-xs text-slate-400">{user.phone || '-'}</p>
+                              <button
+                                type="button"
+                                onClick={() => setDetailTarget({ kind: 'user', id: user.id })}
+                                className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:underline"
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                                詳細を見る
+                              </button>
                             </td>
                             <td className="py-3">{roleLabel(user.role)}</td>
                             <td className="py-3">{statusLabel(user.status)}</td>
@@ -522,7 +530,16 @@ export default function AdminConsole() {
                           <tr key={offer.id} className="border-t border-slate-100">
                             <td className="py-3">{formatDate(offer.updated_at)}</td>
                             <td className="py-3">{formatDate(offer.date)}</td>
-                            <td className="py-3">{offer.event_name || '-'}</td>
+                            <td className="py-3">
+                              <button
+                                type="button"
+                                onClick={() => setDetailTarget({ kind: 'offer', id: offer.id })}
+                                className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-blue-700 hover:underline"
+                              >
+                                {offer.event_name || '案件'}
+                                <Eye className="h-3.5 w-3.5" />
+                              </button>
+                            </td>
                             <td className="py-3">{offer.store_name || '-'}</td>
                             <td className="py-3">{offer.talent_name || '-'}</td>
                             <td className="py-3">{offer.status ? statusLabel(offer.status) : '-'}</td>
@@ -558,6 +575,14 @@ export default function AdminConsole() {
           </>
         )}
       </div>
+
+      {detailTarget && (
+        <AdminDetailPanel
+          kind={detailTarget.kind}
+          id={detailTarget.id}
+          onClose={() => setDetailTarget(null)}
+        />
+      )}
     </main>
   )
 }
