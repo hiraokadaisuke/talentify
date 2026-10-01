@@ -134,7 +134,7 @@ describe('PUT /api/offers/[id]', () => {
     expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
-  it('allows store to cancel pending or confirmed offers', async () => {
+  it('routes store cancellation through the dedicated cancellation endpoint', async () => {
     mockedGetCurrentUser.mockResolvedValue({ user: { id: 'u-store' }, error: null })
     mockedFindOfferAccessById.mockResolvedValue({
       store_user_id: 'u-store',
@@ -148,16 +148,8 @@ describe('PUT /api/offers/[id]', () => {
     })
     const res = await PUT(req, { params: { id: 'offer-1' } })
 
-    expect(res.status).toBe(200)
-    expect(mockedUpdateOfferById).toHaveBeenCalledWith(
-      'offer-1',
-      expect.objectContaining({
-        status: 'canceled',
-        canceled_at: expect.any(String),
-        canceled_by_role: 'store',
-      }),
-      'confirmed'
-    )
+    expect(res.status).toBe(409)
+    expect(mockedUpdateOfferById).not.toHaveBeenCalled()
   })
 
   it('blocks store from accepting, rejecting, or completing offers', async () => {
