@@ -5,7 +5,7 @@ export const dynamic = "auto";
 import React from "react";
 
 export const metadata = {
-  title: "Talentify",
+  title: "来店ナビ",
   description: "パチンコ店と演者をつなぐマッチングプラットフォーム",
   icons: {
     icon: "/favicon.png?v=2",
