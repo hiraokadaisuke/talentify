@@ -107,7 +107,8 @@ export default function NotificationsInboxPage() {
     <div className="mx-auto max-w-5xl space-y-4 py-4 sm:py-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">NOTIFICATIONS</p>\n          <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">通知</h1>
+          <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">NOTIFICATIONS</p>
+          <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">通知</h1>
           <p className="text-sm text-muted-foreground" data-testid="notifications-unread-count">
             未読 {unreadCount} 件
           </p>
@@ -135,7 +136,8 @@ export default function NotificationsInboxPage() {
             variant={tab === option.key ? 'default' : 'outline'}
             size="sm"
             onClick={() => setTab(option.key as NotificationInboxTab)}
-            className={tab === option.key ? 'bg-[#FF5A1F] text-white hover:bg-[#E94F18]' : 'border-slate-200 text-slate-700'}\n            data-testid={`notifications-tab-${option.key}`}
+            className={tab === option.key ? 'bg-[#FF5A1F] text-white hover:bg-[#E94F18]' : 'border-slate-200 text-slate-700'}
+            data-testid={`notifications-tab-${option.key}`}
           >
             {option.label}
           </Button>
