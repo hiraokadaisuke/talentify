@@ -169,23 +169,17 @@ export default function MessagesPage({
     setError(null)
 
     try {
-      const {
-        data: { user },
-        error: authError,
-      } = await supabase.auth.getUser()
-
-      if (authError || !user) {
-        throw authError ?? new Error('Authenticated user not found')
-      }
-
-      setUserId(user.id)
-
       const res = await fetch(`/api/messages/inbox?type=${type}`)
       if (!res.ok) {
         throw new Error('failed to fetch messages')
       }
 
-      const payload = (await res.json()) as { data?: MessageRow[] }
+      const payload = (await res.json()) as { data?: MessageRow[]; userId?: string }
+      if (!payload.userId) {
+        throw new Error('Authenticated user not found')
+      }
+
+      setUserId(payload.userId)
       setMessages(Array.isArray(payload.data) ? payload.data : [])
     } catch (loadError) {
       console.error('failed to load messages', loadError)
