@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 import { createServiceClient } from '@/lib/supabase/service'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -23,8 +24,8 @@ type PageProps = {
 export default async function StoreOfferPage({ params }: PageProps) {
   const supabase = createClient()
 
-  const [userResult, offerResult, invoiceResult] = await Promise.all([
-    supabase.auth.getUser(),
+  const [userIdResult, offerResult, invoiceResult] = await Promise.all([
+    getProtectedRequestUserId(supabase),
     supabase
       .from('offers')
       .select(
@@ -43,11 +44,11 @@ export default async function StoreOfferPage({ params }: PageProps) {
       .maybeSingle(),
   ])
 
-  const user = userResult.data.user
+  const userId = userIdResult.userId
   const data = offerResult.data
   const invoice = invoiceResult.data
 
-  if (!data || !user || data.store?.user_id !== user.id) {
+  if (!data || !userId || data.store?.user_id !== userId) {
     notFound()
   }
 
@@ -202,7 +203,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
           <div className="space-y-3">
             <MessageCard
               offerId={offer.id}
-              currentUserId={user.id}
+              currentUserId={userId}
               peerUserId={offer.talentUserId ?? ''}
               storeName={offer.storeName}
               talentName={offer.performerName}
