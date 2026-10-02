@@ -9,7 +9,7 @@ import TalentList from './TalentList'
 import type { PublicTalent } from '@/types/talent'
 import TalentCardSkeleton from './TalentCardSkeleton'
 import { EmptyState } from '@/components/ui/empty-state'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Search } from 'lucide-react'
 
 const ITEMS_PER_PAGE = 6
 
@@ -129,8 +129,22 @@ export default function TalentSearchPage() {
   const paginated = results.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   return (
-    <main className="mx-auto min-w-0 space-y-4 px-3 py-3 sm:space-y-6 sm:px-6 sm:py-4 md:px-8 lg:px-12">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
+    <main className="mx-auto min-w-0 w-full max-w-[1500px] space-y-4 py-2 sm:space-y-5 sm:py-4">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+        <div className="flex items-start gap-3 p-5 sm:p-6">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
+            <Search className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">TALENT SEARCH</p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">演者から探す</h1>
+            <p className="mt-1 text-sm leading-6 text-slate-500">条件を絞り込み、プロフィールを見ながら依頼したい演者を探せます。</p>
+          </div>
+        </div>
+        <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+      </section>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[270px_minmax(0,1fr)] lg:items-start">
         <TalentSearchForm onSearch={handleSearch} genreOptions={genreOptions} areaOptions={areaOptions} />
 
         <section className="space-y-4">
@@ -158,7 +172,7 @@ export default function TalentSearchPage() {
                   <button
                     key={p}
                     onClick={() => setPage(p)}
-                    className={`rounded border px-3 py-1 ${p === page ? 'bg-blue-600 text-white' : 'bg-white'}`}
+                    className={`min-h-9 min-w-9 rounded-xl border px-3 py-1 text-sm font-bold transition ${p === page ? 'border-[#FF5A1F] bg-[#FF5A1F] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-orange-200 hover:bg-orange-50'}`}
                   >
                     {p}
                   </button>
