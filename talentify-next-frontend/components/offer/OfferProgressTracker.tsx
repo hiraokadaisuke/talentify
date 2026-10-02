@@ -12,8 +12,8 @@ interface OfferProgressTrackerProps {
 }
 
 const titleColorByStatus: Record<OfferProgressStep['status'], string> = {
-  complete: 'text-[#2f4da0]',
-  current: 'text-[#2f4da0]',
+  complete: 'text-[#0B1F3B]',
+  current: 'text-[#FF5A1F]',
   upcoming: 'text-[#64748b]',
 }
 
@@ -24,8 +24,8 @@ const dateColorByStatus: Record<OfferProgressStep['status'], string> = {
 }
 
 const iconStylesByStatus: Record<OfferProgressStep['status'], { outer: string; inner: string }> = {
-  complete: { outer: 'border-2 border-[#2f4da0]', inner: 'bg-[#2f4da0] text-white' },
-  current: { outer: 'border-2 border-transparent', inner: 'bg-[#2f4da0] text-white' },
+  complete: { outer: 'border-2 border-[#0B1F3B]', inner: 'bg-[#0B1F3B] text-white' },
+  current: { outer: 'border-2 border-[#FF8A00]', inner: 'bg-[#FF5A1F] text-white' },
   upcoming: { outer: 'border border-[#e2e8f0]', inner: 'bg-white text-[#94a3b8]' },
 }
 
@@ -53,7 +53,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                 <span
                   className={cn(
                     'absolute left-[17px] top-9 h-[calc(100%-1.25rem)] w-0.5',
-                    connectorActive ? 'bg-[#2f4da0]' : 'bg-slate-200',
+                    connectorActive ? 'bg-[#0B1F3B]' : 'bg-slate-200',
                   )}
                   aria-hidden="true"
                 />
@@ -63,7 +63,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                 onClick={() => onStepSelect?.(step.key)}
                 className={cn(
                   'relative z-10 flex w-full items-start gap-2.5 rounded-xl px-2 py-1.5 text-left transition-colors',
-                  isSelected ? 'bg-blue-50' : 'hover:bg-slate-50',
+                  isSelected ? 'bg-orange-50' : 'hover:bg-slate-50',
                 )}
                 aria-pressed={isSelected}
               >
@@ -71,7 +71,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                   className={cn(
                     'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white',
                     iconStyles.outer,
-                    isSelected && 'ring-2 ring-[#2f4da0]/25 ring-offset-1',
+                    isSelected && 'ring-2 ring-[#FF8A00]/25 ring-offset-1',
                   )}
                 >
                   <div className={cn('flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold', iconStyles.inner)}>
@@ -108,14 +108,14 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                 {index > 0 && (
                   <span
                     className="absolute left-0 top-6 block h-1 w-1/2 -translate-y-1/2 rounded-full"
-                    style={{ backgroundColor: leftConnectorActive ? '#2f4da0' : '#e2e8f0' }}
+                    style={{ backgroundColor: leftConnectorActive ? '#0B1F3B' : '#e2e8f0' }}
                     aria-hidden="true"
                   />
                 )}
                 {index < steps.length - 1 && (
                   <span
                     className="absolute right-0 top-6 block h-1 w-1/2 -translate-y-1/2 rounded-full"
-                    style={{ backgroundColor: rightConnectorActive ? '#2f4da0' : '#e2e8f0' }}
+                    style={{ backgroundColor: rightConnectorActive ? '#0B1F3B' : '#e2e8f0' }}
                     aria-hidden="true"
                   />
                 )}
@@ -129,7 +129,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                     className={cn(
                       'relative z-10 flex h-12 w-12 items-center justify-center rounded-full transition-all',
                       iconStyles.outer,
-                      isSelected && 'ring-2 ring-[#2f4da0] ring-opacity-35 ring-offset-2',
+                      isSelected && 'ring-2 ring-[#FF8A00] ring-opacity-35 ring-offset-2',
                     )}
                   >
                     <div className={cn('flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition-all', iconStyles.inner)}>
