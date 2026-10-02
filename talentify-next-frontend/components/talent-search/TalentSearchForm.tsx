@@ -54,7 +54,7 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
 
   return (
     <>
-      <div className="md:hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="md:hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="space-y-3">
           <Input
             placeholder="名前・PR文で検索"
@@ -64,7 +64,7 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
           <Button
             type="button"
             variant="outline"
-            className="w-full"
+            className="w-full rounded-xl border-slate-200 font-bold text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
             onClick={() => setIsMobileFilterOpen(prev => !prev)}
           >
             {isMobileFilterOpen ? '絞り込みを閉じる' : '絞り込み'}
@@ -72,10 +72,10 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
         </div>
       </div>
 
-      <aside className={`rounded-2xl border border-gray-200 bg-white p-5 shadow-sm ${isMobileFilterOpen ? 'block' : 'hidden'} md:sticky md:top-24 md:block md:h-fit`}>
+      <aside className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${isMobileFilterOpen ? 'block' : 'hidden'} md:sticky md:top-24 md:block md:h-fit`}>
         <div className="space-y-5">
-          <section className="space-y-2 border-b border-gray-100 pb-4">
-            <h3 className="text-sm font-semibold text-gray-900">キーワード</h3>
+          <section className="space-y-2 border-b border-slate-100 pb-4">
+            <h3 className="text-sm font-semibold text-slate-950">キーワード</h3>
             <Input
               placeholder="名前・PR文で検索"
               value={filters.keyword}
@@ -83,14 +83,14 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
             />
           </section>
 
-          <section className="space-y-3 border-b border-gray-100 pb-4">
-            <h3 className="text-sm font-semibold text-gray-900">ジャンル</h3>
+          <section className="space-y-3 border-b border-slate-100 pb-4">
+            <h3 className="text-sm font-semibold text-slate-950">ジャンル</h3>
             <div className="space-y-2">
               {genreOptions.map(option => (
-                <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
                   <input
                     type="checkbox"
-                    className="h-5 w-5 rounded border-gray-300"
+                    className="h-5 w-5 rounded border-slate-300"
                     checked={filters.genres.includes(option)}
                     onChange={() => toggleArrayFilter('genres', option)}
                   />
@@ -100,14 +100,14 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
             </div>
           </section>
 
-          <section className="space-y-3 border-b border-gray-100 pb-4">
-            <h3 className="text-sm font-semibold text-gray-900">活動エリア</h3>
+          <section className="space-y-3 border-b border-slate-100 pb-4">
+            <h3 className="text-sm font-semibold text-slate-950">活動エリア</h3>
             <div className="space-y-2">
               {areaOptions.map(option => (
-                <label key={option} className="flex items-center gap-2 text-sm text-gray-700">
+                <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
                   <input
                     type="checkbox"
-                    className="h-5 w-5 rounded border-gray-300"
+                    className="h-5 w-5 rounded border-slate-300"
                     checked={filters.areas.includes(option)}
                     onChange={() => toggleArrayFilter('areas', option)}
                   />
@@ -117,8 +117,8 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
             </div>
           </section>
 
-          <section className="space-y-2 border-b border-gray-100 pb-4">
-            <h3 className="text-sm font-semibold text-gray-900">料金目安</h3>
+          <section className="space-y-2 border-b border-slate-100 pb-4">
+            <h3 className="text-sm font-semibold text-slate-950">料金目安</h3>
             <select
               value={filters.rateRange ?? ''}
               onChange={e =>
@@ -127,7 +127,7 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
                   rateRange: e.target.value ? (e.target.value as RateRange) : undefined,
                 }))
               }
-              className="h-10 w-full rounded-md border border-gray-300 px-3 text-sm"
+              className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-700 outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
             >
               <option value="">指定なし</option>
               <option value="under_200k">〜20万円</option>
@@ -137,7 +137,7 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
             </select>
           </section>
 
-          <Button type="button" variant="ghost" className="w-full" onClick={handleReset}>
+          <Button type="button" variant="ghost" className="w-full rounded-xl text-slate-500 hover:bg-orange-50 hover:text-[#C2410C]" onClick={handleReset}>
             条件をリセット
           </Button>
         </div>
