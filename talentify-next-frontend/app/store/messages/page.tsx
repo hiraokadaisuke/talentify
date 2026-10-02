@@ -1,6 +1,6 @@
 import MessagesPage, { type MessageRow } from '@/components/messages/MessagesPage'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 import { getMessageInboxForUser, type MessageInboxType } from '@/lib/messages/getMessageInbox'
 
 type PageProps = {
@@ -22,15 +22,15 @@ async function loadInitialMessages(type: MessageInboxType): Promise<{
   const supabase = createClient()
 
   try {
-    const { user, error: userError } = await getCurrentUserWithClient(supabase)
-    if (userError || !user) {
+    const { userId, error: userError } = await getProtectedRequestUserId(supabase)
+    if (userError || !userId) {
       return { messages: [], userId: null, loadError: true }
     }
 
-    const data = await getMessageInboxForUser(supabase, user.id, type)
+    const data = await getMessageInboxForUser(supabase, userId, type)
     return {
       messages: data as unknown as MessageRow[],
-      userId: user.id,
+      userId,
       loadError: false,
     }
   } catch (error) {
