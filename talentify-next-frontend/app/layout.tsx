@@ -11,7 +11,9 @@ export const metadata = {
   title: "来店ナビ",
   description: "パチンコ店と演者をつなぎ、来店イベントの検索・オファー・案件管理・告知までを支援する来店イベントプラットフォーム",
   icons: {
-    icon: "/favicon.png?v=2",
+    icon: "/brand/raiten-navi-icon.svg?v=1",
+    shortcut: "/brand/raiten-navi-icon.svg?v=1",
+    apple: "/brand/raiten-navi-icon.svg?v=1",
   },
 };
 
