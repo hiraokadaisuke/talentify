@@ -1,6 +1,6 @@
 import StoreReviewsClient from './ReviewsClient'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import type { CompletedOffer } from '@/utils/getCompletedOffersForStore'
 
@@ -27,15 +27,15 @@ async function loadInitialReviews(): Promise<{
   const supabase = createClient()
 
   try {
-    const { user } = await getCurrentUserWithClient(supabase)
-    if (!user) {
+    const { userId } = await getProtectedRequestUserId(supabase)
+    if (!userId) {
       return { offers: [], reviewByOfferId: {}, loadError: false }
     }
 
     const { data: store, error: storeError } = await supabase
       .from('stores')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (storeError) throw storeError
