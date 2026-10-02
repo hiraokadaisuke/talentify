@@ -1,6 +1,6 @@
 import TalentInvoicesClient from './InvoicesClient'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 import type { Invoice } from '@/utils/getInvoicesForTalent'
 
 async function loadInitialInvoices(): Promise<{
@@ -10,13 +10,13 @@ async function loadInitialInvoices(): Promise<{
   const supabase = createClient()
 
   try {
-    const { user } = await getCurrentUserWithClient(supabase)
-    if (!user) return { invoices: [], loadError: false }
+    const { userId } = await getProtectedRequestUserId(supabase)
+    if (!userId) return { invoices: [], loadError: false }
 
     const { data: talent, error: talentError } = await supabase
       .from('talents')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (talentError) throw talentError
