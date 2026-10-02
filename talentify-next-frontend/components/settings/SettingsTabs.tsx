@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Tab {
   href: string
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export function SettingsTabs({ tabs, current }: Props) {
+  const router = useRouter()
+
   return (
     <div className="mb-4">
       <div className="hidden sm:block border-b">
@@ -34,7 +37,7 @@ export function SettingsTabs({ tabs, current }: Props) {
           className="w-full border rounded p-2"
           value={current}
           onChange={(e) => {
-            window.location.href = e.target.value
+            router.push(e.target.value)
           }}
         >
           {tabs.map((t) => (
