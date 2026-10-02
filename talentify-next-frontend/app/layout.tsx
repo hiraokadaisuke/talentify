@@ -8,8 +8,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata = {
-  title: "Talentify",
-  description: "パチンコ店と演者をつなぎ、検索・オファー・案件管理・請求までを一つにまとめるプラットフォーム",
+  title: "来店ナビ",
+  description: "パチンコ店と演者をつなぎ、来店イベントの検索・オファー・案件管理・告知までを支援する来店イベントプラットフォーム",
   icons: {
     icon: "/favicon.png?v=2",
   },
