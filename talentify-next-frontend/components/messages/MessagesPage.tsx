@@ -17,7 +17,7 @@ const supabase = createClient()
 
 export type UserRole = 'store' | 'talent'
 
-type MessageRow = {
+export type MessageRow = {
   id: string
   sender_user: string
   receiver_user: string
@@ -145,16 +145,24 @@ export default function MessagesPage({
   type,
   basePath,
   initialPartnerId,
+  initialMessages = [],
+  initialUserId = null,
+  initialLoadError = false,
 }: {
   role: UserRole
   type: 'direct' | 'offer'
   basePath?: string
   initialPartnerId?: string | null
+  initialMessages?: MessageRow[]
+  initialUserId?: string | null
+  initialLoadError?: boolean
 }) {
-  const [messages, setMessages] = useState<MessageRow[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
+  const [messages, setMessages] = useState<MessageRow[]>(initialMessages)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(
+    initialLoadError ? 'メッセージを読み込めませんでした' : null
+  )
+  const [userId, setUserId] = useState<string | null>(initialUserId)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [input, setInput] = useState('')
   const [query, setQuery] = useState('')
@@ -191,8 +199,9 @@ export default function MessagesPage({
   }, [type])
 
   useEffect(() => {
+    if (initialUserId && !initialLoadError) return
     void loadMessages()
-  }, [loadMessages])
+  }, [initialLoadError, initialUserId, loadMessages])
 
   useEffect(() => {
     if (!userId) return
