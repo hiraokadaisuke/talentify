@@ -10,14 +10,20 @@ import { getRecentNotifications } from '@/utils/getRecentNotifications'
 interface Props {
   title?: string
   className?: string
+  initialItems?: Notification[]
 }
 
-export default function NotificationListCard({ title = '通知', className }: Props) {
-  const [items, setItems] = useState<Notification[] | null>(null)
+export default function NotificationListCard({
+  title = '通知',
+  className,
+  initialItems,
+}: Props) {
+  const [items, setItems] = useState<Notification[] | null>(initialItems ?? null)
 
   useEffect(() => {
+    if (initialItems !== undefined) return
     getRecentNotifications().then(setItems)
-  }, [])
+  }, [initialItems])
 
   return (
     <DashboardCard title={title} className={cn('space-y-2', className)}>
