@@ -1,17 +1,20 @@
 import { createClient } from '@/lib/supabase/server'
 import type { ScheduleItem } from '@/components/ScheduleCard'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
-import { getCurrentUser } from '@/lib/auth/getCurrentUser'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import type { Notification } from '@/types/ui'
 
 export async function getTalentDashboardData() {
   const supabase = createClient()
-  const { user } = await getCurrentUser()
+  const { user } = await getCurrentUserWithClient(supabase)
 
   if (!user) {
     return {
       pendingOffersCount: 0,
+      confirmedOffersCount: 0,
       unreadMessagesCount: 0,
       schedule: [] as ScheduleItem[],
+      recentNotifications: [] as Notification[],
       isSetupComplete: false,
     }
   }
@@ -26,7 +29,7 @@ export async function getTalentDashboardData() {
   const pendingStatus = toDbOfferStatus('pending') ?? 'pending'
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
 
-  const [pendingResult, unreadResult, scheduleResult] = await Promise.all([
+  const [pendingResult, unreadResult, scheduleResult, notificationsResult] = await Promise.all([
     talentId
       ? supabase
           .from('offers')
@@ -46,14 +49,21 @@ export async function getTalentDashboardData() {
             `
             id, date, time_range,
             store:stores!offers_store_id_fkey(id, store_name)
-          `
+          `,
+            { count: 'exact' }
           )
           .eq('talent_id', talentId)
           .eq('status', confirmedStatus)
           .gte('date', new Date().toISOString().slice(0, 10))
           .order('date', { ascending: true })
           .limit(5)
-      : Promise.resolve({ data: [] }),
+      : Promise.resolve({ data: [], count: 0 }),
+    supabase
+      .from('notifications')
+      .select('id,type,title,body,data,created_at,is_read')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5),
   ])
 
   const schedule: ScheduleItem[] = (scheduleResult.data ?? []).map((d: any) => ({
@@ -63,17 +73,36 @@ export async function getTalentDashboardData() {
     href: `/talent/offers/${d.id}`,
   }))
 
+  if (notificationsResult.error) {
+    console.error('failed to preload talent dashboard notifications', notificationsResult.error)
+  }
+
+  const recentNotifications: Notification[] = (notificationsResult.data ?? []).map((item: any) => ({
+    id: item.id,
+    type: item.type,
+    title: item.title,
+    body: item.body ?? item.title,
+    data:
+      item.data && typeof item.data === 'object' && !Array.isArray(item.data)
+        ? item.data
+        : undefined,
+    created_at: item.created_at ?? '',
+    is_read: Boolean(item.is_read),
+  }))
+
   return {
     pendingOffersCount: pendingResult.count ?? 0,
+    confirmedOffersCount: scheduleResult.count ?? 0,
     unreadMessagesCount: unreadResult.count ?? 0,
     schedule,
+    recentNotifications,
     isSetupComplete: Boolean(talent?.is_setup_complete),
   }
 }
 
 export async function getStoreDashboardData() {
   const supabase = createClient()
-  const { user, error: userError } = await getCurrentUser()
+  const { user, error: userError } = await getCurrentUserWithClient(supabase)
 
   if (userError || !user) {
     throw new Error('failed to fetch user session')
@@ -90,13 +119,14 @@ export async function getStoreDashboardData() {
       offerStats: {} as Record<string, number>,
       schedule: [] as ScheduleItem[],
       unreadCount: 0,
+      recentNotifications: [] as Notification[],
       isSetupComplete: false,
     }
   }
 
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
 
-  const [offersResult, scheduleResult, unreadResult] = await Promise.all([
+  const [offersResult, scheduleResult, unreadResult, notificationsResult] = await Promise.all([
     supabase.from('offers').select('status').eq('store_id', store.id),
     supabase
       .from('offers')
@@ -111,6 +141,12 @@ export async function getStoreDashboardData() {
       .select('id', { count: 'exact', head: true })
       .eq('receiver_user', user.id)
       .is('read_at', null),
+    supabase
+      .from('notifications')
+      .select('id,type,title,body,data,created_at,is_read')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5),
   ])
 
   if (offersResult.error) {
@@ -133,10 +169,28 @@ export async function getStoreDashboardData() {
     href: `/store/offers/${d.id}`,
   }))
 
+  if (notificationsResult.error) {
+    console.error('failed to preload store dashboard notifications', notificationsResult.error)
+  }
+
+  const recentNotifications: Notification[] = (notificationsResult.data ?? []).map((item: any) => ({
+    id: item.id,
+    type: item.type,
+    title: item.title,
+    body: item.body ?? item.title,
+    data:
+      item.data && typeof item.data === 'object' && !Array.isArray(item.data)
+        ? item.data
+        : undefined,
+    created_at: item.created_at ?? '',
+    is_read: Boolean(item.is_read),
+  }))
+
   return {
     offerStats,
     schedule,
     unreadCount: unreadResult.count ?? 0,
+    recentNotifications,
     isSetupComplete: Boolean(store.is_setup_complete),
   }
 }
