@@ -384,10 +384,13 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
     ]
 
     return (
-      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#05050d]/88 text-white shadow-[0_8px_30px_rgba(0,0,0,.22)] backdrop-blur-xl">
+      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/94 text-white shadow-[0_8px_30px_rgba(0,0,0,.22)] backdrop-blur-xl">
         <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-10">
           <Link href="/" className="flex items-center">
-            <img src="/images/lp/logo.png" alt="来店ナビ" className="h-8 w-auto sm:h-9" />
+            <span className="leading-none">
+              <span className="block text-lg font-black tracking-tight text-white sm:text-xl">来店ナビ</span>
+              <span className="mt-1 block text-[8px] font-bold tracking-[0.28em] text-[#FFC400]">RAITEN NAVI</span>
+            </span>
           </Link>
 
           <nav className="hidden items-center gap-6 lg:flex">
@@ -399,7 +402,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   href={link.href}
                   className={cn(
                     'text-sm font-bold transition',
-                    active ? 'text-pink-300' : 'text-white/70 hover:text-white',
+                    active ? 'text-[#FFC400]' : 'text-white/70 hover:text-white',
                   )}
                 >
                   {link.label}
@@ -420,7 +423,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 </Link>
                 <Link
                   href="/#register"
-                  className="inline-flex h-9 items-center rounded-full bg-gradient-to-r from-orange-400 to-pink-500 px-4 text-xs font-black text-white shadow-[0_0_18px_rgba(236,72,153,.25)] sm:text-sm"
+                  className="inline-flex h-9 items-center rounded-full bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400] px-4 text-xs font-black text-white shadow-[0_0_18px_rgba(255,138,0,.28)] sm:text-sm"
                 >
                   新規登録
                 </Link>
