@@ -70,7 +70,7 @@ export default function NotificationBell({ role }: { role: 'store' | 'talent' })
     }
     document.addEventListener('visibilitychange', onVisible)
 
-    const interval = setInterval(() => refreshBell({ silent: true }), 60000)
+    const interval = setInterval(() => refreshBell({ silent: true }), 300000)
     return () => {
       supabase.removeChannel(channel)
       window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
