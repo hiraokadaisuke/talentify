@@ -73,10 +73,10 @@ export async function sendNotificationEmail({
     return { status: 'recipient_email_missing' as const }
   }
 
-  const title = payload.title || 'Talentifyからのお知らせ'
+  const title = payload.title || '来店ナビからのお知らせ'
   const body = payload.body || ''
   const actionUrl = buildActionUrl(payload.action_url)
-  const actionLabel = payload.action_label || 'Talentifyで確認する'
+  const actionLabel = payload.action_label || '来店ナビで確認する'
   const escapedTitle = escapeHtml(title)
   const escapedBody = escapeHtml(body)
   const escapedActionUrl = escapeHtml(actionUrl)
@@ -85,12 +85,12 @@ export async function sendNotificationEmail({
   const html = `
     <div style="margin:0;padding:32px 16px;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#0f172a;">
       <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:28px;">
-        <div style="font-size:20px;font-weight:800;margin-bottom:20px;">Talentify</div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:20px;">来店ナビ</div>
         <h1 style="font-size:20px;line-height:1.5;margin:0 0 12px;">${escapedTitle}</h1>
         <p style="font-size:14px;line-height:1.8;color:#475569;margin:0 0 24px;">${escapedBody}</p>
         <a href="${escapedActionUrl}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:12px 18px;border-radius:10px;">${escapedActionLabel}</a>
         <p style="font-size:12px;line-height:1.7;color:#94a3b8;margin:28px 0 0;">
-          このメールはTalentifyの取引に関する通知です。
+          このメールは来店ナビの取引に関する通知です。
         </p>
       </div>
     </div>
@@ -103,7 +103,7 @@ export async function sendNotificationEmail({
     '',
     `${actionLabel}: ${actionUrl}`,
     '',
-    'このメールはTalentifyの取引に関する通知です。',
+    'このメールは来店ナビの取引に関する通知です。',
   ].join('\n')
 
   const response = await fetch('https://api.resend.com/emails', {
@@ -115,7 +115,7 @@ export async function sendNotificationEmail({
     body: JSON.stringify({
       from,
       to: [email],
-      subject: `【Talentify】${title}`,
+      subject: `【来店ナビ】${title}`,
       html,
       text,
     }),
