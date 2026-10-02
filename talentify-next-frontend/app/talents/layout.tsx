@@ -1,7 +1,7 @@
 import React from 'react'
 
 export const metadata = {
-  title: 'Talentify | 演者',
+  title: '来店ナビ | 演者',
 }
 
 export default function TalentsLayout({
