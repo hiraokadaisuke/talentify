@@ -481,7 +481,6 @@ export default function MessagesPage({
                         onClick={() => {
                           setActiveId(thread.id)
                           setMobileThreadOpen(true)
-                          void markThreadRead(thread)
                         }}
                       >
                         <div className="flex items-start gap-3">
