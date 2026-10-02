@@ -1,6 +1,6 @@
 import ScheduleCalendar from './ScheduleCalendar'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 
 async function loadScheduleIdentity(): Promise<{
   userId: string | null
@@ -10,21 +10,21 @@ async function loadScheduleIdentity(): Promise<{
   const supabase = createClient()
 
   try {
-    const { user } = await getCurrentUserWithClient(supabase)
-    if (!user) {
+    const { userId } = await getProtectedRequestUserId(supabase)
+    if (!userId) {
       return { userId: null, talentId: null, identityError: false }
     }
 
     const { data: talent, error } = await supabase
       .from('talents')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (error) throw error
 
     return {
-      userId: user.id,
+      userId,
       talentId: talent?.id ?? null,
       identityError: false,
     }
