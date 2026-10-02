@@ -52,7 +52,7 @@ export default function RegisterForm() {
         <div className="mx-auto w-full max-w-2xl">
           <div className="text-center">
             <Link href="/" className="inline-flex">
-              <img src="/images/lp/logo.png" alt="Talentify" className="h-10 w-auto" />
+              <img src="/images/lp/logo.png" alt="来店ナビ" className="h-10 w-auto" />
             </Link>
             <h1 className="mt-7 text-3xl font-black sm:text-4xl">新規登録</h1>
             <p className="mt-3 text-sm font-medium leading-7 text-white/65">
