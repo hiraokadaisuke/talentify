@@ -22,13 +22,13 @@ export default function MessageAlertCard({
       ctaLabel={link ? 'メッセージを見る' : undefined}
       ctaVariant='default'
     >
-      <div className='rounded-lg border border-red-100 bg-red-50/70 p-2.5'>
+      <div className='rounded-xl border border-orange-100 bg-orange-50/70 p-3'>
         <div className='flex items-center justify-between'>
           <span className='inline-flex items-center gap-1.5 text-sm font-medium text-slate-600'>
-            <MessageSquare className='h-4 w-4 text-red-500' />
+            <MessageSquare className='h-4 w-4 text-[#FF5A1F]' />
             未読メッセージ
           </span>
-          <span className='inline-flex min-w-10 items-center justify-center rounded-full bg-red-600 px-3 py-1 text-sm font-semibold text-white'>
+          <span className='inline-flex min-w-10 items-center justify-center rounded-full bg-[#FF5A1F] px-3 py-1 text-sm font-semibold text-white'>
             {count}
           </span>
         </div>
