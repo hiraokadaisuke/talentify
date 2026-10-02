@@ -164,12 +164,12 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const navItemBaseClass =
     'relative inline-flex h-9 items-center whitespace-nowrap rounded-md px-2 text-sm font-medium text-slate-600 transition-all duration-150 hover:bg-slate-100 hover:text-slate-900'
   const navItemActiveClass =
-    'text-primary after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary'
+    'text-[#C2410C] after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-[#FF5A1F]'
   const dropdownItemClass =
     'cursor-pointer rounded-md px-2 py-1.5 text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900'
   const mobileLinkClass =
     'flex min-h-11 w-full items-center rounded-xl px-3 text-[15px] font-semibold text-slate-700 transition-colors hover:bg-slate-100'
-  const mobileActiveClass = 'bg-blue-50 text-blue-700'
+  const mobileActiveClass = 'bg-orange-50 text-[#C2410C]'
 
   if (pathname === '/') {
     return null
@@ -179,7 +179,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
     const displayUserName = userName ?? 'ユーザー'
 
     return (
-      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-slate-200 bg-white shadow-sm">
+      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
             <Link href={homeHref} className="shrink-0">
