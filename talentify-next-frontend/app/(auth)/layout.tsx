@@ -10,7 +10,7 @@ export const metadata = {
   icons: {
     icon: "/brand/raiten-navi-icon.svg?v=1",
     shortcut: "/brand/raiten-navi-icon.svg?v=1",
-    apple: "/brand/raiten-navi-icon.svg?v=1",
+    apple: "/apple-touch-icon.png?v=2",
   },
 };
 
