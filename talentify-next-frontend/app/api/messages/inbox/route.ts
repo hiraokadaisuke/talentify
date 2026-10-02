@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/auth/getCurrentUser'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import { createClient } from '@/lib/supabase/server'
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient()
-  const { user, error: userError } = await getCurrentUser()
+  const supabase = createClient()
+  const { user, error: userError } = await getCurrentUserWithClient(supabase)
   if (!user || userError) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -51,5 +51,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ data })
+  return NextResponse.json({ data, userId: user.id })
 }
