@@ -277,7 +277,7 @@ export default function AdminConsole() {
               <ShieldCheck className="h-5 w-5" aria-hidden="true" />
               <span className="text-xs font-bold tracking-[0.18em]">ADMIN</span>
             </div>
-            <h1 className="mt-2 text-2xl font-bold">Talentify 運営管理</h1>
+            <h1 className="mt-2 text-2xl font-bold">来店ナビ 運営管理</h1>
             <p className="mt-1 text-sm text-slate-500">
               ユーザー・問い合わせ・案件状況を確認し、必要な運営対応を行います。
             </p>
