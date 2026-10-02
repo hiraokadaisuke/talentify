@@ -230,7 +230,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
           </div>
 
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <NotificationBell />
+            <NotificationBell role={inferredRole} />
 
             <div className="hidden lg:block">
               <DropdownMenu>
