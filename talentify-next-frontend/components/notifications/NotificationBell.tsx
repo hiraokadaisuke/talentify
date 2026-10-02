@@ -16,12 +16,10 @@ import {
 } from '@/utils/notifications'
 import { createClient } from '@/utils/supabase/client'
 import { Button } from '@/components/ui/button'
-import { useUserRole } from '@/utils/useRole'
 
 const supabase = createClient()
 
-export default function NotificationBell() {
-  const { role } = useUserRole()
+export default function NotificationBell({ role }: { role: 'store' | 'talent' }) {
   const [count, setCount] = useState(0)
   const [items, setItems] = useState<NotificationRow[]>([])
   const [isLoading, setIsLoading] = useState(true)
