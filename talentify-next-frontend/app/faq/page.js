@@ -174,7 +174,7 @@ export default function FAQPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">FAQ</p>
+        <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">FAQ</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">よくある質問</h1>
         <p className="mt-3 text-sm leading-7 text-slate-600">
           登録前の疑問から、オファー・見積・契約・メッセージ・支払いまで、利用中に迷いやすい内容をまとめています。
@@ -187,7 +187,7 @@ export default function FAQPage() {
           placeholder="例：見積修正、電話、キャンセル"
           value={query}
           onChange={event => setQuery(event.target.value)}
-          className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+          className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none transition focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-100"
         />
 
         <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
@@ -198,7 +198,7 @@ export default function FAQPage() {
               onClick={() => setCategory(cat)}
               className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
                 category === cat
-                  ? 'border-blue-600 bg-blue-600 text-white'
+                  ? 'border-[#FF5A1F] bg-[#FF5A1F] text-white'
                   : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -224,7 +224,7 @@ export default function FAQPage() {
         )}
       </div>
 
-      <section className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-5 text-sm leading-7 text-blue-950">
+      <section className="mt-8 rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm leading-7 text-slate-800">
         <p className="font-semibold">まだ解決しない場合</p>
         <p className="mt-1">
           <Link href="/guide" className="font-semibold underline underline-offset-2">ご利用ガイド</Link>
