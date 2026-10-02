@@ -42,7 +42,7 @@ import {
   mapOfferStatus,
 } from '@/utils/storeSchedule'
 import { toast } from 'sonner'
-import { AlertCircle, RotateCcw } from 'lucide-react'
+import { AlertCircle, CalendarDays, RotateCcw } from 'lucide-react'
 import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
 
 const locales = { ja }
@@ -778,14 +778,28 @@ export default function ScheduleCalendar() {
   const { Calendar: BigCalendar, Views, localizer } = calendarLib
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-3 px-3 py-4 sm:space-y-4 sm:p-4">
-      <div className="sticky top-0 z-10 space-y-3 border-b border-slate-200 bg-background/95 pb-3 backdrop-blur">
+    <main className="mx-auto w-full max-w-[1500px] space-y-4">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+        <div className="flex items-start gap-3 p-5 sm:p-6">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
+            <CalendarDays className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">TALENT SCHEDULE</p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">スケジュール管理</h1>
+            <p className="mt-1 text-sm leading-6 text-slate-500">日付をタップして出演可否を切り替え、来店予定もまとめて確認できます。</p>
+          </div>
+        </div>
+        <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+      </section>
+
+      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">スケジュール管理</h1>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">日付をタップして出演可否を切り替えます。</p>
+            <p className="text-sm font-black text-slate-950">空き状況の設定</p>
+            <p className="mt-0.5 text-xs text-slate-500">基本設定と日別設定を使い分けられます。</p>
           </div>
-          <div className="flex shrink-0 items-center gap-1 rounded-lg border bg-white p-1 shadow-sm dark:bg-neutral-900">
+          <div className="flex shrink-0 items-center gap-1 rounded-lg border bg-white p-1 shadow-sm ">
             <Button
               type="button"
               size="sm"
@@ -894,7 +908,7 @@ export default function ScheduleCalendar() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white p-2 shadow-sm sm:p-4 dark:bg-neutral-900">
+      <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4">
         {loading && (
           <p className="mb-2 text-sm text-muted-foreground">読み込み中…</p>
         )}
