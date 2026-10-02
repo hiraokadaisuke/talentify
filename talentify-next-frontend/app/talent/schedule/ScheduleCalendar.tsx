@@ -37,7 +37,6 @@ import {
   type AvailabilityStatus,
 } from './utils'
 import { createClient } from '@/utils/supabase/client'
-import { getTalentId } from '@/utils/getTalentId'
 import {
   type DisplayStatus,
   mapOfferStatus,
@@ -243,18 +242,25 @@ export default function ScheduleCalendar() {
     setIdentityError(false)
 
     try {
-      const [{ data, error }, id] = await Promise.all([
-        supabase.auth.getUser(),
-        getTalentId({ throwOnError: true }),
-      ])
+      const { data, error } = await supabase.auth.getUser()
 
       if (error || !data.user) {
         console.error('Failed to retrieve authenticated user', error)
         throw error ?? new Error('Authenticated user not found')
       }
 
+      const { data: talent, error: talentError } = await supabase
+        .from('talents')
+        .select('id')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+
+      if (talentError) {
+        throw talentError
+      }
+
       setUserId(data.user.id)
-      setTalentId(id)
+      setTalentId(talent?.id ?? null)
     } catch (error) {
       console.error('Failed to load talent schedule identity', error)
       setUserId(null)
