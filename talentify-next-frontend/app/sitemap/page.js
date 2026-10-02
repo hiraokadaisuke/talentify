@@ -21,7 +21,7 @@ export default function SitemapPage() {
         <p className="text-xs font-bold tracking-[0.18em] text-blue-600">SITEMAP</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">サイトマップ</h1>
         <p className="mt-3 text-sm leading-7 text-slate-600">
-          Talentifyの主なページをご案内します。
+          来店ナビの主なページをご案内します。
         </p>
       </header>
 
