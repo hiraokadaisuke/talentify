@@ -1,6 +1,6 @@
-# Talentify development workflow
+# 来店ナビ development workflow
 
-Talentify uses GitHub and Supabase as one development system.
+来店ナビ uses GitHub and Supabase as one development system.
 
 ## Source of truth
 
