@@ -3,6 +3,8 @@ import type { ScheduleItem } from '@/components/ScheduleCard'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
 import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import type { Notification } from '@/types/ui'
+import type { ProgressStep } from '@/components/GettingStartedCard'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export async function getTalentDashboardData() {
   const supabase = createClient()
@@ -15,21 +17,36 @@ export async function getTalentDashboardData() {
       unreadMessagesCount: 0,
       schedule: [] as ScheduleItem[],
       recentNotifications: [] as Notification[],
+      onboardingSteps: [
+        { key: 'profile', complete: false },
+        { key: 'schedule', complete: false },
+        { key: 'billing', complete: false },
+        { key: 'offer', complete: false },
+      ] as ProgressStep[],
       isSetupComplete: false,
     }
   }
 
   const { data: talent } = await supabase
     .from('talents')
-    .select('id, is_setup_complete')
+    .select('id, is_setup_complete, is_profile_complete')
     .eq('user_id', user.id)
     .single()
 
   const talentId = talent?.id
+  const service = createServiceClient()
   const pendingStatus = toDbOfferStatus('pending') ?? 'pending'
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
 
-  const [pendingResult, unreadResult, scheduleResult, notificationsResult] = await Promise.all([
+  const [
+    pendingResult,
+    unreadResult,
+    scheduleResult,
+    notificationsResult,
+    availabilityResult,
+    billingResult,
+    allOffersResult,
+  ] = await Promise.all([
     talentId
       ? supabase
           .from('offers')
@@ -64,6 +81,22 @@ export async function getTalentDashboardData() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(5),
+    service
+      .from('talent_availability_settings')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    service
+      .from('talent_billing_profiles')
+      .select('billing_name')
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    talentId
+      ? service
+          .from('offers')
+          .select('id', { count: 'exact', head: true })
+          .eq('talent_id', talentId)
+      : Promise.resolve({ count: 0, error: null }),
   ])
 
   const schedule: ScheduleItem[] = (scheduleResult.data ?? []).map((d: any) => ({
@@ -90,12 +123,30 @@ export async function getTalentDashboardData() {
     is_read: Boolean(item.is_read),
   }))
 
+  if (availabilityResult.error || billingResult.error || allOffersResult.error) {
+    console.error(
+      'failed to preload talent onboarding progress',
+      availabilityResult.error ?? billingResult.error ?? allOffersResult.error,
+    )
+  }
+
+  const onboardingSteps: ProgressStep[] = [
+    {
+      key: 'profile',
+      complete: Boolean(talent?.is_setup_complete || talent?.is_profile_complete),
+    },
+    { key: 'schedule', complete: Boolean(availabilityResult.data) },
+    { key: 'billing', complete: Boolean(billingResult.data?.billing_name) },
+    { key: 'offer', complete: (allOffersResult.count ?? 0) > 0 },
+  ]
+
   return {
     pendingOffersCount: pendingResult.count ?? 0,
     confirmedOffersCount: scheduleResult.count ?? 0,
     unreadMessagesCount: unreadResult.count ?? 0,
     schedule,
     recentNotifications,
+    onboardingSteps,
     isSetupComplete: Boolean(talent?.is_setup_complete),
   }
 }
@@ -110,7 +161,7 @@ export async function getStoreDashboardData() {
 
   const { data: store } = await supabase
     .from('stores')
-    .select('id, is_setup_complete')
+    .select('id, is_setup_complete, is_profile_complete')
     .eq('user_id', user.id)
     .maybeSingle()
 
@@ -120,13 +171,19 @@ export async function getStoreDashboardData() {
       schedule: [] as ScheduleItem[],
       unreadCount: 0,
       recentNotifications: [] as Notification[],
+      onboardingSteps: [
+        { key: 'profile', complete: false },
+        { key: 'discover', complete: false },
+        { key: 'offer', complete: false },
+      ] as ProgressStep[],
       isSetupComplete: false,
     }
   }
 
+  const service = createServiceClient()
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
 
-  const [offersResult, scheduleResult, unreadResult, notificationsResult] = await Promise.all([
+  const [offersResult, scheduleResult, unreadResult, notificationsResult, favoritesResult] = await Promise.all([
     supabase.from('offers').select('status').eq('store_id', store.id),
     supabase
       .from('offers')
@@ -147,6 +204,10 @@ export async function getStoreDashboardData() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(5),
+    service
+      .from('store_favorite_talents')
+      .select('talent_id', { count: 'exact', head: true })
+      .eq('store_id', store.id),
   ])
 
   if (offersResult.error) {
@@ -186,11 +247,29 @@ export async function getStoreDashboardData() {
     is_read: Boolean(item.is_read),
   }))
 
+  if (favoritesResult.error) {
+    console.error('failed to preload store onboarding progress', favoritesResult.error)
+  }
+
+  const hasOffer = (offersResult.data ?? []).length > 0
+  const onboardingSteps: ProgressStep[] = [
+    {
+      key: 'profile',
+      complete: Boolean(store.is_setup_complete || store.is_profile_complete),
+    },
+    {
+      key: 'discover',
+      complete: hasOffer || (favoritesResult.count ?? 0) > 0,
+    },
+    { key: 'offer', complete: hasOffer },
+  ]
+
   return {
     offerStats,
     schedule,
     unreadCount: unreadResult.count ?? 0,
     recentNotifications,
+    onboardingSteps,
     isSetupComplete: Boolean(store.is_setup_complete),
   }
 }
