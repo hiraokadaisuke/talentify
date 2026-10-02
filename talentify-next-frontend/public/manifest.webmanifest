@@ -1,0 +1,25 @@
+{
+  "name": "来店ナビ",
+  "short_name": "来店ナビ",
+  "description": "パチンコ店と演者をつなぎ、来店イベントの検索・オファー・案件管理・告知までを支援する来店イベントプラットフォーム",
+  "lang": "ja",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#020817",
+  "theme_color": "#071329",
+  "icons": [
+    {
+      "src": "/brand/raiten-navi-icon.svg?v=1",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png?v=2",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
