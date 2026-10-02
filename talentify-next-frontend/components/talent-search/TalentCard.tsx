@@ -57,9 +57,9 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
   return (
     <Link
       href={`/talents/${talent.id}`}
-      className="block rounded-2xl border border-gray-200 bg-white shadow-sm transition overflow-hidden hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+      className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-[0_16px_36px_rgba(255,90,31,.10)] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2"
     >
-      <div className="relative aspect-[4/3] bg-gray-100">
+      <div className="relative aspect-[4/3] bg-slate-100">
         <Image
           src={imageSrc}
           alt={name}
@@ -74,7 +74,7 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
         <p className="text-lg font-bold line-clamp-1">{name}</p>
 
         {subInfo.length > 0 && (
-          <p className="mt-1 text-sm text-gray-500 line-clamp-1">{subInfo.join(' / ')}</p>
+          <p className="mt-1 text-sm text-slate-500 line-clamp-1">{subInfo.join(' / ')}</p>
         )}
 
         {capabilities.length > 0 && (
@@ -82,7 +82,7 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
             {capabilities.slice(0, 4).map(capability => (
               <span
                 key={capability}
-                className="rounded-full bg-gray-100 px-2 py-1 text-xs text-gray-600"
+                className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600"
               >
                 #{capability}
               </span>
@@ -91,12 +91,12 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
         )}
 
         {talent.bio && (
-          <p className="mt-3 text-sm text-gray-600 line-clamp-2">{talent.bio}</p>
+          <p className="mt-3 text-sm text-slate-600 line-clamp-2">{talent.bio}</p>
         )}
 
-        <p className="mt-4 text-sm font-medium text-gray-600">{formatRateEstimate(talent.rate)}</p>
+        <p className="mt-4 text-sm font-medium text-slate-600">{formatRateEstimate(talent.rate)}</p>
 
-        <span className="mt-4 flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-medium text-white transition hover:bg-blue-700">
+        <span className="mt-4 flex h-10 w-full items-center justify-center rounded-xl bg-[#FF5A1F] text-sm font-bold text-white transition group-hover:bg-[#E94F18]">
           詳細を見る
         </span>
       </div>
