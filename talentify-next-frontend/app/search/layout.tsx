@@ -1,7 +1,7 @@
 import React from 'react'
 
 export const metadata = {
-  title: 'Talentify | 演者検索',
+  title: '来店ナビ | 演者検索',
 }
 
 export default function SearchLayout({
