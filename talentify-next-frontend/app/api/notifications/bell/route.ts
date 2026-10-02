@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/auth/getCurrentUser'
+import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 
@@ -31,17 +31,35 @@ function sortForBell(items: NotificationRow[]) {
     .slice(0, BELL_LIMIT)
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const { user, error: userError } = await getCurrentUser()
+    const supabase = createClient()
+    const { user, error: userError } = await getCurrentUserWithClient(supabase)
     if (userError || !user) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
-    // This endpoint is polled by every signed-in browser and also refreshed by
-    // realtime events. Use Supabase's Data API instead of opening a Prisma
-    // Postgres session for every bell refresh.
-    const supabase = await createClient()
+    const countOnly = request.nextUrl.searchParams.get('count_only') === 'true'
+
+    if (countOnly) {
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+
+      if (error) {
+        console.error('[notifications][api][bell] count failed', {
+          userId: user.id,
+          error,
+        })
+        return NextResponse.json({ error: 'failed to fetch bell count' }, { status: 500 })
+      }
+
+      return NextResponse.json({ count: count ?? 0 })
+    }
+
+    // Full notification rows are fetched only when the bell menu is opened.
     const { data, error, count } = await supabase
       .from('notifications')
       .select('*', { count: 'exact' })
