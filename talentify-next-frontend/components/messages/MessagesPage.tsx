@@ -411,35 +411,35 @@ export default function MessagesPage({
   }, [activeThread])
 
   return (
-    <main className="bg-gray-100 pb-2 md:px-4 md:pb-4">
+    <main className="pb-1 md:pb-3">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="h-[calc(100dvh-8.5rem)] min-h-[480px] overflow-hidden border-y border-gray-200 bg-white shadow-sm md:h-[calc(100vh-9rem)] md:min-h-[560px] md:rounded-2xl md:border">
+        <div className="h-[calc(100dvh-7.75rem)] min-h-[480px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] md:h-[calc(100vh-8.75rem)] md:min-h-[560px]">
           <div className="flex h-full">
-            <aside className={`${mobileThreadOpen ? 'hidden' : 'flex'} w-full flex-col border-r border-gray-200 md:flex md:w-80 md:min-w-80`}>
-              <div className="border-b border-gray-200 p-4 space-y-3">
-                <h2 className="text-lg font-semibold text-gray-900">メッセージ一覧</h2>
+            <aside className={`${mobileThreadOpen ? 'hidden' : 'flex'} w-full flex-col border-r border-slate-200 md:flex md:w-80 md:min-w-80`}>
+              <div className="border-b border-slate-200 p-4 space-y-3">
+                <div><p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">MESSAGES</p><h2 className="mt-0.5 text-lg font-black text-slate-950">メッセージ</h2></div>
                 {basePath && (
-                  <div className="flex rounded-xl bg-gray-100 p-1 text-sm">
-                    <Link href={`${basePath}?tab=direct`} className={`flex-1 rounded-lg px-3 py-2 text-center ${type === 'direct' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`}>
+                  <div className="flex rounded-xl bg-slate-100 p-1 text-sm">
+                    <Link href={`${basePath}?tab=direct`} className={`flex-1 rounded-lg px-3 py-2 text-center font-bold transition ${type === 'direct' ? 'bg-white text-[#C2410C] shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
                       直通
                     </Link>
-                    <Link href={`${basePath}?tab=offer`} className={`flex-1 rounded-lg px-3 py-2 text-center ${type === 'offer' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600'}`}>
+                    <Link href={`${basePath}?tab=offer`} className={`flex-1 rounded-lg px-3 py-2 text-center font-bold transition ${type === 'offer' ? 'bg-white text-[#C2410C] shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
                       オファー
                     </Link>
                   </div>
                 )}
-                <label className="flex items-center rounded-xl border border-gray-200 bg-white px-3 py-2">
-                  <Search className="mr-2 h-4 w-4 text-gray-400" />
+                <label className="flex items-center rounded-xl border border-slate-200 bg-white px-3 py-2">
+                  <Search className="mr-2 h-4 w-4 text-slate-400" />
                   <input
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     placeholder="相手名・メッセージを検索"
-                    className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
+                    className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
                   />
                 </label>
               </div>
 
-              <div className="flex-1 overflow-y-auto bg-gray-50/40 p-2">
+              <div className="flex-1 overflow-y-auto bg-slate-50/40 p-2">
                 {loading ? (
                   <ListSkeleton count={6} className="p-3" />
                 ) : error ? (
@@ -474,7 +474,7 @@ export default function MessagesPage({
                       <button
                         key={thread.id}
                         type="button"
-                        className={`mb-2 w-full rounded-xl border px-3 py-3 text-left transition ${activeId === thread.id ? 'border-blue-200 bg-blue-50 shadow-sm' : 'border-transparent bg-white hover:border-gray-200 hover:bg-gray-50'}`}
+                        className={`mb-2 w-full rounded-xl border px-3 py-3 text-left transition ${activeId === thread.id ? 'border-orange-200 bg-orange-50 shadow-sm' : 'border-transparent bg-white hover:border-slate-200 hover:bg-slate-50'}`}
                         onClick={() => {
                           setActiveId(thread.id)
                           setMobileThreadOpen(true)
@@ -482,16 +482,16 @@ export default function MessagesPage({
                         }}
                       >
                         <div className="flex items-start gap-3">
-                          <Image src={thread.avatar} alt="avatar" width={40} height={40} className="rounded-full border border-gray-200" />
+                          <Image src={thread.avatar} alt="avatar" width={40} height={40} className="rounded-full border border-slate-200" />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="truncate text-sm font-semibold text-gray-900">{thread.name}</p>
-                              <span className="shrink-0 text-xs text-gray-400">{formatTime(thread.updatedAt)}</span>
+                              <p className="truncate text-sm font-semibold text-slate-950">{thread.name}</p>
+                              <span className="shrink-0 text-xs text-slate-400">{formatTime(thread.updatedAt)}</span>
                             </div>
-                            <p className="truncate text-xs text-gray-500">{thread.latest}</p>
+                            <p className="truncate text-xs text-slate-500">{thread.latest}</p>
                             <div className="mt-2 flex items-center gap-2">
-                              <span className="rounded-full bg-gray-100 px-2 py-1 text-[11px] text-gray-600">{thread.statusLabel}</span>
-                              {thread.unread > 0 && <span className="rounded-full bg-red-500 px-2 py-0.5 text-[11px] text-white">{thread.unread}</span>}
+                              <span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] text-slate-600">{thread.statusLabel}</span>
+                              {thread.unread > 0 && <span className="rounded-full bg-[#FF5A1F] px-2 py-0.5 text-[11px] font-bold text-white">{thread.unread}</span>}
                             </div>
                           </div>
                         </div>
@@ -502,17 +502,17 @@ export default function MessagesPage({
             </aside>
 
             <section className={`${mobileThreadOpen ? 'flex' : 'hidden'} min-w-0 flex-1 flex-col md:flex`}>
-              <header className="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
+              <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
                 <div className="min-w-0">
                   <div className="mb-1 flex items-center gap-2">
-                    <button type="button" className="rounded-md p-1 text-gray-500 hover:bg-gray-100 md:hidden" onClick={() => setMobileThreadOpen(false)}>
+                    <button type="button" className="rounded-md p-1 text-slate-500 hover:bg-slate-100 md:hidden" onClick={() => setMobileThreadOpen(false)}>
                       <ChevronLeft className="h-5 w-5" />
                     </button>
-                    <h3 className="truncate text-base font-semibold text-gray-900">
+                    <h3 className="truncate text-base font-semibold text-slate-950">
                       {type === 'offer' ? 'オファーのメッセージ' : activeThread?.name ?? 'メッセージ'}
                     </h3>
                   </div>
-                  <p className="truncate text-xs text-gray-500">
+                  <p className="truncate text-xs text-slate-500">
                     {type === 'offer'
                       ? `${formatOfferStatus(offerInfo?.status)} ・ 最終返信 ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}`
                       : `最終返信 ${activeThread ? formatTime(activeThread.updatedAt) : '--:--'}`}
@@ -531,7 +531,7 @@ export default function MessagesPage({
                 {type === 'offer' && activeId && (
                   <Link
                     href={`/${role}/offers/${activeId}`}
-                    className="shrink-0 rounded-lg border border-gray-200 px-2.5 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 sm:px-3"
+                    className="shrink-0 rounded-lg border border-slate-200 px-2.5 py-2 text-xs font-semibold text-gray-700 hover:bg-slate-50 sm:px-3"
                   >
                     <span className="sm:hidden">詳細</span>
                     <span className="hidden sm:inline">オファー内容を見る</span>
@@ -540,12 +540,12 @@ export default function MessagesPage({
               </header>
 
               {type === 'offer' && (
-                <div className="border-b border-gray-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
+                <div className="border-b border-slate-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
                   <OfferSummary offer={offerInfo} role={role} offerId={activeId} />
                 </div>
               )}
 
-              <div className="flex-1 overflow-y-auto bg-gray-100/70 p-3 sm:p-4">
+              <div className="flex-1 overflow-y-auto bg-slate-100/70 p-3 sm:p-4">
                 {!activeThread ? (
                   <EmptyState title="会話を選択してください" description="左のメッセージ一覧からスレッドを選ぶと会話が表示されます" className="mx-auto mt-16 max-w-md" />
                 ) : groupedMessages.length === 0 ? (
@@ -554,12 +554,12 @@ export default function MessagesPage({
                   groupedMessages.map(group => (
                     <div key={group.date} className="mb-5">
                       <div className="mb-4 text-center">
-                        <span className="rounded-full bg-white px-3 py-1 text-xs text-gray-500 shadow-sm">{formatDateLabel(group.items[0]?.time ?? null)}</span>
+                        <span className="rounded-full bg-white px-3 py-1 text-xs text-slate-500 shadow-sm">{formatDateLabel(group.items[0]?.time ?? null)}</span>
                       </div>
                       <div className="space-y-3">
                         {group.items.map(msg => (
                           <div key={msg.id} className={`flex ${msg.from === role ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm shadow-sm md:max-w-xl ${msg.from === role ? 'rounded-br-md bg-blue-100 text-gray-800' : 'rounded-bl-md border border-gray-200 bg-white text-gray-800'}`}>
+                            <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm shadow-sm md:max-w-xl ${msg.from === role ? 'rounded-br-md bg-orange-100 text-slate-800' : 'rounded-bl-md border border-slate-200 bg-white text-slate-800'}`}>
                               <p className="whitespace-pre-wrap break-words">{msg.text}</p>
                               {type === 'offer' &&
                                 msg.attachments.map(attachment => (
@@ -570,7 +570,7 @@ export default function MessagesPage({
                                     isMine={msg.from === role}
                                   />
                                 ))}
-                              <p className="mt-1 text-right text-[11px] text-gray-400">{formatTime(msg.time)}</p>
+                              <p className="mt-1 text-right text-[11px] text-slate-400">{formatTime(msg.time)}</p>
                             </div>
                           </div>
                         ))}
@@ -581,13 +581,13 @@ export default function MessagesPage({
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="border-t border-gray-200 bg-white px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:p-3">
-                <div className="flex items-end gap-2 rounded-2xl border border-gray-200 bg-white p-2 shadow-sm">
+              <div className="border-t border-slate-200 bg-white px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:p-3">
+                <div className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
                   <textarea
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     placeholder="メッセージを入力"
-                    className="max-h-32 min-h-[42px] flex-1 resize-none bg-transparent px-2 py-2 text-base outline-none placeholder:text-gray-400 sm:max-h-36 sm:text-sm"
+                    className="max-h-32 min-h-[42px] flex-1 resize-none bg-transparent px-2 py-2 text-base outline-none placeholder:text-slate-400 sm:max-h-36 sm:text-sm"
                     rows={1}
                     disabled={sending}
                     maxLength={5000}
@@ -599,14 +599,14 @@ export default function MessagesPage({
                       }
                     }}
                   />
-                  <div className="shrink-0 text-[10px] text-gray-400">
+                  <div className="shrink-0 text-[10px] text-slate-400">
                     {input.length}/5000
                   </div>
                   <button
                     type="button"
                     onClick={handleSend}
                     disabled={!input.trim() || !activeThread || sending}
-                    className="min-h-10 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                    className="min-h-10 rounded-xl bg-[#FF5A1F] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#E94F18] disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
                     {sending ? '送信中...' : '送信'}
                   </button>
