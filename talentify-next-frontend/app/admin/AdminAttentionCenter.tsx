@@ -262,7 +262,7 @@ export default function AdminAttentionCenter({
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-bold tracking-[0.14em] text-blue-700">ATTENTION</p>
+          <p className="text-xs font-bold tracking-[0.14em] text-[#FF5A1F]">ATTENTION</p>
           <h2 className="mt-1 text-xl font-bold text-slate-950">要対応・要確認</h2>
           <p className="mt-1 text-sm text-slate-500">
             運営が先に確認したい項目を自動でまとめています。表示のみで、ここからデータは変更しません。
