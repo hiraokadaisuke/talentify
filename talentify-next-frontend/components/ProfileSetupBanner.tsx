@@ -26,7 +26,7 @@ export default function ProfileSetupBanner({
         </p>
       </div>
       <Button asChild className="mt-3 shrink-0 rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18] sm:mt-0">
-        <Link href={href} prefetch={false}>{label}</Link>
+        <Link href={href}>{label}</Link>
       </Button>
     </section>
   )
