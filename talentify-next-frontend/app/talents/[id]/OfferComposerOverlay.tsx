@@ -274,7 +274,7 @@ export default function OfferComposerOverlay({
                 >
                   キャンセル
                 </Button>
-                <Button type="submit" disabled={submitting} className="min-h-11 bg-blue-600 text-white hover:bg-blue-700 md:min-h-9">
+                <Button type="submit" disabled={submitting} className="min-h-11 bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18] md:min-h-9">
                   {submitting ? '送信中...' : 'オファー送信'}
                 </Button>
               </footer>
