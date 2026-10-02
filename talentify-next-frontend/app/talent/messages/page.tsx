@@ -1,19 +1,58 @@
-'use client'
+import MessagesPage, { type MessageRow } from '@/components/messages/MessagesPage'
+import { createClient } from '@/lib/supabase/server'
+import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getMessageInboxForUser, type MessageInboxType } from '@/lib/messages/getMessageInbox'
 
-import { useSearchParams } from 'next/navigation'
-import MessagesPage from '@/components/messages/MessagesPage'
+type PageProps = {
+  searchParams?: {
+    tab?: string | string[]
+    partner?: string | string[]
+  }
+}
 
-export default function TalentMessagesPage() {
-  const params = useSearchParams()
-  const tabParam = params.get('tab') === 'offer' ? 'offer' : 'direct'
-  const partnerId = tabParam === 'direct' ? params.get('partner') : null
+function first(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+async function loadInitialMessages(type: MessageInboxType): Promise<{
+  messages: MessageRow[]
+  userId: string | null
+  loadError: boolean
+}> {
+  const supabase = createClient()
+
+  try {
+    const { user, error: userError } = await getCurrentUserWithClient(supabase)
+    if (userError || !user) {
+      return { messages: [], userId: null, loadError: true }
+    }
+
+    const data = await getMessageInboxForUser(supabase, user.id, type)
+    return {
+      messages: data as unknown as MessageRow[],
+      userId: user.id,
+      loadError: false,
+    }
+  } catch (error) {
+    console.error('failed to preload talent messages', error)
+    return { messages: [], userId: null, loadError: true }
+  }
+}
+
+export default async function TalentMessagesPage({ searchParams }: PageProps) {
+  const tab = first(searchParams?.tab) === 'offer' ? 'offer' : 'direct'
+  const partnerId = tab === 'direct' ? first(searchParams?.partner) ?? null : null
+  const { messages, userId, loadError } = await loadInitialMessages(tab)
 
   return (
     <MessagesPage
       role="talent"
-      type={tabParam}
+      type={tab}
       basePath="/talent/messages"
       initialPartnerId={partnerId}
+      initialMessages={messages}
+      initialUserId={userId}
+      initialLoadError={loadError}
     />
   )
 }
