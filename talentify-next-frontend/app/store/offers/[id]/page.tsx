@@ -139,7 +139,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <p className="text-[10px] font-black tracking-[0.15em] text-[#C2410C]">OFFER DETAIL</p>\n                <h1 className="mt-1 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">オファー詳細</h1>
+                <p className="text-[10px] font-black tracking-[0.15em] text-[#C2410C]">OFFER DETAIL</p>
+                <h1 className="mt-1 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">オファー詳細</h1>
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-slate-600">
                 <div className="flex items-center gap-2">
