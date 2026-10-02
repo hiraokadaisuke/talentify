@@ -28,7 +28,7 @@ export default function ScheduleCard({ title = '直近の予定', items, classNa
         {items.map((ev, i) => (
           <div
             key={i}
-            className='flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/70 p-2.5'
+            className='flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/80 p-3'
           >
             <div className='min-w-0 flex-1'>
               <div className='font-medium text-slate-800'>{formatJaDateTimeWithWeekday(ev.date)}</div>
@@ -55,7 +55,7 @@ export default function ScheduleCard({ title = '直近の予定', items, classNa
               <Link
                 href={ev.href}
                 prefetch={false}
-                className='inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700 transition-colors hover:border-blue-300 hover:bg-blue-100'
+                className='inline-flex items-center gap-1 rounded-md border border-orange-200 bg-orange-50 px-2 py-1 text-xs font-semibold text-[#C2410C] transition-colors hover:border-orange-300 hover:bg-orange-100'
               >
                 詳細を見る
                 <ChevronRight className='h-3.5 w-3.5' />
