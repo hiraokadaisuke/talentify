@@ -6,14 +6,18 @@ import {
   dateFnsLocalizer,
   Views,
 } from 'react-big-calendar'
+import type {
+  DayPropGetter,
+  EventProps,
+  SlotInfo,
+} from 'react-big-calendar'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
 import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import ja from 'date-fns/locale/ja'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-
-const Calendar = BigCalendar as ComponentType<any>
+import type { StoreScheduleEvent } from '@/utils/storeSchedule'
 
 const localizer = dateFnsLocalizer({
   format,
@@ -23,14 +27,16 @@ const localizer = dateFnsLocalizer({
   locales: { ja },
 })
 
+type CalendarEvent = StoreScheduleEvent & { isMore?: boolean }
+
 type Props = {
-  events: any[]
+  events: CalendarEvent[]
   date: Date
   onNavigate: (date: Date) => void
-  EventComponent: ComponentType<{ event: any }>
-  dayPropGetter: (date: Date) => { className?: string; title?: string }
-  onSelectEvent: (event: any) => void
-  onSelectSlot: (slot: any) => void
+  EventComponent: ComponentType<EventProps<CalendarEvent>>
+  dayPropGetter: DayPropGetter
+  onSelectEvent: (event: CalendarEvent) => void
+  onSelectSlot: (slot: SlotInfo) => void
 }
 
 export default function StoreCalendarView({
@@ -43,7 +49,7 @@ export default function StoreCalendarView({
   onSelectSlot,
 }: Props) {
   return (
-    <Calendar
+    <BigCalendar<CalendarEvent>
       culture="ja"
       toolbar={false}
       className="mx-auto w-full"
@@ -53,12 +59,12 @@ export default function StoreCalendarView({
       endAccessor="end"
       views={[Views.MONTH]}
       date={date}
-      onNavigate={onNavigate}
+      onNavigate={(nextDate) => onNavigate(nextDate)}
       style={{ height: 400 }}
       components={{ event: EventComponent }}
       dayPropGetter={dayPropGetter}
-      eventPropGetter={(event: any) => {
-        if (event?.isMore) {
+      eventPropGetter={(event) => {
+        if (event.isMore) {
           return {
             style: {
               backgroundColor: 'transparent',
@@ -79,10 +85,10 @@ export default function StoreCalendarView({
           className: 'cursor-pointer text-xs truncate',
         }
       }}
-      onSelectEvent={onSelectEvent}
+      onSelectEvent={(event) => onSelectEvent(event)}
       selectable
       formats={{ weekdayFormat: 'eeeeee' }}
-      onSelectSlot={onSelectSlot}
+      onSelectSlot={(slot) => onSelectSlot(slot)}
     />
   )
 }
