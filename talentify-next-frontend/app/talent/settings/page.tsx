@@ -117,7 +117,7 @@ export default function TalentSettingsPage() {
             </div>
           ))}
           <div className="flex justify-end">
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} className="rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]">
               {saving ? '保存中...' : '振込先を保存'}
             </Button>
           </div>
@@ -175,7 +175,7 @@ export default function TalentSettingsPage() {
           </div>
 
           <div className="flex justify-end">
-            <Button onClick={handleBillingSave} disabled={billingSaving}>
+            <Button onClick={handleBillingSave} disabled={billingSaving} className="rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]">
               {billingSaving ? '保存中...' : '請求書発行者情報を保存'}
             </Button>
           </div>
