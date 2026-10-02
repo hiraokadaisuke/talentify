@@ -104,10 +104,10 @@ export default function NotificationsInboxPage() {
           : '通知はありません'
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 space-y-4">
+    <div className="mx-auto max-w-5xl space-y-4 py-4 sm:py-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">通知</h1>
+          <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">NOTIFICATIONS</p>\n          <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">通知</h1>
           <p className="text-sm text-muted-foreground" data-testid="notifications-unread-count">
             未読 {unreadCount} 件
           </p>
@@ -135,7 +135,7 @@ export default function NotificationsInboxPage() {
             variant={tab === option.key ? 'default' : 'outline'}
             size="sm"
             onClick={() => setTab(option.key as NotificationInboxTab)}
-            data-testid={`notifications-tab-${option.key}`}
+            className={tab === option.key ? 'bg-[#FF5A1F] text-white hover:bg-[#E94F18]' : 'border-slate-200 text-slate-700'}\n            data-testid={`notifications-tab-${option.key}`}
           >
             {option.label}
           </Button>
@@ -148,7 +148,7 @@ export default function NotificationsInboxPage() {
             key={notification.id}
             data-testid={`notification-row-${notification.id}`}
             className={`cursor-pointer rounded-lg border p-4 transition hover:bg-accent/40 ${
-              notification.is_read ? 'bg-white' : 'bg-blue-50/70 border-blue-100'
+              notification.is_read ? 'bg-white' : 'bg-orange-50/70 border-orange-100'
             } ${notification.priority === 'high' ? 'border-l-4 border-l-amber-500' : ''}`}
             onClick={() => handleRowClick(notification)}
           >
@@ -157,7 +157,7 @@ export default function NotificationsInboxPage() {
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                 優先度: {PRIORITY_LABEL[notification.priority]}
               </span>
-              {!notification.is_read && <span className="text-xs text-blue-600">未読</span>}
+              {!notification.is_read && <span className="text-xs font-bold text-[#C2410C]">未読</span>}
               {isActionRequired(notification) && (
                 <span className="text-xs rounded-full bg-amber-100 px-2 py-0.5 text-amber-700">要対応</span>
               )}
@@ -167,7 +167,7 @@ export default function NotificationsInboxPage() {
               <span>{notification.actor_name || '来店ナビ'}</span>
               <span>{formatJaDateTimeWithWeekday(notification.created_at)}</span>
               {isResurfacedNotification(notification) && <span className="text-amber-700">再通知</span>}
-              <span className="ml-auto text-primary">{getActionLabel(notification)}</span>
+              <span className="ml-auto font-bold text-[#C2410C]">{getActionLabel(notification)}</span>
             </div>
           </div>
         ))}
