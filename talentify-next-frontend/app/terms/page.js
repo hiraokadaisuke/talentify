@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: '利用規約 | Talentify',
-  description: 'Talentifyの利用条件について定める利用規約です。',
+  title: '利用規約 | 来店ナビ',
+  description: '来店ナビの利用条件について定める利用規約です。',
 }
 
 const sections = [
@@ -12,8 +12,8 @@ const sections = [
     body: (
       <>
         <p>
-          本規約は、Talentify運営者（以下「運営者」といいます。）が提供する
-          「Talentify」（以下「本サービス」といいます。）の利用条件ならびに、
+          本規約は、来店ナビ運営者（以下「運営者」といいます。）が提供する
+          「来店ナビ」（以下「本サービス」といいます。）の利用条件ならびに、
           運営者と本サービスの利用者との間の権利義務関係を定めるものです。
         </p>
         <p>
@@ -273,7 +273,7 @@ export default function TermsPage() {
         <p className="text-xs font-bold tracking-[0.18em] text-blue-600">TERMS OF SERVICE</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">利用規約</h1>
         <p className="mt-3 text-sm leading-7 text-slate-600">
-          店舗と演者が安心して案件を進めるための、Talentifyの基本的な利用条件です。
+          店舗と演者が安心して案件を進めるための、来店ナビの基本的な利用条件です。
         </p>
         <p className="mt-4 text-xs text-slate-400">最終改定日：2026年10月1日</p>
       </header>
