@@ -52,10 +52,7 @@ export default function RegisterForm() {
         <div className="mx-auto w-full max-w-2xl">
           <div className="text-center">
             <Link href="/" className="inline-flex">
-              <span className="inline-flex flex-col items-center leading-none">
-                <span className="text-2xl font-black tracking-tight text-white">来店ナビ</span>
-                <span className="mt-2 text-[9px] font-bold tracking-[0.3em] text-[#FFC400]">RAITEN NAVI</span>
-              </span>
+              <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-12 w-auto" />
             </Link>
             <h1 className="mt-7 text-3xl font-black sm:text-4xl">新規登録</h1>
             <p className="mt-3 text-sm font-medium leading-7 text-white/65">
