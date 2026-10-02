@@ -49,7 +49,7 @@ export default function TalentCard({ talent }) {
           詳細を見る
         </Link>
         <Link href={`/talents/${talent.id}/offer`} className="flex-1">
-          <button className="w-full py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <button className="w-full py-1 bg-[#FF5A1F] text-white rounded hover:bg-[#E94F18]">
             オファーを送る
           </button>
         </Link>
