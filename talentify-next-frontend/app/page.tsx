@@ -181,20 +181,19 @@ export default function HomePage() {
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
   <div className="mx-auto flex h-[78px] w-full max-w-[430px] items-center justify-between px-4 sm:h-[86px] sm:max-w-[460px] sm:px-5 md:max-w-5xl md:px-6 lg:max-w-[1500px] lg:px-10">
     <Link href="#top" className="flex items-center gap-3">
-      <img
-        src="/images/lp/logo.png"
-        alt="来店ナビ"
-        className="h-9 w-auto sm:h-10 md:h-12"
-      />
+      <span className="leading-none">
+        <span className="block text-xl font-black tracking-tight text-white sm:text-2xl md:text-3xl">来店ナビ</span>
+        <span className="mt-1 block text-[8px] font-bold tracking-[0.3em] text-[#FFC400] sm:text-[9px]">RAITEN NAVI</span>
+      </span>
     </Link>
 
     <nav className="hidden items-center gap-8 text-sm font-black text-white lg:flex">
-      <Link href="#top" className="hover:text-pink-300">TOP</Link>
-      <Link href="#about" className="hover:text-pink-300">来店ナビとは</Link>
-      <Link href="#features" className="hover:text-pink-300">機能紹介</Link>
-      <Link href="#for-store" className="hover:text-pink-300">店舗向け</Link>
-      <Link href="#for-talent" className="hover:text-pink-300">演者向け</Link>
-      <Link href="/guide" className="hover:text-pink-300">ご利用ガイド</Link>
+      <Link href="#top" className="hover:text-[#FFC400]">TOP</Link>
+      <Link href="#about" className="hover:text-[#FFC400]">来店ナビとは</Link>
+      <Link href="#features" className="hover:text-[#FFC400]">機能紹介</Link>
+      <Link href="#for-store" className="hover:text-[#FFC400]">店舗向け</Link>
+      <Link href="#for-talent" className="hover:text-[#FFC400]">演者向け</Link>
+      <Link href="/guide" className="hover:text-[#FFC400]">ご利用ガイド</Link>
     </nav>
 
     <div className="hidden items-center gap-4 lg:flex">
@@ -206,7 +205,7 @@ export default function HomePage() {
       </Link>
       <Link
         href="#register"
-        className="rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 px-7 py-4 text-sm font-black text-white shadow-[0_0_22px_rgba(236,72,153,.45)] transition hover:scale-105"
+        className="rounded-xl bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400] px-7 py-4 text-sm font-black text-white shadow-[0_0_22px_rgba(255,138,0,.4)] transition hover:scale-105"
       >
         新規登録
       </Link>
@@ -366,7 +365,7 @@ export default function HomePage() {
     <div className="grid items-start gap-6 md:gap-8 lg:grid-cols-[0.9fr_1.1fr]">
       {/* 左 */}
       <div className="max-w-[1060px] pt-2">
-        <p className="text-sm font-black tracking-[0.22em] text-pink-400">
+        <p className="text-sm font-black tracking-[0.22em] text-[#FFC400]">
           ABOUT RAITEN NAVI
         </p>
 
