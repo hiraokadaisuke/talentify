@@ -183,14 +183,14 @@ export default function HomePage() {
     <Link href="#top" className="flex items-center gap-3">
       <img
         src="/images/lp/logo.png"
-        alt="Talentify"
+        alt="来店ナビ"
         className="h-9 w-auto sm:h-10 md:h-12"
       />
     </Link>
 
     <nav className="hidden items-center gap-8 text-sm font-black text-white lg:flex">
       <Link href="#top" className="hover:text-pink-300">TOP</Link>
-      <Link href="#about" className="hover:text-pink-300">Talentifyとは</Link>
+      <Link href="#about" className="hover:text-pink-300">来店ナビとは</Link>
       <Link href="#features" className="hover:text-pink-300">機能紹介</Link>
       <Link href="#for-store" className="hover:text-pink-300">店舗向け</Link>
       <Link href="#for-talent" className="hover:text-pink-300">演者向け</Link>
@@ -219,7 +219,7 @@ export default function HomePage() {
         <div className="relative mx-auto w-full max-w-[430px]">
           <img
             src="/images/lp/sm-hero.png"
-            alt="お店も、ファンも、もっと熱狂。Talentify"
+            alt="来店イベントを、もっと目立たせる。もっと盛り上げる。来店ナビ"
             className="h-[620px] w-full object-cover object-top"
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/90" />
@@ -272,7 +272,7 @@ export default function HomePage() {
         <div className="mx-auto w-full max-w-[1500px]">
           <img
             src="/images/lp/hero.png"
-            alt="お店も、ファンも、もっと熱狂。Talentify"
+            alt="来店イベントを、もっと目立たせる。もっと盛り上げる。来店ナビ"
             className="block h-auto w-full"
           />
         </div>
@@ -367,7 +367,7 @@ export default function HomePage() {
       {/* 左 */}
       <div className="max-w-[1060px] pt-2">
         <p className="text-sm font-black tracking-[0.22em] text-pink-400">
-          ABOUT TALENTIFY
+          ABOUT RAITEN NAVI
         </p>
 
         <h2 className="mt-4 text-[28px] font-black leading-tight tracking-tight text-white sm:text-[34px] md:text-[42px] lg:text-[52px]">
@@ -383,7 +383,7 @@ export default function HomePage() {
 </h2>
 
         <p className="mt-4 max-w-[700px] text-sm font-bold leading-7 text-white/95 md:mt-5 md:text-base md:leading-8 lg:text-[20px] lg:leading-[2]">
-          Talentifyは、パチンコ店と演者をつなぎ、演者探し・日程確認・オファー・
+          来店ナビは、パチンコ店と演者をつなぎ、演者探し・日程確認・オファー・
           やり取り・請求まで、来店案件の流れをひとつにまとめる
           マッチングプラットフォームです。
         </p>
@@ -393,7 +393,7 @@ export default function HomePage() {
       <div className="flex items-start justify-center lg:justify-end">
         <img
           src="/images/lp/sanpou.png"
-          alt="店舗と演者をつなぐTalentifyのサービスイメージ"
+          alt="店舗と演者をつなぐ来店ナビのサービスイメージ"
           className="w-full max-w-[380px] drop-shadow-[0_0_24px_rgba(255,255,255,.15)] md:max-w-[520px] lg:max-w-[640px]"
         />
       </div>
@@ -404,7 +404,7 @@ export default function HomePage() {
   <div className="max-w-[720px]">
     <div className="flex items-center gap-3">
   <h2 className="text-[26px] font-black tracking-tight text-white sm:text-[30px] md:whitespace-nowrap md:text-[34px] lg:text-[38px]">
-    TALENTIFYの主な機能
+    RAITEN NAVIの主な機能
   </h2>
   <div className="h-[3px] flex-1 bg-gradient-to-r from-white/60 to-transparent" />
 </div>
@@ -571,7 +571,7 @@ export default function HomePage() {
 
   <div className="relative mx-auto w-full max-w-[430px] md:max-w-5xl lg:max-w-[1500px]">
     <h2 className="text-center text-[28px] font-black leading-tight text-white sm:text-[30px] md:text-[42px] lg:text-[52px]">
-      さあ、<span className="italic">Talentify</span>で来店案件をもっとスムーズに！
+      さあ、<span className="italic">来店ナビ</span>で来店案件をもっとスムーズに！
     </h2>
 
     <div className="mx-auto mt-6 grid w-full max-w-[360px] gap-3 md:mt-9 md:max-w-none md:gap-5 md:grid-cols-2 lg:grid-cols-4">
