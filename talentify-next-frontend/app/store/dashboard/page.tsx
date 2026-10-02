@@ -12,7 +12,7 @@ import ProfileSetupBanner from '@/components/ProfileSetupBanner'
 import GettingStartedCard from '@/components/GettingStartedCard'
 
 export default async function StoreDashboard() {
-  const { offerStats, schedule, unreadCount, recentNotifications, isSetupComplete } = await getStoreDashboardData()
+  const { offerStats, schedule, unreadCount, recentNotifications, onboardingSteps, isSetupComplete } = await getStoreDashboardData()
   const hasData =
     (Object.values(offerStats) as number[]).reduce((acc, v) => acc + v, 0) > 0
 
@@ -43,7 +43,7 @@ export default async function StoreDashboard() {
       </section>
 
       <ProfileSetupBanner role='store' isSetupComplete={isSetupComplete} />
-      <GettingStartedCard role='store' />
+      <GettingStartedCard role='store' initialSteps={onboardingSteps} />
       {!hasData ? (
         <EmptyState
           title='まだ来店案件がありません'
