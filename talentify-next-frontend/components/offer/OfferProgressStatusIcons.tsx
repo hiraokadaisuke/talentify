@@ -17,8 +17,8 @@ const statusLabel: Record<OfferProgressStep['status'], string> = {
 const baseCircleStyles = 'flex h-8 w-8 items-center justify-center rounded-full'
 
 const iconContainerStyles: Record<OfferProgressStep['status'], string> = {
-  complete: 'bg-[#eef2ff] text-[#2f4da0] ring-1 ring-[#2f4da0]/35',
-  current: 'bg-[#eef2ff] text-[#2f4da0] ring-1 ring-[#2f4da0]/35',
+  complete: 'bg-slate-100 text-[#0B1F3B] ring-1 ring-[#0B1F3B]/25',
+  current: 'bg-orange-50 text-[#FF5A1F] ring-1 ring-[#FF8A00]/35',
   upcoming: 'bg-white text-[#64748b] ring-1 ring-[#e2e8f0]',
 }
 
@@ -44,7 +44,7 @@ type OfferProgressStatusIconsProps = {
 }
 
 const badgeVariantStyles: Record<OfferProgressBadge['variant'], string> = {
-  default: 'border-[#2f4da0]/35 text-[#2f4da0] bg-[#eef2ff]',
+  default: 'border-[#0B1F3B]/25 text-[#0B1F3B] bg-slate-50',
   secondary: 'border-[#e2e8f0] text-[#64748b] bg-white',
   success: 'border-[#1f6b4f]/35 text-[#1f6b4f] bg-[#ecfdf3]',
 }
@@ -72,7 +72,7 @@ export function OfferProgressStatusIcons({ steps, badge, className }: OfferProgr
             <Tooltip key={step.key}>
               <TooltipTrigger asChild>
                 <span
-                  className="flex flex-col items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2f4da0]/35 focus-visible:ring-offset-2"
+                  className="flex flex-col items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF8A00]/35 focus-visible:ring-offset-2"
                   tabIndex={0}
                 >
                   <span
