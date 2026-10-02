@@ -1,5 +1,5 @@
-import TalentSearchPage from '@/components/talent-search/TalentSearchPage'
+import { redirect } from 'next/navigation'
 
 export default function TalentsPage() {
-  return <TalentSearchPage />
+  redirect('/search/talents')
 }
