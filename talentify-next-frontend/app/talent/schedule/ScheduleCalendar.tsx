@@ -135,7 +135,15 @@ function toJstDateString(
   return `${year.padStart(2, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
 }
 
-export default function ScheduleCalendar() {
+export default function ScheduleCalendar({
+  initialUserId,
+  initialTalentId,
+  initialIdentityError = false,
+}: {
+  initialUserId: string | null
+  initialTalentId: string | null
+  initialIdentityError?: boolean
+}) {
   const router = useRouter()
   const [calendarLib, setCalendarLib] = useState<{
     Calendar: ComponentType<any>
@@ -163,8 +171,8 @@ export default function ScheduleCalendar() {
     []
   )
   const supabase = useMemo(() => createClient(), [])
-  const [talentId, setTalentId] = useState<string | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
+  const [talentId, setTalentId] = useState<string | null>(initialTalentId)
+  const [userId, setUserId] = useState<string | null>(initialUserId)
   const [calendarDate, setCalendarDate] = useState<Date | null>(null)
   const [today, setToday] = useState<Date | null>(null)
   const [availabilitySettings, setAvailabilitySettings] =
@@ -173,8 +181,8 @@ export default function ScheduleCalendar() {
   const [events, setEvents] = useState<TalentCalendarEvent[]>([])
   const [calendarEvents, setCalendarEvents] = useState<TalentCalendarEvent[]>([])
   const [loading, setLoading] = useState(false)
-  const [identityLoading, setIdentityLoading] = useState(true)
-  const [identityError, setIdentityError] = useState(false)
+  const [identityLoading, setIdentityLoading] = useState(false)
+  const [identityError, setIdentityError] = useState(initialIdentityError)
   const [calendarLoadError, setCalendarLoadError] = useState(false)
   const [hasLoadedCalendarData, setHasLoadedCalendarData] = useState(false)
   const [updatingDates, setUpdatingDates] = useState<Record<string, boolean>>({})
@@ -272,9 +280,6 @@ export default function ScheduleCalendar() {
     }
   }, [supabase])
 
-  useEffect(() => {
-    void loadIdentity()
-  }, [loadIdentity])
 
   const fetchCalendarData = useCallback(async () => {
     if (!talentId || !userId || !calendarDate || !jstFormatter) return
