@@ -13,6 +13,8 @@ import getDay from 'date-fns/getDay'
 import ja from 'date-fns/locale/ja'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
+const Calendar = BigCalendar as ComponentType<any>
+
 const localizer = dateFnsLocalizer({
   format,
   parse,
@@ -41,7 +43,7 @@ export default function StoreCalendarView({
   onSelectSlot,
 }: Props) {
   return (
-    <BigCalendar
+    <Calendar
       culture="ja"
       toolbar={false}
       className="mx-auto w-full"
