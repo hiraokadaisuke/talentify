@@ -88,7 +88,7 @@ export async function sendNotificationEmail({
         <div style="font-size:20px;font-weight:800;margin-bottom:20px;">来店ナビ</div>
         <h1 style="font-size:20px;line-height:1.5;margin:0 0 12px;">${escapedTitle}</h1>
         <p style="font-size:14px;line-height:1.8;color:#475569;margin:0 0 24px;">${escapedBody}</p>
-        <a href="${escapedActionUrl}" style="display:inline-block;background:#1d4ed8;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:12px 18px;border-radius:10px;">${escapedActionLabel}</a>
+        <a href="${escapedActionUrl}" style="display:inline-block;background:#FF5A1F;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;padding:12px 18px;border-radius:10px;">${escapedActionLabel}</a>
         <p style="font-size:12px;line-height:1.7;color:#94a3b8;margin:28px 0 0;">
           このメールは来店ナビの取引に関する通知です。
         </p>
