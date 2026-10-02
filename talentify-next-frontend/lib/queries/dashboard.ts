@@ -1,16 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import type { ScheduleItem } from '@/components/ScheduleCard'
 import { toDbOfferStatus } from '@/app/lib/offerStatus'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 import type { Notification } from '@/types/ui'
 import type { ProgressStep } from '@/components/GettingStartedCard'
 import { createServiceClient } from '@/lib/supabase/service'
 
 export async function getTalentDashboardData() {
   const supabase = createClient()
-  const { user } = await getCurrentUserWithClient(supabase)
+  const { userId } = await getProtectedRequestUserId(supabase)
 
-  if (!user) {
+  if (!userId) {
     return {
       pendingOffersCount: 0,
       confirmedOffersCount: 0,
@@ -30,7 +30,7 @@ export async function getTalentDashboardData() {
   const { data: talent } = await supabase
     .from('talents')
     .select('id, is_setup_complete, is_profile_complete')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .single()
 
   const talentId = talent?.id
@@ -57,7 +57,7 @@ export async function getTalentDashboardData() {
     supabase
       .from('offer_messages')
       .select('id', { count: 'exact', head: true })
-      .eq('receiver_user', user.id)
+      .eq('receiver_user', userId)
       .is('read_at', null),
     talentId
       ? supabase
@@ -78,18 +78,18 @@ export async function getTalentDashboardData() {
     supabase
       .from('notifications')
       .select('id,type,title,body,data,created_at,is_read')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(5),
     service
       .from('talent_availability_settings')
       .select('user_id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle(),
     service
       .from('talent_billing_profiles')
       .select('billing_name')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle(),
     talentId
       ? service
@@ -153,16 +153,16 @@ export async function getTalentDashboardData() {
 
 export async function getStoreDashboardData() {
   const supabase = createClient()
-  const { user, error: userError } = await getCurrentUserWithClient(supabase)
+  const { userId, error: userError } = await getProtectedRequestUserId(supabase)
 
-  if (userError || !user) {
+  if (userError || !userId) {
     throw new Error('failed to fetch user session')
   }
 
   const { data: store } = await supabase
     .from('stores')
     .select('id, is_setup_complete, is_profile_complete')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .maybeSingle()
 
   if (!store) {
@@ -196,12 +196,12 @@ export async function getStoreDashboardData() {
     supabase
       .from('offer_messages')
       .select('id', { count: 'exact', head: true })
-      .eq('receiver_user', user.id)
+      .eq('receiver_user', userId)
       .is('read_at', null),
     supabase
       .from('notifications')
       .select('id,type,title,body,data,created_at,is_read')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(5),
     service
