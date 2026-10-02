@@ -34,7 +34,7 @@ export async function getTalentDashboardData() {
     .single()
 
   const talentId = talent?.id
-  const service = createServiceClient()
+  const service = createServiceClient() as any
   const pendingStatus = toDbOfferStatus('pending') ?? 'pending'
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
 
@@ -180,7 +180,7 @@ export async function getStoreDashboardData() {
     }
   }
 
-  const service = createServiceClient()
+  const service = createServiceClient() as any
   const confirmedStatus = toDbOfferStatus('confirmed') ?? 'confirmed'
 
   const [offersResult, scheduleResult, unreadResult, notificationsResult, favoritesResult] = await Promise.all([
