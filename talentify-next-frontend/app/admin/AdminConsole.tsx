@@ -273,7 +273,7 @@ export default function AdminConsole() {
       <div className="mx-auto w-full max-w-7xl space-y-6">
         <header className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2 text-blue-700">
+            <div className="flex items-center gap-2 text-[#0B1F3B]">
               <ShieldCheck className="h-5 w-5" aria-hidden="true" />
               <span className="text-xs font-bold tracking-[0.18em]">ADMIN</span>
             </div>
@@ -463,7 +463,7 @@ export default function AdminConsole() {
                               <button
                                 type="button"
                                 onClick={() => setDetailTarget({ kind: 'user', id: user.id })}
-                                className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:underline"
+                                className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-[#FF5A1F] hover:underline"
                               >
                                 <Eye className="h-3.5 w-3.5" />
                                 詳細を見る
@@ -563,7 +563,7 @@ export default function AdminConsole() {
                               <button
                                 type="button"
                                 onClick={() => setDetailTarget({ kind: 'offer', id: offer.id })}
-                                className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-blue-700 hover:underline"
+                                className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-[#FF5A1F] hover:underline"
                               >
                                 {offer.event_name || '案件'}
                                 <Eye className="h-3.5 w-3.5" />
