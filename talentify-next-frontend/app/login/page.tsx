@@ -96,7 +96,7 @@ export default function LoginPage() {
           <Link href="/register?role=store" className="rounded-2xl border border-orange-300/30 bg-orange-400/10 p-4 text-center text-sm font-black text-orange-200">
             店舗として登録
           </Link>
-          <Link href="/register?role=talent" className="rounded-2xl border border-sky-300/30 bg-sky-400/10 p-4 text-center text-sm font-black text-sky-200">
+          <Link href="/register?role=talent" className="rounded-2xl border border-[#FFC400]/30 bg-[#FFC400]/10 p-4 text-center text-sm font-black text-[#FFE27A]">
             演者として登録
           </Link>
         </div>
