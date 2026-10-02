@@ -110,14 +110,14 @@ export default function NotificationBell() {
         <button
           aria-label="通知"
           data-testid="header-notification-bell"
-          className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-700 transition hover:bg-orange-50 hover:text-[#C2410C] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-200"
         >
           <Bell className="h-6 w-6" />
           {count > 0 && (
             <span
               aria-live="polite"
               data-testid="header-notification-badge"
-              className="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-500 px-1 text-xs text-white"
+              className="absolute -top-1 -right-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#FF5A1F] px-1 text-xs font-bold text-white"
             >
               {formatUnreadCount(count)}
             </span>
@@ -164,7 +164,7 @@ export default function NotificationBell() {
             href={notificationsPath}
             prefetch={false}
             onClick={handleNavigate}
-            className="block px-3 py-3 text-center text-sm font-semibold text-blue-600 hover:bg-blue-50"
+            className="block px-3 py-3 text-center text-sm font-bold text-[#C2410C] hover:bg-orange-50"
           >
             すべて見る
           </Link>
