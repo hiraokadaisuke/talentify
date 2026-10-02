@@ -1,9 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { createClient } from '@/utils/supabase/client'
-import type { SupabaseClient } from '@supabase/supabase-js'
-import { toast } from 'sonner'
 import TalentSearchForm, { SearchFilters } from './TalentSearchForm'
 import TalentList from './TalentList'
 import type { PublicTalent } from '@/types/talent'
@@ -45,40 +42,24 @@ const matchesRateRange = (rate: number | null, rateRange?: SearchFilters['rateRa
   }
 }
 
-export default function TalentSearchPage() {
-  const [talents, setTalents] = useState<PublicTalent[]>([])
-  const [results, setResults] = useState<PublicTalent[]>([])
+export default function TalentSearchPage({
+  initialTalents,
+  initialLoadError = false,
+}: {
+  initialTalents: PublicTalent[]
+  initialLoadError?: boolean
+}) {
+  const [talents, setTalents] = useState<PublicTalent[]>(initialTalents)
+  const [results, setResults] = useState<PublicTalent[]>(initialTalents)
   const [page, setPage] = useState(1)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const isLoading = false
+  const error = initialLoadError
 
   useEffect(() => {
-    const fetchTalents = async () => {
-      setIsLoading(true)
-      const supabase = createClient() as SupabaseClient<any>
-      const { data, error } = await supabase
-        .from('public_talent_profiles')
-        .select('id, stage_name, genre, area, avatar_url, rate, rating, bio, display_name')
-        .returns<PublicTalent[]>()
-
-      if (error) {
-        console.error('タレントの取得に失敗しました:', error)
-        toast.error('タレントの取得に失敗しました')
-        setTalents([])
-        setResults([])
-        setError(true)
-        setIsLoading(false)
-        return
-      }
-
-      setTalents(data ?? [])
-      setResults(data ?? [])
-      setError(false)
-      setIsLoading(false)
-    }
-
-    fetchTalents()
-  }, [])
+    setTalents(initialTalents)
+    setResults(initialTalents)
+    setPage(1)
+  }, [initialTalents])
 
   const genreOptions = useMemo(
     () =>
