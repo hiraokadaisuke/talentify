@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 import {
   deriveOfferInvoiceProgressStatus,
   getInvoiceStatusLabel,
@@ -15,8 +15,8 @@ type PageProps = {
 export default async function TalentOfferPage({ params }: PageProps) {
   const supabase = createClient()
 
-  const [userResult, offerResult, invoiceResult] = await Promise.all([
-    getCurrentUserWithClient(supabase),
+  const [userIdResult, offerResult, invoiceResult] = await Promise.all([
+    getProtectedRequestUserId(supabase),
     supabase
       .from('offers')
       .select(
@@ -36,11 +36,11 @@ export default async function TalentOfferPage({ params }: PageProps) {
       .maybeSingle(),
   ])
 
-  const user = userResult.user
+  const userId = userIdResult.userId
   const data = offerResult.data
   const invoice = invoiceResult.data
 
-  if (!user || !data || data.talents?.user_id !== user.id) {
+  if (!userId || !data || data.talents?.user_id !== userId) {
     notFound()
   }
 
@@ -81,7 +81,7 @@ export default async function TalentOfferPage({ params }: PageProps) {
   return (
     <TalentOfferClient
       initialOffer={offer}
-      currentUserId={user.id}
+      currentUserId={userId}
       invoiceId={invoice?.id ?? null}
     />
   )
