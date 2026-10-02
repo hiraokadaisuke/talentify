@@ -7,7 +7,7 @@ export type RecipientRole = 'store' | 'talent' | 'unknown'
 
 export type NotificationPayload = Omit<NotificationInsert, 'user_id'>
 
-const DEFAULT_ACTOR_NAME = 'Talentify運営'
+const DEFAULT_ACTOR_NAME = '来店ナビ運営'
 
 function normalizeActorName(actorName?: string | null): string {
   if (typeof actorName !== 'string') return DEFAULT_ACTOR_NAME
