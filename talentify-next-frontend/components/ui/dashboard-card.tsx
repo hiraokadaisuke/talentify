@@ -44,7 +44,7 @@ export function DashboardCard({
 
       {ctaHref && ctaLabel && (
         <CardFooter className='mt-4 p-0'>
-          <Link href={ctaHref} prefetch={false} className='ml-auto'>
+          <Link href={ctaHref} className='ml-auto'>
             <Button size='sm' variant={ctaVariant} className={cn('gap-1.5 rounded-xl font-bold', ctaVariant === 'default' ? 'bg-[#FF5A1F] text-white hover:bg-[#E94F18]' : 'border-slate-200 text-slate-700 hover:bg-slate-50')}>
               {ctaLabel}
               <ArrowRight className='h-4 w-4' />
