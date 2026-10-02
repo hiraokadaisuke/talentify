@@ -54,7 +54,6 @@ export default function ScheduleCard({ title = '直近の予定', items, classNa
             {ev.href && (
               <Link
                 href={ev.href}
-                prefetch={false}
                 className='inline-flex items-center gap-1 rounded-md border border-orange-200 bg-orange-50 px-2 py-1 text-xs font-semibold text-[#C2410C] transition-colors hover:border-orange-300 hover:bg-orange-100'
               >
                 詳細を見る
