@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Bell } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent } from '@/components/ui/dropdown-menu'
@@ -8,6 +8,7 @@ import NotificationItem from './NotificationItem'
 import type { NotificationRow } from '@/utils/notifications'
 import {
   getBellNotifications,
+  getBellUnreadCount,
   getUnreadNotificationCount,
   markAllNotificationsRead,
   formatUnreadCount,
@@ -22,9 +23,21 @@ const supabase = createClient()
 export default function NotificationBell({ role }: { role: 'store' | 'talent' }) {
   const [count, setCount] = useState(0)
   const [items, setItems] = useState<NotificationRow[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [open, setOpen] = useState(false)
+  const openRef = useRef(false)
+
+  const refreshCount = async () => {
+    try {
+      setCount(await getBellUnreadCount())
+    } catch (error) {
+      if (!(error instanceof NotificationsFetchError)) {
+        console.error('failed to refresh bell unread count', error)
+      }
+      setCount(await getUnreadNotificationCount())
+    }
+  }
 
   const refreshBell = async (options?: { silent?: boolean }) => {
     if (!options?.silent) {
@@ -48,40 +61,51 @@ export default function NotificationBell({ role }: { role: 'store' | 'talent' })
   }
 
   useEffect(() => {
-    refreshBell()
+    void refreshCount()
+
+    const refreshForCurrentState = () => {
+      if (openRef.current) {
+        void refreshBell({ silent: true })
+      } else {
+        void refreshCount()
+      }
+    }
+
     const channel = supabase
       .channel('notifications-bell')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notifications' },
-        () => {
-          refreshBell({ silent: true })
-        }
+        refreshForCurrentState
       )
       .subscribe()
-    const onLocalNotificationsChanged = () => {
-      refreshBell({ silent: true })
-    }
-    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
+
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, refreshForCurrentState)
+
     const onVisible = () => {
       if (document.visibilityState === 'visible') {
-        refreshBell({ silent: true })
+        refreshForCurrentState()
       }
     }
     document.addEventListener('visibilitychange', onVisible)
 
-    const interval = setInterval(() => refreshBell({ silent: true }), 300000)
+    const interval = setInterval(() => void refreshCount(), 300000)
     return () => {
       supabase.removeChannel(channel)
-      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, onLocalNotificationsChanged)
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, refreshForCurrentState)
       document.removeEventListener('visibilitychange', onVisible)
       clearInterval(interval)
     }
   }, [])
 
   const handleOpenChange = (nextOpen: boolean) => {
+    openRef.current = nextOpen
     setOpen(nextOpen)
-    if (nextOpen) refreshBell({ silent: true })
+    if (nextOpen) {
+      void refreshBell()
+    } else {
+      setLoadError(null)
+    }
   }
 
   const handleItemRead = (id: string) => {
