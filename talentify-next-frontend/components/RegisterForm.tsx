@@ -73,9 +73,9 @@ export default function RegisterForm() {
             </Link>
             <Link
               href="/register?role=talent"
-              className="rounded-3xl border border-sky-300/30 bg-gradient-to-br from-sky-500/20 to-blue-500/10 p-6 transition hover:-translate-y-1 hover:border-sky-300/60"
+              className="rounded-3xl border border-[#FFC400]/30 bg-gradient-to-br from-[#FFC400]/20 to-[#FF8A00]/10 p-6 transition hover:-translate-y-1 hover:border-[#FFC400]/60"
             >
-              <p className="text-xs font-black tracking-[0.18em] text-sky-300">FOR TALENTS</p>
+              <p className="text-xs font-black tracking-[0.18em] text-[#FFC400]">FOR TALENTS</p>
               <h2 className="mt-3 text-2xl font-black">演者として登録</h2>
               <p className="mt-3 text-sm font-medium leading-7 text-white/65">
                 プロフィール・予定・オファー・請求管理を利用する演者向けアカウントです。
