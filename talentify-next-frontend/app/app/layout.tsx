@@ -6,7 +6,7 @@ import { SupabaseProvider } from '@/lib/supabase/provider'
 import { getUserRoleInfo } from '@/lib/getUserRole'
 
 export const metadata = {
-  title: 'Talentify | アプリ',
+  title: '来店ナビ | アプリ',
 }
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
