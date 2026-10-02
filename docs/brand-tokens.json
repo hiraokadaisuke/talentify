@@ -1,0 +1,85 @@
+{
+  "name": "来店ナビ",
+  "englishName": "RAITEN NAVI",
+  "version": "1.0",
+  "approved": true,
+  "principle": "外はワクワク、中は分かりやすく。",
+  "colors": {
+    "brand": {
+      "navy": "#0B1F3B",
+      "darkNavy": "#081426",
+      "vividOrange": "#FF5A1F",
+      "orange": "#FF8A00",
+      "redOrange": "#FF3B2E",
+      "yellow": "#FFC400",
+      "white": "#FFFFFF"
+    },
+    "ui": {
+      "surface": "#F8FAFC",
+      "border": "#E5E7EB",
+      "text": "#0F172A",
+      "mutedText": "#64748B"
+    }
+  },
+  "gradients": {
+    "energy": "linear-gradient(135deg, #FF3B2E 0%, #FF8A00 55%, #FFC400 100%)"
+  },
+  "typography": {
+    "headingJa": "Noto Sans JP",
+    "bodyJa": "Noto Sans JP",
+    "latinUi": "Inter",
+    "headingWeight": "800-900",
+    "bodyWeight": "400-600"
+  },
+  "surfaces": {
+    "marketing": {
+      "background": "dark navy",
+      "energy": "high",
+      "effects": [
+        "spotlight",
+        "light streak",
+        "spark",
+        "arrow"
+      ]
+    },
+    "businessUi": {
+      "background": "white / soft gray",
+      "energy": "low-medium",
+      "effects": [
+        "selective warm accents only"
+      ]
+    },
+    "socialCreative": {
+      "background": "flexible",
+      "energy": "high",
+      "effects": [
+        "dynamic type",
+        "glow",
+        "event photography"
+      ]
+    }
+  },
+  "copy": {
+    "preferred": [
+      "目立たせる",
+      "盛り上げる",
+      "広げる",
+      "見つかる",
+      "届ける",
+      "ワクワク",
+      "注目",
+      "つながる"
+    ],
+    "avoid": [
+      "熱く",
+      "激アツ",
+      "爆発",
+      "勝てる",
+      "勝率",
+      "絶対",
+      "確実",
+      "No.1（根拠なし）",
+      "集客最大化（根拠なし）"
+    ]
+  }
+}
