@@ -33,7 +33,7 @@ export async function sendContactNotificationEmail(
 
   const safeSubject = inquiry.subject.replace(/[\r\n]+/g, ' ').slice(0, 160)
   const text = [
-    'Talentifyに新しいお問い合わせが届きました。',
+    '来店ナビに新しいお問い合わせが届きました。',
     '',
     `受付ID: ${inquiry.inquiryId}`,
     `受付日時: ${inquiry.createdAt}`,
@@ -56,7 +56,7 @@ export async function sendContactNotificationEmail(
     body: JSON.stringify({
       from,
       to: [to],
-      subject: `【Talentifyお問い合わせ】${safeSubject}`,
+      subject: `【来店ナビお問い合わせ】${safeSubject}`,
       text,
     }),
   })
