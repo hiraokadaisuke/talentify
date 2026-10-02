@@ -19,7 +19,7 @@ function GenericNotification({ notification, className, ...props }: Notification
   return (
     <div
       className={cn(
-        'flex items-start gap-2 rounded-md border p-3 bg-white',
+        'flex items-start gap-2 rounded-xl border border-slate-200 bg-white p-3',
         !notification.is_read && 'font-semibold',
         className
       )}
@@ -35,7 +35,7 @@ function GenericNotification({ notification, className, ...props }: Notification
         </div>
       </div>
       {!notification.is_read && (
-        <Badge className="self-start" variant="destructive">
+        <Badge className="self-start border-0 bg-[#FF5A1F] text-white hover:bg-[#FF5A1F]">
           NEW
         </Badge>
       )}
@@ -48,7 +48,7 @@ function ReviewReceivedNotification({ notification, className, ...props }: Notif
   return (
     <div
       className={cn(
-        'flex items-start gap-2 rounded-md border p-3 bg-white',
+        'flex items-start gap-2 rounded-xl border border-slate-200 bg-white p-3',
         !notification.is_read && 'font-semibold',
         className
       )}
@@ -66,7 +66,7 @@ function ReviewReceivedNotification({ notification, className, ...props }: Notif
         </div>
       </div>
       {!notification.is_read && (
-        <Badge className="self-start" variant="destructive">
+        <Badge className="self-start border-0 bg-[#FF5A1F] text-white hover:bg-[#FF5A1F]">
           NEW
         </Badge>
       )}
