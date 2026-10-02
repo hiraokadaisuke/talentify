@@ -60,7 +60,7 @@ export default function LoginPage() {
       <div className="mx-auto max-w-md">
         <div className="text-center">
           <Link href="/" className="inline-flex">
-            <img src="/images/lp/logo.png" alt="Talentify" className="h-10 w-auto" />
+            <img src="/images/lp/logo.png" alt="来店ナビ" className="h-10 w-auto" />
           </Link>
           <h1 className="mt-6 text-3xl font-black">ログイン</h1>
           {searchParams.get('passwordReset') === '1' && (
