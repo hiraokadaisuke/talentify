@@ -40,7 +40,7 @@ type StepDetail = {
   secondaryAction?: ReactNode
 }
 
-const primaryActionClass = 'h-9 bg-blue-700 px-4 text-white hover:bg-blue-800 focus-visible:ring-blue-300'
+const primaryActionClass = 'h-10 rounded-xl bg-[#FF5A1F] px-4 font-bold text-white hover:bg-[#E94F18] focus-visible:ring-orange-200'
 const secondaryActionClass = 'h-9 border-slate-300 bg-white px-4 text-slate-700 hover:bg-slate-100'
 
 const statusDisplay = (status: string) => {
@@ -200,7 +200,7 @@ export default function StepDetailCard({
   }, [activeStep, activeStatus, mainActionDetail, formattedVisitDate, offer.status, offer.invoiceStatus, offer.invoiceStatusLabel, offer.id, invoiceId, onDeclineOffer, actionLoading])
 
   return (
-    <Card className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <Card className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
       <CardHeader className="flex flex-col gap-1.5 border-b border-slate-100 p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-3">
           <CardTitle className="text-base font-semibold text-slate-900 sm:text-lg">{detail.title}</CardTitle>
