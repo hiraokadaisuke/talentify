@@ -23,7 +23,7 @@ import OfferModal from '@/components/modals/OfferModal'
 import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, RotateCcw } from 'lucide-react'
+import { AlertCircle, CalendarDays, RotateCcw } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
@@ -251,7 +251,7 @@ export default function StoreSchedulePage() {
       .map((e) => `${e.talentName} ${STATUS_LABEL[e.status]}`)
       .join('\n')
     let className = ''
-    if (isToday) className = 'bg-blue-50'
+    if (isToday) className = 'bg-orange-50'
     else if (dow === 0 || dow === 6) className = 'bg-gray-50'
     return { className, title: title || undefined }
   }
@@ -327,13 +327,25 @@ export default function StoreSchedulePage() {
   }
 
   return (
-    <main className="min-w-0 p-3 sm:p-4">
-      <h1 className="text-2xl font-bold mb-4">スケジュール</h1>
+    <main className="mx-auto min-w-0 w-full max-w-[1500px] space-y-4">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+        <div className="flex items-start gap-3 p-5 sm:p-6">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
+            <CalendarDays className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">STORE SCHEDULE</p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">スケジュール</h1>
+            <p className="mt-1 text-sm leading-6 text-slate-500">確定した来店予定をカレンダーで確認できます。</p>
+          </div>
+        </div>
+        <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+      </section>
       <div className="flex flex-wrap items-center gap-2 mb-2">
         <div className="flex items-center gap-2 hidden">
           <Button
             size="sm"
-            className="min-h-[44px]"
+            className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
             onClick={() => setDate(new Date())}
             aria-label="今日"
           >
@@ -343,7 +355,7 @@ export default function StoreSchedulePage() {
         <div className="flex-1 flex items-center justify-center gap-2">
           <Button
             size="sm"
-            className="min-h-[44px]"
+            className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
             onClick={() => setDate(subMonths(date, 1))}
             aria-label="前の月"
           >
@@ -354,7 +366,7 @@ export default function StoreSchedulePage() {
           </span>
           <Button
             size="sm"
-            className="min-h-[44px]"
+            className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
             onClick={() => setDate(addMonths(date, 1))}
             aria-label="次の月"
           >
@@ -375,7 +387,7 @@ export default function StoreSchedulePage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="min-h-[44px]"
+                className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
                 aria-label="ステータスフィルタ"
               >
                 ステータス
@@ -419,7 +431,7 @@ export default function StoreSchedulePage() {
           </div>
         ))}
       </div>
-      <div className="h-[420px] min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 sm:h-[460px] sm:p-2">
+      <div className="h-[420px] min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:h-[460px] sm:p-2">
         <BigCalendar
           culture="ja"
           toolbar={false}
@@ -494,7 +506,7 @@ export default function StoreSchedulePage() {
               <ModalFooter>
                 <Link
                   href={`/talents/${selected.talentId}`}
-                  className="text-blue-600 underline"
+                  className="font-bold text-[#C2410C] underline"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -502,7 +514,7 @@ export default function StoreSchedulePage() {
                 </Link>
                 <Link
                   href={`/store/offers/${selected.offerId}`}
-                  className="text-blue-600 underline"
+                  className="font-bold text-[#C2410C] underline"
                 >
                   詳細
                 </Link>
