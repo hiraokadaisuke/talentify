@@ -17,13 +17,13 @@ export default function MessagesTopPage() {
       <div className="border-b mb-4 flex space-x-4">
         <Link
           href="/messages?tab=direct"
-          className={`px-2 pb-2 border-b-2 ${tabParam === 'direct' ? 'border-blue-500 font-medium' : 'border-transparent text-gray-500'}`}
+          className={`px-2 pb-2 border-b-2 ${tabParam === 'direct' ? 'border-[#FF5A1F] font-medium' : 'border-transparent text-gray-500'}`}
         >
           直通
         </Link>
         <Link
           href="/messages?tab=offer"
-          className={`px-2 pb-2 border-b-2 ${tabParam === 'offer' ? 'border-blue-500 font-medium' : 'border-transparent text-gray-500'}`}
+          className={`px-2 pb-2 border-b-2 ${tabParam === 'offer' ? 'border-[#FF5A1F] font-medium' : 'border-transparent text-gray-500'}`}
         >
           オファー
         </Link>
