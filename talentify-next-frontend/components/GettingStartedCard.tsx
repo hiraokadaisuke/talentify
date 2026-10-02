@@ -133,7 +133,6 @@ export default function GettingStartedCard({ role }: { role: Role }) {
             <Link
               key={step.key}
               href={step.href}
-              prefetch={false}
               className="group flex min-h-24 items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition hover:border-orange-300 hover:shadow-sm"
             >
               <span className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full ${
@@ -153,7 +152,7 @@ export default function GettingStartedCard({ role }: { role: Role }) {
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
         <span>邪魔な場合は右上の×でいつでも非表示にできます。</span>
-        <Link href="/guide" prefetch={false} className="font-semibold text-[#C2410C] hover:underline">
+        <Link href="/guide" className="font-semibold text-[#C2410C] hover:underline">
           詳しい使い方を見る
         </Link>
       </div>
