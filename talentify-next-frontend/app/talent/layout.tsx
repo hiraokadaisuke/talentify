@@ -2,7 +2,7 @@ import React from 'react'
 import TalentRouteShell from '@/components/talent/TalentRouteShell'
 
 export const metadata = {
-  title: 'Talentify | タレント',
+  title: '来店ナビ | タレント',
 }
 
 export default function TalentLayout({
