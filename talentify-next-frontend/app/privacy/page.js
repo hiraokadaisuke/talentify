@@ -146,7 +146,7 @@ const sections = [
         </p>
         <p>
           ご希望の場合は
-          <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+          <Link href="/contact" className="mx-1 text-[#FF5A1F] underline underline-offset-2">
             お問い合わせフォーム
           </Link>
           からご連絡ください。本人確認のうえ、法令に従って対応します。
@@ -171,7 +171,7 @@ const sections = [
     body: (
       <p>
         個人情報の取扱いに関するお問い合わせは、
-        <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+        <Link href="/contact" className="mx-1 text-[#FF5A1F] underline underline-offset-2">
           お問い合わせフォーム
         </Link>
         からご連絡ください。
@@ -184,7 +184,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">PRIVACY POLICY</p>
+        <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">PRIVACY POLICY</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
           プライバシーポリシー
         </h1>
@@ -199,7 +199,7 @@ export default function PrivacyPage() {
         <ol className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
           {sections.map((section) => (
             <li key={section.id}>
-              <a href={`#${section.id}`} className="hover:text-blue-700 hover:underline">
+              <a href={`#${section.id}`} className="hover:text-[#FF5A1F] hover:underline">
                 {section.title}
               </a>
             </li>
@@ -222,7 +222,7 @@ export default function PrivacyPage() {
         ))}
       </div>
 
-      <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-5 text-sm leading-7 text-blue-950">
+      <div className="mt-8 rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm leading-7 text-slate-800">
         アカウントの退会をご希望の場合も
         <Link href="/contact" className="mx-1 font-semibold underline underline-offset-2">
           お問い合わせフォーム
