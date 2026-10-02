@@ -426,7 +426,7 @@ export default function TalentInvoiceNewPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,.05)]">
           <CardHeader>
             <CardTitle>見積書</CardTitle>
           </CardHeader>
@@ -503,6 +503,7 @@ export default function TalentInvoiceNewPage() {
                         onClick={saveDraft}
                         disabled={loading}
                         variant="outline"
+                        className="rounded-xl border-slate-200 font-bold text-slate-700"
                       >
                         下書き保存
                       </Button>
