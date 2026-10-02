@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'プライバシーポリシー | Talentify',
-  description: 'Talentifyにおける個人情報および利用情報の取扱いについて説明します。',
+  title: 'プライバシーポリシー | 来店ナビ',
+  description: '来店ナビにおける個人情報および利用情報の取扱いについて説明します。',
 }
 
 const sections = [
@@ -11,7 +11,7 @@ const sections = [
     title: '1. 基本方針',
     body: (
       <p>
-        Talentify運営者（以下「運営者」といいます。）は、
+        来店ナビ運営者（以下「運営者」といいます。）は、
         本サービスの提供にあたり取り扱う個人情報その他の利用者情報を適切に管理し、
         個人情報の保護に関する法律その他の関係法令を遵守します。
       </p>
@@ -189,7 +189,7 @@ export default function PrivacyPage() {
           プライバシーポリシー
         </h1>
         <p className="mt-3 text-sm leading-7 text-slate-600">
-          Talentifyで取り扱う個人情報・案件情報・メッセージ等の利用目的と管理方法を説明します。
+          来店ナビで取り扱う個人情報・案件情報・メッセージ等の利用目的と管理方法を説明します。
         </p>
         <p className="mt-4 text-xs text-slate-400">最終改定日：2026年10月1日</p>
       </header>
