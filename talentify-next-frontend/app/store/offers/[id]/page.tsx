@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { format } from 'date-fns'
@@ -125,14 +127,19 @@ export default async function StoreOfferPage({ params }: PageProps) {
   const statusClassName = getStatusBadgeClassName(offer.status)
 
   return (
-    <div className="p-3 sm:p-5 lg:p-6">
+    <div>
       <div className="mx-auto grid min-w-0 w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
         <div className="min-w-0 space-y-4 lg:col-span-2">
-          <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+          <div className="p-4 sm:p-5">
+            <Link href="/store/offers" className="mb-3 inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 transition hover:text-[#C2410C]">
+              <ArrowLeft className="h-3.5 w-3.5" />
+              オファー一覧へ
+            </Link>
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">オファー詳細</h1>
+                <p className="text-[10px] font-black tracking-[0.15em] text-[#C2410C]">OFFER DETAIL</p>\n                <h1 className="mt-1 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">オファー詳細</h1>
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-slate-600">
                 <div className="flex items-center gap-2">
@@ -147,7 +154,9 @@ export default async function StoreOfferPage({ params }: PageProps) {
                 <div className="font-medium text-slate-400">最終更新日時</div>
                 <div>{formattedUpdatedAt}</div>
               </div>
+            </div>
           </div>
+          <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
           </section>
 
           <StoreOfferProgressPanel
@@ -197,7 +206,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
               storeName={offer.storeName}
               talentName={offer.performerName}
             />
-            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)]">
               <p className="text-sm font-semibold text-slate-900">連絡方法</p>
               <p className="mt-1 text-sm text-slate-600">
                 {offer.phoneContactAllowed
@@ -210,7 +219,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
                 <div className="mt-3 space-y-2">
                   <a
                     href={`tel:${offer.talentPhone}`}
-                    className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-blue-700 px-4 text-sm font-semibold text-white hover:bg-blue-800"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#FF5A1F] px-4 text-sm font-bold text-white transition hover:bg-[#E94F18]"
                   >
                     電話で相談する
                   </a>
