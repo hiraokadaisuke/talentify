@@ -263,16 +263,16 @@ export default function OfferChatThread({
   return (
     <div
       className={cn(
-        'flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#FDFDFD] sm:min-h-[420px]',
+        'flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:min-h-[420px]',
         className,
       )}
     >
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-b border-[#E5E7EB] bg-white px-3 py-2.5 sm:px-4">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-white px-3 py-2.5 sm:px-4">
         <div className="flex items-center gap-2">
-          <MessageCircle className="h-4.5 w-4.5 text-slate-600" aria-hidden="true" />
+          <span className="grid h-8 w-8 place-items-center rounded-xl bg-orange-50 text-[#FF5A1F]"><MessageCircle className="h-4 w-4" aria-hidden="true" /></span>
           <h3 className="text-sm font-semibold text-slate-900">メッセージ</h3>
           {unreadCount > 0 && (
-            <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 text-xs font-semibold text-white">
+            <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-[#FF5A1F] px-1 text-xs font-bold text-white">
               {unreadCount}
             </span>
           )}
@@ -294,7 +294,7 @@ export default function OfferChatThread({
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto bg-[#F7F7F7] px-3 py-3"
+        className="flex-1 overflow-y-auto bg-[#F8FAFC] px-3 py-3"
         aria-live="polite"
       >
         {loading && (
@@ -360,7 +360,7 @@ export default function OfferChatThread({
           })}
         </div>}
       </div>
-      <div className="border-t border-[#E5E7EB] bg-white px-3 py-3">
+      <div className="border-t border-slate-200 bg-white px-3 py-3">
         {!loading && !loadError ? (
           <OfferChatInput
             offerId={offerId}
