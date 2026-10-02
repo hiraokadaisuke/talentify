@@ -12,7 +12,7 @@ import ProfileSetupBanner from '@/components/ProfileSetupBanner'
 import GettingStartedCard from '@/components/GettingStartedCard'
 
 export default async function StoreDashboard() {
-  const { offerStats, schedule, unreadCount, isSetupComplete } = await getStoreDashboardData()
+  const { offerStats, schedule, unreadCount, recentNotifications, isSetupComplete } = await getStoreDashboardData()
   const hasData =
     (Object.values(offerStats) as number[]).reduce((acc, v) => acc + v, 0) > 0
 
@@ -80,7 +80,7 @@ export default async function StoreDashboard() {
             link='/store/offers'
           />
           <MessageAlertCard className='lg:col-span-1' count={unreadCount} link='/store/messages' />
-          <NotificationListCard title='通知（最新）' className='sm:col-span-2 lg:col-span-4' />
+          <NotificationListCard title='通知（最新）' className='sm:col-span-2 lg:col-span-4' initialItems={recentNotifications} />
         </div>
       )}
     </div>
