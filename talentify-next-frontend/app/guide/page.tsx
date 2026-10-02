@@ -160,20 +160,20 @@ export default function GuidePage() {
             <ArrowRight className="mt-5 h-5 w-5 text-orange-300 transition group-hover:translate-x-1" />
           </Link>
 
-          <Link href="#talent-flow" className="group rounded-[24px] border border-sky-300/20 bg-sky-400/10 p-6 transition hover:border-sky-300/45">
-            <div className="flex items-center gap-3 text-sky-200">
+          <Link href="#talent-flow" className="group rounded-[24px] border border-[#FFC400]/20 bg-[#FFC400]/10 p-6 transition hover:border-[#FFC400]/45">
+            <div className="flex items-center gap-3 text-[#FFE27A]">
               <Mic className="h-5 w-5" />
               <span className="text-xs font-black tracking-[0.18em]">FOR TALENTS</span>
             </div>
             <p className="mt-4 text-2xl font-black">演者の流れを見る</p>
             <p className="mt-2 text-sm font-medium leading-7 text-white/60">プロフィール準備から見積、契約、支払い確認まで。</p>
-            <ArrowRight className="mt-5 h-5 w-5 text-sky-300 transition group-hover:translate-x-1" />
+            <ArrowRight className="mt-5 h-5 w-5 text-[#FFC400] transition group-hover:translate-x-1" />
           </Link>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <Flow id="store-flow" title="STORE FLOW" description="店舗の利用フロー" steps={storeSteps} accent="text-orange-300" />
-          <Flow id="talent-flow" title="TALENT FLOW" description="演者の利用フロー" steps={talentSteps} accent="text-sky-300" />
+          <Flow id="talent-flow" title="TALENT FLOW" description="演者の利用フロー" steps={talentSteps} accent="text-[#FFC400]" />
         </div>
 
         <section className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
