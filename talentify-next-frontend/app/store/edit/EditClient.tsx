@@ -213,7 +213,7 @@ export default function StoreProfileEditPage() {
 
   if (loadError) {
     return (
-      <main className="min-h-screen bg-gray-100 px-4 pb-10 pt-6 sm:py-10">
+      <main className="py-2 sm:py-4">
         <div className="mx-auto w-full max-w-5xl">
           <h1 className="mb-2 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl">
           {showIncomplete ? '店舗情報を登録' : '店舗プロフィール編集'}
@@ -250,17 +250,24 @@ export default function StoreProfileEditPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 pb-10 pt-6 sm:py-10">
+    <main className="py-2 sm:py-4">
       <div className="mx-auto w-full max-w-5xl">
-        <h1 className="mb-2 text-2xl font-bold tracking-tight sm:text-3xl">
-          {showIncomplete ? '店舗情報を登録' : '店舗プロフィール編集'}
-        </h1>
+        <section className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+          <div className="p-5 sm:p-6">
+            <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">STORE PROFILE</p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+              {showIncomplete ? '店舗情報を登録' : '店舗プロフィール編集'}
+            </h1>
+            <p className="mt-1 text-sm leading-6 text-slate-500">店舗として表示される情報を管理します。</p>
+          </div>
+          <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+        </section>
         {showIncomplete && (
           <p className="mb-5 text-sm leading-6 text-slate-600">
             まずは店舗名だけ登録すれば利用を開始できます。自己紹介や画像はあとから追加できます。
           </p>
         )}
-        <section className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <section className="space-y-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-6">
           {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
           {showIncomplete && !errorMessage && (
             <div className="rounded-lg bg-yellow-100 p-2 text-sm text-yellow-800">
@@ -275,7 +282,7 @@ export default function StoreProfileEditPage() {
                 name="store_name"
                 value={profile.store_name}
                 onChange={handleChange}
-                className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                className="rounded-lg border border-slate-300 bg-white focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-100"
               />
             </div>
 
@@ -290,7 +297,7 @@ export default function StoreProfileEditPage() {
                     value={profile.bio}
                     onChange={handleChange}
                     rows={4}
-                    className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="rounded-lg border border-slate-300 bg-white focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-100"
                   />
                 </div>
 
@@ -309,7 +316,7 @@ export default function StoreProfileEditPage() {
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
                     onChange={handleAvatar}
-                    className="rounded-lg border border-gray-300 bg-white focus-visible:ring-2 focus-visible:ring-blue-500"
+                    className="rounded-lg border border-slate-300 bg-white focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-100"
                   />
                   <p className="text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
                   {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
@@ -319,7 +326,7 @@ export default function StoreProfileEditPage() {
 
             <Button
               onClick={handleSave}
-              className="mt-4 w-full bg-blue-600 text-white hover:bg-blue-700"
+              className="mt-4 min-h-11 w-full rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]"
               disabled={saving}
             >
               {saving ? '保存中...' : '保存する'}
