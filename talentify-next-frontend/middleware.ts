@@ -43,6 +43,43 @@ async function getAccessState(
   return { role: legacy.role, status: legacy.status }
 }
 
+function nextWithAuthContext(
+  req: NextRequest,
+  res: NextResponse,
+  context: {
+    userId: string
+    role: UserRole | null
+    status: AppUserStatus | null
+  },
+) {
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set('x-raiten-user-id', context.userId)
+
+  if (context.role) {
+    requestHeaders.set('x-raiten-user-role', context.role)
+  } else {
+    requestHeaders.delete('x-raiten-user-role')
+  }
+
+  if (context.status) {
+    requestHeaders.set('x-raiten-user-status', context.status)
+  } else {
+    requestHeaders.delete('x-raiten-user-status')
+  }
+
+  const next = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+
+  res.cookies.getAll().forEach((cookie) => {
+    next.cookies.set(cookie)
+  })
+
+  return next
+}
+
 function redirectWithCookies(req: NextRequest, res: NextResponse, path: string) {
   const url = req.nextUrl.clone()
   url.pathname = path
@@ -95,13 +132,15 @@ export async function middleware(req: NextRequest) {
   }
 
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-    return res
+    return nextWithAuthContext(req, res, { userId: user.id, role, status })
   }
 
   if (!role) {
-    if (pathname === '/account/role') return res
+    if (pathname === '/account/role') {
+      return nextWithAuthContext(req, res, { userId: user.id, role, status })
+    }
     if (protectedPath) return redirectWithCookies(req, res, '/account/role')
-    return res
+    return nextWithAuthContext(req, res, { userId: user.id, role, status })
   }
 
   if (pathname === '/account/role' || pathname === '/account/suspended') {
@@ -141,7 +180,7 @@ export async function middleware(req: NextRequest) {
     return redirectWithCookies(req, res, '/dashboard')
   }
 
-  return res
+  return nextWithAuthContext(req, res, { userId: user.id, role, status })
 }
 
 export const config = {
