@@ -28,7 +28,7 @@ export default function AboutPage() {
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">ABOUT RAITEN NAVI</p>
+        <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">ABOUT RAITEN NAVI</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">このサイトについて</h1>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">
           来店ナビは、パチンコ店と演者をつなぎ、来店イベントを探す・依頼する・管理する・告知するためのプラットフォームです。
@@ -67,20 +67,20 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-6">
-        <h2 className="text-xl font-semibold text-blue-950">まだ改善中のサービスです</h2>
-        <p className="mt-2 text-sm leading-7 text-blue-900">
+      <section className="mt-6 rounded-2xl border border-orange-200 bg-orange-50 p-6">
+        <h2 className="text-xl font-semibold text-slate-950">まだ改善中のサービスです</h2>
+        <p className="mt-2 text-sm leading-7 text-slate-700">
           来店ナビは実際の店舗・演者の運用に合わせて改善を続けています。
           分かりにくい点、不便な点、現場の運用と合わない点があれば、ぜひお知らせください。
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/guide" className="rounded-full bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">
+          <Link href="/guide" className="rounded-full bg-[#FF5A1F] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#E94F18]">
             ご利用ガイド
           </Link>
-          <Link href="/faq" className="rounded-full border border-blue-200 bg-white px-5 py-2.5 text-sm font-semibold text-blue-800 hover:bg-blue-100">
+          <Link href="/faq" className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 hover:border-orange-300 hover:bg-orange-50">
             FAQ
           </Link>
-          <Link href="/contact" className="rounded-full border border-blue-200 bg-white px-5 py-2.5 text-sm font-semibold text-blue-800 hover:bg-blue-100">
+          <Link href="/contact" className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 hover:border-orange-300 hover:bg-orange-50">
             お問い合わせ
           </Link>
         </div>
