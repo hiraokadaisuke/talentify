@@ -60,7 +60,7 @@ export default function ContactPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
       <div className="mb-8">
-        <p className="text-sm font-semibold text-blue-600">CONTACT</p>
+        <p className="text-sm font-semibold text-[#FF5A1F]">CONTACT</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
           お問い合わせ
         </h1>
@@ -209,7 +209,7 @@ export default function ContactPage() {
             <label htmlFor="agree" className="text-sm leading-6 text-slate-600">
               <Link
                 href="/privacy"
-                className="font-medium text-blue-600 underline underline-offset-2"
+                className="font-medium text-[#FF5A1F] underline underline-offset-2"
               >
                 プライバシーポリシー
               </Link>
@@ -227,7 +227,7 @@ export default function ContactPage() {
         お問い合わせの前に
         <Link
           href="/faq"
-          className="mx-1 font-medium text-blue-600 underline underline-offset-2"
+          className="mx-1 font-medium text-[#FF5A1F] underline underline-offset-2"
         >
           よくある質問
         </Link>
