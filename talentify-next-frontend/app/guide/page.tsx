@@ -3,8 +3,8 @@ import { ArrowRight, CheckCircle2, MessageSquareText, Mic, Store } from 'lucide-
 import TutorialResetButton from '@/components/TutorialResetButton'
 
 export const metadata = {
-  title: 'ご利用ガイド｜Talentify',
-  description: '店舗・演者それぞれのTalentify利用フローを案内します。',
+  title: 'ご利用ガイド｜来店ナビ',
+  description: '店舗・演者それぞれの来店ナビ利用フローを案内します。',
 }
 
 const storeSteps = [
