@@ -60,7 +60,7 @@ export default function NotificationItem({ notification, onRead, onNavigate, cla
       onClick={handleClick}
       className={cn(
         'relative flex w-full items-start gap-3 rounded-xl border p-3.5 text-left transition hover:bg-accent focus:outline-none',
-        isUnread ? 'bg-blue-50/70 border-blue-100' : 'bg-white',
+        isUnread ? 'bg-orange-50/70 border-orange-100' : 'bg-white',
         isHigh && 'border-l-4 border-l-amber-500',
         className
       )}
@@ -76,7 +76,7 @@ export default function NotificationItem({ notification, onRead, onNavigate, cla
           <p className={cn('break-words font-medium leading-snug text-slate-900', isUnread && 'font-bold')}>
             {notification.title}
           </p>
-          {isUnread && <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-500" aria-label="未読" />}
+          {isUnread && <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#FF8A00]" aria-label="未読" />}
         </div>
         {notification.body && (
           <p className="mt-1 line-clamp-3 text-xs leading-5 text-muted-foreground">{notification.body}</p>
