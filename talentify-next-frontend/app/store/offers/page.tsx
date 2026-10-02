@@ -1,6 +1,6 @@
 import StoreOffersClient from './OffersClient'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { getProtectedRequestUserId } from '@/lib/auth/getProtectedRequestUserId'
 import { deriveOfferInvoiceProgressStatus } from '@/lib/invoices/status'
 import type { Offer } from '@/utils/getOffersForStore'
 
@@ -26,13 +26,13 @@ async function loadInitialOffers(): Promise<{
   const supabase = createClient()
 
   try {
-    const { user } = await getCurrentUserWithClient(supabase)
-    if (!user) return { offers: [], loadError: false }
+    const { userId } = await getProtectedRequestUserId(supabase)
+    if (!userId) return { offers: [], loadError: false }
 
     const { data: store, error: storeError } = await supabase
       .from('stores')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (storeError) throw storeError
