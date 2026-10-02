@@ -55,7 +55,7 @@ export default function StoreCalendarView({
       style={{ height: 400 }}
       components={{ event: EventComponent }}
       dayPropGetter={dayPropGetter}
-      eventPropGetter={(event) => {
+      eventPropGetter={(event: any) => {
         if (event?.isMore) {
           return {
             style: {
