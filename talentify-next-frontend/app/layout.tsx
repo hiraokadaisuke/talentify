@@ -15,7 +15,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     title: "来店ナビ",
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "black",
   },
   icons: {
     icon: "/brand/raiten-navi-icon.svg?v=1",
