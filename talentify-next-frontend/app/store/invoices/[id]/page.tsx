@@ -222,16 +222,18 @@ export default function StoreInvoiceDetail() {
 
   return (
     <main className='mx-auto w-full max-w-3xl space-y-4 px-4 pb-28 pt-6 sm:px-6 sm:pb-8'>
-      <div className='flex items-center justify-between gap-3'>
-        <div>
-          <Link href='/store/invoices' className='text-sm font-medium text-slate-500 hover:text-slate-900'>
+      <section className='overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
+        <div className='p-5 sm:p-6'>
+          <Link href='/store/invoices' className='text-sm font-bold text-slate-500 transition hover:text-[#C2410C]'>
             ← 見積・請求一覧
           </Link>
-          <h1 className='mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl'>
+          <p className='mt-4 text-[11px] font-black tracking-[0.16em] text-[#C2410C]'>DOCUMENT DETAIL</p>
+          <h1 className='mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl'>
             {isEstimate ? '見積詳細' : '取引締結書兼請求書'}
           </h1>
         </div>
-      </div>
+        <div className='h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]' />
+      </section>
 
       {invoice.offers?.status === 'canceled' && (
         <div className='rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900'>
@@ -268,7 +270,7 @@ export default function StoreInvoiceDetail() {
         </div>
       )}
 
-      <Card className='overflow-hidden border-slate-200 shadow-sm'>
+      <Card className='overflow-hidden rounded-2xl border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
         <CardHeader className='space-y-4 border-b border-slate-100 bg-slate-50/80 p-5'>
           <div className='flex flex-wrap items-center justify-between gap-2'>
             <CardTitle className='text-lg'>{isEstimate ? '見積情報' : '締結・請求情報'}</CardTitle>
@@ -301,7 +303,7 @@ export default function StoreInvoiceDetail() {
         </CardContent>
       </Card>
 
-      <Card className='overflow-hidden border-slate-200 shadow-sm'>
+      <Card className='overflow-hidden rounded-2xl border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
         <CardHeader className='border-b border-slate-100 p-5'>
           <CardTitle className='text-lg'>金額内訳</CardTitle>
         </CardHeader>
@@ -315,7 +317,7 @@ export default function StoreInvoiceDetail() {
         </CardContent>
       </Card>
 
-      <Card className='overflow-hidden border-slate-200 shadow-sm'>
+      <Card className='overflow-hidden rounded-2xl border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
         <CardHeader className='border-b border-slate-100 p-5'>
           <CardTitle className='text-lg'>振込先情報</CardTitle>
         </CardHeader>
@@ -336,7 +338,7 @@ export default function StoreInvoiceDetail() {
 
       <div className='grid gap-2 sm:grid-cols-2'>
         {invoice.invoice_url && (
-          <Button asChild variant='outline' className='min-h-11 w-full'>
+          <Button asChild variant='outline' className='min-h-11 w-full rounded-xl'>
             <Link href={`/api/invoices/${invoice.id}/attachment`} target='_blank'>
               アップロード済みPDFを開く
             </Link>
@@ -346,7 +348,7 @@ export default function StoreInvoiceDetail() {
           onClick={handleDownload}
           disabled={downloading}
           variant='outline'
-          className='min-h-11 w-full'
+          className='min-h-11 w-full rounded-xl'
         >
           {downloading && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           {isEstimate ? '見積書をダウンロード' : '締結書兼請求書をダウンロード'}
@@ -364,7 +366,7 @@ export default function StoreInvoiceDetail() {
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
             修正を依頼
           </Button>
-          <Button onClick={handleApprove} disabled={updatingStatus} className='min-h-12 bg-blue-600 text-white hover:bg-blue-700'>
+          <Button onClick={handleApprove} disabled={updatingStatus} className='min-h-12 rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]'>
             {updatingStatus && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
             この内容で締結
           </Button>
@@ -372,7 +374,7 @@ export default function StoreInvoiceDetail() {
       )}
 
       {!isClosed && !invoice.offers?.paid && isContracted && invoice.offers?.status === 'completed' && (
-        <Button onClick={handlePay} disabled={paying} className='min-h-12 w-full bg-blue-600 text-white hover:bg-blue-700'>
+        <Button onClick={handlePay} disabled={paying} className='min-h-12 w-full rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]'>
           {paying && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
           支払い完了にする
         </Button>
