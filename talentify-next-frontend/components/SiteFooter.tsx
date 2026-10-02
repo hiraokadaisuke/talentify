@@ -27,8 +27,8 @@ export default function SiteFooter() {
       <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:py-8">
         <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr_1fr] sm:gap-7">
           <div>
-            <Link href="/" className="text-base font-black tracking-tight text-white sm:text-lg">
-              来店ナビ
+            <Link href="/" className="inline-flex">
+              <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-9 w-auto sm:h-10" />
             </Link>
             <p className="mt-1.5 max-w-sm text-[11px] leading-5 text-white/45 sm:mt-2 sm:text-xs sm:leading-6">
               パチンコ店と演者の出会いから、オファー・見積・契約・案件管理までをつなぐプラットフォーム。
