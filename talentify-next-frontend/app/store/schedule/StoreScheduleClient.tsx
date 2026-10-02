@@ -1,0 +1,490 @@
+'use client'
+
+import { useCallback, useEffect, useState, useMemo } from 'react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import format from 'date-fns/format'
+import isSameDay from 'date-fns/isSameDay'
+import addMonths from 'date-fns/addMonths'
+import subMonths from 'date-fns/subMonths'
+import { createClient } from '@/utils/supabase/client'
+import { type OfferStatusDb, toDbOfferStatus } from '@/app/lib/offerStatus'
+import OfferModal from '@/components/modals/OfferModal'
+import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { AlertCircle, CalendarDays, RotateCcw } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu'
+import {
+  mapOfferStatus,
+  parseStatusesParam,
+  stringifyStatuses,
+  filterEvents,
+  DEFAULT_STATUSES,
+  type StoreScheduleEvent,
+} from '@/utils/storeSchedule'
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalFooter,
+} from '@/components/ui/modal'
+
+const StoreCalendarView = dynamic(() => import('./StoreCalendarView'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center text-sm text-slate-500">
+      カレンダーを準備しています…
+    </div>
+  ),
+})
+
+const STATUS_LABEL: Record<string, string> = {
+  scheduled: '予定',
+  completed: '完了',
+  cancelled: 'キャンセル',
+  no_show: '来店なし',
+}
+
+const STATUS_BADGE: Record<
+  keyof typeof STATUS_LABEL,
+  'default' | 'success' | 'destructive' | 'secondary'
+> = {
+  scheduled: 'default',
+  completed: 'success',
+  cancelled: 'destructive',
+  no_show: 'secondary',
+}
+
+export default function StoreScheduleClient({
+  initialStoreId,
+  initialIdentityError = false,
+}: {
+  initialStoreId: string | null
+  initialIdentityError?: boolean
+}) {
+  const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
+  const searchParams = useSearchParams()
+
+  const includeCompletedParam = searchParams.get('includeCompleted')
+  const statusParam = searchParams.get('statuses')
+  const qParam = searchParams.get('q') || ''
+
+  const [includeCompleted, setIncludeCompleted] = useState(
+    includeCompletedParam !== 'false'
+  )
+  const [statuses, setStatuses] = useState(() =>
+    parseStatusesParam(statusParam)
+  )
+  const [q, setQ] = useState(qParam)
+  const [debouncedQ, setDebouncedQ] = useState(qParam)
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q), 300)
+    return () => clearTimeout(t)
+  }, [q])
+
+  const [events, setEvents] = useState<StoreScheduleEvent[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
+  const [profileMissing, setProfileMissing] = useState(false)
+  const [date, setDate] = useState(new Date())
+  const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
+  const [offerModalOpen, setOfferModalOpen] = useState(false)
+  const [selected, setSelected] = useState<StoreScheduleEvent | null>(null)
+
+  const loadOffers = useCallback(async () => {
+    setLoading(true)
+    setLoadError(false)
+    setProfileMissing(false)
+
+    try {
+      if (initialIdentityError) {
+        throw new Error('Store identity could not be loaded')
+      }
+
+      if (!initialStoreId) {
+        setEvents([])
+        setProfileMissing(true)
+        return
+      }
+
+      const statusesQuery = ['confirmed', 'canceled', 'no_show']
+      if (includeCompleted) statusesQuery.push('completed')
+      const normalizedStatuses = statusesQuery
+        .map(status => toDbOfferStatus(status))
+        .filter((status): status is OfferStatusDb => Boolean(status))
+
+      const { data, error } = await supabase
+        .from('offers')
+        .select(
+          'id, talent_id, date, status, start_time, end_time, notes, talents(stage_name)'
+        )
+        .eq('store_id', initialStoreId)
+        .in('status', normalizedStatuses)
+
+      if (error) {
+        console.error('Failed to fetch offers', error)
+        throw error
+      }
+
+      const mapped = (data || []).map((o: any) => {
+        const dateKey = typeof o.date === 'string' ? o.date.slice(0, 10) : ''
+        const startClock = storedOfferTimeToClock(o.start_time)
+        const endClock = storedOfferTimeToClock(o.end_time)
+        const fallbackClock = startClock ?? '00:00'
+
+        return {
+          title: o.talents?.stage_name || '出演',
+          start: new Date(`${dateKey}T${fallbackClock}:00`),
+          end: new Date(`${dateKey}T${endClock ?? fallbackClock}:00`),
+          allDay: !startClock || !endClock,
+          talentId: o.talent_id,
+          offerId: o.id,
+          talentName: o.talents?.stage_name || '出演',
+          status: mapOfferStatus(o.status),
+          startTime: startClock,
+          notes: o.notes,
+        }
+      }) as StoreScheduleEvent[]
+
+      setEvents(mapped)
+    } catch (error) {
+      console.error('Failed to load store schedule', error)
+      setEvents([])
+      setLoadError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [includeCompleted, initialIdentityError, initialStoreId, supabase])
+
+  useEffect(() => {
+    void loadOffers()
+  }, [loadOffers])
+
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (!includeCompleted) params.set('includeCompleted', 'false')
+    const statusStr = stringifyStatuses(statuses)
+    if (statusStr) params.set('statuses', statusStr)
+    if (debouncedQ) params.set('q', debouncedQ)
+    const query = params.toString()
+    router.replace(query ? `/store/schedule?${query}` : '/store/schedule')
+  }, [includeCompleted, statuses, debouncedQ, router])
+
+  const filtered = useMemo(
+    () => filterEvents(events, statuses, debouncedQ),
+    [events, statuses, debouncedQ]
+  )
+  const eventsByDate = useMemo(() => {
+    const map: Record<string, StoreScheduleEvent[]> = {}
+    filtered.forEach((e) => {
+      const key = format(e.start, 'yyyy-MM-dd')
+      ;(map[key] ||= []).push(e)
+    })
+    Object.values(map).forEach((arr) =>
+      arr.sort((a, b) => a.start.getTime() - b.start.getTime())
+    )
+    return map
+  }, [filtered])
+
+  type CalendarEvent = StoreScheduleEvent & { isMore?: boolean }
+
+  const calendarEvents: CalendarEvent[] = useMemo(() => {
+    const result: CalendarEvent[] = []
+    Object.entries(eventsByDate).forEach(([dateStr, evs]) => {
+      const show = evs.slice(0, 2)
+      result.push(...show)
+      const more = evs.length - show.length
+      if (more > 0) {
+        const date = new Date(dateStr)
+        result.push({
+          title: `+${more}`,
+          start: date,
+          end: date,
+          talentId: '',
+          offerId: '',
+          talentName: '',
+          status: 'scheduled',
+          isMore: true,
+        })
+      }
+    })
+    return result
+  }, [eventsByDate])
+
+  const dayPropGetter = (date: Date) => {
+    const isToday = isSameDay(date, new Date())
+    const dow = date.getDay()
+    const key = format(date, 'yyyy-MM-dd')
+    const list = eventsByDate[key] || []
+    const title = list
+      .map((e) => `${e.talentName} ${STATUS_LABEL[e.status]}`)
+      .join('\n')
+    let className = ''
+    if (isToday) className = 'bg-orange-50'
+    else if (dow === 0 || dow === 6) className = 'bg-gray-50'
+    return { className, title: title || undefined }
+  }
+
+  if (loading) {
+    return (
+      <main className="min-w-0 p-3 sm:p-4">
+        <h1 className="mb-4 text-2xl font-bold">スケジュール</h1>
+        <p className="text-sm text-muted-foreground">スケジュールを読み込んでいます…</p>
+      </main>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <main className="min-w-0 p-3 sm:p-4">
+        <h1 className="mb-4 text-2xl font-bold">スケジュール</h1>
+        <div
+          role="alert"
+          className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center"
+        >
+          <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
+          <h2 className="mt-2 text-sm font-semibold text-red-900">
+            スケジュールを読み込めませんでした
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-red-700">
+            案件予定を正しく表示できていません。通信状況を確認して、もう一度お試しください。
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 min-h-10"
+            onClick={() => void loadOffers()}
+          >
+            <RotateCcw className="mr-1.5 h-4 w-4" aria-hidden="true" />
+            再読み込み
+          </Button>
+        </div>
+      </main>
+    )
+  }
+
+  if (profileMissing) {
+    return (
+      <main className="min-w-0 p-3 sm:p-4">
+        <h1 className="mb-4 text-2xl font-bold">スケジュール</h1>
+        <div className="rounded-xl border bg-white px-4 py-6 text-center shadow-sm">
+          <h2 className="text-sm font-semibold">店舗プロフィールの登録が必要です</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            スケジュールを確認する前に、店舗プロフィールを登録してください。
+          </p>
+          <Button asChild className="mt-4 min-h-10">
+            <Link href="/store/edit">店舗プロフィールを登録</Link>
+          </Button>
+        </div>
+      </main>
+    )
+  }
+
+  const EventComponent = ({ event }: { event: CalendarEvent }) => {
+    if (event.isMore) return <span className="truncate">{event.title}</span>
+    return (
+      <span
+        className="truncate flex items-center gap-1"
+        title={`${event.talentName} ${STATUS_LABEL[event.status]}`}
+      >
+        <span className="text-black">{event.talentName}</span>
+        <Badge variant={STATUS_BADGE[event.status]} className="px-1">
+          {STATUS_LABEL[event.status]}
+        </Badge>
+      </span>
+    )
+  }
+
+  return (
+    <main className="mx-auto min-w-0 w-full max-w-[1500px] space-y-4">
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+        <div className="flex items-start gap-3 p-5 sm:p-6">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
+            <CalendarDays className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">STORE SCHEDULE</p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">スケジュール</h1>
+            <p className="mt-1 text-sm leading-6 text-slate-500">確定した来店予定をカレンダーで確認できます。</p>
+          </div>
+        </div>
+        <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+      </section>
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 hidden">
+          <Button
+            size="sm"
+            className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
+            onClick={() => setDate(new Date())}
+            aria-label="今日"
+          >
+            今日
+          </Button>
+        </div>
+        <div className="flex-1 flex items-center justify-center gap-2">
+          <Button
+            size="sm"
+            className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
+            onClick={() => setDate(subMonths(date, 1))}
+            aria-label="前の月"
+          >
+            ◀
+          </Button>
+          <span className="text-sm font-medium">
+            {format(date, 'yyyy年M月')}
+          </span>
+          <Button
+            size="sm"
+            className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
+            onClick={() => setDate(addMonths(date, 1))}
+            aria-label="次の月"
+          >
+            ▶
+          </Button>
+        </div>
+        <div className="flex items-center gap-2 ml-auto hidden">
+          <Input
+            type="search"
+            placeholder="演者名検索"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="h-11 w-32 sm:w-48"
+            aria-label="演者名検索"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
+                aria-label="ステータスフィルタ"
+              >
+                ステータス
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40">
+              {DEFAULT_STATUSES.map((s) => (
+                <DropdownMenuCheckboxItem
+                  key={s}
+                  checked={statuses.includes(s)}
+                  onCheckedChange={(checked) =>
+                    setStatuses((prev) =>
+                      checked
+                        ? [...prev, s]
+                        : prev.filter((p) => p !== s)
+                    )
+                  }
+                >
+                  {STATUS_LABEL[s]}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <label className="flex items-center gap-1 text-sm">
+            <input
+              type="checkbox"
+              checked={includeCompleted}
+              onChange={(e) => setIncludeCompleted(e.target.checked)}
+              className="h-4 w-4"
+              aria-label="完了を表示"
+            />
+            完了
+          </label>
+        </div>
+      </div>
+      <div className="flex justify-end gap-4 mb-2 text-xs hidden">
+        {DEFAULT_STATUSES.map((s) => (
+          <div key={s} className="flex items-center gap-1">
+            <Badge variant={STATUS_BADGE[s]} className="px-1"></Badge>
+            {STATUS_LABEL[s]}
+          </div>
+        ))}
+      </div>
+      <div className="h-[420px] min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:h-[460px] sm:p-2">
+        <StoreCalendarView
+          events={calendarEvents}
+          date={date}
+          onNavigate={setDate}
+          EventComponent={EventComponent}
+          dayPropGetter={dayPropGetter}
+          onSelectEvent={(event) => {
+            const calendarEvent = event as CalendarEvent
+            if (calendarEvent.isMore) return
+            setSelected(calendarEvent)
+          }}
+          onSelectSlot={(selectedSlot) => {
+            setSlot(selectedSlot)
+            setOfferModalOpen(true)
+          }}
+        />
+      </div>
+      <OfferModal
+        open={offerModalOpen}
+        onOpenChange={setOfferModalOpen}
+        initialDate={slot ? slot.start : null}
+      />
+      <Modal open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <ModalContent className="max-w-sm">
+          {selected && (
+            <>
+              <ModalHeader>
+                <ModalTitle>{selected.talentName}</ModalTitle>
+              </ModalHeader>
+              <div className="space-y-2 text-sm">
+                <div>
+                  <Badge variant={STATUS_BADGE[selected.status]}>
+                    {STATUS_LABEL[selected.status]}
+                  </Badge>
+                </div>
+                <div>開始: {format(selected.start, 'yyyy-MM-dd HH:mm')}</div>
+                {selected.notes && (
+                  <div className="whitespace-pre-wrap">{selected.notes}</div>
+                )}
+              </div>
+              <ModalFooter>
+                <Link
+                  href={`/talents/${selected.talentId}`}
+                  className="font-bold text-[#C2410C] underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  プロフィール
+                </Link>
+                <Link
+                  href={`/store/offers/${selected.offerId}`}
+                  className="font-bold text-[#C2410C] underline"
+                >
+                  詳細
+                </Link>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <style jsx global>{`
+        .rbc-header {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background: white;
+        }
+        @media (max-width: 640px) {
+          .rbc-month-view { font-size: 11px; }
+          .rbc-date-cell { padding-right: 3px; }
+          .rbc-event-content { font-size: 10px; }
+        }
+      `}</style>
+    </main>
+  )
+}
