@@ -47,7 +47,7 @@ const sections = [
       <>
         <p>
           利用希望者は、本規約および
-          <Link href="/privacy" className="mx-1 text-blue-700 underline underline-offset-2">
+          <Link href="/privacy" className="mx-1 text-[#FF5A1F] underline underline-offset-2">
             プライバシーポリシー
           </Link>
           に同意のうえ、運営者所定の方法で登録します。
@@ -107,7 +107,7 @@ const sections = [
         <p>
           本サービスの利用料金、手数料その他の費用が発生する場合、
           その内容は
-          <Link href="/pricing" className="mx-1 text-blue-700 underline underline-offset-2">
+          <Link href="/pricing" className="mx-1 text-[#FF5A1F] underline underline-offset-2">
             料金ページ
           </Link>
           または申込み画面等で表示します。
@@ -181,7 +181,7 @@ const sections = [
         </p>
         <p>
           退会を希望する利用者は、
-          <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+          <Link href="/contact" className="mx-1 text-[#FF5A1F] underline underline-offset-2">
             お問い合わせ
           </Link>
           から申請してください。契約、請求、支払い、トラブル対応その他のため必要な記録は、
@@ -257,7 +257,7 @@ const sections = [
     body: (
       <p>
         本規約に関するお問い合わせは、
-        <Link href="/contact" className="mx-1 text-blue-700 underline underline-offset-2">
+        <Link href="/contact" className="mx-1 text-[#FF5A1F] underline underline-offset-2">
           お問い合わせフォーム
         </Link>
         からご連絡ください。
@@ -270,7 +270,7 @@ export default function TermsPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">TERMS OF SERVICE</p>
+        <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">TERMS OF SERVICE</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">利用規約</h1>
         <p className="mt-3 text-sm leading-7 text-slate-600">
           店舗と演者が安心して案件を進めるための、来店ナビの基本的な利用条件です。
@@ -283,7 +283,7 @@ export default function TermsPage() {
         <ol className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
           {sections.map((section) => (
             <li key={section.id}>
-              <a href={`#${section.id}`} className="hover:text-blue-700 hover:underline">
+              <a href={`#${section.id}`} className="hover:text-[#FF5A1F] hover:underline">
                 {section.title}
               </a>
             </li>
