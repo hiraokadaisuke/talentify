@@ -107,10 +107,10 @@ export default function GettingStartedCard({ role }: { role: Role }) {
   }
 
   return (
-    <section className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-4 shadow-sm sm:p-5">
+    <section className="rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-white p-4 shadow-sm sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-bold tracking-[0.16em] text-blue-600">GETTING STARTED</p>
+          <p className="text-xs font-bold tracking-[0.16em] text-[#C2410C]">GETTING STARTED</p>
           <h2 className="mt-1 text-lg font-bold text-slate-900">はじめにすること</h2>
           <p className="mt-1 text-sm text-slate-600">
             {completedCount}/{configuredSteps.length} 完了。必要なところだけ進めればOKです。
@@ -134,7 +134,7 @@ export default function GettingStartedCard({ role }: { role: Role }) {
               key={step.key}
               href={step.href}
               prefetch={false}
-              className="group flex min-h-24 items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition hover:border-blue-300 hover:shadow-sm"
+              className="group flex min-h-24 items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition hover:border-orange-300 hover:shadow-sm"
             >
               <span className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full ${
                 complete ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'
@@ -145,7 +145,7 @@ export default function GettingStartedCard({ role }: { role: Role }) {
                 <span className="block text-sm font-semibold text-slate-800">{step.title}</span>
                 <span className="mt-1 block text-xs leading-5 text-slate-500">{step.description}</span>
               </span>
-              <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-500" />
+              <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-[#FF5A1F]" />
             </Link>
           )
         })}
@@ -153,7 +153,7 @@ export default function GettingStartedCard({ role }: { role: Role }) {
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
         <span>邪魔な場合は右上の×でいつでも非表示にできます。</span>
-        <Link href="/guide" prefetch={false} className="font-semibold text-blue-700 hover:underline">
+        <Link href="/guide" prefetch={false} className="font-semibold text-[#C2410C] hover:underline">
           詳しい使い方を見る
         </Link>
       </div>
