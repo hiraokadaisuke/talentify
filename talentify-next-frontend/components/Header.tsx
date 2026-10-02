@@ -182,11 +182,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
       <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-slate-200 bg-white shadow-sm">
         <div className="mx-auto flex h-full w-full max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-4">
-            <Link
-              href={homeHref}
-              className="shrink-0 text-xl font-bold tracking-tight text-slate-950 sm:text-2xl"
-            >
-              来店ナビ
+            <Link href={homeHref} className="shrink-0">
+              <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-8 w-auto sm:h-9" />
             </Link>
 
             <nav className="hidden items-center gap-1 lg:flex">
@@ -269,7 +266,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               </SheetTrigger>
               <SheetContent side="right" className="p-0" style={{ width: 'min(86vw, 340px)' }}>
                 <div className="border-b border-slate-200 px-5 py-5 pr-12">
-                  <p className="text-lg font-bold tracking-tight text-slate-950">来店ナビ</p>
+                  <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-8 w-auto" />
                   <p className="mt-1 truncate text-sm text-slate-500">{displayUserName}</p>
                 </div>
 
@@ -387,10 +384,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
       <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/94 text-white shadow-[0_8px_30px_rgba(0,0,0,.22)] backdrop-blur-xl">
         <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-10">
           <Link href="/" className="flex items-center">
-            <span className="leading-none">
-              <span className="block text-lg font-black tracking-tight text-white sm:text-xl">来店ナビ</span>
-              <span className="mt-1 block text-[8px] font-bold tracking-[0.28em] text-[#FFC400]">RAITEN NAVI</span>
-            </span>
+            <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-9 w-auto sm:h-10" />
           </Link>
 
           <nav className="hidden items-center gap-6 lg:flex">
@@ -438,7 +432,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   return (
     <header className="fixed top-0 z-[var(--z-header)] h-16 w-full bg-white shadow-sm">
       <div className="mx-auto flex h-full w-full max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href={homeHref} className="text-xl font-bold tracking-tight sm:text-2xl">来店ナビ</Link>
+        <Link href={homeHref}><img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-8 w-auto sm:h-9" /></Link>
         {!isLoading && !userName && (
           <Button asChild variant="outline" size="sm" className="ml-auto">
             <Link href="/login">ログイン</Link>
