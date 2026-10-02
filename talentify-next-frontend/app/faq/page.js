@@ -7,7 +7,7 @@ import FAQItem from '../../components/FAQItem'
 const FAQ_DATA = {
   'はじめに': [
     {
-      question: 'Talentifyでは何ができますか？',
+      question: '来店ナビでは何ができますか？',
       answer: '店舗は演者検索・オファー・案件管理を、演者はプロフィール・予定・オファー・見積・請求管理を行えます。オファーから契約、来店、支払い確認、レビューまで同じ案件情報を見ながら進められます。',
     },
     {
