@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   getNotifications,
@@ -28,6 +29,7 @@ function isResurfacedNotification(notification: NotificationRow): boolean {
 }
 
 export default function NotificationsInboxPage() {
+  const router = useRouter()
   const [items, setItems] = useState<NotificationRow[]>([])
   const [tab, setTab] = useState<NotificationInboxTab>('all')
   const [unreadCount, setUnreadCount] = useState(0)
@@ -79,7 +81,7 @@ export default function NotificationsInboxPage() {
 
   const handleRowClick = async (notification: NotificationRow) => {
     await markAsRead(notification)
-    window.location.href = getNotificationLink(notification)
+    router.push(getNotificationLink(notification))
   }
 
   const handleMarkAll = async () => {
