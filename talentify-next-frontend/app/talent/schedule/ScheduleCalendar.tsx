@@ -5,6 +5,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import type { CSSProperties, ComponentType } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { SlotInfo } from 'react-big-calendar'
+import { useRouter } from 'next/navigation'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
 import parseISO from 'date-fns/parseISO'
@@ -136,6 +137,7 @@ function toJstDateString(
 }
 
 export default function ScheduleCalendar() {
+  const router = useRouter()
   const [calendarLib, setCalendarLib] = useState<{
     Calendar: ComponentType<any>
     Views: any
@@ -726,7 +728,7 @@ export default function ScheduleCalendar() {
             type="button"
             className="mt-4 min-h-10"
             onClick={() => {
-              window.location.href = '/talent/edit'
+              router.push('/talent/edit')
             }}
           >
             プロフィールを登録
