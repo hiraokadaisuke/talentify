@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
@@ -64,12 +64,52 @@ const STATUS_BADGE: Record<
   no_show: 'secondary',
 }
 
+
+export type StoreScheduleOfferRow = {
+  id: string
+  talent_id: string
+  date: string | null
+  status: string | null
+  start_time: string | null
+  end_time: string | null
+  notes: string | null
+  talents: { stage_name: string | null } | null
+}
+
+function mapOfferRowsToEvents(rows: StoreScheduleOfferRow[]): StoreScheduleEvent[] {
+  return rows.map((o) => {
+    const dateKey = typeof o.date === 'string' ? o.date.slice(0, 10) : ''
+    const startClock = storedOfferTimeToClock(o.start_time)
+    const endClock = storedOfferTimeToClock(o.end_time)
+    const fallbackClock = startClock ?? '00:00'
+
+    return {
+      title: o.talents?.stage_name || '出演',
+      start: new Date(`${dateKey}T${fallbackClock}:00`),
+      end: new Date(`${dateKey}T${endClock ?? fallbackClock}:00`),
+      allDay: !startClock || !endClock,
+      talentId: o.talent_id,
+      offerId: o.id,
+      talentName: o.talents?.stage_name || '出演',
+      status: mapOfferStatus(o.status),
+      startTime: startClock,
+      notes: o.notes,
+    }
+  }) as StoreScheduleEvent[]
+}
+
 export default function StoreScheduleClient({
   initialStoreId,
+  initialOfferRows = [],
   initialIdentityError = false,
+  initialLoadError = false,
+  initialProfileMissing = false,
 }: {
   initialStoreId: string | null
+  initialOfferRows?: StoreScheduleOfferRow[]
   initialIdentityError?: boolean
+  initialLoadError?: boolean
+  initialProfileMissing?: boolean
 }) {
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
@@ -93,10 +133,11 @@ export default function StoreScheduleClient({
     return () => clearTimeout(t)
   }, [q])
 
-  const [events, setEvents] = useState<StoreScheduleEvent[]>([])
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState(false)
-  const [profileMissing, setProfileMissing] = useState(false)
+  const [events, setEvents] = useState<StoreScheduleEvent[]>(() => mapOfferRowsToEvents(initialOfferRows))
+  const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState(initialLoadError)
+  const [profileMissing, setProfileMissing] = useState(initialProfileMissing)
+  const skippedInitialFetch = useRef(false)
   const [date, setDate] = useState(new Date())
   const [slot, setSlot] = useState<{ start: Date; end: Date } | null>(null)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
@@ -137,27 +178,7 @@ export default function StoreScheduleClient({
         throw error
       }
 
-      const mapped = (data || []).map((o: any) => {
-        const dateKey = typeof o.date === 'string' ? o.date.slice(0, 10) : ''
-        const startClock = storedOfferTimeToClock(o.start_time)
-        const endClock = storedOfferTimeToClock(o.end_time)
-        const fallbackClock = startClock ?? '00:00'
-
-        return {
-          title: o.talents?.stage_name || '出演',
-          start: new Date(`${dateKey}T${fallbackClock}:00`),
-          end: new Date(`${dateKey}T${endClock ?? fallbackClock}:00`),
-          allDay: !startClock || !endClock,
-          talentId: o.talent_id,
-          offerId: o.id,
-          talentName: o.talents?.stage_name || '出演',
-          status: mapOfferStatus(o.status),
-          startTime: startClock,
-          notes: o.notes,
-        }
-      }) as StoreScheduleEvent[]
-
-      setEvents(mapped)
+      setEvents(mapOfferRowsToEvents((data || []) as unknown as StoreScheduleOfferRow[]))
     } catch (error) {
       console.error('Failed to load store schedule', error)
       setEvents([])
@@ -168,6 +189,10 @@ export default function StoreScheduleClient({
   }, [includeCompleted, initialIdentityError, initialStoreId, supabase])
 
   useEffect(() => {
+    if (!skippedInitialFetch.current) {
+      skippedInitialFetch.current = true
+      return
+    }
     void loadOffers()
   }, [loadOffers])
 
