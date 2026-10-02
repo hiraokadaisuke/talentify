@@ -108,6 +108,23 @@ export async function middleware(req: NextRequest) {
     return redirectWithCookies(req, res, homeForRole(role))
   }
 
+  if (pathname === '/dashboard') {
+    const table = role === 'store' ? 'stores' : 'talents'
+    const { data: profile } = await supabase
+      .from(table)
+      .select('is_setup_complete')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const nextPath = profile?.is_setup_complete
+      ? homeForRole(role)
+      : role === 'store'
+        ? '/store/edit'
+        : '/talent/edit'
+
+    return redirectWithCookies(req, res, nextPath)
+  }
+
   if (pathname.startsWith('/notifications')) {
     return redirectWithCookies(req, res, '/' + role + '/notifications')
   }
