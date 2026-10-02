@@ -16,7 +16,7 @@ export function NotificationList({ items, onItemClick, onToggleRead }: Props) {
           className={`relative p-3 border rounded hover:bg-gray-50 cursor-pointer group`}
           onClick={() => onItemClick?.(n)}
         >
-          {!n.is_read && <span className="absolute left-2 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-blue-500" />}
+          {!n.is_read && <span className="absolute left-2 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-[#FF8A00]" />}
           <div className="flex justify-between items-center pl-4">
             <div>
               <p className="font-medium">{n.title}</p>
@@ -32,7 +32,7 @@ export function NotificationList({ items, onItemClick, onToggleRead }: Props) {
                 e.stopPropagation()
                 onToggleRead(n)
               }}
-              className="absolute right-3 top-3 text-xs text-blue-600 opacity-0 group-hover:opacity-100"
+              className="absolute right-3 top-3 text-xs text-[#FF5A1F] opacity-0 group-hover:opacity-100"
             >
               {n.is_read ? '未読にする' : '既読にする'}
             </button>
