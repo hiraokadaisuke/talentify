@@ -67,7 +67,7 @@ export default async function StoreFavoritesPage() {
   return (
     <main className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
       <div>
-        <p className="text-sm font-semibold text-blue-600">Favorites</p>
+        <p className="text-sm font-semibold text-[#FF5A1F]">Favorites</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
           お気に入りの演者
         </h1>
