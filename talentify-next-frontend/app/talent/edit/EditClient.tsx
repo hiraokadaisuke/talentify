@@ -620,7 +620,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                   onChange={() => setProfile(p => ({ ...p, preferred_contact_method: 'chat', phone_contact_allowed: true }))}
                   className="mt-1"
                 />
-                <span><span className="block text-sm font-medium">チャット推奨（必要なら電話も可）</span><span className="text-xs text-gray-500">まずTalentify内で相談し、必要な場合は電話連絡も受け付けます。</span></span>
+                <span><span className="block text-sm font-medium">チャット推奨（必要なら電話も可）</span><span className="text-xs text-gray-500">まず来店ナビ内で相談し、必要な場合は電話連絡も受け付けます。</span></span>
               </label>
               <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
                 <input
