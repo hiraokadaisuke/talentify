@@ -50,9 +50,9 @@ export default function AccountRolePage() {
             type="button"
             onClick={() => choose('talent')}
             disabled={saving !== null}
-            className="rounded-3xl border border-sky-300/30 bg-sky-400/10 p-7 text-left transition hover:-translate-y-1 disabled:opacity-50"
+            className="rounded-3xl border border-[#FFC400]/30 bg-[#FFC400]/10 p-7 text-left transition hover:-translate-y-1 disabled:opacity-50"
           >
-            <p className="text-xs font-black tracking-[0.18em] text-sky-300">FOR TALENTS</p>
+            <p className="text-xs font-black tracking-[0.18em] text-[#FFC400]">FOR TALENTS</p>
             <h2 className="mt-3 text-2xl font-black">演者として利用</h2>
             <p className="mt-3 text-sm leading-7 text-white/60">プロフィール・予定・案件管理を利用します。</p>
           </button>
