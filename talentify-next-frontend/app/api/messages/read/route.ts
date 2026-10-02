@@ -27,9 +27,10 @@ export async function POST(req: NextRequest) {
     }
 
     const service = createServiceClient()
+    const readAt = new Date().toISOString()
     let query = service
       .from('offer_messages')
-      .select('id')
+      .update({ read_at: readAt })
       .eq('receiver_user', user.id)
       .is('read_at', null)
 
@@ -39,22 +40,13 @@ export async function POST(req: NextRequest) {
       query = query.is('offer_id', null).eq('sender_user', withUser!)
     }
 
-    const { data: unreadRows, error: selectError } = await query
-    if (selectError) throw selectError
+    const { data: updatedRows, error: updateError } = await query.select('id')
+    if (updateError) throw updateError
 
-    const ids = (unreadRows ?? []).map(row => row.id)
+    const ids = (updatedRows ?? []).map(row => row.id)
     if (ids.length === 0) {
       return NextResponse.json({ ok: true, count: 0 })
     }
-
-    const readAt = new Date().toISOString()
-    const { error: updateError } = await service
-      .from('offer_messages')
-      .update({ read_at: readAt })
-      .eq('receiver_user', user.id)
-      .in('id', ids)
-
-    if (updateError) throw updateError
 
     const { error: notificationError } = await service
       .from('notifications')
