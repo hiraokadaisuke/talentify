@@ -138,7 +138,7 @@ export default function ResendConfirmationCard() {
         セキュリティ保護のため、アカウントの存在有無に関わらず同様の案内を表示する場合があります。
       </p>
 
-      <Link href="/" className="mt-4 inline-block text-sm font-medium text-blue-300 underline underline-offset-4">
+      <Link href="/" className="mt-4 inline-block text-sm font-medium text-orange-300 underline underline-offset-4">
         トップページに戻る
       </Link>
     </div>
