@@ -1,44 +1,103 @@
-import StoreScheduleClient from './StoreScheduleClient'
+import StoreScheduleClient, { type StoreScheduleOfferRow } from './StoreScheduleClient'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
+import { type OfferStatusDb, toDbOfferStatus } from '@/app/lib/offerStatus'
 
-async function loadStoreIdentity(): Promise<{
+type PageProps = {
+  searchParams?: {
+    includeCompleted?: string | string[]
+  }
+}
+
+function first(value?: string | string[]) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+async function loadStoreSchedule(includeCompleted: boolean): Promise<{
   storeId: string | null
+  offerRows: StoreScheduleOfferRow[]
   identityError: boolean
+  loadError: boolean
+  profileMissing: boolean
 }> {
   const supabase = createClient()
 
   try {
     const { user } = await getCurrentUserWithClient(supabase)
     if (!user) {
-      return { storeId: null, identityError: false }
+      return {
+        storeId: null,
+        offerRows: [],
+        identityError: false,
+        loadError: false,
+        profileMissing: false,
+      }
     }
 
-    const { data: store, error } = await supabase
+    const { data: store, error: storeError } = await supabase
       .from('stores')
       .select('id')
       .eq('user_id', user.id)
       .maybeSingle()
 
+    if (storeError) throw storeError
+    if (!store) {
+      return {
+        storeId: null,
+        offerRows: [],
+        identityError: false,
+        loadError: false,
+        profileMissing: true,
+      }
+    }
+
+    const statusesQuery = ['confirmed', 'canceled', 'no_show']
+    if (includeCompleted) statusesQuery.push('completed')
+    const normalizedStatuses = statusesQuery
+      .map(status => toDbOfferStatus(status))
+      .filter((status): status is OfferStatusDb => Boolean(status))
+
+    const { data, error } = await supabase
+      .from('offers')
+      .select(
+        'id, talent_id, date, status, start_time, end_time, notes, talents(stage_name)'
+      )
+      .eq('store_id', store.id)
+      .in('status', normalizedStatuses)
+
     if (error) throw error
 
     return {
-      storeId: store?.id ?? null,
+      storeId: store.id,
+      offerRows: (data ?? []) as unknown as StoreScheduleOfferRow[],
       identityError: false,
+      loadError: false,
+      profileMissing: false,
     }
   } catch (error) {
-    console.error('failed to preload store schedule identity', error)
-    return { storeId: null, identityError: true }
+    console.error('failed to preload store schedule', error)
+    return {
+      storeId: null,
+      offerRows: [],
+      identityError: false,
+      loadError: true,
+      profileMissing: false,
+    }
   }
 }
 
-export default async function StoreSchedulePage() {
-  const { storeId, identityError } = await loadStoreIdentity()
+export default async function StoreSchedulePage({ searchParams }: PageProps) {
+  const includeCompleted = first(searchParams?.includeCompleted) !== 'false'
+  const { storeId, offerRows, identityError, loadError, profileMissing } =
+    await loadStoreSchedule(includeCompleted)
 
   return (
     <StoreScheduleClient
       initialStoreId={storeId}
+      initialOfferRows={offerRows}
       initialIdentityError={identityError}
+      initialLoadError={loadError}
+      initialProfileMissing={profileMissing}
     />
   )
 }
