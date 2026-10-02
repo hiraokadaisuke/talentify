@@ -379,15 +379,22 @@ export default function TalentInvoiceNewPage() {
   return (
     <main className="p-3 sm:p-5 lg:p-6">
       <div className="mx-auto grid min-w-0 max-w-[1200px] grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[420px,1fr]">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:col-span-2">
-          <h1 className="text-xl font-bold">見積書を作成</h1>
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] lg:col-span-2">
+          <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div>
+              <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">CREATE ESTIMATE</p>
+              <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">見積書を作成</h1>
+              <p className="mt-1 text-sm leading-6 text-slate-500">条件を確認し、金額と支払期限を設定して店舗へ提出します。</p>
+            </div>
           <div className="flex items-center gap-2 text-sm">
             <span>現在の状態:</span>
             <Badge variant="secondary">{statusLabel()}</Badge>
           </div>
-        </div>
+          </div>
+          <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+        </section>
 
-        <Card>
+        <Card className="rounded-2xl border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,.05)]">
           <CardHeader>
             <CardTitle>オファー概要</CardTitle>
           </CardHeader>
@@ -408,7 +415,7 @@ export default function TalentInvoiceNewPage() {
                   <li key={s} className="flex items-center gap-2">
                     <span
                       className={`h-2 w-2 rounded-full ${
-                        i <= currentStep() ? 'bg-blue-600' : 'bg-gray-300'
+                        i <= currentStep() ? 'bg-[#FF8A00]' : 'bg-slate-300'
                       }`}
                     />
                     <span>{s}</span>
@@ -499,7 +506,7 @@ export default function TalentInvoiceNewPage() {
                       >
                         下書き保存
                       </Button>
-                      <Button type="submit" disabled={loading}>
+                      <Button type="submit" disabled={loading} className="rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]">
                         提出する
                       </Button>
                     </div>
@@ -541,7 +548,7 @@ export default function TalentInvoiceNewPage() {
                       />
                     </div>
                     <div className="flex">
-                      <Button type="submit" disabled={loading || !pdfFile || Number(pdfAmount) <= 0}>
+                      <Button type="submit" disabled={loading || !pdfFile || Number(pdfAmount) <= 0} className="rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]">
                         提出する
                       </Button>
                     </div>
