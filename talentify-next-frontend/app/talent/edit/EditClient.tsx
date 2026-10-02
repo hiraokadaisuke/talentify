@@ -420,17 +420,21 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     )
   }
 
-  const fieldClassName = 'min-h-11 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
-  const sectionClassName = 'space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5'
+  const fieldClassName = 'min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-orange-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-100'
+  const sectionClassName = 'space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5'
 
   return (
-    <main className="min-h-screen bg-gray-100 px-3 py-5 sm:px-6 sm:py-10">
+    <main className="py-2 sm:py-4">
       <div className="mx-auto w-full max-w-3xl">
-        <header className="mb-4 sm:mb-8">
-          <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">演者プロフィール編集</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            プロフィールを充実させると、案件掲載時に見つけてもらいやすくなります。
-          </p>
+        <header className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+          <div className="p-5 sm:p-6">
+            <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">TALENT PROFILE</p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">演者プロフィール編集</h1>
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              店舗から見つけてもらうための公開情報と、連絡に必要な情報を管理します。
+            </p>
+          </div>
+          <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
         </header>
 
         <section className="space-y-4 pb-4 sm:space-y-6">
@@ -553,7 +557,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
               <label className="block text-sm font-medium text-gray-800">対応エリア<span className="ml-1 text-red-500">*</span></label>
               <div className="flex flex-wrap gap-2">
                 {profile.area.map((a, idx) => (
-                  <span key={idx} className="flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700">
+                  <span key={idx} className="flex items-center rounded-full bg-orange-50 px-3 py-1 text-sm font-medium text-[#C2410C]">
                     {a}
                     <button type="button" onClick={() => removeArea(idx)} className="ml-2 text-red-500">×</button>
                     <button type="button" onClick={() => moveArea(idx, idx - 1)} className="ml-1 text-xs text-gray-600">↑</button>
