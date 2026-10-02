@@ -833,7 +833,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="sticky bottom-[calc(0.5rem+env(safe-area-inset-bottom))] z-20 mt-2 h-12 w-full bg-blue-600 text-base font-semibold text-white shadow-lg shadow-blue-900/15 hover:bg-blue-700 disabled:opacity-50 sm:static sm:h-11 sm:text-sm sm:shadow-none"
+            className="sticky bottom-[calc(0.5rem+env(safe-area-inset-bottom))] z-20 mt-2 h-12 w-full rounded-xl bg-[#FF5A1F] text-base font-bold text-white shadow-lg shadow-orange-900/10 hover:bg-[#E94F18] disabled:opacity-50 sm:static sm:h-11 sm:text-sm sm:shadow-none"
           >
             {saving ? '保存中...' : '保存する'}
           </Button>
