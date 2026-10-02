@@ -164,7 +164,7 @@ export default function NotificationsInboxPage() {
             </div>
             {notification.body && <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">{notification.body}</p>}
             <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-              <span>{notification.actor_name || 'Talentify'}</span>
+              <span>{notification.actor_name || '来店ナビ'}</span>
               <span>{formatJaDateTimeWithWeekday(notification.created_at)}</span>
               {isResurfacedNotification(notification) && <span className="text-amber-700">再通知</span>}
               <span className="ml-auto text-primary">{getActionLabel(notification)}</span>
