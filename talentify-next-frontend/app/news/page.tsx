@@ -21,7 +21,7 @@ export default function NewsPage() {
     <div className="mx-auto w-full max-w-5xl px-4 py-24 text-slate-900">
       <header className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-3xl font-bold">お知らせ</h1>
-        <p className="mt-2 text-sm text-slate-600">Talentifyからのお知らせを掲載します。</p>
+        <p className="mt-2 text-sm text-slate-600">来店ナビからのお知らせを掲載します。</p>
       </header>
       <div className="space-y-3">
         {newsItems.map((item) => (
