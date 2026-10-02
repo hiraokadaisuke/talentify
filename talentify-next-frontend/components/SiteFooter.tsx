@@ -28,7 +28,7 @@ export default function SiteFooter() {
         <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr_1fr] sm:gap-7">
           <div>
             <Link href="/" className="text-base font-black tracking-tight text-white sm:text-lg">
-              Talentify
+              来店ナビ
             </Link>
             <p className="mt-1.5 max-w-sm text-[11px] leading-5 text-white/45 sm:mt-2 sm:text-xs sm:leading-6">
               パチンコ店と演者の出会いから、オファー・見積・契約・案件管理までをつなぐプラットフォーム。
@@ -88,7 +88,7 @@ export default function SiteFooter() {
               </Link>
             ))}
           </nav>
-          <p>© 2026 Talentify</p>
+          <p>© 2026 来店ナビ</p>
         </div>
       </div>
     </footer>
