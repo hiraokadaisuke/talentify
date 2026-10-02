@@ -3,22 +3,13 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  Calendar as BigCalendar,
-  dateFnsLocalizer,
-  Views,
-} from 'react-big-calendar'
+import dynamic from 'next/dynamic'
 import format from 'date-fns/format'
-import parse from 'date-fns/parse'
-import startOfWeek from 'date-fns/startOfWeek'
-import getDay from 'date-fns/getDay'
-import ja from 'date-fns/locale/ja'
 import isSameDay from 'date-fns/isSameDay'
 import addMonths from 'date-fns/addMonths'
 import subMonths from 'date-fns/subMonths'
 import { createClient } from '@/utils/supabase/client'
 import { type OfferStatusDb, toDbOfferStatus } from '@/app/lib/offerStatus'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
 import OfferModal from '@/components/modals/OfferModal'
 import { storedOfferTimeToClock } from '@/lib/offers/timeRange'
 import { Badge } from '@/components/ui/badge'
@@ -47,13 +38,13 @@ import {
   ModalFooter,
 } from '@/components/ui/modal'
 
-const locales = { ja }
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
-  getDay,
-  locales,
+const StoreCalendarView = dynamic(() => import('./StoreCalendarView'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full items-center justify-center text-sm text-slate-500">
+      カレンダーを準備しています…
+    </div>
+  ),
 })
 
 const STATUS_LABEL: Record<string, string> = {
@@ -432,50 +423,19 @@ export default function StoreSchedulePage() {
         ))}
       </div>
       <div className="h-[420px] min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:h-[460px] sm:p-2">
-        <BigCalendar
-          culture="ja"
-          toolbar={false}
-          className="mx-auto w-full"
-          localizer={localizer}
+        <StoreCalendarView
           events={calendarEvents}
-          startAccessor="start"
-          endAccessor="end"
-          views={[Views.MONTH]}
           date={date}
-          onNavigate={(d) => setDate(d)}
-          style={{ height: 400 }}
-          components={{ event: EventComponent }}
+          onNavigate={setDate}
+          EventComponent={EventComponent}
           dayPropGetter={dayPropGetter}
-          eventPropGetter={(e) => {
-            const event = e as CalendarEvent
-            if (event.isMore)
-              return {
-                style: {
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  padding: 0,
-                  color: '#4b5563',
-                },
-                className: 'text-xs truncate',
-              }
-            return {
-              style: {
-                backgroundColor: 'transparent',
-                border: 'none',
-                padding: 0,
-              },
-              className: 'cursor-pointer text-xs truncate',
-            }
+          onSelectEvent={(event) => {
+            const calendarEvent = event as CalendarEvent
+            if (calendarEvent.isMore) return
+            setSelected(calendarEvent)
           }}
-          onSelectEvent={(e) => {
-            const event = e as CalendarEvent
-            if (event.isMore) return
-            setSelected(event)
-          }}
-          selectable
-          formats={{ weekdayFormat: 'eeeeee' }}
-          onSelectSlot={(s) => {
-            setSlot(s)
+          onSelectSlot={(selectedSlot) => {
+            setSlot(selectedSlot)
             setOfferModalOpen(true)
           }}
         />
