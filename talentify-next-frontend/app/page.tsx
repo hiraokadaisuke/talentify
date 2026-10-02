@@ -181,10 +181,7 @@ export default function HomePage() {
       <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
   <div className="mx-auto flex h-[78px] w-full max-w-[430px] items-center justify-between px-4 sm:h-[86px] sm:max-w-[460px] sm:px-5 md:max-w-5xl md:px-6 lg:max-w-[1500px] lg:px-10">
     <Link href="#top" className="flex items-center gap-3">
-      <span className="leading-none">
-        <span className="block text-xl font-black tracking-tight text-white sm:text-2xl md:text-3xl">来店ナビ</span>
-        <span className="mt-1 block text-[8px] font-bold tracking-[0.3em] text-[#FFC400] sm:text-[9px]">RAITEN NAVI</span>
-      </span>
+      <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-10 w-auto sm:h-11 md:h-12" />
     </Link>
 
     <nav className="hidden items-center gap-8 text-sm font-black text-white lg:flex">
