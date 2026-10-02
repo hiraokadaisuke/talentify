@@ -15,7 +15,7 @@ export default function ProfileSetupBanner({
   const label = role === 'store' ? '店舗プロフィールを登録' : '演者プロフィールを登録'
 
   return (
-    <section className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
+    <section className="rounded-2xl border border-orange-100 bg-orange-50/70 p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
       <div>
         <p className="font-semibold text-slate-900">アカウント登録は完了しています</p>
         <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -25,7 +25,7 @@ export default function ProfileSetupBanner({
             : ' プロフィール登録が完了すると演者一覧に公開されます。'}
         </p>
       </div>
-      <Button asChild className="mt-3 shrink-0 sm:mt-0">
+      <Button asChild className="mt-3 shrink-0 rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18] sm:mt-0">
         <Link href={href} prefetch={false}>{label}</Link>
       </Button>
     </section>
