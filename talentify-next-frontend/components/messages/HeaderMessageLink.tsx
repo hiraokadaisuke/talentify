@@ -41,7 +41,7 @@ export default function HeaderMessageLink() {
     }
     window.addEventListener(MESSAGES_CHANGED_EVENT, onMessagesChanged)
 
-    const interval = setInterval(() => void refresh(), 60000)
+    const interval = setInterval(() => void refresh(), 300000)
     return () => {
       supabase.removeChannel(channel)
       window.removeEventListener(MESSAGES_CHANGED_EVENT, onMessagesChanged)
