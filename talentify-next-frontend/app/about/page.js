@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'このサイトについて | Talentify',
-  description: 'Talentifyが目指す、店舗と演者の案件管理の考え方をご紹介します。',
+  title: 'このサイトについて | 来店ナビ',
+  description: '来店ナビが目指す、来店イベントの検索・依頼・管理・告知をつなぐ考え方をご紹介します。',
 }
 
 const principles = [
@@ -28,10 +28,10 @@ export default function AboutPage() {
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">ABOUT TALENTIFY</p>
+        <p className="text-xs font-bold tracking-[0.18em] text-blue-600">ABOUT RAITEN NAVI</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">このサイトについて</h1>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">
-          Talentifyは、パチンコ店と演者をつなぎ、出演案件を最初の相談から完了まで管理するためのプラットフォームです。
+          来店ナビは、パチンコ店と演者をつなぎ、来店イベントを探す・依頼する・管理する・告知するためのプラットフォームです。
           店舗は条件に合う演者を探してオファーを送り、演者はプロフィールや予定を公開し、届いた案件を管理できます。
         </p>
       </header>
@@ -70,7 +70,7 @@ export default function AboutPage() {
       <section className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-6">
         <h2 className="text-xl font-semibold text-blue-950">まだ改善中のサービスです</h2>
         <p className="mt-2 text-sm leading-7 text-blue-900">
-          Talentifyは実際の店舗・演者の運用に合わせて改善を続けています。
+          来店ナビは実際の店舗・演者の運用に合わせて改善を続けています。
           分かりにくい点、不便な点、現場の運用と合わない点があれば、ぜひお知らせください。
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
