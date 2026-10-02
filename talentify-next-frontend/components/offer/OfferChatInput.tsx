@@ -384,7 +384,7 @@ export default function OfferChatInput({
           type="button"
           onClick={() => setShowQuickReplies(current => !current)}
           disabled={sending}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-orange-300 hover:text-[#C2410C] disabled:opacity-50"
         >
           <MessageSquareText className="size-4" aria-hidden="true" />
           よく使うメッセージ
@@ -400,7 +400,7 @@ export default function OfferChatInput({
               type="button"
               onClick={() => insertQuickReply(text)}
               disabled={sending}
-              className="rounded-full border border-slate-200 bg-white px-3 py-2 text-left text-xs leading-5 text-slate-700 transition hover:border-emerald-300 hover:text-emerald-800 disabled:opacity-50"
+              className="rounded-full border border-slate-200 bg-white px-3 py-2 text-left text-xs leading-5 text-slate-700 transition hover:border-orange-300 hover:text-[#C2410C] disabled:opacity-50"
             >
               {text}
             </button>
@@ -416,7 +416,7 @@ export default function OfferChatInput({
         placeholder="メッセージを入力"
         maxLength={5000}
         rows={2}
-        className="min-h-[72px] resize-none rounded-3xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus-visible:border-emerald-400 focus-visible:ring-emerald-200"
+        className="min-h-[72px] resize-none rounded-3xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm focus-visible:border-orange-300 focus-visible:ring-orange-100"
       />
 
       <input
@@ -440,7 +440,7 @@ export default function OfferChatInput({
               !receiverUserId ||
               attachments.length >= MAX_OFFER_MESSAGE_ATTACHMENTS
             }
-            className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-600 transition hover:border-emerald-300 hover:text-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-300"
+            className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 font-medium text-slate-600 transition hover:border-orange-300 hover:text-[#C2410C] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-300"
           >
             <Paperclip className="size-4" aria-hidden="true" />
             ファイル
@@ -456,7 +456,7 @@ export default function OfferChatInput({
         <Button
           onClick={() => void handleSend()}
           disabled={!canSend}
-          className="min-h-11 w-full rounded-full bg-emerald-500 px-5 text-white transition hover:bg-emerald-600 disabled:bg-slate-300 sm:w-auto"
+          className="min-h-11 w-full rounded-xl bg-[#FF5A1F] px-5 font-bold text-white transition hover:bg-[#E94F18] disabled:bg-slate-300 sm:w-auto"
         >
           {sending ? '送信中...' : '送信'}
         </Button>
