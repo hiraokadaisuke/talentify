@@ -330,7 +330,7 @@ function UserDetailView({
                 key={offer.id}
                 type="button"
                 onClick={() => onOpenOffer(offer.id)}
-                className="w-full rounded-xl border border-slate-200 p-3 text-left transition hover:border-blue-300 hover:bg-blue-50/40"
+                className="w-full rounded-xl border border-slate-200 p-3 text-left transition hover:border-orange-300 hover:bg-orange-50/40"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-semibold text-slate-900">
@@ -655,7 +655,7 @@ export default function AdminDetailPanel({
                 </Button>
               )}
               <div className="min-w-0">
-                <p className="text-[11px] font-bold tracking-[0.15em] text-blue-600">READ ONLY</p>
+                <p className="text-[11px] font-bold tracking-[0.15em] text-[#0B1F3B]">READ ONLY</p>
                 <h2 className="truncate text-lg font-bold text-slate-950">
                   {target.kind === 'user' ? 'ユーザー詳細' : '案件詳細'}
                 </h2>
