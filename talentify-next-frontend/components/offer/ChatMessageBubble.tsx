@@ -127,8 +127,8 @@ export function SecureMessageAttachment({
             className={clsx(
               'rounded-md border px-3 py-2 text-left text-xs underline',
               isMine
-                ? 'border-[#8FC66E] bg-white/50 text-[#111827]'
-                : 'border-[#C7C7C7] bg-white/60 text-[#1F2937]',
+                ? 'border-orange-200 bg-white/50 text-[#111827]'
+                : 'border-slate-200 bg-white/60 text-[#1F2937]',
             )}
           >
             画像を再読み込み
@@ -214,8 +214,8 @@ export default function ChatMessageBubble({
           className={clsx(
             'rounded-2xl px-3 py-2 text-sm leading-relaxed',
             isMine
-              ? 'bg-[#C4F69D] text-[#111827]'
-              : 'bg-[#E2E2E2] text-[#111827]',
+              ? 'bg-orange-100 text-[#0F172A]'
+              : 'border border-slate-200 bg-white text-[#0F172A]',
           )}
         >
           {message.body && (
