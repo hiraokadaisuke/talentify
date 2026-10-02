@@ -6,7 +6,7 @@ import { Check, ChevronRight, Circle, X } from 'lucide-react'
 
 type Role = 'store' | 'talent'
 
-type ProgressStep = {
+export type ProgressStep = {
   key: string
   complete: boolean
 }
@@ -64,12 +64,23 @@ function storageKey(role: Role) {
   return `talentify:getting-started-dismissed:${role}`
 }
 
-export default function GettingStartedCard({ role }: { role: Role }) {
-  const [steps, setSteps] = useState<ProgressStep[] | null>(null)
+export default function GettingStartedCard({
+  role,
+  initialSteps,
+}: {
+  role: Role
+  initialSteps?: ProgressStep[]
+}) {
+  const [steps, setSteps] = useState<ProgressStep[] | null>(initialSteps ?? null)
   const [dismissed, setDismissed] = useState(true)
 
   useEffect(() => {
     setDismissed(window.localStorage.getItem(storageKey(role)) === '1')
+
+    if (initialSteps !== undefined) {
+      setSteps(initialSteps)
+      return
+    }
 
     let cancelled = false
     void fetch(`/api/onboarding/status?role=${role}`, { cache: 'no-store' })
@@ -89,7 +100,7 @@ export default function GettingStartedCard({ role }: { role: Role }) {
     return () => {
       cancelled = true
     }
-  }, [role])
+  }, [role, initialSteps])
 
   const configuredSteps = STEP_CONFIG[role]
   const completedCount = useMemo(
