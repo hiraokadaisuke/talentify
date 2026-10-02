@@ -1,7 +1,7 @@
 import React from "react";
 
 export const metadata = {
-  title: "Talentify | 店舗",
+  title: "来店ナビ | 店舗",
 };
 
 export default function StoreLayout({
