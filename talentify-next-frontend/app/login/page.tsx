@@ -60,7 +60,10 @@ export default function LoginPage() {
       <div className="mx-auto max-w-md">
         <div className="text-center">
           <Link href="/" className="inline-flex">
-            <img src="/images/lp/logo.png" alt="来店ナビ" className="h-10 w-auto" />
+            <span className="inline-flex flex-col items-center leading-none">
+              <span className="text-2xl font-black tracking-tight text-white">来店ナビ</span>
+              <span className="mt-2 text-[9px] font-bold tracking-[0.3em] text-[#FFC400]">RAITEN NAVI</span>
+            </span>
           </Link>
           <h1 className="mt-6 text-3xl font-black">ログイン</h1>
           {searchParams.get('passwordReset') === '1' && (
