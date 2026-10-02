@@ -30,7 +30,7 @@ const CANCEL_STATUSES = new Set(['canceled', 'rejected', 'expired', 'no_show'])
 
 const badgeToneByCategory = {
   neutral: 'border-[#e2e8f0] bg-white text-[#64748b]',
-  active: 'border-[#2f4da0]/35 bg-[#eef2ff] text-[#2f4da0]',
+  active: 'border-orange-200 bg-orange-50 text-[#C2410C]',
   success: 'border-[#1f6b4f]/35 bg-[#ecfdf3] text-[#1f6b4f]',
   danger: 'border-[#7f1d1d]/35 bg-[#fef2f2] text-[#7f1d1d]',
 }
@@ -165,14 +165,14 @@ export default function TalentOffersPage() {
   }
 
   return (
-    <main className={`${styles.page} p-4 text-[#334155] md:p-6`}>
-      <div className={`${styles.pageInner} mx-auto w-full max-w-7xl`}>
+    <main className={`${styles.page} text-[#334155]`}>
+      <div className={`${styles.pageInner} mx-auto w-full max-w-[1500px]`}>
         <header>
           <h1 className="text-2xl font-bold">オファー管理</h1>
           <p className="mt-1 text-sm text-[#64748b]">受信したオファーと進捗を一覧で確認できます。</p>
         </header>
 
-        <section className="space-y-3 rounded-xl border border-[#e2e8f0] bg-white p-3 shadow-sm md:p-4">
+        <section className="space-y-3 rounded-2xl border border-[#e2e8f0] bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] md:p-4">
           <div className="flex flex-wrap gap-2 border-b border-[#e2e8f0] pb-2">
             {([
               { key: 'active', label: '進行中', count: tabCounts.active },
@@ -185,7 +185,7 @@ export default function TalentOffersPage() {
                 onClick={() => setTab(item.key)}
                 className={`border-b-2 px-3 py-2 text-sm font-semibold transition-colors ${
                   tab === item.key
-                    ? 'border-[#2f4da0] text-[#2f4da0]'
+                    ? 'border-[#FF5A1F] text-[#C2410C]'
                     : 'border-transparent text-[#64748b] hover:text-[#334155]'
                 }`}
               >
@@ -326,7 +326,7 @@ export default function TalentOffersPage() {
                               <p className="text-xs font-semibold text-[#334155]">{o.badge.label}</p>
                               <div className="flex gap-1.5">
                                 {o.steps.map(step => (
-                                  <span key={step.key} className={`h-1.5 flex-1 rounded-full ${step.status === 'complete' ? 'bg-[#1f6b4f]' : step.status === 'current' ? 'bg-[#2f4da0]' : 'bg-[#e2e8f0]'}`} />
+                                  <span key={step.key} className={`h-1.5 flex-1 rounded-full ${step.status === 'complete' ? 'bg-[#1f6b4f]' : step.status === 'current' ? 'bg-[#FF8A00]' : 'bg-[#e2e8f0]'}`} />
                                 ))}
                               </div>
                             </div>
@@ -343,7 +343,7 @@ export default function TalentOffersPage() {
                 {processed.map(o => (
                   <article
                     key={o.id}
-                    className="cursor-pointer rounded-xl border border-[#e2e8f0] bg-white p-4 shadow-sm"
+                    className="cursor-pointer rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-[0_8px_20px_rgba(15,23,42,.05)] active:bg-orange-50/40"
                     onClick={() => handleRowClick(o.id)}
                   >
                     <div className="flex items-center justify-between">
@@ -357,7 +357,7 @@ export default function TalentOffersPage() {
                     {!o.isCanceled && (
                       <div className="mt-1 flex gap-1.5">
                         {o.steps.map(step => (
-                          <span key={step.key} className={`h-1.5 flex-1 rounded-full ${step.status === 'complete' ? 'bg-[#1f6b4f]' : step.status === 'current' ? 'bg-[#2f4da0]' : 'bg-[#e2e8f0]'}`} />
+                          <span key={step.key} className={`h-1.5 flex-1 rounded-full ${step.status === 'complete' ? 'bg-[#1f6b4f]' : step.status === 'current' ? 'bg-[#FF8A00]' : 'bg-[#e2e8f0]'}`} />
                         ))}
                       </div>
                     )}
