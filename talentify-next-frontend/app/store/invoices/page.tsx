@@ -110,7 +110,7 @@ export default function StoreInvoicesPage() {
                     </div>
                     <div className='mt-4 flex gap-2'>
                       {inv.invoice_url && (
-                        <Button size='sm' variant='outline' asChild className='min-h-10 flex-1 rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]'>
+                        <Button size='sm' variant='outline' asChild className='min-h-10 flex-1 rounded-xl border-slate-200 font-bold text-slate-700'>
                           <Link href={`/api/invoices/${inv.id}/attachment`} target='_blank'>PDF</Link>
                         </Button>
                       )}
