@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { ArrowRight, CalendarDays, Mic } from 'lucide-react'
 
 export default async function TalentDashboard() {
-  const { schedule, pendingOffersCount, confirmedOffersCount, unreadMessagesCount, recentNotifications, isSetupComplete } = await getTalentDashboardData()
+  const { schedule, pendingOffersCount, confirmedOffersCount, unreadMessagesCount, recentNotifications, onboardingSteps, isSetupComplete } = await getTalentDashboardData()
 
   return (
     <div className='mx-auto w-full max-w-[1500px] space-y-4'>
@@ -38,7 +38,7 @@ export default async function TalentDashboard() {
       </section>
 
       <ProfileSetupBanner role='talent' isSetupComplete={isSetupComplete} />
-      <GettingStartedCard role='talent' />
+      <GettingStartedCard role='talent' initialSteps={onboardingSteps} />
       <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-6'>
         <ScheduleCard items={schedule} className='lg:col-span-3' />
         <OfferSummaryCard
