@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { PublicTalent } from '@/types/talent'
 
 export default async function SearchTalentsPage() {
-  const supabase = createClient()
+  const supabase = createClient() as any
   const { data, error } = await supabase
     .from('public_talent_profiles')
     .select('id, stage_name, genre, area, avatar_url, rate, rating, bio, display_name')
