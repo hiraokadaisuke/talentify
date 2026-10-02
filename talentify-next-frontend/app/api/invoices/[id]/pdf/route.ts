@@ -264,7 +264,7 @@ function buildInvoicePdf(params: {
     }
   }
 
-  jp(first, 'Talentify', 50, 70, 9)
+  jp(first, '来店ナビ', 50, 70, 9)
   latin(first, invoice.invoice_number, 430, 70, 8)
 
   if (isContracted && performance) {
@@ -378,7 +378,7 @@ function buildInvoicePdf(params: {
 
     for (let index = 1; index < pages.length; index += 1) {
       const page = pages[index]
-      jp(page, 'Talentify', 50, 42, 9)
+      jp(page, '来店ナビ', 50, 42, 9)
       latin(page, invoice.invoice_number, 430, 42, 8)
       latin(page, `${index + 1}/${pages.length}`, 505, 42, 8)
     }
