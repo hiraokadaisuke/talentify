@@ -76,7 +76,7 @@ export default function OfferSummary({
 }) {
   if (!offer) {
     return (
-      <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3 text-xs text-gray-500">
+      <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-3 text-xs text-slate-500">
         オファー情報を読み込めませんでした。詳細画面から内容をご確認ください。
       </div>
     )
@@ -93,7 +93,7 @@ export default function OfferSummary({
                 {formatOfferDate(offer.date)} ・ {offer.time || '時間未設定'} ・ {statusLabel(offer.status)}
               </p>
             </div>
-            <span className="shrink-0 text-xs font-semibold text-blue-600">確認</span>
+            <span className="shrink-0 text-xs font-semibold text-[#C2410C]">確認</span>
           </div>
         </summary>
         <div className="border-t border-slate-200 px-3 py-3">
@@ -101,7 +101,7 @@ export default function OfferSummary({
           {offerId && (
             <Link
               href={'/' + role + '/offers/' + offerId}
-              className="mt-3 inline-flex text-xs font-semibold text-blue-600 hover:underline"
+              className="mt-3 inline-flex text-xs font-semibold text-[#C2410C] hover:underline"
             >
               オファー詳細を開く →
             </Link>
@@ -109,13 +109,13 @@ export default function OfferSummary({
         </div>
       </details>
 
-      <div className="hidden rounded-xl border border-gray-200 bg-gray-50 p-3 sm:block">
+      <div className="hidden rounded-xl border border-slate-200 bg-slate-50 p-3 sm:block">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <h4 className="text-sm font-semibold text-gray-900">オファー概要</h4>
+          <h4 className="text-sm font-semibold text-slate-950">オファー概要</h4>
           {offerId && (
             <Link
               href={'/' + role + '/offers/' + offerId}
-              className="text-xs font-semibold text-blue-600 hover:underline"
+              className="text-xs font-semibold text-[#C2410C] hover:underline"
             >
               詳細を見る
             </Link>
