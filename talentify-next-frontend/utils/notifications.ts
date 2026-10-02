@@ -135,6 +135,20 @@ export async function getUnreadNotificationCount(): Promise<number> {
   }
 }
 
+export async function getBellUnreadCount(): Promise<number> {
+  const res = await fetch(`${API_BASE}/api/notifications/bell?count_only=true`)
+  if (!res.ok) {
+    if (res.status !== 401) {
+      const body = await res.text()
+      console.error('failed to fetch bell unread count', body)
+    }
+    throw new NotificationsFetchError('failed to fetch bell unread count')
+  }
+
+  const payload = (await res.json()) as GetUnreadCountResponse
+  return typeof payload.count === 'number' ? payload.count : 0
+}
+
 export async function getBellNotifications(): Promise<NotificationBellPayload> {
   const res = await fetch(`${API_BASE}/api/notifications/bell`)
   if (!res.ok) {
