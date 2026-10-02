@@ -28,14 +28,14 @@ export function DashboardCard({
   return (
     <Card
       className={cn(
-        'flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/60',
+        'flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5',
         className
       )}
       {...props}
     >
       <CardHeader className='mb-0 flex items-center gap-2 p-0'>
         {icon}
-        <CardTitle className='text-base font-semibold text-slate-900'>{title}</CardTitle>
+        <CardTitle className='text-base font-bold text-slate-950'>{title}</CardTitle>
       </CardHeader>
 
       {description && <CardContent className='mt-1.5 p-0 text-sm text-slate-600'>{description}</CardContent>}
@@ -45,7 +45,7 @@ export function DashboardCard({
       {ctaHref && ctaLabel && (
         <CardFooter className='mt-4 p-0'>
           <Link href={ctaHref} prefetch={false} className='ml-auto'>
-            <Button size='sm' variant={ctaVariant} className='gap-1.5'>
+            <Button size='sm' variant={ctaVariant} className={cn('gap-1.5 rounded-xl font-bold', ctaVariant === 'default' ? 'bg-[#FF5A1F] text-white hover:bg-[#E94F18]' : 'border-slate-200 text-slate-700 hover:bg-slate-50')}>
               {ctaLabel}
               <ArrowRight className='h-4 w-4' />
             </Button>
