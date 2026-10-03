@@ -301,7 +301,7 @@ export default function HomePage() {
         }}
       >
         <img
-          src="/images/lp/materials/future-stage-bg.webp"
+          src="/lp/hero/hero-bg.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-55"
@@ -362,18 +362,18 @@ export default function HomePage() {
             <div className="relative overflow-hidden rounded-[32px] border border-white/12 bg-white/[0.055] p-3 shadow-[0_34px_100px_rgba(0,0,0,.45)] backdrop-blur">
               <div className="relative min-h-[440px] overflow-hidden rounded-[24px] bg-[#0B1F3B] sm:min-h-[540px]">
                 <img
-                  src="/images/lp/materials/hero-performer-red.webp"
+                  src="/lp/people/performer-hero.webp"
                   alt="来店イベントで活動する演者のイメージ"
                   className="absolute inset-0 h-full w-full object-cover object-center opacity-95"
                 />
                 <img
-                  src="/images/lp/materials/stage-light-particles.webp"
+                  src="/lp/effects/stage-light-particles.webp"
                   alt=""
                   aria-hidden="true"
                   className="raiten-hero-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-35"
                 />
                 <img
-                  src="/images/lp/materials/neon-hud-elements.webp"
+                  src="/lp/ui/neon-hud-elements.webp"
                   alt=""
                   aria-hidden="true"
                   className="raiten-hero-hud pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-24"
@@ -448,7 +448,7 @@ export default function HomePage() {
 
       <section id="about" className="scroll-mt-24 relative overflow-hidden bg-[radial-gradient(circle_at_80%_20%,rgba(255,138,0,.07),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfdff_100%)] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <img
-          src="/images/lp/materials/minimal-tech-bg.webp"
+          src="/lp/backgrounds/minimal-tech-bg.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-42"
@@ -499,7 +499,7 @@ export default function HomePage() {
 
       <section id="features" className="scroll-mt-24 relative overflow-hidden bg-[#F8FAFC] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <img
-          src="/images/lp/materials/white-orange-tech-bg.webp"
+          src="/lp/backgrounds/white-pattern.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-55"
@@ -571,7 +571,7 @@ export default function HomePage() {
         }}
       >
         <img
-          src="/images/lp/materials/smartphone-light-trails.webp"
+          src="/lp/ui/smartphone-light-trails.webp"
           alt=""
           aria-hidden="true"
           className="raiten-promotion-device pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-20 mix-blend-screen"
@@ -603,19 +603,19 @@ export default function HomePage() {
 
           <div className="relative min-h-[520px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur sm:min-h-[560px] sm:p-7">
             <img
-              src="/images/lp/materials/connection-hub.webp"
+              src="/lp/backgrounds/connection-hub.webp"
               alt=""
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-26"
             />
             <img
-              src="/images/lp/materials/stage-light-particles.webp"
+              src="/lp/effects/stage-light-particles.webp"
               alt=""
               aria-hidden="true"
               className="raiten-public-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-20"
             />
             <img
-              src="/images/lp/materials/orange-arrow-elements.webp"
+              src="/lp/effects/arrows.webp"
               alt=""
               aria-hidden="true"
               className="raiten-public-arrows pointer-events-none absolute right-[-9%] top-[30%] hidden w-[310px] max-w-none mix-blend-screen opacity-20 sm:block"
@@ -632,26 +632,37 @@ export default function HomePage() {
             <div className="relative z-10 mt-6 grid items-end gap-6 sm:grid-cols-[1fr_180px]">
               <div className="space-y-2.5">
                 {[
-                  ['01', '演者を探す'],
-                  ['02', '条件を確認'],
-                  ['03', 'オファー・締結'],
-                  ['04', '案件を管理'],
-                  ['05', '一般公開'],
-                ].map(([number, label], index) => (
+                  '演者を探す',
+                  '日程・条件を確認',
+                  'オファー・締結',
+                  '案件を管理',
+                  '来店情報を公開',
+                  '一般ユーザーが見る',
+                ].map((label, index) => (
                   <div
-                    key={number}
-                    className={`raiten-public-step flex items-center gap-3 rounded-2xl border px-4 py-3.5 ${
-                      index === 4
+                    key={label}
+                    className={`raiten-public-step flex items-center gap-3 rounded-2xl border px-3.5 py-3 ${
+                      index === 5
                         ? 'border-[#FFC400]/35 bg-[#FFC400]/10'
                         : 'border-white/10 bg-white/[0.045]'
                     }`}
                   >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#FF3B2E] to-[#FFC400] text-xs font-black text-[#081426]">
-                      {number}
-                    </span>
-                    <span className="text-sm font-black text-white/82">{label}</span>
-                    {index < 4 && <ArrowRight className="ml-auto h-4 w-4 text-white/25" />}
-                    {index === 4 && <CheckCircle2 className="ml-auto h-4 w-4 text-[#FFC400]" />}
+                    <span
+                      aria-hidden="true"
+                      className="h-11 w-11 shrink-0 bg-contain bg-center"
+                      style={{
+                        backgroundImage: "url('/lp/icons/workflow-icons.webp')",
+                        backgroundSize: '600% 100%',
+                        backgroundPosition: `${index * 20}% center`,
+                        backgroundRepeat: 'no-repeat',
+                      }}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-black tracking-[0.12em] text-white/30">STEP {String(index + 1).padStart(2, '0')}</p>
+                      <span className="mt-0.5 block text-sm font-black text-white/82">{label}</span>
+                    </div>
+                    {index < 5 && <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-white/25" />}
+                    {index === 5 && <CheckCircle2 className="ml-auto h-4 w-4 shrink-0 text-[#FFC400]" />}
                   </div>
                 ))}
               </div>
@@ -703,7 +714,7 @@ export default function HomePage() {
         <div className="mx-auto grid w-full max-w-[1380px] gap-6 lg:grid-cols-2">
           <article id="for-store" className="scroll-mt-24 overflow-hidden rounded-[30px] border border-slate-200 bg-[#F8FAFC] shadow-[0_18px_50px_rgba(15,23,42,.06)]">
             <div className="relative h-[250px] overflow-hidden sm:h-[310px]">
-              <img src="/images/lp/materials/office-leader-tablet.webp" alt="店舗担当者" className="h-full w-full object-cover object-center" />
+              <img src="/lp/people/store-manager.webp" alt="店舗担当者" className="h-full w-full object-cover object-center" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3B] via-[#0B1F3B]/28 to-[#0B1F3B]/5" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#081426]/80 to-transparent" />
 
@@ -774,7 +785,7 @@ export default function HomePage() {
 
           <article id="for-talent" className="scroll-mt-24 overflow-hidden rounded-[30px] border border-slate-200 bg-[#F8FAFC] shadow-[0_18px_50px_rgba(15,23,42,.06)]">
             <div className="relative h-[250px] overflow-hidden sm:h-[310px]">
-              <img src="/images/lp/materials/talent-stage.webp" alt="演者" className="h-full w-full object-cover object-top" />
+              <img src="/lp/people/performer-stage.webp" alt="演者" className="h-full w-full object-cover object-top" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3B] via-[#0B1F3B]/28 to-[#0B1F3B]/5" />
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#081426]/80 to-transparent" />
 
@@ -847,7 +858,7 @@ export default function HomePage() {
 
       <section className="relative overflow-hidden bg-white px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <img
-          src="/images/lp/materials/glossy-ui-elements.webp"
+          src="/lp/ui/glossy-ui-elements.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute right-[-7%] top-8 w-[520px] max-w-none opacity-15"
@@ -867,7 +878,7 @@ export default function HomePage() {
           <div className="relative mx-auto mt-9 max-w-3xl">
             <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-r from-[#FF3B2E]/10 via-[#FF8A00]/12 to-[#FFC400]/10 blur-3xl" />
             <img
-              src="/images/lp/materials/device-mockup.webp"
+              src="/lp/ui/device-mockup.webp"
               alt="パソコン・タブレット・スマートフォンに対応した来店ナビのイメージ"
               className="relative mx-auto w-full max-w-[560px] drop-shadow-[0_24px_44px_rgba(15,23,42,.18)]"
             />
@@ -936,19 +947,19 @@ export default function HomePage() {
         style={{ background: '#081426' }}
       >
         <img
-          src="/images/lp/materials/data-network.webp"
+          src="/lp/effects/data-network.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-22 mix-blend-screen"
         />
         <img
-          src="/images/lp/materials/neon-wave-bg.webp"
+          src="/lp/backgrounds/neon-wave-bg.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-14"
         />
         <img
-          src="/images/lp/materials/light-ribbon.webp"
+          src="/lp/effects/light-ribbon.webp"
           alt=""
           aria-hidden="true"
           className="raiten-ecosystem-ribbon pointer-events-none absolute left-1/2 top-1/2 w-[1100px] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-30 mix-blend-screen"
@@ -970,7 +981,7 @@ export default function HomePage() {
 
           <div className="relative mx-auto mt-12 max-w-5xl">
             <img
-              src="/images/lp/materials/timeline-glow.webp"
+              src="/lp/effects/timeline-glow.webp"
               alt=""
               aria-hidden="true"
               className="pointer-events-none absolute left-1/2 top-[44%] hidden w-[82%] -translate-x-1/2 -translate-y-1/2 opacity-38 mix-blend-screen lg:block"
@@ -997,7 +1008,7 @@ export default function HomePage() {
                   <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/15" />
                 </div>
                 <img
-                  src="/images/lp/materials/connection-hub.webp"
+                  src="/lp/backgrounds/connection-hub.webp"
                   alt=""
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-24"
@@ -1005,7 +1016,7 @@ export default function HomePage() {
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0B1F3B]/45 via-[#0B1F3B]/72 to-[#081426]/92" />
                 <div className="relative">
                   <img
-                    src="/images/lp/materials/orange-ui-hub.webp"
+                    src="/lp/ui/orange-ui-hub.webp"
                     alt=""
                     aria-hidden="true"
                     className="pointer-events-none absolute left-1/2 top-7 w-[250px] max-w-none -translate-x-1/2 opacity-38 mix-blend-screen"
@@ -1109,7 +1120,7 @@ export default function HomePage() {
 
       <section id="register" className="scroll-mt-24 relative overflow-hidden border-t border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <img
-          src="/images/lp/materials/lens-flare.webp"
+          src="/lp/effects/lens-flare.webp"
           alt=""
           aria-hidden="true"
           className="raiten-final-flare pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-28"
@@ -1119,7 +1130,7 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="relative mx-auto h-28 w-28">
             <img
-              src="/images/lp/materials/energy-ring.webp"
+              src="/lp/effects/energy-ring.webp"
               alt=""
               aria-hidden="true"
               className="raiten-final-ring pointer-events-none absolute inset-0 h-full w-full object-contain opacity-90"

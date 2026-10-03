@@ -40,3 +40,21 @@
 4. 表示速度・画像容量確認
 5. 文言・CTA・リンク最終確認
 6. 本番確認
+
+
+## Canonical LP asset library (2026-10-04)
+
+LPの実装素材は `talentify-next-frontend/public/lp/` を正規配置先とする。
+
+- `hero/` — FV専用背景
+- `people/` — 店舗担当者・演者
+- `ui/` — デバイス・HUD・UI装飾
+- `icons/` — 機能・ステップ用アイコン
+- `effects/` — 光、矢印、接続線、発光
+- `backgrounds/` — White/Navy系セクション背景
+- `reference/` — PC/スマホ完成カンプ。Webページには直接表示しない
+- `texture/` — grain等の全体テクスチャ
+
+既存の `public/images/lp/materials/` は移行確認が終わるまでロールバック用に残す。LPコード側は `/lp/` を参照する。
+
+今回、6ステップの素材 `/lp/icons/workflow-icons.webp` を「演者を探す → 一般ユーザーが見る」の6段階フローに採用。
