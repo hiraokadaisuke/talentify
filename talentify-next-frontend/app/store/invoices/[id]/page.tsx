@@ -221,7 +221,7 @@ export default function StoreInvoiceDetail() {
   const isClosed = isCanceled || isNoShow
 
   return (
-    <main className='mx-auto w-full max-w-3xl space-y-4 px-4 pb-28 pt-6 sm:px-6 sm:pb-8'>
+    <main className='mx-auto w-full max-w-3xl space-y-4 px-4 pb-28 pt-6 sm:px-6 sm:pb-8 lg:max-w-5xl lg:px-0 lg:pt-2'>
       <section className='overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
         <div className='p-5 sm:p-6'>
           <Link href='/store/invoices' className='text-sm font-bold text-slate-500 transition hover:text-[#C2410C]'>

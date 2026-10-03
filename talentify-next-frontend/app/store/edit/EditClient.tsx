@@ -250,7 +250,7 @@ export default function StoreProfileEditPage() {
   if (loadError) {
     return (
       <main className="py-2 sm:py-4">
-        <div className="mx-auto w-full max-w-5xl">
+        <div className="mx-auto w-full max-w-5xl lg:max-w-6xl">
           <h1 className="mb-2 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl">
           {showIncomplete ? '店舗情報を登録' : '店舗プロフィール編集'}
         </h1>
@@ -287,7 +287,7 @@ export default function StoreProfileEditPage() {
 
   return (
     <main className="py-2 sm:py-4">
-      <div className="mx-auto w-full max-w-5xl">
+      <div className="mx-auto w-full max-w-5xl lg:max-w-6xl">
         <section className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
           <div className="p-5 sm:p-6">
             <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">STORE PROFILE</p>

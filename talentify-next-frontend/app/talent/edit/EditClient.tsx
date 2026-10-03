@@ -556,7 +556,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   if (loadError) {
     return (
       <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 sm:py-10">
-        <div className="mx-auto w-full max-w-3xl">
+        <div className="mx-auto w-full max-w-3xl lg:max-w-[1040px]">
           <h1 className="mb-6 text-3xl font-bold tracking-tight">演者プロフィール編集</h1>
           <div
             role="alert"
@@ -585,11 +585,11 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   }
 
   const fieldClassName = 'min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-orange-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-100'
-  const sectionClassName = 'space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5'
+  const sectionClassName = 'space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5 lg:p-6'
 
   return (
     <main className="py-2 sm:py-4">
-      <div className="mx-auto w-full max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl lg:max-w-[1040px]">
         <header className="mb-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
           <div className="p-5 sm:p-6">
             <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">TALENT PROFILE</p>

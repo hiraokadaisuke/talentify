@@ -185,7 +185,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
   return (
     <>
       <main className="min-h-[calc(100vh-4rem)] bg-[#f1f5f9] px-3 pt-6 pb-10 sm:px-5 lg:px-6">
-        <div className="mx-auto grid w-full max-w-6xl gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-stretch">
+        <div className="mx-auto grid w-full max-w-6xl lg:max-w-[1400px] gap-4 lg:grid-cols-[minmax(0,.92fr)_minmax(420px,1.08fr)] lg:items-stretch">
           <Card className="h-full overflow-hidden border-slate-200 shadow-sm">
             <CardContent className="flex h-full flex-col p-3.5 md:p-4">
               <div className="relative mx-auto h-[min(65vh,680px)] w-full max-w-2xl overflow-hidden rounded-xl bg-slate-100 lg:h-full">
@@ -392,7 +392,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
         </div>
 
         {role === 'store' && (
-          <div className="mx-auto w-full max-w-6xl">
+          <div className="mx-auto w-full max-w-6xl lg:max-w-[1400px]">
             <TalentSchedulePreview
               talentId={id}
               onOfferDate={date => {
@@ -403,7 +403,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
           </div>
         )}
 
-        <section className="mx-auto mt-4 w-full max-w-6xl">
+        <section className="mx-auto mt-4 w-full max-w-6xl lg:max-w-[1400px]">
           <Card className="border-slate-200 shadow-sm">
             <CardContent className="p-4 sm:p-5">
               <div className="flex flex-wrap items-end justify-between gap-2">
