@@ -313,14 +313,25 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     <CalendarDays className="h-3.5 w-3.5 text-slate-400" />
                     希望日
                   </label>
-                  <Input
-                    type="date"
-                    value={visitDate}
-                    min={minVisitDate}
-                    onChange={e => setVisitDate(e.target.value)}
-                    className="block h-11 w-[15rem] max-w-full min-w-0 overflow-hidden rounded-xl border-slate-300 bg-white px-3 py-0 text-left text-sm font-medium [&::-webkit-date-and-time-value]:text-left"
-                    required
-                  />
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <label className="relative flex h-11 min-w-0 cursor-pointer items-center rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 transition focus-within:border-[#0B1F3B] focus-within:ring-2 focus-within:ring-[#0B1F3B]/10">
+                      <span className={visitDate ? 'truncate text-slate-900' : 'truncate text-slate-400'}>
+                        {visitDate ? visitDate.replace(/-/g, '/') : '日付を選択'}
+                      </span>
+                      <CalendarDays className="ml-auto h-4 w-4 shrink-0 text-slate-400" />
+                      <input
+                        type="date"
+                        value={visitDate}
+                        min={minVisitDate}
+                        onChange={e => setVisitDate(e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        aria-label="希望日"
+                        required
+                      />
+                    </label>
+                    <span aria-hidden className="w-[1ch]" />
+                    <span aria-hidden />
+                  </div>
                 </div>
 
                 <div>
