@@ -72,6 +72,13 @@ const STATUS_LABEL: Record<DisplayStatus, string> = {
   no_show: '来店なし',
 }
 
+const MOBILE_STATUS_LABEL: Record<DisplayStatus, string> = {
+  scheduled: '予定',
+  completed: '完了',
+  cancelled: '中止',
+  no_show: '来店なし',
+}
+
 const STATUS_BADGE: Record<
   DisplayStatus,
   'default' | 'success' | 'destructive' | 'secondary'
@@ -460,21 +467,28 @@ export default function ScheduleCalendar({
       if (!availabilitySettings || !today || !calendarDate) return {}
       const key = format(date, 'yyyy-MM-dd')
       const status = overrides[key] ?? defaultStatus
+      const isOutsideMonth = !isSameMonth(date, calendarDate)
+      const classNames: string[] = []
       const style: CSSProperties = {}
-      if (status === 'ng') {
+
+      if (isOutsideMonth) {
+        classNames.push('calendar-outside-month')
+      } else if (status === 'ng') {
+        classNames.push('calendar-unavailable')
         style.backgroundColor = AVAILABILITY_COLORS.ng
       }
-      if (!isSameMonth(date, calendarDate)) {
-        style.opacity = 0.5
-      }
+
       if (isSameDay(date, today)) {
         style.boxShadow = 'inset 0 0 0 2px rgba(59, 130, 246, 0.6)'
       }
+
       const isPast = isBefore(startOfDay(date), today)
       if (isPast) {
         style.cursor = 'not-allowed'
       }
+
       return {
+        className: classNames.join(' '),
         style,
         title: isPast ? '過去の日付は編集できません' : undefined,
       }
@@ -659,23 +673,38 @@ export default function ScheduleCalendar({
       tooltipParts.push('終日オファー')
     }
     return (
-      <span className="flex items-center gap-1 truncate" title={tooltipParts.join(' ')}>
-        <span
-          aria-hidden
-          className={`h-2 w-2 flex-shrink-0 rounded-full ${STATUS_INDICATOR_COLORS[event.status]}`}
-        />
-        <span className="flex min-w-0 items-center gap-1 truncate">
-          {timeLabel ? (
-            <span className="text-xs text-muted-foreground">{timeLabel}</span>
-          ) : null}
-          <span className="truncate text-sm text-foreground">{event.storeName}</span>
+      <span className="block min-w-0" title={tooltipParts.join(' ')}>
+        <span className="flex items-center justify-center gap-1 sm:hidden">
+          <span
+            aria-hidden
+            className={`h-2 w-2 flex-shrink-0 rounded-full ${STATUS_INDICATOR_COLORS[event.status]}`}
+          />
+          <Badge
+            variant={STATUS_BADGE[event.status]}
+            className="max-w-full flex-shrink-0 px-1.5 py-0 text-[9px] leading-4"
+          >
+            {MOBILE_STATUS_LABEL[event.status]}
+          </Badge>
         </span>
-        <Badge
-          variant={STATUS_BADGE[event.status]}
-          className="flex-shrink-0 px-1 text-[10px]"
-        >
-          {STATUS_LABEL[event.status]}
-        </Badge>
+
+        <span className="hidden min-w-0 items-center gap-1 truncate sm:flex">
+          <span
+            aria-hidden
+            className={`h-2 w-2 flex-shrink-0 rounded-full ${STATUS_INDICATOR_COLORS[event.status]}`}
+          />
+          <span className="flex min-w-0 items-center gap-1 truncate">
+            {timeLabel ? (
+              <span className="text-xs text-muted-foreground">{timeLabel}</span>
+            ) : null}
+            <span className="truncate text-sm text-foreground">{event.storeName}</span>
+          </span>
+          <Badge
+            variant={STATUS_BADGE[event.status]}
+            className="flex-shrink-0 px-1 text-[10px]"
+          >
+            {STATUS_LABEL[event.status]}
+          </Badge>
+        </span>
       </span>
     )
   }
@@ -914,8 +943,32 @@ export default function ScheduleCalendar({
         .talent-calendar .rbc-row-segment .rbc-event-content {
           flex: 1;
         }
-        .talent-calendar .rbc-off-range-bg {
-          opacity: 0.35;
+        .talent-calendar .rbc-off-range-bg,
+        .talent-calendar .calendar-outside-month {
+          background: #f8fafc;
+        }
+        .talent-calendar .rbc-off-range {
+          color: #cbd5e1;
+        }
+        .talent-calendar .calendar-unavailable {
+          position: relative;
+        }
+        .talent-calendar .calendar-unavailable::after {
+          content: '不可';
+          position: absolute;
+          left: 50%;
+          top: 30px;
+          transform: translateX(-50%);
+          z-index: 2;
+          border-radius: 9999px;
+          background: rgba(71, 85, 105, 0.12);
+          padding: 1px 6px;
+          font-size: 10px;
+          font-weight: 800;
+          line-height: 16px;
+          color: #475569;
+          pointer-events: none;
+          white-space: nowrap;
         }
         .talent-calendar .rbc-today {
           background-color: transparent;
@@ -925,8 +978,22 @@ export default function ScheduleCalendar({
           .talent-calendar .rbc-header { padding: 4px 0; font-weight: 700; }
           .talent-calendar .rbc-date-cell { padding-right: 4px; padding-top: 2px; }
           .talent-calendar .rbc-month-row { min-height: 64px; }
-          .talent-calendar .rbc-event-content { font-size: 9px; }
-          .talent-calendar .rbc-event { min-height: 14px; }
+          .talent-calendar .rbc-row-segment { padding: 0 2px 1px; }
+          .talent-calendar .rbc-event-content {
+            min-width: 0;
+            overflow: visible;
+            font-size: 9px;
+          }
+          .talent-calendar .rbc-event {
+            min-height: 16px;
+            overflow: visible;
+          }
+          .talent-calendar .calendar-unavailable::after {
+            top: 25px;
+            padding: 0 5px;
+            font-size: 9px;
+            line-height: 15px;
+          }
         }
       `}</style>
     </main>
