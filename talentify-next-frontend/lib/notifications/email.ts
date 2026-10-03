@@ -32,6 +32,20 @@ function getSiteUrl() {
   return raw.replace(/\/+$/, '')
 }
 
+function getResendApiKey() {
+  const apiKey = process.env.RESEND_API_KEY?.trim()
+  if (!apiKey) return null
+
+  // Avoid forwarding malformed values (for example, multiple pasted keys
+  // separated by whitespace) into the Authorization header. This also keeps
+  // secret values out of runtime error messages.
+  if (!/^re_[A-Za-z0-9_-]+$/.test(apiKey)) {
+    throw new Error('RESEND_API_KEY is invalid. Configure exactly one Resend API key.')
+  }
+
+  return apiKey
+}
+
 function buildActionUrl(actionUrl: string | null | undefined) {
   if (!actionUrl || !actionUrl.startsWith('/')) return getSiteUrl()
   return `${getSiteUrl()}${actionUrl}`
@@ -50,7 +64,7 @@ export async function sendNotificationEmail({
     return { status: 'not_applicable' as const }
   }
 
-  const apiKey = process.env.RESEND_API_KEY?.trim()
+  const apiKey = getResendApiKey()
   const from = process.env.NOTIFICATION_EMAIL_FROM?.trim()
 
   if (!apiKey || !from) {
