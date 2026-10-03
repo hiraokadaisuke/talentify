@@ -136,8 +136,8 @@ export default async function StoreOfferPage({ params }: PageProps) {
 
   return (
     <div>
-      <div className="mx-auto grid min-w-0 w-full max-w-6xl gap-4 lg:grid-cols-3 lg:items-start">
-        <div className="min-w-0 space-y-4 lg:col-span-2">
+      <div className="mx-auto grid min-w-0 w-full max-w-[1400px] gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(340px,.75fr)] lg:items-start lg:gap-5">
+        <div className="min-w-0 space-y-4">
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
           <div className="p-4 sm:p-5">
             <Link href="/store/offers" className="mb-3 inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 transition hover:text-[#C2410C]">

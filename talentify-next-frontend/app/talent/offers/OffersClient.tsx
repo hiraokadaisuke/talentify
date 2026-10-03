@@ -177,12 +177,15 @@ export default function TalentOffersClient({
   return (
     <main className={`${styles.page} text-[#334155]`}>
       <div className={`${styles.pageInner} mx-auto w-full max-w-[1500px]`}>
-        <header>
-          <h1 className="text-2xl font-bold">オファー管理</h1>
-          <p className="mt-1 text-sm text-[#64748b]">受信したオファーと進捗を一覧で確認できます。</p>
+        <header className="lg:flex lg:items-end lg:justify-between lg:gap-6 lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:px-5 lg:py-4 lg:shadow-[0_8px_24px_rgba(15,23,42,.04)]">
+          <div>
+            <h1 className="text-2xl font-bold lg:text-[28px] lg:font-black lg:tracking-tight lg:text-slate-950">オファー管理</h1>
+            <p className="mt-1 text-sm text-[#64748b]">受信したオファーと進捗を一覧で確認できます。</p>
+          </div>
+          <p className="mt-2 hidden shrink-0 text-xs font-medium text-slate-400 lg:block">行をクリックすると詳細を確認できます</p>
         </header>
 
-        <section className="space-y-3 rounded-2xl border border-[#e2e8f0] bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+        <section className="space-y-3 rounded-2xl border border-[#e2e8f0] bg-white p-3 lg:p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)]">
           <div className="flex flex-wrap gap-2 border-b border-[#e2e8f0] pb-2">
             {([
               { key: 'active', label: '進行中', count: tabCounts.active },
@@ -361,7 +364,7 @@ export default function TalentOffersClient({
             <>
               <section className="hidden overflow-x-auto rounded-xl border border-[#e2e8f0] md:block">
                 <Table>
-                  <TableHeader className="bg-white">
+                  <TableHeader className="bg-white lg:bg-slate-50">
                     <TableRow className="h-11 border-b border-[#e2e8f0]">
                       <TableHead className="w-[160px] px-4 text-xs font-semibold text-[#334155]">来店日</TableHead>
                       <TableHead className="min-w-[180px] px-4 text-xs font-semibold text-[#334155]">店舗名</TableHead>
