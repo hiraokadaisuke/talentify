@@ -801,6 +801,22 @@ export default function HomePage() {
             </p>
           </div>
 
+          <div className="relative mx-auto mt-9 max-w-3xl">
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-r from-[#FF3B2E]/10 via-[#FF8A00]/12 to-[#FFC400]/10 blur-3xl" />
+            <img
+              src="/images/lp/materials/device-mockup.webp"
+              alt="パソコン・タブレット・スマートフォンに対応した来店ナビのイメージ"
+              className="relative mx-auto w-full max-w-[560px] drop-shadow-[0_24px_44px_rgba(15,23,42,.18)]"
+            />
+            <div className="relative -mt-3 flex flex-wrap justify-center gap-2">
+              {['PC', 'TABLET', 'MOBILE'].map((item) => (
+                <span key={item} className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[9px] font-black tracking-[0.13em] text-slate-500 shadow-sm">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {[
               {
