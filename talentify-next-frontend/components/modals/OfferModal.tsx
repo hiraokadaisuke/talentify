@@ -201,7 +201,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent className="max-h-[94vh] w-[calc(100vw-1rem)] max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl sm:w-full">
+      <ModalContent className="flex max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl sm:w-full">
         <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
         <ModalHeader className="mb-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
@@ -220,9 +220,9 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
           </div>
         </ModalHeader>
 
-        <form onSubmit={handleSubmit} className="flex max-h-[calc(94vh-93px)] flex-col">
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[#F8FAFC] px-3 py-4 sm:px-6 sm:py-5">
-            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-[#F8FAFC] px-3 py-4 sm:px-6 sm:py-5">
+            <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#0B1F3B]/5 text-[#0B1F3B]">
                   <UserRound className="h-4 w-4" />
@@ -308,7 +308,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
               </div>
 
               <div className="mt-4 space-y-4">
-                <div>
+                <div className="min-w-0">
                   <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
                     <CalendarDays className="h-3.5 w-3.5 text-slate-400" />
                     希望日
@@ -318,7 +318,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     value={visitDate}
                     min={minVisitDate}
                     onChange={e => setVisitDate(e.target.value)}
-                    className="h-11 rounded-xl border-slate-300 bg-white text-base font-medium"
+                    className="block h-11 w-full min-w-0 max-w-full overflow-hidden rounded-xl border-slate-300 bg-white text-base font-medium"
                     required
                   />
                 </div>
@@ -416,7 +416,10 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
             </section>
           </div>
 
-          <ModalFooter className="mt-0 border-t border-slate-200 bg-white px-3 py-3 sm:px-6 sm:py-4">
+          <ModalFooter
+            className="mt-0 shrink-0 border-t border-slate-200 bg-white px-3 pt-3 sm:px-6 sm:py-4"
+            style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+          >
             <div className="grid w-full gap-2 sm:grid-cols-[auto_1fr_auto] sm:items-center">
               <Button
                 type="button"
