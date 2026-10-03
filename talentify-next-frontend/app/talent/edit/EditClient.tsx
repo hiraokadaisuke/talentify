@@ -44,6 +44,90 @@ function joinTimeRange(start: string, end: string) {
   return `${start}〜${end}`
 }
 
+type SocialKey = 'twitterUrl' | 'instagramUrl' | 'youtubeUrl' | 'tiktokUrl'
+type SocialPlatform = 'x' | 'instagram' | 'youtube' | 'tiktok'
+
+const SOCIAL_PLATFORMS: Array<{
+  key: SocialKey
+  platform: SocialPlatform
+  label: string
+  badge: string
+  placeholder: string
+  help: string
+}> = [
+  {
+    key: 'twitterUrl',
+    platform: 'x',
+    label: 'X',
+    badge: 'X',
+    placeholder: '@username またはプロフィールURL',
+    help: '@ユーザー名だけでも登録できます。',
+  },
+  {
+    key: 'instagramUrl',
+    platform: 'instagram',
+    label: 'Instagram',
+    badge: 'IG',
+    placeholder: '@username またはプロフィールURL',
+    help: '@ユーザー名だけでも登録できます。',
+  },
+  {
+    key: 'youtubeUrl',
+    platform: 'youtube',
+    label: 'YouTube',
+    badge: 'YT',
+    placeholder: '@handle またはチャンネルURL',
+    help: 'YouTubeの@ハンドル、またはチャンネルURLを入力できます。',
+  },
+  {
+    key: 'tiktokUrl',
+    platform: 'tiktok',
+    label: 'TikTok',
+    badge: 'TT',
+    placeholder: '@username またはプロフィールURL',
+    help: '@ユーザー名だけでも登録できます。',
+  },
+]
+
+function socialInputFromStored(platform: SocialPlatform, value?: string | null) {
+  const raw = String(value ?? '').trim()
+  if (!raw) return ''
+
+  try {
+    const url = new URL(raw)
+    const parts = url.pathname.split('/').filter(Boolean)
+    if (platform === 'youtube') {
+      const handle = parts.find(part => part.startsWith('@'))
+      return handle || raw
+    }
+    const candidate = parts[0]
+    return candidate ? `@${candidate.replace(/^@/, '')}` : raw
+  } catch {
+    return raw
+  }
+}
+
+function normalizeSocialUrl(platform: SocialPlatform, value?: string | null) {
+  const raw = String(value ?? '').trim()
+  if (!raw) return null
+
+  if (/^https?:\/\//i.test(raw)) return raw
+
+  const handle = raw.replace(/^@/, '').replace(/^\/+|\/+$/g, '')
+  if (!handle) return null
+
+  switch (platform) {
+    case 'x':
+      return `https://x.com/${handle}`
+    case 'instagram':
+      return `https://www.instagram.com/${handle}/`
+    case 'youtube':
+      return `https://www.youtube.com/@${handle}`
+    case 'tiktok':
+      return `https://www.tiktok.com/@${handle}`
+  }
+}
+
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const AVATAR_BUCKET = 'talent-photos'
@@ -81,12 +165,15 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     photos: [] as string[],
     twitterUrl: '',
     instagramUrl: '',
-    youtubeUrl: ''
+    youtubeUrl: '',
+    tiktokUrl: ''
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [photoFiles, setPhotoFiles] = useState<File[]>([])
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saving, setSaving] = useState(false)
+  const [enabledSocials, setEnabledSocials] = useState<SocialKey[]>([])
+  const [socialPickerOpen, setSocialPickerOpen] = useState(false)
   const avatarPreview = useMemo(
     () => (avatarFile ? URL.createObjectURL(avatarFile) : profile.avatar_url),
     [avatarFile, profile.avatar_url]
@@ -192,7 +279,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       setUserId(user.id)
 
       const fields =
-        'name,stage_name,preferred_contact_method,phone_contact_allowed,phone_available_hours,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url,is_profile_complete' as const
+        'name,stage_name,preferred_contact_method,phone_contact_allowed,phone_available_hours,bio,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,achievements:media_appearance,video_url,avatar_url,photos,twitterUrl:twitter_url,instagramUrl:instagram_url,youtubeUrl:youtube_url,tiktokUrl:social_tiktok,is_profile_complete' as const
 
       const [{ data, error }, { data: appUser, error: appUserError }] = await Promise.all([
         supabase
@@ -237,13 +324,23 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           video_url: s((data as any).video_url),
           avatar_url: s((data as any).avatar_url),
           photos: j<string[]>((data as any).photos, []),
-          twitterUrl: s((data as any).twitterUrl),
-          instagramUrl: s((data as any).instagramUrl),
-          youtubeUrl: s((data as any).youtubeUrl),
+          twitterUrl: socialInputFromStored('x', s((data as any).twitterUrl)),
+          instagramUrl: socialInputFromStored('instagram', s((data as any).instagramUrl)),
+          youtubeUrl: socialInputFromStored('youtube', s((data as any).youtubeUrl)),
+          tiktokUrl: socialInputFromStored('tiktok', s((data as any).tiktokUrl)),
         })
+        setEnabledSocials(
+          [
+            (data as any).twitterUrl ? 'twitterUrl' : null,
+            (data as any).instagramUrl ? 'instagramUrl' : null,
+            (data as any).youtubeUrl ? 'youtubeUrl' : null,
+            (data as any).tiktokUrl ? 'tiktokUrl' : null,
+          ].filter((value): value is SocialKey => Boolean(value))
+        )
         setIsNew(false)
         setShowIncomplete(!isProfileComplete(data))
       } else {
+        setEnabledSocials([])
         setIsNew(true)
         setShowIncomplete(true)
       }
@@ -400,9 +497,10 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         ...(profile.video_url && { video_url: profile.video_url }),
         avatar_url: avatarUrl || null,
         photos: photoUrls.length > 0 ? [...profile.photos, ...photoUrls] : profile.photos,
-        ...(profile.twitterUrl && { twitter_url: profile.twitterUrl }),
-        ...(profile.instagramUrl && { instagram_url: profile.instagramUrl }),
-        ...(profile.youtubeUrl && { youtube_url: profile.youtubeUrl }),
+        twitter_url: normalizeSocialUrl('x', profile.twitterUrl),
+        instagram_url: normalizeSocialUrl('instagram', profile.instagramUrl),
+        youtube_url: normalizeSocialUrl('youtube', profile.youtubeUrl),
+        social_tiktok: normalizeSocialUrl('tiktok', profile.tiktokUrl),
         is_setup_complete: true,
         is_profile_complete: isComplete,
       }
@@ -907,37 +1005,96 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           </section>
 
           <section className={sectionClassName}>
-            <h2 className="text-lg font-bold text-slate-950">SNSリンク</h2>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-800">X (旧Twitter)<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
-              <Input
-                type="url"
-                name="twitterUrl"
-                value={profile.twitterUrl ?? ''}
-                onChange={handleChange}
-                className={fieldClassName}
-              />
+            <div>
+              <h2 className="text-lg font-bold text-slate-950">SNSアカウント</h2>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                店舗が活動内容を確認するために表示します。URLが分からなくても、@ユーザー名だけで登録できます。
+              </p>
             </div>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-800">Instagram<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
-              <Input
-                type="url"
-                name="instagramUrl"
-                value={profile.instagramUrl ?? ''}
-                onChange={handleChange}
-                className={fieldClassName}
-              />
+
+            {enabledSocials.length > 0 && (
+              <div className="space-y-2">
+                {enabledSocials.map(key => {
+                  const social = SOCIAL_PLATFORMS.find(item => item.key === key)
+                  if (!social) return null
+                  return (
+                    <div key={social.key} className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+                      <div className="mb-2 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <span className="grid h-8 min-w-8 place-items-center rounded-lg bg-[#0B1F3B] px-1.5 text-[10px] font-black text-white">
+                            {social.badge}
+                          </span>
+                          <span className="text-sm font-bold text-slate-900">{social.label}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProfile(current => ({ ...current, [social.key]: '' }))
+                            setEnabledSocials(current => current.filter(item => item !== social.key))
+                          }}
+                          className="text-xs font-semibold text-slate-400 hover:text-red-600"
+                        >
+                          削除
+                        </button>
+                      </div>
+                      <Input
+                        type="text"
+                        value={profile[social.key] ?? ''}
+                        onChange={e =>
+                          setProfile(current => ({ ...current, [social.key]: e.target.value }))
+                        }
+                        className={fieldClassName}
+                        placeholder={social.placeholder}
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                      />
+                      <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{social.help}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full rounded-xl border-dashed border-slate-300 bg-white font-bold text-slate-700"
+                onClick={() => setSocialPickerOpen(current => !current)}
+              >
+                ＋ SNSアカウントを追加
+              </Button>
+
+              {socialPickerOpen && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {SOCIAL_PLATFORMS.filter(social => !enabledSocials.includes(social.key)).map(social => (
+                    <button
+                      key={social.key}
+                      type="button"
+                      onClick={() => {
+                        setEnabledSocials(current => [...current, social.key])
+                        setSocialPickerOpen(false)
+                      }}
+                      className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-left text-sm font-bold text-slate-800 transition hover:border-orange-200 hover:bg-orange-50"
+                    >
+                      <span className="grid h-7 min-w-7 place-items-center rounded-lg bg-[#0B1F3B] px-1 text-[9px] font-black text-white">
+                        {social.badge}
+                      </span>
+                      {social.label}
+                    </button>
+                  ))}
+                  {SOCIAL_PLATFORMS.every(social => enabledSocials.includes(social.key)) && (
+                    <p className="col-span-2 py-2 text-center text-xs text-slate-500">
+                      追加できるSNSはすべて登録されています。
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-800">YouTube<span className="ml-1 text-xs text-gray-500">(任意)</span></label>
-              <Input
-                type="url"
-                name="youtubeUrl"
-                value={profile.youtubeUrl ?? ''}
-                onChange={handleChange}
-                className={fieldClassName}
-              />
-            </div>
+
+            <p className="text-[11px] leading-5 text-slate-500">
+              フォロワー数は、今後公式APIで確認できたSNSのみ自動表示する予定です。自己申告の数字は使用しません。
+            </p>
           </section>
 
           <Button
