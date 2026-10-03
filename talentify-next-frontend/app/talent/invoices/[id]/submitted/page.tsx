@@ -67,11 +67,11 @@ export default function TalentInvoiceSubmittedPage() {
   }, [invoice])
 
   if (loading) {
-    return <div className='p-6'>読み込み中...</div>
+    return <div className='p-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-8 lg:text-center lg:text-slate-500 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>読み込み中...</div>
   }
 
   if (!invoice) {
-    return <div className='p-6'>見積書が見つかりませんでした。</div>
+    return <div className='p-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-8 lg:text-center lg:text-slate-500 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>見積書が見つかりませんでした。</div>
   }
 
   return (
