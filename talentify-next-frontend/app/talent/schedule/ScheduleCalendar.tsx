@@ -66,7 +66,7 @@ type TalentCalendarEvent = {
 }
 
 const STATUS_LABEL: Record<DisplayStatus, string> = {
-  scheduled: '予定',
+  scheduled: '来店予定',
   completed: '完了',
   cancelled: 'キャンセル',
   no_show: '来店なし',
@@ -460,8 +460,9 @@ export default function ScheduleCalendar({
       if (!availabilitySettings || !today || !calendarDate) return {}
       const key = format(date, 'yyyy-MM-dd')
       const status = overrides[key] ?? defaultStatus
-      const style: CSSProperties = {
-        backgroundColor: AVAILABILITY_COLORS[status],
+      const style: CSSProperties = {}
+      if (status === 'ng') {
+        style.backgroundColor = AVAILABILITY_COLORS.ng
       }
       if (!isSameMonth(date, calendarDate)) {
         style.opacity = 0.5
@@ -515,11 +516,11 @@ export default function ScheduleCalendar({
         if (!response.ok) {
           throw new Error('Failed to update availability')
         }
-        toast.success('可用性を更新しました')
+        toast.success(next === 'ng' ? '受付不可に変更しました' : '受付可能に戻しました')
       } catch (error) {
         console.error('Failed to update availability', error)
         setOverrides(previousOverrides)
-        toast.error('可用性の更新に失敗しました')
+        toast.error('受付状況の更新に失敗しました')
         await fetchCalendarData()
       } finally {
         setUpdatingDates((prev) => {
@@ -800,124 +801,61 @@ export default function ScheduleCalendar({
           <div>
             <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">TALENT SCHEDULE</p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950">スケジュール管理</h1>
-            <p className="mt-1 text-sm leading-6 text-slate-500">日付をタップして出演可否を切り替え、来店予定もまとめて確認できます。</p>
+            <p className="mt-1 text-sm leading-6 text-slate-500">基本は受付可能です。予定が合わない日だけ「受付不可」にしてください。確定した来店予定は自動で表示されます。</p>
           </div>
         </div>
         <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
       </section>
 
       <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-black text-slate-950">空き状況の設定</p>
-            <p className="mt-0.5 text-xs text-slate-500">基本設定と日別設定を使い分けられます。</p>
+            <p className="text-sm font-black text-slate-950">受付状況</p>
+            <p className="mt-0.5 text-xs leading-5 text-slate-500">
+              何も設定していない日は「受付可能」です。受付できない日だけ、カレンダーの日付をタップしてください。
+            </p>
           </div>
-          <div className="flex shrink-0 items-center gap-1 rounded-lg border bg-white p-1 shadow-sm ">
-            <Button
-              type="button"
-              size="sm"
-              variant={
-                (availabilitySettings?.default_mode ?? 'default_ok') === 'default_ok'
-                  ? 'default'
-                  : 'ghost'
-              }
-              className="h-9 px-3 text-xs sm:text-sm"
-              onClick={() => handleDefaultModeChange('default_ok')}
-              disabled={updatingDefaultMode}
-            >
-              基本OK
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={
-                (availabilitySettings?.default_mode ?? 'default_ok') === 'default_ng'
-                  ? 'default'
-                  : 'ghost'
-              }
-              className="h-9 px-3 text-xs sm:text-sm"
-              onClick={() => handleDefaultModeChange('default_ng')}
-              disabled={updatingDefaultMode}
-            >
-              基本NG
-            </Button>
-          </div>
-        </div>
-        <div className="space-y-2 text-sm">
-          <div className="grid grid-cols-[44px_1fr_44px] items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 w-11 p-0 text-base"
-              onClick={() => setCalendarDate(subMonths(calendarDate, 1))}
-              aria-label="前の月"
-            >
-              ‹
-            </Button>
-            <span className="text-center text-lg font-bold text-slate-950 sm:text-xl">{headerLabel}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 w-11 p-0 text-base"
-              onClick={() => setCalendarDate(addMonths(calendarDate, 1))}
-              aria-label="次の月"
-            >
-              ›
-            </Button>
-          </div>
-          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={bulkUpdating || !availabilitySettings}
-                  className="h-9 text-xs"
-                >
-                  月一括設定
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 text-xs">
-                <DropdownMenuItem
-                  onSelect={() => {
-                    void handleBulkUpdate('ok')
-                  }}
-                  disabled={bulkUpdating}
-                  className="text-xs"
-                >
-                  この月を全てOKにする
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onSelect={() => {
-                    void handleBulkUpdate('ng')
-                  }}
-                  disabled={bulkUpdating}
-                  className="text-xs"
-                >
-                  この月を全てNGにする
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <span
-                  aria-hidden
-                  className="h-3 w-3 rounded"
-                  style={{ backgroundColor: AVAILABILITY_COLORS.ok }}
-                />
-                <span>OK</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span
-                  aria-hidden
-                  className="h-3 w-3 rounded"
-                  style={{ backgroundColor: AVAILABILITY_COLORS.ng }}
-                />
-                <span>NG</span>
-              </div>
+          <div className="flex shrink-0 items-center gap-3 text-xs text-slate-600">
+            <div className="flex items-center gap-1.5">
+              <span aria-hidden className="h-3 w-3 rounded border border-slate-300 bg-white" />
+              <span>受付可能</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span
+                aria-hidden
+                className="grid h-4 w-4 place-items-center rounded bg-slate-200 text-[10px] font-black text-slate-600"
+              >
+                ×
+              </span>
+              <span>受付不可</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span aria-hidden className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span>来店予定</span>
             </div>
           </div>
+        </div>
+
+        <div className="grid grid-cols-[44px_1fr_44px] items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-10 w-11 p-0 text-base"
+            onClick={() => setCalendarDate(subMonths(calendarDate, 1))}
+            aria-label="前の月"
+          >
+            ‹
+          </Button>
+          <span className="text-center text-lg font-bold text-slate-950 sm:text-xl">{headerLabel}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-10 w-11 p-0 text-base"
+            onClick={() => setCalendarDate(addMonths(calendarDate, 1))}
+            aria-label="次の月"
+          >
+            ›
+          </Button>
         </div>
       </div>
 
