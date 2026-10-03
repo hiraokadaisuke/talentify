@@ -2,13 +2,13 @@ import Link from 'next/link'
 
 const serviceLinks = [
   { href: '/', label: '来店情報トップ' },
+  { href: '/areas', label: '地域から探す' },
+  { href: '/stores', label: '店舗から探す' },
   { href: '/events', label: '来店情報一覧' },
+  { href: '/performers', label: '演者から探す' },
   { href: '/service', label: '店舗・演者向けサービス' },
-  { href: '/service#for-store', label: '店舗向け' },
-  { href: '/service#for-talent', label: '演者向け' },
   { href: '/guide', label: 'ご利用ガイド' },
   { href: '/faq', label: 'よくある質問' },
-  { href: '/pricing', label: '料金' },
 ]
 
 const supportLinks = [
