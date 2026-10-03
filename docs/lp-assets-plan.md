@@ -19,6 +19,7 @@
 - neon-wave-bg.webp — ダーク背景
 - office-leader-tablet.webp — 店舗向け
 - orange-arrow-elements.webp — 矢印・動線演出
+- smartphone-light-trails.webp — 一般公開セクションのスマホ・光軌跡演出
 - stage-light-particles.webp — 光粒子
 - talent-stage.webp — 演者向け
 - timeline-glow.webp — フロー・接続表現
@@ -28,7 +29,7 @@
 
 
 ## 進め方
-1. 既存14素材でLP本体を完成に近づける
+1. 既存15素材でLP本体を完成に近づける
 2. 足りない箇所だけ追加素材を1枚ずつ投入
 3. PC/SPのレスポンシブ確認
 4. 表示速度・画像容量確認

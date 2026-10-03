@@ -434,3 +434,19 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenPromotionDevice {
+  0%, 100% { transform: scale(1.02) translate3d(0, 0, 0); opacity: .16; }
+  50% { transform: scale(1.06) translate3d(-1.5%, -1%, 0); opacity: .24; }
+}
+
+.raiten-promotion-device {
+  animation: raitenPromotionDevice 10s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-promotion-device {
+    animation: none !important;
+  }
+}

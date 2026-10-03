@@ -528,7 +528,15 @@ export default function HomePage() {
             'radial-gradient(circle at 15% 20%, rgba(255,90,31,.18), transparent 26%), radial-gradient(circle at 85% 80%, rgba(255,196,0,.11), transparent 25%), #081426',
         }}
       >
-        <div className="mx-auto grid w-full max-w-[1380px] items-center gap-10 lg:grid-cols-[.9fr_1.1fr] lg:gap-16">
+        <img
+          src="/images/lp/materials/smartphone-light-trails.webp"
+          alt=""
+          aria-hidden="true"
+          className="raiten-promotion-device pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-20 mix-blend-screen"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#081426]/92 via-[#081426]/78 to-[#081426]/55" />
+
+        <div className="relative mx-auto grid w-full max-w-[1380px] items-center gap-10 lg:grid-cols-[.9fr_1.1fr] lg:gap-16">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#FFC400]/25 bg-[#FFC400]/8 px-3 py-2 text-[11px] font-black tracking-[0.14em] text-[#FFC400]">
               PUBLIC RAITEN INFORMATION
