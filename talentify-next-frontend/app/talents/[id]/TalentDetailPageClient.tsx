@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import OfferComposerOverlay from './OfferComposerOverlay'
+import TalentSchedulePreview from './TalentSchedulePreview'
 
 type Talent = {
   id: string
@@ -66,6 +67,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
   const [imageLoaded, setImageLoaded] = useState(false)
   const router = useRouter()
   const [offerOpen, setOfferOpen] = useState(false)
+  const [offerInitialDate, setOfferInitialDate] = useState<string | null>(null)
   const [offerSent, setOfferSent] = useState(false)
   const reviewAverage =
     initialReviews.length > 0
@@ -245,7 +247,10 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                   <Button
                     className="h-10 w-full bg-slate-900 text-white transition-all duration-150 hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow-md active:translate-y-0 focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
                     aria-label="このキャストにオファーする"
-                    onClick={() => setOfferOpen(true)}
+                    onClick={() => {
+                      setOfferInitialDate(null)
+                      setOfferOpen(true)
+                    }}
                     disabled={offerSent}
                   >
                     {offerSent ? '送信済み' : 'このキャストにオファーする'}
@@ -380,6 +385,18 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
           </div>
         </div>
 
+        {role === 'store' && (
+          <div className="mx-auto w-full max-w-6xl">
+            <TalentSchedulePreview
+              talentId={id}
+              onOfferDate={date => {
+                setOfferInitialDate(date)
+                setOfferOpen(true)
+              }}
+            />
+          </div>
+        )}
+
         <section className="mx-auto mt-4 w-full max-w-6xl">
           <Card className="border-slate-200 shadow-sm">
             <CardContent className="p-4 sm:p-5">
@@ -479,6 +496,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
         rate: talent.rate,
       }}
       onSuccess={handleOfferSuccess}
+      initialDate={offerInitialDate}
     />
     </>
   )
