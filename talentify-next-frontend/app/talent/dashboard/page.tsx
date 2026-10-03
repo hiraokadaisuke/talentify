@@ -11,9 +11,9 @@ export default async function TalentDashboard() {
   const { schedule, pendingOffersCount, confirmedOffersCount, unreadMessagesCount, recentNotifications, onboardingSteps, isSetupComplete } = await getTalentDashboardData()
 
   return (
-    <div className='mx-auto w-full max-w-[1500px] space-y-4'>
+    <div className='mx-auto w-full max-w-[1500px] space-y-4 lg:space-y-5'>
       <section className='overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
-        <div className='flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5'>
+        <div className='flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 lg:p-6'>
           <div className='flex items-start gap-3'>
             <span className='grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0B1F3B] text-[#FFC400]'>
               <Mic className='h-5 w-5' />
@@ -38,7 +38,7 @@ export default async function TalentDashboard() {
 
       <ProfileSetupBanner role='talent' isSetupComplete={isSetupComplete} />
       <GettingStartedCard role='talent' initialSteps={onboardingSteps} />
-      <div className='grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,.8fr)]'>
+      <div className='grid gap-3 lg:gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(340px,.8fr)]'>
         <ScheduleCard items={schedule} />
         <DashboardStatusCard
           pending={pendingOffersCount}

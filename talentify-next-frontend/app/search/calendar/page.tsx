@@ -131,7 +131,7 @@ export default function CalendarSearchPage() {
       : null
 
   return (
-    <main className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6">
+    <main className="mx-auto max-w-[1320px] space-y-5 p-4 sm:p-6 lg:space-y-6">
       <div>
         <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
           日付・時間から演者を探す
@@ -143,10 +143,10 @@ export default function CalendarSearchPage() {
 
       <form
         onSubmit={handleSearch}
-        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5"
+        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5 lg:p-6"
       >
         <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
             <div className="min-w-0">
               <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
                 <CalendarDays className="h-3.5 w-3.5 text-slate-400" />

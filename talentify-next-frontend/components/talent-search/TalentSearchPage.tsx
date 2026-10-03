@@ -110,7 +110,7 @@ export default function TalentSearchPage({
   const paginated = results.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   return (
-    <main className="mx-auto min-w-0 w-full max-w-[1500px] space-y-4 py-2 sm:space-y-5 sm:py-4">
+    <main className="mx-auto min-w-0 w-full max-w-[1500px] space-y-4 py-2 sm:space-y-5 sm:py-4 lg:space-y-6 lg:py-6">
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
         <div className="flex items-start gap-3 p-5 sm:p-6">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
@@ -125,7 +125,7 @@ export default function TalentSearchPage({
         <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
       </section>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[270px_minmax(0,1fr)] lg:items-start">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
         <TalentSearchForm onSearch={handleSearch} genreOptions={genreOptions} areaOptions={areaOptions} />
 
         <section className="space-y-4">

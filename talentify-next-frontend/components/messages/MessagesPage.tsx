@@ -415,10 +415,10 @@ export default function MessagesPage({
 
   return (
     <main className="pb-1 md:pb-3">
-      <div className="mx-auto w-full max-w-7xl">
-        <div className="h-[calc(100dvh-7.75rem)] min-h-[480px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] md:h-[calc(100vh-8.75rem)] md:min-h-[560px]">
+      <div className="mx-auto w-full max-w-[1500px]">
+        <div className="h-[calc(100dvh-7.75rem)] min-h-[480px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] md:h-[calc(100vh-8.75rem)] md:min-h-[560px] lg:min-h-[640px]">
           <div className="flex h-full">
-            <aside className={`${mobileThreadOpen ? 'hidden' : 'flex'} w-full flex-col border-r border-slate-200 md:flex md:w-80 md:min-w-80`}>
+            <aside className={`${mobileThreadOpen ? 'hidden' : 'flex'} w-full flex-col border-r border-slate-200 md:flex md:w-80 md:min-w-80 lg:w-96 lg:min-w-96 xl:w-[420px] xl:min-w-[420px]`}>
               <div className="border-b border-slate-200 p-4 space-y-3">
                 <div><p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">MESSAGES</p><h2 className="mt-0.5 text-lg font-black text-slate-950">メッセージ</h2></div>
                 {basePath && (
@@ -504,7 +504,7 @@ export default function MessagesPage({
             </aside>
 
             <section className={`${mobileThreadOpen ? 'flex' : 'hidden'} min-w-0 flex-1 flex-col md:flex`}>
-              <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
+              <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-3 py-2.5 sm:px-4 sm:py-3 lg:px-6">
                 <div className="min-w-0">
                   <div className="mb-1 flex items-center gap-2">
                     <button type="button" className="rounded-md p-1 text-slate-500 hover:bg-slate-100 md:hidden" onClick={() => setMobileThreadOpen(false)}>
@@ -561,7 +561,7 @@ export default function MessagesPage({
                       <div className="space-y-3">
                         {group.items.map(msg => (
                           <div key={msg.id} className={`flex ${msg.from === role ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm shadow-sm md:max-w-xl ${msg.from === role ? 'rounded-br-md bg-orange-100 text-slate-800' : 'rounded-bl-md border border-slate-200 bg-white text-slate-800'}`}>
+                            <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm shadow-sm md:max-w-xl lg:max-w-2xl ${msg.from === role ? 'rounded-br-md bg-orange-100 text-slate-800' : 'rounded-bl-md border border-slate-200 bg-white text-slate-800'}`}>
                               <p className="whitespace-pre-wrap break-words">{msg.text}</p>
                               {type === 'offer' &&
                                 msg.attachments.map(attachment => (

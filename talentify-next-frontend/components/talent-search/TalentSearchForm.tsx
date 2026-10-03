@@ -72,7 +72,7 @@ export default function TalentSearchForm({ onSearch, genreOptions, areaOptions }
         </div>
       </div>
 
-      <aside className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${isMobileFilterOpen ? 'block' : 'hidden'} md:sticky md:top-24 md:block md:h-fit`}>
+      <aside className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${isMobileFilterOpen ? 'block' : 'hidden'} md:sticky md:top-24 md:block md:h-fit lg:p-6`}>
         <div className="space-y-5">
           <section className="space-y-2 border-b border-slate-100 pb-4">
             <h3 className="text-sm font-semibold text-slate-950">キーワード</h3>
