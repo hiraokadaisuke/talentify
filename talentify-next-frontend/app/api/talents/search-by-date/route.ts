@@ -13,13 +13,18 @@ import {
 
 const TIME_PATTERN = /^\d{2}:\d{2}$/
 
-const querySchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  start: z.string().regex(TIME_PATTERN),
-  end: z.string().regex(TIME_PATTERN),
-  area: z.string().trim().max(100).optional(),
-  genre: z.string().trim().max(100).optional(),
-})
+const querySchema = z
+  .object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    start: z.string().regex(TIME_PATTERN).optional(),
+    end: z.string().regex(TIME_PATTERN).optional(),
+    area: z.string().trim().max(100).optional(),
+    genre: z.string().trim().max(100).optional(),
+  })
+  .refine(value => Boolean(value.start) === Boolean(value.end), {
+    message: 'start and end must be provided together',
+    path: ['start'],
+  })
 
 type TalentRow = Pick<
   Database['public']['Tables']['talents']['Row'],
@@ -76,7 +81,7 @@ export async function GET(request: NextRequest) {
   if (date < getTodayJstDateString()) {
     return jsonResponse({ error: '本日以降の日付を選択してください' }, 400)
   }
-  if (!isValidSearchWindow(start, end)) {
+  if (start && end && !isValidSearchWindow(start, end)) {
     return jsonResponse({ error: '終了時刻は開始時刻より後を選択してください' }, 400)
   }
 
@@ -163,6 +168,24 @@ export async function GET(request: NextRequest) {
     return jsonResponse([])
   }
 
+  const toResult = (talent: TalentRow): TalentSearchResult => ({
+    id: talent.id,
+    stage_name: talent.stage_name,
+    display_name: talent.display_name ?? talent.stage_name,
+    genre: talent.genre,
+    area: talent.area,
+    avatar_url: talent.avatar_url,
+    rate: talent.rate,
+    rating: talent.rating,
+    bio: talent.bio,
+    achievements: talent.achievements ?? talent.media_appearance,
+    availability_status: 'ok',
+  })
+
+  if (!start || !end) {
+    return jsonResponse(declaredAvailable.map(toResult))
+  }
+
   const talentIds = declaredAvailable.map(talent => talent.id)
   const requestStart = `${date}T${start}:00`
   const requestEnd = `${date}T${end}:00`
@@ -192,19 +215,7 @@ export async function GET(request: NextRequest) {
 
   const results: TalentSearchResult[] = declaredAvailable
     .filter(talent => !conflictingTalentIds.has(talent.id))
-    .map(talent => ({
-      id: talent.id,
-      stage_name: talent.stage_name,
-      display_name: talent.display_name ?? talent.stage_name,
-      genre: talent.genre,
-      area: talent.area,
-      avatar_url: talent.avatar_url,
-      rate: talent.rate,
-      rating: talent.rating,
-      bio: talent.bio,
-      achievements: talent.achievements ?? talent.media_appearance,
-      availability_status: 'ok',
-    }))
+    .map(toResult)
 
   return jsonResponse(results)
 }
