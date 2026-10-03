@@ -44,6 +44,15 @@ function formatRateEstimate(rate: number | null) {
   return `料金目安：${rounded}万円〜`
 }
 
+function formatFollowerCount(value: number) {
+  if (value >= 10000) {
+    const man = value / 10000
+    const digits = man >= 10 ? 0 : 1
+    return `${man.toFixed(digits).replace(/\.0$/, '')}万`
+  }
+  return value.toLocaleString('ja-JP')
+}
+
 export default function TalentCard({ talent }: { talent: PublicTalent }) {
   const imageSrc = talent.avatar_url && isValidHttpUrl(talent.avatar_url)
     ? talent.avatar_url
@@ -53,6 +62,12 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
   const affiliation = getTalentAffiliation(talent)
   const capabilities = getTalentCapabilities(talent)
   const subInfo = [talent.genre, affiliation, talent.area].filter(Boolean)
+  const socialMetrics = [
+    { label: 'X', value: talent.twitter_followers },
+    { label: 'IG', value: talent.instagram_followers },
+    { label: 'YT', value: talent.youtube_followers },
+    { label: 'TT', value: talent.tiktok_followers },
+  ].filter((item): item is { label: string; value: number } => typeof item.value === 'number')
 
   return (
     <Link
@@ -85,6 +100,20 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
                 className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600"
               >
                 #{capability}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {socialMetrics.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5" aria-label="SNSフォロワー数">
+            {socialMetrics.map(item => (
+              <span
+                key={item.label}
+                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-bold text-slate-700"
+              >
+                <span className="text-slate-400">{item.label}</span>
+                {formatFollowerCount(item.value)}
               </span>
             ))}
           </div>
