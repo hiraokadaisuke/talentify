@@ -63,6 +63,34 @@ const talentBenefits = [
   '確定した来店予定を一般向けページから届けられる',
 ]
 
+const faqItems = [
+  {
+    question: '店舗と演者、どちらが利用できますか？',
+    answer:
+      '店舗向け・演者向けそれぞれに専用画面があります。店舗は演者検索やオファー管理、演者はプロフィールや予定、届いた案件の確認・管理に利用できます。',
+  },
+  {
+    question: 'オファーした後は、どこまで管理できますか？',
+    answer:
+      '条件確認、メッセージ、見積・締結、請求、支払い確認、レビューまで、案件ごとの情報をまとめて確認できる設計です。',
+  },
+  {
+    question: '電話で相談する運用と併用できますか？',
+    answer:
+      '電話での相談を併用しながら、決まった条件や進行状況を来店ナビ上に残して管理する使い方を想定しています。',
+  },
+  {
+    question: '一般ユーザーは何を見られますか？',
+    answer:
+      '確定した来店情報を、地域や店舗を起点に探せる一般向けページで確認できます。演者から探す導線も用意します。',
+  },
+  {
+    question: 'スマートフォンでも利用できますか？',
+    answer:
+      '店舗・演者の管理画面、一般向け来店情報ページともにスマートフォンで確認しやすいレスポンシブ設計です。',
+  },
+]
+
 function BrandButton({
   href,
   children,
@@ -761,6 +789,68 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="bg-white px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="mx-auto w-full max-w-[1180px]">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-black tracking-[0.2em] text-[#FF5A1F]">START SIMPLE</p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+              まずは無料登録から、必要なところをひとつずつ。
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
+              店舗と演者それぞれの画面を分けながら、案件が動き始めたら必要な情報がひとつの流れにつながるように設計しています。
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                icon: BadgeCheck,
+                label: 'ACCOUNT',
+                title: '役割ごとの専用画面',
+                text: '店舗と演者で必要な機能を分け、普段使う情報へ迷わずアクセスできる構成です。',
+              },
+              {
+                icon: BarChart3,
+                label: 'WORKFLOW',
+                title: '案件単位で整理',
+                text: 'オファー、連絡、見積・請求などを案件ごとにまとめ、今どこまで進んでいるかを追いやすくします。',
+              },
+              {
+                icon: Share2,
+                label: 'PUBLIC',
+                title: '確定情報をそのまま公開',
+                text: '確定した来店予定を一般向け情報へつなぎ、店舗・演者・ユーザーの情報差を減らします。',
+              },
+            ].map(({ icon: Icon, label, title, text }) => (
+              <article key={title} className="rounded-[26px] border border-slate-200 bg-[#F8FAFC] p-6 shadow-[0_14px_40px_rgba(15,23,42,.05)]">
+                <div className="flex items-center justify-between">
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="text-[9px] font-black tracking-[0.14em] text-slate-300">{label}</span>
+                </div>
+                <h3 className="mt-5 text-xl font-black text-slate-950">{title}</h3>
+                <p className="mt-2 text-sm font-medium leading-7 text-slate-600">{text}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/register"
+              className={`inline-flex min-h-12 items-center gap-2 rounded-2xl bg-gradient-to-r ${brandGradient} px-5 text-sm font-black text-[#081426]`}
+            >
+              無料登録へ進む
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/guide" className="inline-flex min-h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-black text-slate-700">
+              ご利用ガイドを見る
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section
         id="ecosystem"
         className="scroll-mt-24 relative overflow-hidden border-y border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
@@ -883,6 +973,44 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section id="faq" className="scroll-mt-24 bg-white px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="mx-auto grid w-full max-w-[1180px] gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-14">
+          <div>
+            <p className="text-xs font-black tracking-[0.2em] text-[#FF5A1F]">FAQ</p>
+            <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">よくある質問</h2>
+            <p className="mt-4 max-w-md text-sm font-medium leading-7 text-slate-600">
+              来店ナビを使い始める前に、よく確認される内容をまとめています。
+            </p>
+            <Link href="/guide" className="mt-6 inline-flex items-center gap-2 text-sm font-black text-[#FF5A1F]">
+              詳しい使い方を見る
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {faqItems.map((item, index) => (
+              <details
+                key={item.question}
+                className="group rounded-[22px] border border-slate-200 bg-[#F8FAFC] px-5 py-1 open:bg-white open:shadow-[0_16px_40px_rgba(15,23,42,.06)] sm:px-6"
+              >
+                <summary className="flex cursor-pointer list-none items-center gap-4 py-5">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[#0B1F3B] text-[10px] font-black text-[#FFC400]">
+                    Q{index + 1}
+                  </span>
+                  <span className="flex-1 text-sm font-black text-slate-900 sm:text-base">{item.question}</span>
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-slate-200 bg-white text-lg font-light text-slate-400 transition group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <div className="border-t border-slate-200 pb-5 pl-12 pt-4 text-sm font-medium leading-7 text-slate-600 sm:pl-12">
+                  {item.answer}
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="register" className="scroll-mt-24 relative overflow-hidden border-t border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-[70%] -translate-x-1/2 rounded-full bg-[#FF8A00]/10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl text-center">
@@ -914,8 +1042,8 @@ export default function HomePage() {
 
           <div className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs font-bold text-white/42">
             <Link href="/guide" className="hover:text-white">ご利用ガイド</Link>
-            <Link href="/faq" className="hover:text-white">よくある質問</Link>
-            <Link href="/contact" className="hover:text-white">お問い合わせ</Link>
+            <Link href="#faq" className="hover:text-white">よくある質問</Link>
+            <Link href="/events" className="hover:text-white">来店情報</Link>
           </div>
         </div>
       </section>
