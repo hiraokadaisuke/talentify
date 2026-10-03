@@ -16,7 +16,7 @@ export default async function Page({ params }: PageProps) {
     supabase
       .from('talents')
       .select(
-        'id,user_id,stage_name,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,media_appearance,video_url,avatar_url,photos,twitter,instagram,youtube,preferred_contact_method,phone_contact_allowed,phone_available_hours,is_setup_complete'
+        'id,user_id,stage_name,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,media_appearance,video_url,avatar_url,photos,twitter_url,instagram_url,youtube_url,social_tiktok,preferred_contact_method,phone_contact_allowed,phone_available_hours,is_setup_complete'
       )
       .eq('id', params.id)
       .maybeSingle<any>(),
@@ -50,9 +50,10 @@ export default async function Page({ params }: PageProps) {
     video_url: data.video_url,
     avatar_url: data.avatar_url,
     photos: data.photos ?? [],
-    twitter: data.twitter,
-    instagram: data.instagram,
-    youtube: data.youtube,
+    twitter_url: data.twitter_url,
+    instagram_url: data.instagram_url,
+    youtube_url: data.youtube_url,
+    social_tiktok: data.social_tiktok,
     preferred_contact_method: data.preferred_contact_method,
     phone_contact_allowed: data.phone_contact_allowed,
     phone_available_hours: data.phone_available_hours,
