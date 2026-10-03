@@ -21,7 +21,7 @@ export default async function ProfileProgressCard() {
 
   const missingItems: string[] = []
 
-  if (!talent?.stage_name?.trim()) missingItems.push('ステージ名')
+  if (!talent?.stage_name?.trim()) missingItems.push('公開名')
   if (!talent?.genre) missingItems.push('ジャンル')
   if (!talent?.area) missingItems.push('エリア')
   if (!talent?.rate || talent.rate <= 0) missingItems.push('出演料')
