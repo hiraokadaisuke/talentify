@@ -278,16 +278,22 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[680px]">
+          <div className="raiten-hero-visual relative mx-auto w-full max-w-[680px]">
             <div className="absolute -inset-4 rounded-[40px] bg-gradient-to-br from-[#FF3B2E]/25 via-[#FF8A00]/12 to-transparent blur-2xl" />
             <div className="relative overflow-hidden rounded-[32px] border border-white/12 bg-white/[0.055] p-3 shadow-[0_34px_100px_rgba(0,0,0,.45)] backdrop-blur">
               <div className="relative min-h-[440px] overflow-hidden rounded-[24px] bg-[#0B1F3B] sm:min-h-[540px]">
                 <img
-                  src="/images/lp/talent.png"
+                  src="/images/lp/materials/hero-performer-red.webp"
                   alt="来店イベントで活動する演者のイメージ"
-                  className="absolute inset-0 h-full w-full object-cover object-top opacity-95"
+                  className="absolute inset-0 h-full w-full object-cover object-center opacity-95"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#081426] via-[#081426]/25 to-transparent" />
+                <img
+                  src="/images/lp/materials/stage-light-particles.webp"
+                  alt=""
+                  aria-hidden="true"
+                  className="raiten-hero-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-35"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#081426] via-[#081426]/20 to-transparent" />
                 <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#081426]/60 to-transparent" />
 
                 <div className="absolute left-4 top-4 rounded-2xl border border-white/15 bg-[#081426]/75 px-4 py-3 backdrop-blur-md sm:left-6 sm:top-6">
@@ -295,7 +301,7 @@ export default function HomePage() {
                   <p className="mt-1 text-lg font-black">10.12 SAT</p>
                 </div>
 
-                <div className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#FF3B2E] to-[#FFC400] text-[#081426] shadow-[0_0_24px_rgba(255,138,0,.45)] sm:right-6 sm:top-6">
+                <div className="raiten-hero-spark absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#FF3B2E] to-[#FFC400] text-[#081426] shadow-[0_0_24px_rgba(255,138,0,.45)] sm:right-6 sm:top-6">
                   <Sparkles className="h-5 w-5" />
                 </div>
 
