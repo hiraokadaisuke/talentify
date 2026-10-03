@@ -76,6 +76,16 @@ export default function TalentInvoiceNewPage() {
       }
 
       if (invData) {
+        if (invData.status && invData.status !== 'draft') {
+          toast.info(
+            invData.status === 'submitted'
+              ? 'この見積書はすでに店舗へ提出済みです'
+              : 'この見積書はすでに進行中のため編集できません'
+          )
+          router.replace(`/talent/invoices/${invData.id}`)
+          return
+        }
+
         const savedTransportFee = Number(invData.transport_fee ?? 0)
         const savedExtraFee = Number(invData.extra_fee ?? 0)
         const savedAmount = Number(invData.amount ?? 0)
@@ -188,7 +198,7 @@ export default function TalentInvoiceNewPage() {
       const submitRes = await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
       if (!submitRes.ok) throw new Error('submit failed')
 
-      router.push(`/talent/invoices/${id}/submitted`)
+      router.replace(`/talent/invoices/${id}/submitted`)
     } catch {
       toast.error('見積書の提出に失敗しました')
     } finally {
@@ -266,7 +276,7 @@ export default function TalentInvoiceNewPage() {
       const submitRes = await fetch(`/api/invoices/${id}/submit`, { method: 'POST' })
       if (!submitRes.ok) throw new Error('submit failed')
 
-      router.push(`/talent/invoices/${id}/submitted`)
+      router.replace(`/talent/invoices/${id}/submitted`)
     } catch {
       toast.error('見積書の提出に失敗しました')
     } finally {
