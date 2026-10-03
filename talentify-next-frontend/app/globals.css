@@ -340,3 +340,29 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenStoreChip {
+  0%, 100% { transform: translateY(0) rotate(.5deg); }
+  50% { transform: translateY(-5px) rotate(-.5deg); }
+}
+
+@keyframes raitenStoreChipSecondary {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-4px) translateX(-3px); }
+}
+
+.raiten-store-chip {
+  animation: raitenStoreChip 5.2s ease-in-out infinite;
+}
+
+.raiten-store-chip-secondary {
+  animation: raitenStoreChipSecondary 5.8s ease-in-out infinite .35s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-store-chip,
+  .raiten-store-chip-secondary {
+    animation: none !important;
+  }
+}
