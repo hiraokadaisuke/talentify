@@ -15,6 +15,17 @@ const AVATAR_BUCKET = 'talent-photos'
 
 const supabase = createClient()
 
+const PREFECTURES = [
+  '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県',
+  '茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県',
+  '新潟県','富山県','石川県','福井県','山梨県','長野県',
+  '岐阜県','静岡県','愛知県','三重県',
+  '滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県',
+  '鳥取県','島根県','岡山県','広島県','山口県',
+  '徳島県','香川県','愛媛県','高知県',
+  '福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県',
+] as const
+
 export default function StoreProfileEditPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -22,13 +33,15 @@ export default function StoreProfileEditPage() {
   const [isNew, setIsNew] = useState(false)
   const [profile, setProfile] = useState({
     store_name: '',
+    store_prefect: '',
+    store_address: '',
     bio: '',
     avatar_url: ''
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showIncomplete, setShowIncomplete] = useState(false)
-  const [errors, setErrors] = useState<{ avatar?: string }>({})
+  const [errors, setErrors] = useState<{ store_name?: string; store_prefect?: string; store_address?: string; avatar?: string }>({})
   const [saving, setSaving] = useState(false)
   const avatarPreview = useMemo(
     () => (avatarFile ? URL.createObjectURL(avatarFile) : profile.avatar_url),
@@ -82,7 +95,7 @@ export default function StoreProfileEditPage() {
 
       const { data, error } = await supabase
         .from('stores')
-        .select('store_name, bio, avatar_url, is_setup_complete')
+        .select('store_name, store_prefect, store_address, bio, avatar_url, is_setup_complete')
         .eq('user_id', user.id)
         .maybeSingle()
 
@@ -98,6 +111,8 @@ export default function StoreProfileEditPage() {
       if (data) {
         setProfile({
           store_name: data.store_name ?? '',
+          store_prefect: data.store_prefect ?? '',
+          store_address: data.store_address ?? '',
           bio: data.bio ?? '',
           avatar_url: data.avatar_url ?? '',
         })
@@ -119,7 +134,7 @@ export default function StoreProfileEditPage() {
     void loadProfile()
   }, [loadProfile])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setProfile({ ...profile, [e.target.name]: e.target.value })
   }
 
@@ -148,11 +163,30 @@ export default function StoreProfileEditPage() {
       return
     }
 
+    const nextErrors: typeof errors = {}
     if (!profile.store_name.trim()) {
-      setErrorMessage('店舗名（表示名）は必須です')
+      nextErrors.store_name = '店舗名を入力してください'
+    }
+    if (!profile.store_prefect.trim()) {
+      nextErrors.store_prefect = '都道府県を選択してください'
+    }
+    if (!profile.store_address.trim()) {
+      nextErrors.store_address = '市区町村・番地まで住所を入力してください'
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors((current) => ({ ...current, ...nextErrors }))
+      setErrorMessage('必須項目を入力してください')
       return
     }
 
+    setErrors((current) => ({
+      ...current,
+      store_name: undefined,
+      store_prefect: undefined,
+      store_address: undefined,
+    }))
+    setErrorMessage(null)
     setSaving(true)
     try {
       let avatarUrl = profile.avatar_url
@@ -168,7 +202,9 @@ export default function StoreProfileEditPage() {
       })
 
       const updateData = {
-        store_name: profile.store_name,
+        store_name: profile.store_name.trim(),
+        store_prefect: profile.store_prefect.trim(),
+        store_address: profile.store_address.trim(),
         bio: profile.bio || null,
         avatar_url: avatarUrl || null,
         user_id: user.id,
@@ -220,7 +256,7 @@ export default function StoreProfileEditPage() {
         </h1>
         {showIncomplete && (
           <p className="mb-5 text-sm leading-6 text-slate-600">
-            まずは店舗名だけ登録すれば利用を開始できます。自己紹介や画像はあとから追加できます。
+            店舗名・都道府県・住所を登録すると利用を開始できます。自己紹介や画像はあとから追加できます。
           </p>
         )}
           <div
@@ -258,13 +294,13 @@ export default function StoreProfileEditPage() {
             <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
               {showIncomplete ? '店舗情報を登録' : '店舗プロフィール編集'}
             </h1>
-            <p className="mt-1 text-sm leading-6 text-slate-500">店舗として表示される情報を管理します。</p>
+            <p className="mt-1 text-sm leading-6 text-slate-500">一般ユーザーの地域・店舗検索にも使われる店舗情報を管理します。</p>
           </div>
           <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
         </section>
         {showIncomplete && (
           <p className="mb-5 text-sm leading-6 text-slate-600">
-            まずは店舗名だけ登録すれば利用を開始できます。自己紹介や画像はあとから追加できます。
+            店舗名・都道府県・住所を登録すると利用を開始できます。自己紹介や画像はあとから追加できます。
           </p>
         )}
         <section className="space-y-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-6">
@@ -277,13 +313,72 @@ export default function StoreProfileEditPage() {
 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium">店舗名（表示名）</label>
+              <label className="block text-sm font-medium">
+                店舗名（表示名）<span className="ml-1 text-red-500">*</span>
+              </label>
               <Input
                 name="store_name"
                 value={profile.store_name}
-                onChange={handleChange}
+                onChange={(event) => {
+                  handleChange(event)
+                  if (errors.store_name) setErrors((current) => ({ ...current, store_name: undefined }))
+                }}
+                aria-invalid={Boolean(errors.store_name)}
+                autoComplete="organization"
                 className="rounded-lg border border-slate-300 bg-white focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-100"
+                placeholder="例：パチンコ○○神戸店"
+                required
               />
+              {errors.store_name && <p className="text-sm text-red-500">{errors.store_name}</p>}
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-[180px_minmax(0,1fr)]">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium">
+                  都道府県<span className="ml-1 text-red-500">*</span>
+                </label>
+                <select
+                  name="store_prefect"
+                  value={profile.store_prefect}
+                  onChange={(event) => {
+                    handleChange(event)
+                    if (errors.store_prefect) setErrors((current) => ({ ...current, store_prefect: undefined }))
+                  }}
+                  aria-invalid={Boolean(errors.store_prefect)}
+                  autoComplete="address-level1"
+                  className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+                  required
+                >
+                  <option value="">選択してください</option>
+                  {PREFECTURES.map((prefecture) => (
+                    <option key={prefecture} value={prefecture}>{prefecture}</option>
+                  ))}
+                </select>
+                {errors.store_prefect && <p className="text-sm text-red-500">{errors.store_prefect}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium">
+                  住所<span className="ml-1 text-red-500">*</span>
+                </label>
+                <Input
+                  name="store_address"
+                  value={profile.store_address}
+                  onChange={(event) => {
+                    handleChange(event)
+                    if (errors.store_address) setErrors((current) => ({ ...current, store_address: undefined }))
+                  }}
+                  aria-invalid={Boolean(errors.store_address)}
+                  autoComplete="street-address"
+                  className="rounded-lg border border-slate-300 bg-white focus-visible:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-100"
+                  placeholder="例：神戸市中央区相生町4-1-1 ○○ビル1F"
+                  required
+                />
+                <p className="text-xs leading-5 text-slate-500">
+                  市区町村・番地まで入力してください。建物名がある場合は建物名も入力してください。
+                </p>
+                {errors.store_address && <p className="text-sm text-red-500">{errors.store_address}</p>}
+              </div>
             </div>
 
             {!showIncomplete && (
