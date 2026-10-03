@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { Search } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+import { CalendarDays, Clock3, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import TalentList from '@/components/talent-search/TalentList'
 import type { PublicTalent } from '@/types/talent'
@@ -18,6 +17,11 @@ type FacetTalent = {
   area: string | null
   genre: string | null
 }
+
+const TIME_OPTIONS = Array.from({ length: 16 }, (_, i) => {
+  const hour = i + 8
+  return `${String(hour).padStart(2, '0')}:00`
+})
 
 export default function CalendarSearchPage() {
   const supabase = useMemo(() => createClient(), [])
@@ -71,20 +75,28 @@ export default function CalendarSearchPage() {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!date || !start || !end) {
-      toast.error('日付と時間帯を入力してください')
+    if (!date) {
+      toast.error('希望日を選択してください')
       return
     }
     if (date < minDate) {
       toast.error('本日以降の日付を選択してください')
       return
     }
-    if (!isValidSearchWindow(start, end)) {
+    if (Boolean(start) !== Boolean(end)) {
+      toast.error('時間を指定する場合は開始と終了を両方選択してください')
+      return
+    }
+    if (start && end && !isValidSearchWindow(start, end)) {
       toast.error('終了時刻は開始時刻より後を選択してください')
       return
     }
 
-    const params = new URLSearchParams({ date, start, end })
+    const params = new URLSearchParams({ date })
+    if (start && end) {
+      params.set('start', start)
+      params.set('end', end)
+    }
     if (area) params.set('area', area)
     if (genre) params.set('genre', genre)
 
@@ -112,121 +124,164 @@ export default function CalendarSearchPage() {
   }
 
   const searchSummary =
-    hasSearched && date && start && end
-      ? `${date.replaceAll('-', '/')} ${start}〜${end}`
+    hasSearched && date
+      ? start && end
+        ? `${date.replaceAll('-', '/')} ${start}〜${end}`
+        : `${date.replaceAll('-', '/')}・時間指定なし`
       : null
 
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6">
+    <main className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6">
       <div>
-        <h1 className="text-2xl font-bold">日時から演者を探す</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          希望日時に対応可能で、締結済み案件と時間が重ならない演者を検索します。
+        <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+          日付・時間から演者を探す
+        </h1>
+        <p className="mt-1.5 text-sm leading-6 text-slate-500">
+          希望日に受付可能な演者を検索します。時間を指定すると、締結済み案件と重ならない演者まで絞り込めます。
         </p>
       </div>
 
       <form
         onSubmit={handleSearch}
-        className="rounded-xl border bg-white p-4 shadow-sm sm:p-5"
+        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5"
       >
-        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-          <div>
-            <label className="mb-1 block text-sm font-medium">希望日</label>
-            <Input
-              type="date"
-              value={date}
-              min={minDate}
-              onChange={e => setDate(e.target.value)}
-              required
-            />
+        <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="min-w-0">
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                <CalendarDays className="h-3.5 w-3.5 text-slate-400" />
+                希望日
+              </label>
+              <label className="relative flex h-11 min-w-0 cursor-pointer items-center rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 transition focus-within:border-[#0B1F3B] focus-within:ring-2 focus-within:ring-[#0B1F3B]/10">
+                <span className={date ? 'truncate text-slate-900' : 'truncate text-slate-400'}>
+                  {date ? date.replace(/-/g, '/') : '日付を選択'}
+                </span>
+                <CalendarDays className="ml-auto h-4 w-4 shrink-0 text-slate-400" />
+                <input
+                  type="date"
+                  value={date}
+                  min={minDate}
+                  onChange={e => setDate(e.target.value)}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                  aria-label="希望日"
+                  required
+                />
+              </label>
+            </div>
+
+            <div>
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                <Clock3 className="h-3.5 w-3.5 text-slate-400" />
+                希望時間帯
+                <span className="font-medium text-slate-400">（任意）</span>
+              </label>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                <select
+                  value={start}
+                  onChange={e => {
+                    const next = e.target.value
+                    setStart(next)
+                    if (end && next && end <= next) setEnd('')
+                  }}
+                  className="h-11 min-w-0 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
+                >
+                  <option value="">開始</option>
+                  {TIME_OPTIONS.map(time => (
+                    <option key={time} value={time}>{time}</option>
+                  ))}
+                </select>
+                <span className="text-sm font-bold text-slate-400">〜</span>
+                <select
+                  value={end}
+                  onChange={e => setEnd(e.target.value)}
+                  className="h-11 min-w-0 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
+                >
+                  <option value="">終了</option>
+                  {TIME_OPTIONS
+                    .filter(time => !start || time > start)
+                    .map(time => (
+                      <option key={time} value={time}>{time}</option>
+                    ))}
+                </select>
+              </div>
+              <p className="mt-1.5 text-[11px] leading-4 text-slate-500">
+                時間未定の場合は空欄のままで検索できます。
+              </p>
+            </div>
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">開始時刻</label>
-            <Input
-              type="time"
-              value={start}
-              onChange={e => setStart(e.target.value)}
-              required
-            />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-bold text-slate-700">
+                エリア <span className="font-medium text-slate-400">（任意）</span>
+              </label>
+              <select
+                value={area}
+                onChange={e => setArea(e.target.value)}
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
+              >
+                <option value="">指定なし</option>
+                {areaOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-bold text-slate-700">
+                ジャンル <span className="font-medium text-slate-400">（任意）</span>
+              </label>
+              <select
+                value={genre}
+                onChange={e => setGenre(e.target.value)}
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
+              >
+                <option value="">指定なし</option>
+                {genreOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">終了時刻</label>
-            <Input
-              type="time"
-              value={end}
-              onChange={e => setEnd(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">エリア</label>
-            <select
-              value={area}
-              onChange={e => setArea(e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          <div className="flex justify-end border-t border-slate-100 pt-4">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-11 w-full rounded-xl bg-[#FF5A1F] px-5 font-bold text-white hover:bg-[#E94F18] sm:w-auto"
             >
-              <option value="">指定なし</option>
-              {areaOptions.map(option => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+              <Search className="mr-2 h-4 w-4" />
+              {loading ? '検索中...' : 'この条件で検索'}
+            </Button>
           </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium">ジャンル</label>
-            <select
-              value={genre}
-              onChange={e => setGenre(e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="">指定なし</option>
-              {genreOptions.map(option => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-4 flex justify-end">
-          <Button type="submit" disabled={loading}>
-            <Search className="mr-2 h-4 w-4" />
-            {loading ? '検索中...' : 'この日時で検索'}
-          </Button>
         </div>
       </form>
 
       {loading ? (
-        <div className="rounded-xl border bg-white p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
           空き状況を確認しています…
         </div>
       ) : hasSearched ? (
         <section className="space-y-3">
           {searchSummary && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-slate-500">
               {searchSummary} の検索結果
             </p>
           )}
           {results.length > 0 ? (
             <TalentList talents={results} totalCount={results.length} />
           ) : (
-            <div className="rounded-xl border bg-white p-8 text-center">
-              <p className="font-medium">この時間帯に条件が合う演者は見つかりませんでした</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                時間帯やエリア、ジャンルを変えて検索してください。
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+              <p className="font-bold text-slate-900">条件に合う演者は見つかりませんでした</p>
+              <p className="mt-1 text-sm text-slate-500">
+                時間指定を外すか、エリア・ジャンルを変えて検索してください。
               </p>
             </div>
           )}
         </section>
       ) : (
-        <div className="rounded-xl border border-dashed bg-white/60 p-8 text-center text-sm text-muted-foreground">
-          希望日と開始・終了時刻を入力して検索してください。
+        <div className="rounded-2xl border border-dashed border-slate-200 bg-white/60 p-7 text-center text-sm text-slate-500">
+          希望日を選択して検索してください。時間・エリア・ジャンルは任意です。
         </div>
       )}
     </main>
