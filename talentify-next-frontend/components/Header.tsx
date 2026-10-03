@@ -137,6 +137,9 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
         ? 'talent'
         : undefined)
 
+  const isEventsPage =
+    !!pathname && (pathname === '/events' || pathname.startsWith('/events/'))
+
   const isPublicPage =
     !inferredRole &&
     !!pathname &&
@@ -173,6 +176,52 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
   if (pathname === '/') {
     return null
+  }
+
+  if (isEventsPage) {
+    return (
+      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/96 text-white shadow-[0_8px_30px_rgba(0,0,0,.18)] backdrop-blur-xl">
+        <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
+          <Link href="/events" className="flex min-w-0 items-center gap-2">
+            <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-8 w-auto sm:h-9" />
+            <span className="hidden border-l border-white/15 pl-3 text-xs font-black tracking-[0.08em] text-white/60 sm:inline">
+              来店情報
+            </span>
+          </Link>
+
+          <nav className="flex items-center gap-1 sm:gap-2">
+            {[
+              { href: '/events?view=today', label: '今日' },
+              { href: '/events?view=tomorrow', label: '明日' },
+              { href: '/events?view=week', label: '今週' },
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="inline-flex h-9 items-center rounded-lg px-2.5 text-xs font-black text-white/70 transition hover:bg-white/8 hover:text-white sm:px-3 sm:text-sm"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden shrink-0 sm:block">
+            {!isLoading && userName ? (
+              <Button asChild size="sm" className="rounded-full bg-white text-slate-950 hover:bg-white/90">
+                <Link href="/dashboard">管理画面へ</Link>
+              </Button>
+            ) : (
+              <Link
+                href="/"
+                className="inline-flex h-9 items-center rounded-full border border-white/15 px-3.5 text-xs font-bold text-white/70 transition hover:bg-white/8 hover:text-white"
+              >
+                店舗・演者の方
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
+    )
   }
 
   if (roleNav) {
