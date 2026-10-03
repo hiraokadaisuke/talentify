@@ -603,6 +603,12 @@ export default function HomePage() {
               aria-hidden="true"
               className="raiten-public-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-20"
             />
+            <img
+              src="/images/lp/materials/orange-arrow-elements.webp"
+              alt=""
+              aria-hidden="true"
+              className="raiten-public-arrows pointer-events-none absolute right-[-9%] top-[30%] hidden w-[310px] max-w-none mix-blend-screen opacity-20 sm:block"
+            />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#081426]/54 via-[#081426]/80 to-[#081426]/96" />
 
             <div className="relative z-10 flex items-center justify-between gap-4">

@@ -482,3 +482,19 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenPublicArrows {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: .16; }
+  50% { transform: translate3d(10px, -4px, 0); opacity: .24; }
+}
+
+.raiten-public-arrows {
+  animation: raitenPublicArrows 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-public-arrows {
+    animation: none !important;
+  }
+}
