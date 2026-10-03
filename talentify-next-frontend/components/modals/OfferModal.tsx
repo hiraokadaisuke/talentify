@@ -52,17 +52,51 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
   useEffect(() => {
     if (open) {
       if (initialDate) setVisitDate(formatDate(initialDate))
-      loadTalents()
       loadTemplates()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialDate])
 
+  useEffect(() => {
+    if (!open) return
+    void loadTalents(visitDate, startTime, endTime)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, visitDate, startTime, endTime])
+
   const formatDate = (d: Date) => toJstDateInputValue(d)
 
-  const loadTalents = async () => {
-    const { data, error } = await supabase.from('talents').select('id, stage_name')
-    if (!error && data) setTalents(data)
+  const loadTalents = async (date: string, start: string, end: string) => {
+    if (!date) {
+      setTalents([])
+      setTalentId('')
+      return
+    }
+
+    const params = new URLSearchParams({ date })
+    if (start && end && start < end) {
+      params.set('start', start)
+      params.set('end', end)
+    }
+
+    const response = await fetch(`/api/talents/search-by-date?${params.toString()}`, {
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      console.error('Failed to load available talents')
+      setTalents([])
+      return
+    }
+
+    const data = (await response.json()) as {
+      id: string
+      stage_name: string | null
+    }[]
+
+    setTalents(data)
+    setTalentId(current =>
+      current && data.some(talent => talent.id === current) ? current : ''
+    )
   }
 
   const loadTemplates = () => {
@@ -174,9 +208,12 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     value={talentId}
                     onChange={e => setTalentId(e.target.value)}
                     className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    disabled={!visitDate}
                     required
                   >
-                    <option value="">選択してください</option>
+                    <option value="">
+                      {visitDate ? '選択してください' : '先に希望日を選択してください'}
+                    </option>
                     {talents.map(t => (
                       <option key={t.id} value={t.id}>
                         {t.stage_name || t.id}
@@ -205,6 +242,11 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                   <p>演者: {selectedTalent?.stage_name || selectedTalent?.id || '未選択'}</p>
                   <p>来店日: {visitDate || '未選択'}</p>
                   <p>希望時間帯: {timeRange || '未選択'}</p>
+                  {visitDate && talents.length === 0 && (
+                    <p className="mt-1 font-medium text-amber-700">
+                      この条件で受付可能な演者はいません。
+                    </p>
+                  )}
                 </div>
               </div>
             </section>
