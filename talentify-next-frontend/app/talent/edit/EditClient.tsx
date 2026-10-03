@@ -179,28 +179,6 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     [avatarFile, profile.avatar_url]
   )
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const url = new URL(window.location.href)
-    const socialStatus = url.searchParams.get('social')
-    if (!socialStatus) return
-
-    if (socialStatus === 'tiktok_connected') {
-      toast.success('TikTokを連携しました')
-    } else if (socialStatus === 'tiktok_not_configured') {
-      toast.info('TikTok連携は現在準備中です')
-    } else if (socialStatus === 'tiktok_denied') {
-      toast.info('TikTok連携をキャンセルしました')
-    } else if (socialStatus === 'tiktok_invalid_state') {
-      toast.error('TikTok連携の確認に失敗しました。もう一度お試しください')
-    } else if (socialStatus === 'tiktok_error') {
-      toast.error('TikTok連携に失敗しました。時間をおいてもう一度お試しください')
-    }
-
-    url.searchParams.delete('social')
-    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
-  }, [])
-
   const getMimeAndExt = (file: File) => {
     const ext = file.name.split('.').pop()?.toLowerCase()
     let type = file.type
@@ -543,18 +521,6 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
       if (!phoneResponse.ok) {
         const payload = await phoneResponse.json().catch(() => null)
         throw new Error(payload?.error ?? '電話番号の保存に失敗しました')
-      }
-
-      try {
-        const socialSyncResponse = await fetch('/api/talent/social/sync', {
-          method: 'POST',
-        })
-        if (!socialSyncResponse.ok) {
-          const payload = await socialSyncResponse.json().catch(() => null)
-          console.warn('[profile] social metrics sync skipped', payload)
-        }
-      } catch (syncError) {
-        console.warn('[profile] social metrics sync failed', syncError)
       }
 
       toast.success('保存しました')
@@ -1083,14 +1049,6 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                         autoCorrect="off"
                       />
                       <p className="mt-1.5 text-[11px] leading-4 text-slate-500">{social.help}</p>
-                      {social.platform === 'tiktok' && (
-                        <a
-                          href="/api/talent/social/tiktok/connect"
-                          className="mt-2 inline-flex min-h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3 text-xs font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-[#C2410C]"
-                        >
-                          TikTokと連携してフォロワー数を取得
-                        </a>
-                      )}
                     </div>
                   )
                 })}
@@ -1135,7 +1093,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             </div>
 
             <p className="text-[11px] leading-5 text-slate-500">
-              フォロワー数は公式APIまたは本人のSNS連携から自動取得します。自己申告の数字は使用しません。
+              登録したSNSは店舗側のプロフィールから直接開けます。フォロワー数の入力や連携設定は不要です。
             </p>
           </section>
 
