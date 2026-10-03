@@ -16,7 +16,7 @@ const prefectures = [
   '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
 ]
 
-const GENRE_OPTIONS = ['ライター','アイドル','コスプレ','モデル','その他']
+const GENRE_OPTIONS = ['パチンコ・パチスロ演者','ライター','タレント','インフルエンサー','配信者','アイドル','モデル','コスプレイヤー','その他']
 const minHourOptions = ['1時間','2時間','3時間以上']
 const TIME_OPTIONS = Array.from({ length: 18 }, (_, i) => {
   const hour = i + 6
@@ -211,7 +211,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const validate = (p: typeof profile) => {
     const err: Record<string, string> = {}
     if (!s(p.name).trim()) err.name = '本名は必須です'
-    if (!s(p.stage_name).trim()) err.stage_name = 'ステージ名は必須です'
+    if (!s(p.stage_name).trim()) err.stage_name = '公開名は必須です'
     const normalizedPhone = s(p.phone).replace(/\D/g, '')
     if (p.phone && !/^\d{10,11}$/.test(normalizedPhone)) err.phone = '電話番号は10〜11桁で入力してください'
     if (p.phone_contact_allowed && !normalizedPhone) err.phone = '電話対応を許可するには電話番号が必要です'
@@ -604,7 +604,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             <p className="mb-3 text-xs leading-5 text-slate-600">すべて入力するとプロフィールが公開状態になります。</p>
             <ul className="flex flex-wrap gap-2 text-xs text-slate-700">
               {[
-                { key: 'stage_name', label: 'ステージ名', done: requirements.stage_name },
+                { key: 'stage_name', label: '公開名', done: requirements.stage_name },
                 { key: 'genre', label: 'ジャンル', done: requirements.genre },
                 { key: 'area', label: 'エリア', done: requirements.area },
                 { key: 'rate', label: '報酬', done: requirements.rate },
@@ -652,14 +652,18 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-800">芸名<span className="ml-1 text-red-500">*</span></label>
+              <label className="block text-sm font-medium text-gray-800">公開名（サイト内表示名）<span className="ml-1 text-red-500">*</span></label>
+              <p className="text-sm leading-5 text-gray-500">
+                来店ナビ内のプロフィールや店舗向け画面に表示される名称です。芸名・活動名・本名など、公開したい名称を入力してください。
+              </p>
               <Input
                 type="text"
                 name="stage_name"
                 value={profile.stage_name ?? ''}
                 onChange={handleChange}
                 className={fieldClassName}
-                placeholder="例：ハナコ"
+                placeholder="例：きいち"
+                autoComplete="nickname"
               />
               {errors.stage_name && <p className="text-sm text-red-500">{errors.stage_name}</p>}
             </div>
