@@ -1,7 +1,11 @@
 import Link from 'next/link'
 
 const commonLinks = [
-  ['/', 'ホーム'],
+  ['/', '来店情報トップ'],
+  ['/areas', '地域から探す'],
+  ['/stores', '店舗から探す'],
+  ['/events', '来店情報一覧'],
+  ['/performers', '演者から探す'],
   ['/guide', 'ご利用ガイド'],
   ['/faq', 'よくある質問'],
   ['/pricing', '料金'],
