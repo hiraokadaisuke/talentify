@@ -24,15 +24,24 @@ const TIME_OPTIONS = Array.from({ length: 18 }, (_, i) => {
 })
 
 function splitTimeRange(value?: string | null) {
-  const match = String(value ?? '').match(/^(\d{2}:\d{2})\s*[〜~-]\s*(\d{2}:\d{2})$/)
+  const normalized = String(value ?? '').trim()
+  if (!normalized) return { start: '', end: '' }
+
+  const fullMatch = normalized.match(/^(\d{2}:\d{2})\s*[〜~-]\s*(\d{2}:\d{2})$/)
+  if (fullMatch) {
+    return { start: fullMatch[1], end: fullMatch[2] }
+  }
+
+  const partialMatch = normalized.match(/^(\d{2}:\d{2})?\s*〜\s*(\d{2}:\d{2})?$/)
   return {
-    start: match?.[1] ?? '',
-    end: match?.[2] ?? '',
+    start: partialMatch?.[1] ?? '',
+    end: partialMatch?.[2] ?? '',
   }
 }
 
 function joinTimeRange(start: string, end: string) {
-  return start && end ? `${start}〜${end}` : ''
+  if (!start && !end) return ''
+  return `${start}〜${end}`
 }
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
@@ -122,6 +131,22 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     if (!s(p.genre).trim()) err.genre = 'ジャンルは必須です'
     if (p.area.length === 0) err.area = 'エリアは1つ以上選択してください'
     if (n(p.rate) <= 0) err.rate = '報酬は0より大きい数値を入力してください'
+
+    const availabilityRange = splitTimeRange(p.availability)
+    if ((availabilityRange.start && !availabilityRange.end) || (!availabilityRange.start && availabilityRange.end)) {
+      err.availability = '開始時間と終了時間を両方選択してください'
+    }
+    if (availabilityRange.start && availabilityRange.end && availabilityRange.start >= availabilityRange.end) {
+      err.availability = '終了時間は開始時間より後を選択してください'
+    }
+
+    const phoneRange = splitTimeRange(p.phone_available_hours)
+    if (
+      p.phone_contact_allowed &&
+      ((phoneRange.start && !phoneRange.end) || (!phoneRange.start && phoneRange.end))
+    ) {
+      err.phone_available_hours = '開始時間と終了時間を両方選択してください'
+    }
     const bioLen = s(p.bio).trim().length
     const profileLen = s(p.profile).trim().length
     if (bioLen < 20 && profileLen < 20) {
@@ -712,6 +737,9 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                   </select>
                 </div>
                 <p className="text-xs text-slate-500">電話対応できるおおよその時間帯を設定します。</p>
+                {errors.phone_available_hours && (
+                  <p className="text-sm text-red-500">{errors.phone_available_hours}</p>
+                )}
               </div>
             )}
           </section>
@@ -748,6 +776,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
               <p className="text-xs leading-5 text-slate-500">
                 通常の出演目安です。実際の希望時間はオファーごとに調整できます。
               </p>
+              {errors.availability && <p className="text-sm text-red-500">{errors.availability}</p>}
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">最低拘束時間</label>
