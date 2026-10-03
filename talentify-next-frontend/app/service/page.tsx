@@ -905,10 +905,16 @@ export default function HomePage() {
         style={{ background: '#081426' }}
       >
         <img
+          src="/images/lp/materials/data-network.webp"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-22 mix-blend-screen"
+        />
+        <img
           src="/images/lp/materials/neon-wave-bg.webp"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-14"
         />
         <img
           src="/images/lp/materials/light-ribbon.webp"
@@ -954,6 +960,11 @@ export default function HomePage() {
               </div>
 
               <div className="raiten-ecosystem-hub relative overflow-hidden rounded-[30px] border border-[#FF8A00]/30 bg-[#0B1F3B]/90 p-6 text-center shadow-[0_0_70px_rgba(255,90,31,.16)] backdrop-blur sm:p-8">
+                <div className="pointer-events-none absolute inset-x-5 top-5 flex items-center justify-center gap-2 text-[8px] font-black tracking-[0.14em] text-white/35">
+                  <span className="h-px flex-1 bg-gradient-to-r from-transparent to-white/15" />
+                  STORE ↔ TALENT ↔ PUBLIC
+                  <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/15" />
+                </div>
                 <img
                   src="/images/lp/materials/connection-hub.webp"
                   alt=""
