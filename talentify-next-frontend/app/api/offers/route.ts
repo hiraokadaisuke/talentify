@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth/getCurrentUser'
+import { createServiceClient } from '@/lib/supabase/service'
+import { isDeclaredAvailable } from '@/lib/search/calendarAvailability'
 import {
   createOffer,
   findExistingOfferForCreate,
@@ -142,6 +144,50 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { ok: false, code: 'VALIDATION_ERROR', reason: '希望時間帯を確認してください' },
       { status: 400 }
+    )
+  }
+
+  const service = createServiceClient()
+  const { data: targetTalent, error: targetTalentError } = await service
+    .from('talents')
+    .select('user_id')
+    .eq('id', body.talent_id)
+    .maybeSingle()
+
+  if (targetTalentError || !targetTalent?.user_id) {
+    return NextResponse.json(
+      { ok: false, code: 'TALENT_NOT_FOUND', reason: '演者情報を確認してください' },
+      { status: 404 }
+    )
+  }
+
+  const [{ data: availabilitySettings }, { data: availabilityDate }] = await Promise.all([
+    service
+      .from('talent_availability_settings')
+      .select('default_mode')
+      .eq('user_id', targetTalent.user_id)
+      .maybeSingle(),
+    service
+      .from('talent_availability_dates')
+      .select('status')
+      .eq('user_id', targetTalent.user_id)
+      .eq('the_date', body.date)
+      .maybeSingle(),
+  ])
+
+  if (
+    !isDeclaredAvailable(
+      availabilitySettings?.default_mode,
+      availabilityDate?.status
+    )
+  ) {
+    return NextResponse.json(
+      {
+        ok: false,
+        code: 'TALENT_UNAVAILABLE',
+        reason: 'この日は受付不可に設定されています。別の日を選択してください',
+      },
+      { status: 409 }
     )
   }
 
