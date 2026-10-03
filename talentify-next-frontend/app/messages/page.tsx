@@ -13,8 +13,8 @@ export default function MessagesTopPage() {
   if (loading || !role || (role !== 'store' && role !== 'talent')) return null
 
   return (
-    <main className="p-4">
-      <div className="border-b mb-4 flex space-x-4">
+    <main className="p-4 lg:p-0">
+      <div className="border-b mb-4 flex space-x-4 lg:hidden">
         <Link
           href="/messages?tab=direct"
           className={`px-2 pb-2 border-b-2 ${tabParam === 'direct' ? 'border-[#FF5A1F] font-medium' : 'border-transparent text-gray-500'}`}
