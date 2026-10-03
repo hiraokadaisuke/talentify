@@ -29,14 +29,6 @@ interface OfferModalProps {
   initialDate: Date | null
 }
 
-type Template = {
-  name: string
-  talentId: string
-  message: string
-}
-
-const TEMPLATE_KEY = 'offer_templates'
-
 export default function OfferModal({ open, onOpenChange, initialDate }: OfferModalProps) {
   const supabase = useMemo(() => createClient(), [])
   const [talents, setTalents] = useState<{ id: string; stage_name: string | null }[]>([])
@@ -47,7 +39,6 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
   const [reward, setReward] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [message, setMessage] = useState('')
-  const [templates, setTemplates] = useState<Template[]>([])
   const timeOptions = Array.from({ length: 16 }, (_, i) => {
     const hour = i + 8
     return `${String(hour).padStart(2, '0')}:00`
@@ -60,7 +51,6 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
   useEffect(() => {
     if (open) {
       if (initialDate) setVisitDate(formatDate(initialDate))
-      loadTemplates()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialDate])
@@ -105,30 +95,6 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
     setTalentId(current =>
       current && data.some(talent => talent.id === current) ? current : ''
     )
-  }
-
-  const loadTemplates = () => {
-    try {
-      const t = JSON.parse(localStorage.getItem(TEMPLATE_KEY) || '[]') as Template[]
-      setTemplates(t)
-    } catch {
-      setTemplates([])
-    }
-  }
-
-  const applyTemplate = (index: number) => {
-    const t = templates[index]
-    if (!t) return
-    setTalentId(t.talentId)
-    setMessage(t.message)
-  }
-
-  const saveTemplate = () => {
-    const name = window.prompt('テンプレート名を入力してください')
-    if (!name) return
-    const newTemplates = [...templates, { name, talentId, message }]
-    localStorage.setItem(TEMPLATE_KEY, JSON.stringify(newTemplates))
-    setTemplates(newTemplates)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -253,24 +219,6 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     ))}
                   </select>
                 </div>
-
-                {templates.length > 0 && (
-                  <div>
-                    <label className="mb-1.5 block text-xs font-bold text-slate-700">テンプレート</label>
-                    <select
-                      defaultValue=""
-                      onChange={e => applyTemplate(Number(e.target.value))}
-                      className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
-                    >
-                      <option value="">選択してください</option>
-                      {templates.map((t, i) => (
-                        <option key={i} value={i}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
 
                 <div className="grid gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs sm:grid-cols-3">
                   <div>
@@ -431,36 +379,23 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
             className="mt-0 shrink-0 border-t border-slate-200 bg-white px-3 pt-3 sm:px-6 sm:py-4"
             style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
           >
-            <div className="grid w-full gap-2 sm:grid-cols-[auto_1fr_auto] sm:items-center">
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-10 justify-start px-2 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-800 sm:justify-center"
-                onClick={saveTemplate}
-              >
-                テンプレート保存
-              </Button>
-
-              <div className="hidden sm:block" />
-
-              <div className="grid grid-cols-[auto_1fr] gap-2">
-                <ModalClose asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11 rounded-xl border-slate-300 bg-white px-4 font-bold text-slate-700"
-                  >
-                    キャンセル
-                  </Button>
-                </ModalClose>
+            <div className="grid w-full grid-cols-[auto_1fr] gap-2 sm:ml-auto sm:w-auto sm:min-w-[320px]">
+              <ModalClose asChild>
                 <Button
-                  type="submit"
-                  className="h-11 rounded-xl bg-[#FF5A1F] px-5 font-black text-white shadow-sm hover:bg-[#E94F18] focus-visible:ring-2 focus-visible:ring-[#FF5A1F]/30"
+                  type="button"
+                  variant="outline"
+                  className="h-11 rounded-xl border-slate-300 bg-white px-4 font-bold text-slate-700"
                 >
-                  <Send className="mr-1.5 h-4 w-4" />
-                  オファー送信
+                  キャンセル
                 </Button>
-              </div>
+              </ModalClose>
+              <Button
+                type="submit"
+                className="h-11 rounded-xl bg-[#FF5A1F] px-5 font-black text-white shadow-sm hover:bg-[#E94F18] focus-visible:ring-2 focus-visible:ring-[#FF5A1F]/30"
+              >
+                <Send className="mr-1.5 h-4 w-4" />
+                オファー送信
+              </Button>
             </div>
           </ModalFooter>
         </form>
