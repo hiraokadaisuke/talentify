@@ -221,6 +221,13 @@ export default function HomePage() {
             'radial-gradient(circle at 82% 16%, rgba(255,196,0,.17), transparent 25%), radial-gradient(circle at 70% 48%, rgba(255,59,46,.20), transparent 28%), linear-gradient(135deg, #081426 0%, #0B1F3B 55%, #07111f 100%)',
         }}
       >
+        <img
+          src="/images/lp/materials/future-stage-bg.webp"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-55"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#081426]/95 via-[#081426]/78 to-[#081426]/38" />
         <div className="pointer-events-none absolute -left-24 top-24 h-64 w-64 rounded-full bg-[#FF3B2E]/10 blur-3xl" />
         <div className="pointer-events-none absolute right-[-5rem] top-28 h-80 w-80 rounded-full bg-[#FFC400]/10 blur-3xl" />
 
@@ -473,7 +480,7 @@ export default function HomePage() {
         <div className="mx-auto grid w-full max-w-[1380px] gap-6 lg:grid-cols-2">
           <article id="for-store" className="scroll-mt-24 overflow-hidden rounded-[30px] border border-slate-200 bg-[#F8FAFC]">
             <div className="relative h-[230px] overflow-hidden sm:h-[290px]">
-              <img src="/images/lp/tentyou.png" alt="店舗担当者" className="h-full w-full object-cover object-top" />
+              <img src="/images/lp/materials/office-leader-tablet.webp" alt="店舗担当者" className="h-full w-full object-cover object-center" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3B] via-[#0B1F3B]/25 to-transparent" />
               <div className="absolute bottom-5 left-5">
                 <span className="rounded-full bg-[#FF5A1F] px-3 py-1.5 text-[10px] font-black tracking-[0.14em] text-white">FOR STORES</span>
