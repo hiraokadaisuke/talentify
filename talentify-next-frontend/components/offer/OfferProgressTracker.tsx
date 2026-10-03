@@ -35,14 +35,14 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
   const completedCount = steps.filter(step => step.status === 'complete').length
 
   return (
-    <div className="min-w-0 space-y-2 sm:space-y-3">
+    <div className="min-w-0 space-y-1.5 sm:space-y-3">
       <div className="flex items-center justify-end">
         <span className="text-xs font-medium text-[#64748b]">
           {completedCount}/{steps.length} 完了
         </span>
       </div>
 
-      <div className="space-y-0.5 sm:hidden">
+      <div className="space-y-0 sm:hidden">
         {steps.map((step, index) => {
           const isSelected = step.key === activeStep
           const iconStyles = iconStylesByStatus[step.status]
@@ -52,7 +52,7 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
               {index < steps.length - 1 && (
                 <span
                   className={cn(
-                    'absolute left-[17px] top-9 h-[calc(100%-1.25rem)] w-0.5',
+                    'absolute left-[15px] top-8 h-[calc(100%-1rem)] w-0.5',
                     connectorActive ? 'bg-[#0B1F3B]' : 'bg-slate-200',
                   )}
                   aria-hidden="true"
@@ -62,20 +62,20 @@ export default function OfferProgressTracker({ steps, selectedStep, onStepSelect
                 type="button"
                 onClick={() => onStepSelect?.(step.key)}
                 className={cn(
-                  'relative z-10 flex w-full items-start gap-2.5 rounded-xl px-2 py-1.5 text-left transition-colors',
+                  'relative z-10 flex w-full items-start gap-2 rounded-xl px-1.5 py-1 text-left transition-colors',
                   isSelected ? 'bg-orange-50' : 'hover:bg-slate-50',
                 )}
                 aria-pressed={isSelected}
               >
                 <div
                   className={cn(
-                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white',
+                    'flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white',
                     iconStyles.outer,
                     isSelected && 'ring-2 ring-[#FF8A00]/25 ring-offset-1',
                   )}
                 >
-                  <div className={cn('flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold', iconStyles.inner)}>
-                    {step.status === 'complete' ? <Check className="h-4 w-4" /> : index + 1}
+                  <div className={cn('flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold', iconStyles.inner)}>
+                    {step.status === 'complete' ? <Check className="h-3.5 w-3.5" /> : index + 1}
                   </div>
                 </div>
                 <div className="min-w-0 flex-1 pt-0.5">
