@@ -23,6 +23,7 @@ export default function TalentOfferClient({
 }) {
   const [offer, setOffer] = useState<any>(initialOffer)
   const [actionLoading, setActionLoading] = useState<'decline' | null>(null)
+  const [declineConfirmOpen, setDeclineConfirmOpen] = useState(false)
   const userId = currentUserId
 
   if (!offer) {
@@ -31,6 +32,7 @@ export default function TalentOfferClient({
 
   const handleDecline = async () => {
     if (offer.status !== 'pending') return
+    setDeclineConfirmOpen(false)
     setActionLoading('decline')
     setOffer({ ...offer, status: 'rejected' })
     const response = await fetch(`/api/offers/${offer.id}`, {
@@ -116,7 +118,7 @@ export default function TalentOfferClient({
               noShowReason: offer.noShowReason,
             }}
             invoiceId={invoiceId}
-            onDeclineOffer={handleDecline}
+            onDeclineOffer={() => setDeclineConfirmOpen(true)}
             actionLoading={actionLoading}
           />
         </div>
@@ -173,6 +175,46 @@ export default function TalentOfferClient({
           </div>
         </div>
       </div>
+
+      {declineConfirmOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 p-4 sm:items-center"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setDeclineConfirmOpen(false)
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="decline-confirm-title"
+            className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl"
+          >
+            <h2 id="decline-confirm-title" className="text-lg font-black text-slate-950">
+              このオファーを辞退しますか？
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              辞退すると、この案件の見積書作成には進めません。
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setDeclineConfirmOpen(false)}
+                className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 hover:bg-slate-50"
+              >
+                戻る
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleDecline()}
+                className="min-h-11 rounded-xl bg-slate-900 px-4 text-sm font-bold text-white hover:bg-slate-800"
+              >
+                辞退する
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
