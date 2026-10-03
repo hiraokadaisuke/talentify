@@ -252,6 +252,12 @@ export default async function EventDetailPage({ params }: PageProps) {
               </p>
             )}
             <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href={`/performers/${event.talent.id}`}
+                className="inline-flex min-h-9 items-center rounded-full bg-[#0B1F3B] px-3 text-xs font-black text-white"
+              >
+                この演者の来店予定
+              </Link>
               {twitterUrl && (
                 <a
                   href={twitterUrl}
@@ -304,19 +310,27 @@ export default async function EventDetailPage({ params }: PageProps) {
                 {[event.store.prefecture, event.store.address].filter(Boolean).join(' ')}
               </p>
             )}
-            {event.store.address && (
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                  `${event.store.name} ${event.store.address}`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-[#0B1F3B] px-4 text-xs font-black text-white"
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link
+                href={`/stores/${event.store.id}`}
+                className="inline-flex min-h-10 items-center rounded-xl bg-[#0B1F3B] px-4 text-xs font-black text-white"
               >
-                地図で確認
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            )}
+                この店舗の来店予定
+              </Link>
+              {event.store.address && (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    `${event.store.name} ${event.store.address}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 text-xs font-black text-slate-700"
+                >
+                  地図で確認
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
+            </div>
           </section>
         </div>
 
