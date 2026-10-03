@@ -31,6 +31,7 @@ interface MenuItem {
 const PUBLIC_HEADER_PATHS = new Set([
   '/',
   '/about',
+  '/areas',
   '/column',
   '/contact',
   '/faq',
@@ -42,6 +43,8 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/privacy',
   '/service',
   '/register',
+  '/stores',
+  '/performers',
   '/store',
   '/talent',
   '/terms',
@@ -149,6 +152,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
       pathname.startsWith('/column/') ||
       pathname.startsWith('/news/') ||
       pathname.startsWith('/faq/') ||
+      pathname.startsWith('/stores/') ||
+      pathname.startsWith('/performers/') ||
       pathname.startsWith('/password-reset/'))
 
   const roleNav = inferredRole ? ROLE_MENUS[inferredRole] : null
@@ -192,8 +197,9 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
           <nav className="flex items-center gap-1 sm:gap-2">
             {[
+              { href: '/areas', label: '地域' },
+              { href: '/stores', label: '店舗' },
               { href: '/events?view=today', label: '今日' },
-              { href: '/events?view=tomorrow', label: '明日' },
               { href: '/events?view=week', label: '今週' },
             ].map((item) => (
               <Link
@@ -421,10 +427,10 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   if (isPublicPage) {
     const publicLinks = [
       { href: '/', label: '来店情報' },
-      { href: '/service', label: 'サービス' },
-      { href: '/service#for-store', label: '店舗向け' },
-      { href: '/service#for-talent', label: '演者向け' },
-      { href: '/guide', label: 'ご利用ガイド' },
+      { href: '/areas', label: '地域から探す' },
+      { href: '/stores', label: '店舗から探す' },
+      { href: '/performers', label: '演者から探す' },
+      { href: '/service', label: '店舗・演者の方' },
     ]
 
     return (
@@ -434,32 +440,38 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-9 w-auto sm:h-10" />
           </Link>
 
-          <nav className="hidden items-center gap-6 lg:flex">
-            {publicLinks.map((link) => {
-              const active = pathname === link.href
+          <nav className="flex items-center gap-1 sm:gap-3">
+            {publicLinks.map((link, index) => {
+              const active =
+                pathname === link.href ||
+                (link.href === '/stores' && pathname.startsWith('/stores/')) ||
+                (link.href === '/performers' && pathname.startsWith('/performers/'))
+              const mobileVisible = index === 1 || index === 2
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'text-sm font-bold transition',
-                    active ? 'text-[#FFC400]' : 'text-white/70 hover:text-white',
+                    'rounded-lg px-2 py-2 text-xs font-bold transition sm:px-2.5 sm:text-sm',
+                    mobileVisible ? 'inline-flex' : 'hidden sm:inline-flex',
+                    active ? 'bg-white/10 text-[#FFC400]' : 'text-white/70 hover:bg-white/8 hover:text-white',
                   )}
                 >
-                  {link.label}
+                  <span className="sm:hidden">{link.label.replace('から探す', '')}</span>
+                  <span className="hidden sm:inline">{link.label}</span>
                 </Link>
               )
             })}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 md:flex">
             {!isLoading && userName ? (
               <Button asChild size="sm" className="rounded-full bg-white text-slate-950 hover:bg-white/90">
                 <Link href="/dashboard">ダッシュボード</Link>
               </Button>
             ) : (
               <>
-                <Link href="/login" className="hidden px-3 py-2 text-sm font-bold text-white/70 hover:text-white sm:inline-flex">
+                <Link href="/login" className="px-3 py-2 text-sm font-bold text-white/70 hover:text-white">
                   ログイン
                 </Link>
                 <Link
