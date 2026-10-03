@@ -259,6 +259,7 @@ export default function HomePage() {
             <Link href="#promotion" className="transition hover:text-[#FFC400]">集客支援</Link>
             <Link href="#for-store" className="transition hover:text-[#FFC400]">店舗向け</Link>
             <Link href="#for-talent" className="transition hover:text-[#FFC400]">演者向け</Link>
+            <Link href="#faq" className="transition hover:text-[#FFC400]">よくある質問</Link>
             <Link href="/guide" className="transition hover:text-[#FFC400]">ご利用ガイド</Link>
           </nav>
 
@@ -359,6 +360,12 @@ export default function HomePage() {
                   alt=""
                   aria-hidden="true"
                   className="raiten-hero-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-35"
+                />
+                <img
+                  src="/images/lp/materials/neon-hud-elements.webp"
+                  alt=""
+                  aria-hidden="true"
+                  className="raiten-hero-hud pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-24"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#081426] via-[#081426]/20 to-transparent" />
                 <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#081426]/60 to-transparent" />

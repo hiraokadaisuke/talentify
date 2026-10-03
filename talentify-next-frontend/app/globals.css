@@ -450,3 +450,19 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenHeroHud {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: .18; }
+  50% { transform: translate3d(1.2%, -1%, 0) scale(1.025); opacity: .28; }
+}
+
+.raiten-hero-hud {
+  animation: raitenHeroHud 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-hero-hud {
+    animation: none !important;
+  }
+}
