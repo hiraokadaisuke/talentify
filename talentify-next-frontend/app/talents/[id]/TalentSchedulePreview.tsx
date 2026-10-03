@@ -111,7 +111,7 @@ export default function TalentSchedulePreview({ talentId, onOfferDate }: Props) 
 
   const selectedUnavailable = selectedDate ? unavailable.has(selectedDate) : false
   const selectedPrefectures = selectedDate ? visitsByDate.get(selectedDate) ?? [] : []
-  const hasVisit = selectedPrefectures.length > 0
+  const hasVisit = selectedDate ? visitsByDate.has(selectedDate) : false
 
   return (
     <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
@@ -174,7 +174,7 @@ export default function TalentSchedulePreview({ talentId, onOfferDate }: Props) 
 
                       const isUnavailable = unavailable.has(cell.date)
                       const visitPrefectures = visitsByDate.get(cell.date) ?? []
-                      const hasVisitOnDate = visitPrefectures.length > 0
+                      const hasVisitOnDate = visitsByDate.has(cell.date)
                       const selected = selectedDate === cell.date
 
                       return (
