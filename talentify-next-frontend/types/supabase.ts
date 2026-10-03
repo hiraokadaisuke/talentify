@@ -1072,17 +1072,13 @@ export type Database = {
           display_name: string | null
           genre: string | null
           id: string | null
-          instagram_followers: number | null
-          instagram_followers_updated_at: string | null
+          instagram_url: string | null
           rate: number | null
           rating: number | null
+          social_tiktok: string | null
           stage_name: string | null
-          tiktok_followers: number | null
-          tiktok_followers_updated_at: string | null
-          twitter_followers: number | null
-          twitter_followers_updated_at: string | null
-          youtube_followers: number | null
-          youtube_followers_updated_at: string | null
+          twitter_url: string | null
+          youtube_url: string | null
         }
         Insert: {
           area?: string | null
@@ -1091,17 +1087,13 @@ export type Database = {
           display_name?: string | null
           genre?: string | null
           id?: string | null
-          instagram_followers?: number | null
-          instagram_followers_updated_at?: string | null
+          instagram_url?: string | null
           rate?: number | null
           rating?: number | null
+          social_tiktok?: string | null
           stage_name?: string | null
-          tiktok_followers?: number | null
-          tiktok_followers_updated_at?: string | null
-          twitter_followers?: number | null
-          twitter_followers_updated_at?: string | null
-          youtube_followers?: number | null
-          youtube_followers_updated_at?: string | null
+          twitter_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
           area?: string | null
@@ -1110,17 +1102,13 @@ export type Database = {
           display_name?: string | null
           genre?: string | null
           id?: string | null
-          instagram_followers?: number | null
-          instagram_followers_updated_at?: string | null
+          instagram_url?: string | null
           rate?: number | null
           rating?: number | null
+          social_tiktok?: string | null
           stage_name?: string | null
-          tiktok_followers?: number | null
-          tiktok_followers_updated_at?: string | null
-          twitter_followers?: number | null
-          twitter_followers_updated_at?: string | null
-          youtube_followers?: number | null
-          youtube_followers_updated_at?: string | null
+          twitter_url?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
       }
