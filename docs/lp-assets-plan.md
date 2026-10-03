@@ -23,13 +23,14 @@
 - stage-light-particles.webp — 光粒子
 - talent-stage.webp — 演者向け
 - timeline-glow.webp — フロー・接続表現
+- white-orange-tech-bg.webp — 機能セクションの白×オレンジ背景
 
 ## 次に追加候補
 必要になった時だけ追加する。
 
 
 ## 進め方
-1. 既存15素材でLP本体を完成に近づける
+1. 既存16素材でLP本体を完成に近づける
 2. 足りない箇所だけ追加素材を1枚ずつ投入
 3. PC/SPのレスポンシブ確認
 4. 表示速度・画像容量確認

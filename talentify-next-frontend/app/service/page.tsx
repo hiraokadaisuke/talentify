@@ -463,6 +463,13 @@ export default function HomePage() {
       </section>
 
       <section id="features" className="scroll-mt-24 relative overflow-hidden bg-[#F8FAFC] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <img
+          src="/images/lp/materials/white-orange-tech-bg.webp"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-55"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/84 via-[#F8FAFC]/76 to-[#F8FAFC]/92" />
         <div className="pointer-events-none absolute left-[-10%] top-8 h-64 w-64 rounded-full bg-[#FF5A1F]/8 blur-3xl" />
         <div className="pointer-events-none absolute right-[-6%] bottom-0 h-72 w-72 rounded-full bg-[#FFC400]/8 blur-3xl" />
 
