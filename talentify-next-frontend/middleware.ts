@@ -100,7 +100,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  const res = NextResponse.next({ request: req })
+  const sanitizedRequestHeaders = new Headers(req.headers)
+  sanitizedRequestHeaders.delete('x-raiten-user-id')
+  sanitizedRequestHeaders.delete('x-raiten-user-role')
+  sanitizedRequestHeaders.delete('x-raiten-user-status')
+
+  const res = NextResponse.next({
+    request: { headers: sanitizedRequestHeaders },
+  })
   const supabase = createMiddlewareClient(req, res)
   const {
     data: { user },
@@ -115,6 +122,8 @@ export async function middleware(req: NextRequest) {
     '/notifications',
     '/account/',
     '/admin',
+    '/search',
+    '/talents',
   ].some((prefix) => pathname.startsWith(prefix))
 
   if (!user) {
@@ -176,6 +185,13 @@ export async function middleware(req: NextRequest) {
     return redirectWithCookies(req, res, homeForRole(role))
   }
 
+  if (
+    (pathname === '/search' || pathname.startsWith('/search/') || pathname === '/talents') &&
+    role !== 'store'
+  ) {
+    return redirectWithCookies(req, res, homeForRole(role))
+  }
+
   if (pathname.startsWith('/app')) {
     return redirectWithCookies(req, res, '/dashboard')
   }
@@ -194,5 +210,8 @@ export const config = {
     '/notifications/:path*',
     '/account/:path*',
     '/admin/:path*',
+    '/search/:path*',
+    '/talents/:path*',
+    '/api/notifications/:path*',
   ],
 }
