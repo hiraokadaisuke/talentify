@@ -263,7 +263,7 @@ export default function OfferChatThread({
   return (
     <div
       className={cn(
-        'flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:min-h-[420px]',
+        'flex h-full min-h-[280px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:min-h-[420px]',
         className,
       )}
     >
@@ -288,7 +288,11 @@ export default function OfferChatThread({
               既読状態を再同期
             </button>
           )}
-          <span className="text-[10px] text-[#9CA3AF] sm:text-xs">最終更新: {formatTimestamp(lastUpdatedAt)}</span>
+          {lastUpdatedAt && (
+            <span className="text-[10px] text-[#9CA3AF] sm:text-xs">
+              最終更新: {formatTimestamp(lastUpdatedAt)}
+            </span>
+          )}
         </div>
       </div>
       <div
@@ -335,9 +339,11 @@ export default function OfferChatThread({
           </div>
         )}
         {!loading && !loadError && messages.length === 0 && (
-          <p className="text-center text-sm leading-relaxed text-slate-500">
-            このオファーに関する連絡はまだありません。下の入力欄からメッセージを送信しましょう。
-          </p>
+          <div className="mx-auto flex min-h-[84px] max-w-sm items-center justify-center px-3 text-center">
+            <p className="text-sm leading-6 text-slate-500">
+              まだメッセージはありません。必要な確認や相談があれば、下から送信できます。
+            </p>
+          </div>
         )}
         {!loadError && <div className="flex flex-col gap-2.5">
           {messages.map((m, index) => {
