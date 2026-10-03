@@ -389,11 +389,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="features" className="scroll-mt-24 bg-[#F8FAFC] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <div className="mx-auto w-full max-w-[1380px]">
+      <section id="features" className="scroll-mt-24 relative overflow-hidden bg-[#F8FAFC] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <div className="pointer-events-none absolute left-[-10%] top-8 h-64 w-64 rounded-full bg-[#FF5A1F]/8 blur-3xl" />
+        <div className="pointer-events-none absolute right-[-6%] bottom-0 h-72 w-72 rounded-full bg-[#FFC400]/8 blur-3xl" />
+
+        <div className="relative mx-auto w-full max-w-[1380px]">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-xs font-black tracking-[0.2em] text-[#FF5A1F]">CORE FUNCTIONS</p>
-            <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">来店案件に必要な流れを、ひとつに。</h2>
+            <div className="mx-auto mb-4 flex w-fit items-center gap-2 rounded-full border border-orange-100 bg-white px-3 py-1.5 shadow-sm">
+              <span className="raiten-energy-dot h-2 w-2 rounded-full bg-[#FF5A1F]" />
+              <p className="text-[10px] font-black tracking-[0.2em] text-[#FF5A1F] sm:text-xs">CORE FUNCTIONS</p>
+            </div>
+            <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">来店案件に必要な流れを、ひとつに。</h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
               探す・相談する・条件を決める・実施する・支払いを確認する。バラバラになりやすい来店案件の情報をまとめます。
             </p>
@@ -405,19 +411,38 @@ export default function HomePage() {
               return (
                 <article
                   key={feature.title}
-                  className="group rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,.05)] transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(255,90,31,.10)]"
+                  className="raiten-feature-card group relative overflow-visible rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,.05)] transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(255,90,31,.12)]"
                 >
+                  <div className="absolute inset-x-0 top-0 h-[3px] overflow-hidden rounded-t-[24px] bg-slate-100">
+                    <div className="raiten-card-energy h-full w-1/2 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+                  </div>
+
                   <div className="flex items-center justify-between">
-                    <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
+                    <span className="raiten-icon-pulse grid h-11 w-11 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
                       <Icon className="h-5 w-5" />
                     </span>
                     <span className="text-xs font-black text-slate-300">{String(index + 1).padStart(2, '0')}</span>
                   </div>
                   <h3 className="mt-5 text-lg font-black text-slate-950">{feature.title}</h3>
                   <p className="mt-2 text-sm font-medium leading-7 text-slate-600">{feature.description}</p>
+
+                  {index < coreFeatures.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className="raiten-flow-arrow pointer-events-none absolute -right-[18px] top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-orange-100 bg-white text-[#FF5A1F] shadow-[0_8px_20px_rgba(255,90,31,.14)] xl:flex"
+                    >
+                      <ArrowRight className="h-4 w-4" />
+                    </span>
+                  )}
                 </article>
               )
             })}
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2 text-[11px] font-black tracking-[0.12em] text-slate-400">
+            <span className="h-px w-8 bg-slate-200" />
+            ONE FLOW, ONE PLATFORM
+            <span className="h-px w-8 bg-slate-200" />
           </div>
         </div>
       </section>
