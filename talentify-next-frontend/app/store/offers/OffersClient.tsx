@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { AlertCircle, ArrowUpDown, RotateCcw } from 'lucide-react'
+import { AlertCircle, ArrowUpDown, ChevronDown, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { getOffersForStore, Offer } from '@/utils/getOffersForStore'
 import { getOfferProgress } from '@/utils/offerProgress'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -18,7 +18,7 @@ const statusLabels: Record<string, string> = {
   confirmed: '承諾済',
   canceled: 'キャンセル済み',
   no_show: '来店なし',
-  rejected: '拒否',
+  rejected: '辞退',
   completed: '来店完',
   expired: '期限切れ',
 }
@@ -62,6 +62,7 @@ export default function StoreOffersClient({
   const [dateTo, setDateTo] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>('visit')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   const loadOffers = useCallback(async () => {
     setLoading(true)
@@ -156,6 +157,12 @@ export default function StoreOffersClient({
     Boolean(dateFrom) ||
     Boolean(dateTo)
 
+  const activeFilterCount =
+    (searchWord.trim() ? 1 : 0) +
+    (statusFilter !== 'all' ? 1 : 0) +
+    (dateFrom ? 1 : 0) +
+    (dateTo ? 1 : 0)
+
   const resetFilters = () => {
     setSearchWord('')
     setStatusFilter('all')
@@ -175,12 +182,12 @@ export default function StoreOffersClient({
           <p className="mt-1 text-sm text-[#64748b]">来店予定・進捗状況を一覧で確認できます。</p>
         </header>
 
-        <section className="space-y-3 rounded-2xl border border-[#e2e8f0] bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] md:p-4">
+        <section className="space-y-3 rounded-2xl border border-[#e2e8f0] bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)]">
           <div className="flex flex-wrap gap-2 border-b border-[#e2e8f0] pb-2">
             {([
               { key: 'active', label: '進行中', count: tabCounts.active },
               { key: 'history', label: '履歴', count: tabCounts.history },
-              { key: 'cancel', label: '中止・来店なし', count: tabCounts.cancel },
+              { key: 'cancel', label: 'キャンセル', count: tabCounts.cancel },
             ] as const).map(item => (
               <button
                 key={item.key}
@@ -198,45 +205,107 @@ export default function StoreOffersClient({
             ))}
           </div>
 
-          <div className={styles.filterBar}>
-            <label className="flex w-full min-w-0 flex-1 flex-col gap-1 text-xs text-[#64748b] sm:min-w-[180px]">
-              演者名検索
-              <input
-                value={searchWord}
-                onChange={event => setSearchWord(event.target.value)}
-                className="h-9 rounded-md border border-[#e2e8f0] bg-white px-3 text-sm text-[#334155]"
-                placeholder="演者名で検索"
-              />
-            </label>
-            <label className="flex w-full min-w-0 flex-col gap-1 text-xs text-[#64748b] sm:w-auto sm:min-w-[140px]">
-              ステータス
-              <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]">
-                <option value="all">すべて</option>
-                {Object.entries(statusLabels).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </label>
-            <label className="flex min-w-[150px] flex-col gap-1 text-xs text-[#64748b]">
-              開始日
-              <input type="date" value={dateFrom} onChange={event => setDateFrom(event.target.value)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]" />
-            </label>
-            <label className="flex min-w-[150px] flex-col gap-1 text-xs text-[#64748b]">
-              終了日
-              <input type="date" value={dateTo} onChange={event => setDateTo(event.target.value)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]" />
-            </label>
-            <label className="flex min-w-[160px] flex-col gap-1 text-xs text-[#64748b]">
-              並び替え
-              <select value={sortKey} onChange={event => setSortKey(event.target.value as SortKey)} className="h-9 rounded-md border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]">
-                <option value="visit">来店日</option>
-                <option value="updated">更新日</option>
-                <option value="created">作成日</option>
-              </select>
-            </label>
-            <button type="button" onClick={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))} className="inline-flex h-9 items-center gap-1 rounded-md border border-[#e2e8f0] bg-white px-3 text-sm font-medium text-[#334155] hover:bg-[#f1f5f9]">
-              <ArrowUpDown className="h-4 w-4" />
-              {sortOrder === 'asc' ? '昇順' : '降順'}
-            </button>
+          <div className="rounded-xl border border-[#e2e8f0] bg-[#f8fafc]">
+            <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+              <button
+                type="button"
+                onClick={() => setFiltersOpen(open => !open)}
+                className="inline-flex min-h-9 items-center gap-2 text-sm font-semibold text-[#334155]"
+                aria-expanded={filtersOpen}
+              >
+                <SlidersHorizontal className="h-4 w-4 text-[#64748b]" />
+                絞り込み・並び替え
+                {activeFilterCount > 0 && (
+                  <span className="rounded-full bg-[#FF5A1F] px-2 py-0.5 text-[10px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+                <ChevronDown className={`h-4 w-4 text-[#94a3b8] transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="text-xs font-semibold text-[#64748b] hover:text-[#C2410C]"
+                >
+                  リセット
+                </button>
+              )}
+            </div>
+
+            {filtersOpen && (
+              <div className="grid gap-3 border-t border-[#e2e8f0] p-3 sm:grid-cols-2 lg:grid-cols-6">
+                <label className="flex min-w-0 flex-col gap-1 text-xs text-[#64748b] sm:col-span-2">
+                  演者名検索
+                  <input
+                    value={searchWord}
+                    onChange={event => setSearchWord(event.target.value)}
+                    className="h-10 rounded-xl border border-[#e2e8f0] bg-white px-3 text-sm text-[#334155] outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+                    placeholder="演者名で検索"
+                  />
+                </label>
+
+                <label className="flex min-w-0 flex-col gap-1 text-xs text-[#64748b]">
+                  ステータス
+                  <select
+                    value={statusFilter}
+                    onChange={event => setStatusFilter(event.target.value)}
+                    className="h-10 rounded-xl border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155] outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+                  >
+                    <option value="all">すべて</option>
+                    {Object.entries(statusLabels).map(([value, label]) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="flex min-w-0 flex-col gap-1 text-xs text-[#64748b]">
+                  来店日
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1.5">
+                    <input
+                      type="date"
+                      aria-label="開始日"
+                      value={dateFrom}
+                      onChange={event => setDateFrom(event.target.value)}
+                      className="h-10 min-w-0 rounded-xl border border-[#e2e8f0] bg-white px-2 text-xs text-[#334155]"
+                    />
+                    <span className="text-[#94a3b8]">〜</span>
+                    <input
+                      type="date"
+                      aria-label="終了日"
+                      value={dateTo}
+                      onChange={event => setDateTo(event.target.value)}
+                      className="h-10 min-w-0 rounded-xl border border-[#e2e8f0] bg-white px-2 text-xs text-[#334155]"
+                    />
+                  </div>
+                </label>
+
+                <label className="flex min-w-0 flex-col gap-1 text-xs text-[#64748b]">
+                  並び替え
+                  <select
+                    value={sortKey}
+                    onChange={event => setSortKey(event.target.value as SortKey)}
+                    className="h-10 rounded-xl border border-[#e2e8f0] bg-white px-2 text-sm text-[#334155]"
+                  >
+                    <option value="visit">来店日</option>
+                    <option value="updated">更新日</option>
+                    <option value="created">作成日</option>
+                  </select>
+                </label>
+
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))}
+                    className="inline-flex h-10 w-full items-center justify-center gap-1 rounded-xl border border-[#e2e8f0] bg-white px-3 text-sm font-medium text-[#334155] hover:bg-[#f1f5f9]"
+                  >
+                    <ArrowUpDown className="h-4 w-4" />
+                    {sortOrder === 'asc' ? '昇順' : '降順'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {loading ? (
@@ -346,7 +415,7 @@ export default function StoreOffersClient({
                 {processed.map(o => (
                   <article
                     key={o.id}
-                    className="cursor-pointer rounded-2xl border border-[#e2e8f0] bg-white p-4 shadow-[0_8px_20px_rgba(15,23,42,.05)] active:bg-orange-50/40"
+                    className="cursor-pointer rounded-2xl border border-[#e2e8f0] bg-white p-3.5 shadow-[0_8px_20px_rgba(15,23,42,.05)] active:bg-orange-50/40"
                     onClick={() => handleRowClick(o.id)}
                   >
                     <div className="flex items-center justify-between">
