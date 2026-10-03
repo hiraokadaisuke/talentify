@@ -287,7 +287,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                 <div className="space-y-2.5 text-sm">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">取引条件</p>
                   {[
-                    { icon: MapPin, label: '拠点地域', value: talent.residence || '要相談' },
+                    { icon: MapPin, label: '活動拠点', value: talent.residence || '未設定' },
                     { icon: Clock3, label: '出演可能時間', value: talent.availability || '要相談' },
                     { icon: Timer, label: '最低拘束時間', value: talent.min_hours || '要相談' },
                     { icon: Bus, label: '交通費', value: talent.transportation || '要相談' },
@@ -318,7 +318,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                   <div className="space-y-2.5 border-t border-slate-100 pt-3">
                     {talent.area.length > 0 && (
                       <div>
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">対応エリア</p>
+                        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">来店可能エリア</p>
                         <div className="flex flex-wrap gap-1.5">
                           {talent.area.map(p => (
                             <Badge key={p} variant="secondary" className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-700">
