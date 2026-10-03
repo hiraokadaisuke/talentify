@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_auth_user_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          admin_auth_user_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          admin_auth_user_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
+      admin_users: {
+        Row: {
+          auth_user_id: string
+          created_at: string
+          is_active: boolean
+        }
+        Insert: {
+          auth_user_id: string
+          created_at?: string
+          is_active?: boolean
+        }
+        Update: {
+          auth_user_id?: string
+          created_at?: string
+          is_active?: boolean
+        }
+        Relationships: []
+      }
       contact_inquiries: {
         Row: {
           category: string
@@ -56,6 +104,7 @@ export type Database = {
       invoices: {
         Row: {
           amount: number
+          contract_snapshot: Json | null
           created_at: string | null
           due_date: string | null
           extra_fee: number | null
@@ -74,6 +123,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          contract_snapshot?: Json | null
           created_at?: string | null
           due_date?: string | null
           extra_fee?: number | null
@@ -92,6 +142,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          contract_snapshot?: Json | null
           created_at?: string | null
           due_date?: string | null
           extra_fee?: number | null
@@ -236,8 +287,8 @@ export type Database = {
           created_at: string
           id: string
           offer_id: string | null
-          receiver_user: string | null
           read_at: string | null
+          receiver_user: string | null
           sender_role: string
           sender_user: string
         }
@@ -247,8 +298,8 @@ export type Database = {
           created_at?: string
           id?: string
           offer_id?: string | null
-          receiver_user?: string | null
           read_at?: string | null
+          receiver_user?: string | null
           sender_role: string
           sender_user: string
         }
@@ -258,8 +309,8 @@ export type Database = {
           created_at?: string
           id?: string
           offer_id?: string | null
-          receiver_user?: string | null
           read_at?: string | null
+          receiver_user?: string | null
           sender_role?: string
           sender_user?: string
         }
@@ -311,9 +362,6 @@ export type Database = {
           canceled_by_user_id: string | null
           cancellation_reason: string | null
           cancellation_stage: string | null
-          no_show_at: string | null
-          no_show_reason: string | null
-          no_show_reported_by_user_id: string | null
           contract_url: string | null
           created_at: string | null
           date: string
@@ -326,6 +374,9 @@ export type Database = {
           invoice_url: string | null
           is_read_by_talent: boolean | null
           message: string | null
+          no_show_at: string | null
+          no_show_reason: string | null
+          no_show_reported_by_user_id: string | null
           notes: string | null
           paid: boolean | null
           paid_at: string | null
@@ -339,6 +390,7 @@ export type Database = {
           time_range: string
           updated_at: string | null
           user_id: string | null
+          visit_completed_at: string | null
         }
         Insert: {
           accepted_at?: string | null
@@ -348,9 +400,6 @@ export type Database = {
           canceled_by_user_id?: string | null
           cancellation_reason?: string | null
           cancellation_stage?: string | null
-          no_show_at?: string | null
-          no_show_reason?: string | null
-          no_show_reported_by_user_id?: string | null
           contract_url?: string | null
           created_at?: string | null
           date: string
@@ -363,6 +412,9 @@ export type Database = {
           invoice_url?: string | null
           is_read_by_talent?: boolean | null
           message?: string | null
+          no_show_at?: string | null
+          no_show_reason?: string | null
+          no_show_reported_by_user_id?: string | null
           notes?: string | null
           paid?: boolean | null
           paid_at?: string | null
@@ -376,6 +428,7 @@ export type Database = {
           time_range: string
           updated_at?: string | null
           user_id?: string | null
+          visit_completed_at?: string | null
         }
         Update: {
           accepted_at?: string | null
@@ -385,9 +438,6 @@ export type Database = {
           canceled_by_user_id?: string | null
           cancellation_reason?: string | null
           cancellation_stage?: string | null
-          no_show_at?: string | null
-          no_show_reason?: string | null
-          no_show_reported_by_user_id?: string | null
           contract_url?: string | null
           created_at?: string | null
           date?: string
@@ -400,6 +450,9 @@ export type Database = {
           invoice_url?: string | null
           is_read_by_talent?: boolean | null
           message?: string | null
+          no_show_at?: string | null
+          no_show_reason?: string | null
+          no_show_reported_by_user_id?: string | null
           notes?: string | null
           paid?: boolean | null
           paid_at?: string | null
@@ -413,6 +466,7 @@ export type Database = {
           time_range?: string
           updated_at?: string | null
           user_id?: string | null
+          visit_completed_at?: string | null
         }
         Relationships: [
           {
@@ -496,6 +550,46 @@ export type Database = {
           },
           {
             foreignKeyName: "fk_reviews_talent_id"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_favorite_talents: {
+        Row: {
+          created_at: string
+          store_id: string
+          talent_id: string
+        }
+        Insert: {
+          created_at?: string
+          store_id: string
+          talent_id: string
+        }
+        Update: {
+          created_at?: string
+          store_id?: string
+          talent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_favorite_talents_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_favorite_talents_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_favorite_talents_talent_id_fkey"
             columns: ["talent_id"]
             isOneToOne: false
             referencedRelation: "talents"
@@ -605,6 +699,48 @@ export type Database = {
         }
         Relationships: []
       }
+      talent_billing_profiles: {
+        Row: {
+          billing_address: string | null
+          billing_name: string | null
+          invoice_registration_number: string | null
+          talent_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_address?: string | null
+          billing_name?: string | null
+          invoice_registration_number?: string | null
+          talent_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_address?: string | null
+          billing_name?: string | null
+          invoice_registration_number?: string | null
+          talent_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_billing_profiles_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: true
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_billing_profiles_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: true
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       talent_payout_accounts: {
         Row: {
           account_holder: string | null
@@ -674,6 +810,8 @@ export type Database = {
           height_cm: number | null
           id: string
           instagram: string | null
+          instagram_followers: number | null
+          instagram_followers_updated_at: string | null
           instagram_url: string | null
           is_profile_complete: boolean | null
           is_setup_complete: boolean | null
@@ -684,8 +822,8 @@ export type Database = {
           notes: string | null
           phone_available_hours: string | null
           phone_contact_allowed: boolean
-          preferred_contact_method: string
           photos: string[] | null
+          preferred_contact_method: string
           profile: string | null
           rate: number | null
           rating: number | null
@@ -694,13 +832,19 @@ export type Database = {
           social_links: string[] | null
           social_tiktok: string | null
           stage_name: string | null
+          tiktok_followers: number | null
+          tiktok_followers_updated_at: string | null
           transportation: string | null
           twitter: string | null
+          twitter_followers: number | null
+          twitter_followers_updated_at: string | null
           twitter_url: string | null
           updated_at: string | null
           user_id: string | null
           video_url: string | null
           youtube: string | null
+          youtube_followers: number | null
+          youtube_followers_updated_at: string | null
           youtube_url: string | null
         }
         Insert: {
@@ -723,6 +867,8 @@ export type Database = {
           height_cm?: number | null
           id?: string
           instagram?: string | null
+          instagram_followers?: number | null
+          instagram_followers_updated_at?: string | null
           instagram_url?: string | null
           is_profile_complete?: boolean | null
           is_setup_complete?: boolean | null
@@ -733,8 +879,8 @@ export type Database = {
           notes?: string | null
           phone_available_hours?: string | null
           phone_contact_allowed?: boolean
-          preferred_contact_method?: string
           photos?: string[] | null
+          preferred_contact_method?: string
           profile?: string | null
           rate?: number | null
           rating?: number | null
@@ -743,13 +889,19 @@ export type Database = {
           social_links?: string[] | null
           social_tiktok?: string | null
           stage_name?: string | null
+          tiktok_followers?: number | null
+          tiktok_followers_updated_at?: string | null
           transportation?: string | null
           twitter?: string | null
+          twitter_followers?: number | null
+          twitter_followers_updated_at?: string | null
           twitter_url?: string | null
           updated_at?: string | null
           user_id?: string | null
           video_url?: string | null
           youtube?: string | null
+          youtube_followers?: number | null
+          youtube_followers_updated_at?: string | null
           youtube_url?: string | null
         }
         Update: {
@@ -772,6 +924,8 @@ export type Database = {
           height_cm?: number | null
           id?: string
           instagram?: string | null
+          instagram_followers?: number | null
+          instagram_followers_updated_at?: string | null
           instagram_url?: string | null
           is_profile_complete?: boolean | null
           is_setup_complete?: boolean | null
@@ -782,8 +936,8 @@ export type Database = {
           notes?: string | null
           phone_available_hours?: string | null
           phone_contact_allowed?: boolean
-          preferred_contact_method?: string
           photos?: string[] | null
+          preferred_contact_method?: string
           profile?: string | null
           rate?: number | null
           rating?: number | null
@@ -792,13 +946,19 @@ export type Database = {
           social_links?: string[] | null
           social_tiktok?: string | null
           stage_name?: string | null
+          tiktok_followers?: number | null
+          tiktok_followers_updated_at?: string | null
           transportation?: string | null
           twitter?: string | null
+          twitter_followers?: number | null
+          twitter_followers_updated_at?: string | null
           twitter_url?: string | null
           updated_at?: string | null
           user_id?: string | null
           video_url?: string | null
           youtube?: string | null
+          youtube_followers?: number | null
+          youtube_followers_updated_at?: string | null
           youtube_url?: string | null
         }
         Relationships: []
@@ -809,9 +969,12 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          legal_accepted_at: string | null
           phone: string | null
+          privacy_version: string | null
           role: string | null
           status: Database["public"]["Enums"]["user_status"]
+          terms_version: string | null
           updated_at: string
         }
         Insert: {
@@ -819,9 +982,12 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          legal_accepted_at?: string | null
           phone?: string | null
+          privacy_version?: string | null
           role?: string | null
           status?: Database["public"]["Enums"]["user_status"]
+          terms_version?: string | null
           updated_at?: string
         }
         Update: {
@@ -829,9 +995,12 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          legal_accepted_at?: string | null
           phone?: string | null
+          privacy_version?: string | null
           role?: string | null
           status?: Database["public"]["Enums"]["user_status"]
+          terms_version?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -846,9 +1015,17 @@ export type Database = {
           display_name: string | null
           genre: string | null
           id: string | null
+          instagram_followers: number | null
+          instagram_followers_updated_at: string | null
           rate: number | null
           rating: number | null
           stage_name: string | null
+          tiktok_followers: number | null
+          tiktok_followers_updated_at: string | null
+          twitter_followers: number | null
+          twitter_followers_updated_at: string | null
+          youtube_followers: number | null
+          youtube_followers_updated_at: string | null
         }
         Insert: {
           area?: string | null
@@ -857,9 +1034,17 @@ export type Database = {
           display_name?: string | null
           genre?: string | null
           id?: string | null
+          instagram_followers?: number | null
+          instagram_followers_updated_at?: string | null
           rate?: number | null
           rating?: number | null
           stage_name?: string | null
+          tiktok_followers?: number | null
+          tiktok_followers_updated_at?: string | null
+          twitter_followers?: number | null
+          twitter_followers_updated_at?: string | null
+          youtube_followers?: number | null
+          youtube_followers_updated_at?: string | null
         }
         Update: {
           area?: string | null
@@ -868,15 +1053,22 @@ export type Database = {
           display_name?: string | null
           genre?: string | null
           id?: string | null
+          instagram_followers?: number | null
+          instagram_followers_updated_at?: string | null
           rate?: number | null
           rating?: number | null
           stage_name?: string | null
+          tiktok_followers?: number | null
+          tiktok_followers_updated_at?: string | null
+          twitter_followers?: number | null
+          twitter_followers_updated_at?: string | null
+          youtube_followers?: number | null
+          youtube_followers_updated_at?: string | null
         }
         Relationships: []
       }
     }
     Functions: {
-      can_talent_read_store: { Args: { store_id: string }; Returns: boolean }
       get_available_talents: {
         Args: { _date: string }
         Returns: {
@@ -905,6 +1097,7 @@ export type Database = {
       }
       is_offer_blocking: { Args: { _status: string }; Returns: boolean }
       is_self_talent: { Args: { _talent_id: string }; Returns: boolean }
+      next_invoice_number: { Args: never; Returns: string }
       resolve_talent_availability: {
         Args: { _date: string; _talent_id: string }
         Returns: Database["public"]["Enums"]["availability_status"]
