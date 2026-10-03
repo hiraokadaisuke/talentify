@@ -418,3 +418,19 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenFinalRing {
+  0%, 100% { transform: rotate(0deg) scale(1); opacity: .82; }
+  50% { transform: rotate(7deg) scale(1.05); opacity: 1; }
+}
+
+.raiten-final-ring {
+  animation: raitenFinalRing 6.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-final-ring {
+    animation: none !important;
+  }
+}

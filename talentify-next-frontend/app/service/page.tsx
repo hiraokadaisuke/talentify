@@ -1030,7 +1030,19 @@ export default function HomePage() {
       <section id="register" className="scroll-mt-24 relative overflow-hidden border-t border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-[70%] -translate-x-1/2 rounded-full bg-[#FF8A00]/10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <img src="/brand/raiten-navi-icon.svg" alt="" className="mx-auto h-16 w-16 rounded-[20px] shadow-[0_16px_50px_rgba(255,90,31,.2)]" />
+          <div className="relative mx-auto h-28 w-28">
+            <img
+              src="/images/lp/materials/energy-ring.webp"
+              alt=""
+              aria-hidden="true"
+              className="raiten-final-ring pointer-events-none absolute inset-0 h-full w-full object-contain opacity-90"
+            />
+            <img
+              src="/brand/raiten-navi-icon.svg"
+              alt=""
+              className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-[20px] shadow-[0_16px_50px_rgba(255,90,31,.28)]"
+            />
+          </div>
           <p className="mt-5 text-xs font-black tracking-[0.2em] text-[#FFC400]">START RAITEN NAVI</p>
           <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
             来店案件を、もっと進めやすく。
