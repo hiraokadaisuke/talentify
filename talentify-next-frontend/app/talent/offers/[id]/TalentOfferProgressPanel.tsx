@@ -116,6 +116,14 @@ export default function TalentOfferProgressPanel({
         currentStep={initialActiveStep}
         onStepChange={setActiveStep}
       />
+      <StepDetailCard
+        activeStep={activeStep}
+        activeStatus={activeStatus}
+        offer={offer}
+        invoiceId={invoiceId}
+        onDeclineOffer={onDeclineOffer}
+        actionLoading={actionLoading}
+      />
       <SubmittedOfferContentCard
         submittedOffer={{
           preferredDate: offer.date,
@@ -124,14 +132,6 @@ export default function TalentOfferProgressPanel({
           transportationFee: null,
           message: offer.message,
         }}
-      />
-      <StepDetailCard
-        activeStep={activeStep}
-        activeStatus={activeStatus}
-        offer={offer}
-        invoiceId={invoiceId}
-        onDeclineOffer={onDeclineOffer}
-        actionLoading={actionLoading}
       />
       <OfferCancellationSection
         offerId={offer.id}
