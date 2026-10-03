@@ -6,7 +6,7 @@ export default function RouteLoading() {
       aria-live="polite"
       aria-label="ページを読み込んでいます"
     >
-      <div className="mx-auto w-full max-w-6xl animate-pulse space-y-4">
+      <div className="mx-auto w-full max-w-6xl animate-pulse space-y-4 lg:max-w-[1280px]">
         <div className="h-1.5 w-24 rounded-full bg-[#FF8A00]/70" />
         <div className="h-8 w-48 rounded-lg bg-slate-200" />
         <div className="grid gap-4 sm:grid-cols-2">

@@ -555,7 +555,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
   if (loadError) {
     return (
-      <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 sm:py-10">
+      <main className="min-h-screen bg-gray-100 px-4 py-8 sm:px-6 sm:py-10 lg:min-h-0 lg:bg-transparent lg:px-0 lg:py-0">
         <div className="mx-auto w-full max-w-3xl lg:max-w-[1040px]">
           <h1 className="mb-6 text-3xl font-bold tracking-tight">演者プロフィール編集</h1>
           <div

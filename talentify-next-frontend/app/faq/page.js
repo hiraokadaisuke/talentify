@@ -172,7 +172,7 @@ export default function FAQPage() {
   }, [category, query])
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
+    <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14 lg:max-w-5xl">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">FAQ</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">よくある質問</h1>

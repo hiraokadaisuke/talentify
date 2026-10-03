@@ -301,8 +301,8 @@ export default function TalentInvoiceNewPage() {
   const activeStep = currentStep()
 
   return (
-    <main className="bg-slate-50/60 px-3 py-4 sm:px-5 sm:py-6 lg:px-6">
-      <div className="mx-auto grid min-w-0 max-w-[1180px] grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
+    <main className="bg-slate-50/60 px-3 py-4 sm:px-5 sm:py-6 lg:bg-transparent lg:px-0 lg:py-0">
+      <div className="mx-auto grid min-w-0 max-w-[1180px] grid-cols-1 lg:max-w-[1280px] gap-4 sm:gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] lg:col-span-2">
           <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
