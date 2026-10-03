@@ -1,8 +1,14 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { CalendarDays, Clock3, MapPin, Search, UserRound } from 'lucide-react'
 import { getPublicEvents, toTokyoDateKey, type PublicEvent } from '@/lib/events/publicEvents'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: '来店情報｜来店ナビ',
+  description: '今日・明日・今週の演者来店予定を、日付や地域から探せる来店ナビの一般向け来店情報ページです。',
+}
 
 type SearchParams = {
   view?: string
