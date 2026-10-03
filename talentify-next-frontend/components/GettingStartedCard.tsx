@@ -42,7 +42,7 @@ const STEP_CONFIG = {
     {
       key: 'schedule',
       title: 'スケジュールを設定する',
-      description: '出演できる日・難しい日を登録します。',
+      description: '基本は受付可能です。受付できない日だけ設定します。',
       href: '/talent/schedule',
     },
     {
