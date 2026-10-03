@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { CalendarDays, Clock3, MapPin, Search, UserRound } from 'lucide-react'
 import { getPublicEvents, toTokyoDateKey, type PublicEvent } from '@/lib/events/publicEvents'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 type SearchParams = {
   view?: string
