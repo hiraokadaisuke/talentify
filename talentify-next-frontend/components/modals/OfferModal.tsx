@@ -318,7 +318,8 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     value={visitDate}
                     min={minVisitDate}
                     onChange={e => setVisitDate(e.target.value)}
-                    className="block h-11 w-full min-w-0 max-w-full overflow-hidden rounded-xl border-slate-300 bg-white text-base font-medium"
+                    className="block h-10 w-full min-w-0 max-w-full overflow-hidden rounded-xl border-slate-300 bg-white py-0 text-sm font-medium sm:h-11 sm:text-base"
+                    style={{ minHeight: '2.5rem', maxHeight: '2.5rem' }}
                     required
                   />
                 </div>
