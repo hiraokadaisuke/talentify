@@ -7,7 +7,7 @@ export default async function SearchTalentsPage() {
   const supabase = createClient() as SupabaseClient<any>
   const { data, error } = await supabase
     .from('public_talent_profiles')
-    .select('id, stage_name, genre, area, avatar_url, rate, rating, bio, display_name')
+    .select('id, stage_name, genre, area, avatar_url, rate, rating, bio, display_name, twitter_followers, twitter_followers_updated_at, instagram_followers, instagram_followers_updated_at, youtube_followers, youtube_followers_updated_at, tiktok_followers, tiktok_followers_updated_at')
     .returns<PublicTalent[]>()
 
   if (error) {
