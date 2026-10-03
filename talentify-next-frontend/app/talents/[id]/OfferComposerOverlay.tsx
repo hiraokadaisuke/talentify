@@ -25,6 +25,7 @@ type OfferComposerOverlayProps = {
   talentId: string
   summary: OfferTargetSummary
   onSuccess: () => void
+  initialDate?: string | null
 }
 
 const supabase = createClient()
@@ -39,6 +40,7 @@ export default function OfferComposerOverlay({
   talentId,
   summary,
   onSuccess,
+  initialDate = null,
 }: OfferComposerOverlayProps) {
   const [isMobile, setIsMobile] = useState(false)
   const [message, setMessage] = useState('')
@@ -61,6 +63,12 @@ export default function OfferComposerOverlay({
 
   const timeRange = startTime && endTime ? `${startTime}〜${endTime}` : ''
   const minVisitDate = getTodayJstDateString()
+
+  useEffect(() => {
+    if (open && initialDate) {
+      setVisitDate(initialDate)
+    }
+  }, [initialDate, open])
 
   useEffect(() => {
     const updateViewport = () => {
