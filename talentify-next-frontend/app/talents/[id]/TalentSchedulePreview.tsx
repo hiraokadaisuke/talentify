@@ -114,7 +114,7 @@ export default function TalentSchedulePreview({ talentId, onOfferDate }: Props) 
   const hasVisit = selectedDate ? visitsByDate.has(selectedDate) : false
 
   return (
-    <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+    <section className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export default function TalentSchedulePreview({ talentId, onOfferDate }: Props) 
       </div>
 
       {loading ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[0, 1, 2, 3].map(item => (
             <div key={item} className="h-56 animate-pulse rounded-xl bg-slate-100" />
           ))}
@@ -153,11 +153,11 @@ export default function TalentSchedulePreview({ talentId, onOfferDate }: Props) 
         </div>
       ) : (
         <>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-4">
             {months.map(({ year, monthIndex }) => {
               const cells = getMonthGrid(year, monthIndex)
               return (
-                <div key={`${year}-${monthIndex}`} className="rounded-xl border border-slate-200 p-3">
+                <div key={`${year}-${monthIndex}`} className="rounded-xl border border-slate-200 p-3 lg:p-3.5">
                   <p className="mb-2 text-center text-sm font-bold text-slate-900">
                     {year}年{monthIndex + 1}月
                   </p>

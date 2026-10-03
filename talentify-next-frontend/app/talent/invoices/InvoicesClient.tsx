@@ -61,7 +61,7 @@ export default function TalentInvoicesClient({
         </div>
         <div className='h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]' />
       </section>
-      <section className='rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5'>
+      <section className='rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-5 lg:p-4'>
       {loading ? (
         <TableSkeleton rows={3} />
       ) : loadError ? (
@@ -116,7 +116,7 @@ export default function TalentInvoicesClient({
           </div>
           <div className='hidden overflow-x-auto md:block'>
             <Table>
-              <TableHeader>
+              <TableHeader className='bg-slate-50'>
             <TableRow>
               <TableHead>作成日</TableHead>
               <TableHead>金額</TableHead>

@@ -232,7 +232,7 @@ function Fields({
   items: Array<[string, unknown]>
 }) {
   return (
-    <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
+    <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
       {items.map(([label, value]) => (
         <div key={label}>
           <dt className="text-[11px] font-semibold text-slate-400">{label}</dt>
@@ -639,7 +639,7 @@ export default function AdminDetailPanel({
         className="absolute inset-0 cursor-default"
         onClick={onClose}
       />
-      <div className="relative h-full w-full max-w-3xl overflow-y-auto bg-slate-50 shadow-2xl">
+      <div className="relative h-full w-full max-w-3xl overflow-y-auto bg-slate-50 shadow-2xl lg:max-w-5xl xl:max-w-[1100px]">
         <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
@@ -667,7 +667,7 @@ export default function AdminDetailPanel({
           </div>
         </div>
 
-        <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6 lg:p-7">
           {loading && (
             <div className="grid min-h-64 place-items-center">
               <div className="text-center text-sm text-slate-500">

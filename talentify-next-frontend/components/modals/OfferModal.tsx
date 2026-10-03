@@ -167,7 +167,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent className="flex max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl sm:w-full">
+      <ModalContent className="flex max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-2xl flex-col overflow-hidden lg:max-w-4xl lg:max-h-[calc(100vh-4rem)] rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl sm:w-full">
         <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
         <ModalHeader className="mb-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
@@ -187,8 +187,8 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
         </ModalHeader>
 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-[#F8FAFC] px-3 py-4 sm:px-6 sm:py-5">
-            <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain bg-[#F8FAFC] px-3 py-4 sm:px-6 sm:py-5 lg:grid lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)] lg:items-start lg:gap-4 lg:space-y-0">
+            <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-0">
               <div className="flex items-center gap-2">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#0B1F3B]/5 text-[#0B1F3B]">
                   <UserRound className="h-4 w-4" />
@@ -244,7 +244,7 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
               </div>
             </section>
 
-            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:p-5">
               <div className="flex items-center gap-2">
                 <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#0B1F3B]/5 text-[#0B1F3B]">
                   <CalendarDays className="h-4 w-4" />
