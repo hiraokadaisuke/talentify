@@ -1,7 +1,7 @@
 'use client'
 
 
-import { useCallback, useEffect, useState, useMemo, type ComponentType } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { isProfileComplete } from '@/utils/isProfileComplete'
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, ChevronDown, RotateCcw } from 'lucide-react'
+import type { IconType } from 'react-icons'
 import { FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from 'react-icons/fa6'
 
 const prefectures = [
@@ -63,7 +64,7 @@ const SOCIAL_PLATFORMS: Array<{
   key: SocialKey
   platform: SocialPlatform
   label: string
-  icon: ComponentType<{ className?: string }>
+  icon: IconType
   placeholder: string
   help: string
 }> = [
