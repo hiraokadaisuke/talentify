@@ -18,7 +18,7 @@ const newsItems = [
 
 export default function NewsPage() {
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-24 text-slate-900">
+    <div className="mx-auto w-full max-w-5xl px-4 py-24 lg:max-w-6xl lg:px-0 text-slate-900">
       <header className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-3xl font-bold">お知らせ</h1>
         <p className="mt-2 text-sm text-slate-600">来店ナビからのお知らせを掲載します。</p>

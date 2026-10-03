@@ -26,7 +26,7 @@ const principles = [
 
 export default function AboutPage() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
+    <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14 lg:max-w-6xl">
       <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">ABOUT RAITEN NAVI</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">このサイトについて</h1>

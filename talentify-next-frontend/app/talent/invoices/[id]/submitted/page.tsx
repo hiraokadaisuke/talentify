@@ -75,11 +75,11 @@ export default function TalentInvoiceSubmittedPage() {
   }
 
   return (
-    <main className='mx-auto w-full max-w-5xl space-y-5 p-4 sm:p-6 lg:p-0'>
-      <section className='overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-6'>
+    <main className='p-6 space-y-6 lg:mx-auto lg:w-full lg:max-w-5xl lg:space-y-5 lg:p-0'>
+      <section className='space-y-4 lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-6 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
         <div>
-          <p className='text-[11px] font-black tracking-[0.16em] text-[#C2410C]'>ESTIMATE SUBMITTED</p>
-          <h1 className='mt-1 text-2xl font-black tracking-tight text-slate-950'>見積書の提出が完了しました</h1>
+          <p className='hidden text-[11px] font-black tracking-[0.16em] text-[#C2410C] lg:block'>ESTIMATE SUBMITTED</p>
+          <h1 className='text-xl font-bold lg:mt-1 lg:text-2xl lg:font-black lg:tracking-tight lg:text-slate-950'>見積書の提出が完了しました</h1>
           <p className='text-sm text-muted-foreground'>見積内容をご確認ください。</p>
         </div>
         <div className='flex flex-wrap gap-2'>
@@ -92,8 +92,8 @@ export default function TalentInvoiceSubmittedPage() {
         </div>
       </section>
 
-      <div className='grid gap-4 lg:grid-cols-2'>
-      <Card className='rounded-2xl border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
+      <div className='lg:grid lg:grid-cols-2 lg:gap-4'>
+      <Card className='lg:rounded-2xl lg:border-slate-200 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
         <CardHeader>
           <CardTitle>見積情報</CardTitle>
         </CardHeader>
@@ -118,7 +118,7 @@ export default function TalentInvoiceSubmittedPage() {
         </CardContent>
       </Card>
 
-      <Card className='rounded-2xl border-slate-200 shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
+      <Card className='lg:rounded-2xl lg:border-slate-200 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
         <CardHeader>
           <CardTitle>金額内訳</CardTitle>
         </CardHeader>
