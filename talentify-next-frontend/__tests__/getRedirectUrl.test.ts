@@ -34,7 +34,7 @@ describe('getRedirectUrl', () => {
     delete env.NEXT_PUBLIC_SITE_URL
     process.env = env
     expect(getRedirectUrl('store')).toBe(
-      'https://talentify-xi.vercel.app/auth/callback?role=store'
+      'https://raiten-navi.com/auth/callback?role=store'
     )
   })
 
