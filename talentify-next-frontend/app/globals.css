@@ -392,3 +392,29 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenEcosystemHub {
+  0%, 100% { transform: translateY(0); box-shadow: 0 0 70px rgba(255,90,31,.16); }
+  50% { transform: translateY(-6px); box-shadow: 0 0 90px rgba(255,138,0,.22); }
+}
+
+@keyframes raitenEcosystemRibbon {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: .22; }
+  50% { transform: translate(-50%, -50%) scale(1.04); opacity: .36; }
+}
+
+.raiten-ecosystem-hub {
+  animation: raitenEcosystemHub 6s ease-in-out infinite;
+}
+
+.raiten-ecosystem-ribbon {
+  animation: raitenEcosystemRibbon 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-ecosystem-hub,
+  .raiten-ecosystem-ribbon {
+    animation: none !important;
+  }
+}

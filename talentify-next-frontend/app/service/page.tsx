@@ -761,6 +761,128 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section
+        id="ecosystem"
+        className="scroll-mt-24 relative overflow-hidden border-y border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
+        style={{ background: '#081426' }}
+      >
+        <img
+          src="/images/lp/materials/neon-wave-bg.webp"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-20"
+        />
+        <img
+          src="/images/lp/materials/light-ribbon.webp"
+          alt=""
+          aria-hidden="true"
+          className="raiten-ecosystem-ribbon pointer-events-none absolute left-1/2 top-1/2 w-[1100px] max-w-none -translate-x-1/2 -translate-y-1/2 opacity-30 mix-blend-screen"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,138,0,.13),transparent_28%),linear-gradient(180deg,rgba(8,20,38,.18),rgba(8,20,38,.82))]" />
+
+        <div className="relative mx-auto w-full max-w-[1180px]">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-xs font-black tracking-[0.2em] text-[#FFC400]">ONE CONNECTED FLOW</p>
+            <h2 className="mt-4 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">
+              店舗・演者・一般ユーザーを、
+              <br className="hidden sm:block" />
+              ひとつにつなぐ。
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-sm font-medium leading-7 text-white/55 sm:text-base">
+              店舗が探して依頼し、演者が確認して案件が確定。確定した来店情報は、そのまま一般ユーザーへ届けられます。
+            </p>
+          </div>
+
+          <div className="relative mx-auto mt-12 max-w-5xl">
+            <img
+              src="/images/lp/materials/timeline-glow.webp"
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute left-1/2 top-[44%] hidden w-[82%] -translate-x-1/2 -translate-y-1/2 opacity-38 mix-blend-screen lg:block"
+            />
+
+            <div className="relative grid gap-4 lg:grid-cols-[1fr_1.15fr_1fr] lg:items-center">
+              <div className="rounded-[26px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur">
+                <div className="flex items-center justify-between">
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 text-[#FFC400]">
+                    <Building2 className="h-5 w-5" />
+                  </span>
+                  <span className="text-[10px] font-black tracking-[0.14em] text-white/30">STORE</span>
+                </div>
+                <h3 className="mt-5 text-xl font-black text-white">店舗</h3>
+                <p className="mt-2 text-sm font-medium leading-7 text-white/55">
+                  地域・日程・演者から探し、条件をまとめてオファー。案件ごとの進行状況も一か所で確認。
+                </p>
+              </div>
+
+              <div className="raiten-ecosystem-hub relative overflow-hidden rounded-[30px] border border-[#FF8A00]/30 bg-[#0B1F3B]/90 p-6 text-center shadow-[0_0_70px_rgba(255,90,31,.16)] backdrop-blur sm:p-8">
+                <img
+                  src="/images/lp/materials/connection-hub.webp"
+                  alt=""
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-24"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0B1F3B]/45 via-[#0B1F3B]/72 to-[#081426]/92" />
+                <div className="relative">
+                  <img
+                    src="/brand/raiten-navi-icon.svg"
+                    alt=""
+                    className="mx-auto h-16 w-16 rounded-[20px] shadow-[0_0_35px_rgba(255,138,0,.28)]"
+                  />
+                  <p className="mt-4 text-[10px] font-black tracking-[0.18em] text-[#FFC400]">RAITEN NAVI</p>
+                  <h3 className="mt-2 text-2xl font-black text-white">来店ナビ</h3>
+                  <p className="mt-3 text-sm font-medium leading-7 text-white/55">
+                    探す・依頼する・決める・管理する・公開するまでをひとつの流れに。
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-[26px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur">
+                <div className="flex items-center justify-between">
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/10 text-[#FFC400]">
+                    <Mic className="h-5 w-5" />
+                  </span>
+                  <span className="text-[10px] font-black tracking-[0.14em] text-white/30">TALENT</span>
+                </div>
+                <h3 className="mt-5 text-xl font-black text-white">演者</h3>
+                <p className="mt-2 text-sm font-medium leading-7 text-white/55">
+                  プロフィール・対応可能日を整え、届いたオファーを確認。案件情報をまとめて管理。
+                </p>
+              </div>
+            </div>
+
+            <div className="relative mx-auto mt-4 max-w-xl rounded-[26px] border border-[#FFC400]/20 bg-[#FFC400]/[0.06] p-5 backdrop-blur sm:p-6">
+              <div className="flex items-start gap-4">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#FF3B2E] to-[#FFC400] text-[#081426]">
+                  <Search className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <h3 className="text-xl font-black text-white">一般ユーザー</h3>
+                    <span className="text-[9px] font-black tracking-[0.12em] text-[#FFC400]">PUBLIC</span>
+                  </div>
+                  <p className="mt-2 text-sm font-medium leading-7 text-white/55">
+                    地域や店舗を起点に来店予定を探し、気になるイベントを確認。演者から探す導線も用意します。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-7 flex flex-wrap justify-center gap-2">
+              {['店舗から演者へ依頼', '確定情報を一元管理', '一般ユーザーへ公開'].map((item, index) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/[0.055] px-3 py-2 text-[10px] font-black text-white/60"
+                >
+                  <span className="mr-1.5 text-[#FF8A00]">0{index + 1}</span>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="register" className="scroll-mt-24 relative overflow-hidden border-t border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-[70%] -translate-x-1/2 rounded-full bg-[#FF8A00]/10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl text-center">
