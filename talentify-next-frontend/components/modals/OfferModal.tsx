@@ -14,6 +14,14 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { getTodayJstDateString, toJstDateInputValue } from '@/utils/jstDate'
+import {
+  CalendarDays,
+  Clock3,
+  JapaneseYen,
+  MessageSquare,
+  Send,
+  UserRound,
+} from 'lucide-react'
 
 interface OfferModalProps {
   open: boolean
@@ -193,21 +201,45 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent className="max-h-[92vh] w-[calc(100vw-1.5rem)] max-w-2xl overflow-hidden p-0 sm:w-full">
-        <ModalHeader className="mb-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-6">
-          <ModalTitle>オファー作成</ModalTitle>
+      <ModalContent className="max-h-[94vh] w-[calc(100vw-1rem)] max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-2xl sm:w-full">
+        <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+        <ModalHeader className="mb-0 border-b border-slate-200 bg-white px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex items-start gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0B1F3B] text-[#FFC400]">
+              <Send className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-black tracking-[0.16em] text-[#C2410C]">OFFER</p>
+              <ModalTitle className="mt-0.5 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">
+                オファー作成
+              </ModalTitle>
+              <p className="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">
+                演者と来店条件を確認して、オファーを送信します。
+              </p>
+            </div>
+          </div>
         </ModalHeader>
-        <form onSubmit={handleSubmit} className="flex max-h-[calc(90vh-65px)] flex-col">
-          <div className="space-y-4 overflow-y-auto bg-slate-50 px-4 py-4 sm:px-6 sm:py-5">
-            <section className="rounded-lg border border-slate-200 bg-slate-100 p-4">
-              <h3 className="text-sm font-semibold text-slate-700">オファー対象</h3>
-              <div className="mt-3 space-y-3">
+
+        <form onSubmit={handleSubmit} className="flex max-h-[calc(94vh-93px)] flex-col">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto bg-[#F8FAFC] px-3 py-4 sm:px-6 sm:py-5">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#0B1F3B]/5 text-[#0B1F3B]">
+                  <UserRound className="h-4 w-4" />
+                </span>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">演者</label>
+                  <p className="text-sm font-black text-slate-950">オファー対象</p>
+                  <p className="text-[11px] text-slate-500">この日に受付可能な演者から選択します</p>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-bold text-slate-700">演者</label>
                   <select
                     value={talentId}
                     onChange={e => setTalentId(e.target.value)}
-                    className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                    className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10 disabled:bg-slate-100 disabled:text-slate-400"
                     disabled={!visitDate}
                     required
                   >
@@ -221,13 +253,14 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     ))}
                   </select>
                 </div>
+
                 {templates.length > 0 && (
                   <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">テンプレート</label>
+                    <label className="mb-1.5 block text-xs font-bold text-slate-700">テンプレート</label>
                     <select
                       defaultValue=""
                       onChange={e => applyTemplate(Number(e.target.value))}
-                      className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                      className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
                     >
                       <option value="">選択してください</option>
                       {templates.map((t, i) => (
@@ -238,12 +271,24 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
                     </select>
                   </div>
                 )}
-                <div className="rounded-md border border-slate-200 bg-white px-3 py-2 text-xs text-slate-600">
-                  <p>演者: {selectedTalent?.stage_name || selectedTalent?.id || '未選択'}</p>
-                  <p>来店日: {visitDate || '未選択'}</p>
-                  <p>希望時間帯: {timeRange || '未選択'}</p>
+
+                <div className="grid gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs sm:grid-cols-3">
+                  <div>
+                    <p className="text-slate-400">演者</p>
+                    <p className="mt-0.5 font-bold text-slate-800">
+                      {selectedTalent?.stage_name || selectedTalent?.id || '未選択'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400">来店日</p>
+                    <p className="mt-0.5 font-bold text-slate-800">{visitDate || '未選択'}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-400">希望時間帯</p>
+                    <p className="mt-0.5 font-bold text-slate-800">{timeRange || '未選択'}</p>
+                  </div>
                   {visitDate && talents.length === 0 && (
-                    <p className="mt-1 font-medium text-amber-700">
+                    <p className="sm:col-span-3 rounded-lg bg-amber-50 px-3 py-2 font-bold text-amber-800">
                       この条件で受付可能な演者はいません。
                     </p>
                   )}
@@ -251,103 +296,157 @@ export default function OfferModal({ open, onOpenChange, initialDate }: OfferMod
               </div>
             </section>
 
-            <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
-              <h3 className="text-sm font-semibold text-slate-700">オファー内容</h3>
-              <div>
-                <label className="mb-1 block text-sm font-medium">希望日</label>
-                <Input
-                  type="date"
-                  value={visitDate}
-                  min={minVisitDate}
-                  onChange={e => setVisitDate(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+            <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#0B1F3B]/5 text-[#0B1F3B]">
+                  <CalendarDays className="h-4 w-4" />
+                </span>
                 <div>
-                  <label className="mb-1 block text-sm font-medium">開始時間</label>
-                  <select
-                    value={startTime}
-                    onChange={e => setStartTime(e.target.value)}
-                    className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
-                    required
-                  >
-                    <option value="">選択してください</option>
-                    {timeOptions.map(time => (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    ))}
-                  </select>
+                  <p className="text-sm font-black text-slate-950">オファー内容</p>
+                  <p className="text-[11px] text-slate-500">希望日・時間・条件を入力してください</p>
                 </div>
+              </div>
+
+              <div className="mt-4 space-y-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium">終了時間</label>
-                  <select
-                    value={endTime}
-                    onChange={e => setEndTime(e.target.value)}
-                    className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                    <CalendarDays className="h-3.5 w-3.5 text-slate-400" />
+                    希望日
+                  </label>
+                  <Input
+                    type="date"
+                    value={visitDate}
+                    min={minVisitDate}
+                    onChange={e => setVisitDate(e.target.value)}
+                    className="h-11 rounded-xl border-slate-300 bg-white text-base font-medium"
                     required
-                  >
-                    <option value="">選択してください</option>
-                    {timeOptions
-                      .filter(time => !startTime || time > startTime)
-                      .map(time => (
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                    <Clock3 className="h-3.5 w-3.5 text-slate-400" />
+                    希望時間帯
+                  </label>
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <select
+                      value={startTime}
+                      onChange={e => setStartTime(e.target.value)}
+                      className="h-11 min-w-0 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
+                      required
+                    >
+                      <option value="">開始</option>
+                      {timeOptions.map(time => (
                         <option key={time} value={time}>
                           {time}
                         </option>
                       ))}
-                  </select>
+                    </select>
+                    <span className="text-sm font-bold text-slate-400">〜</span>
+                    <select
+                      value={endTime}
+                      onChange={e => setEndTime(e.target.value)}
+                      className="h-11 min-w-0 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium text-slate-900 outline-none transition focus:border-[#0B1F3B] focus:ring-2 focus:ring-[#0B1F3B]/10"
+                      required
+                    >
+                      <option value="">終了</option>
+                      {timeOptions
+                        .filter(time => !startTime || time > startTime)
+                        .map(time => (
+                          <option key={time} value={time}>
+                            {time}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">提示金額</label>
-                <div className="relative">
-                  <Input
-                    type="number"
-                    min="0"
-                    step="1000"
-                    inputMode="numeric"
-                    value={reward}
-                    onChange={e => setReward(e.target.value)}
-                    className="pr-10"
-                    placeholder="例: 15000"
+
+                <div>
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                    <JapaneseYen className="h-3.5 w-3.5 text-slate-400" />
+                    提示金額
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="1000"
+                      inputMode="numeric"
+                      value={reward}
+                      onChange={e => setReward(e.target.value)}
+                      className="h-11 rounded-xl border-slate-300 bg-white pr-10"
+                      placeholder="例: 15000"
+                    />
+                    <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm font-medium text-slate-500">
+                      円
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                    <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
+                    メッセージ
+                  </label>
+                  <Textarea
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
+                    placeholder="来店内容や相談事項などを入力"
+                    className="min-h-[96px] rounded-xl border-slate-300 bg-white"
                   />
-                  <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-slate-500">円</span>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  id="modal-agreed"
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={e => setAgreed(e.target.checked)}
-                  required
-                />
-                <label htmlFor="modal-agreed" className="text-sm">出演条件に同意します</label>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">メッセージ</label>
-                <Textarea
-                  value={message}
-                  onChange={e => setMessage(e.target.value)}
-                  placeholder="出演依頼内容などを入力"
-                />
+
+                <label
+                  htmlFor="modal-agreed"
+                  className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3"
+                >
+                  <input
+                    id="modal-agreed"
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={e => setAgreed(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-[#0B1F3B]"
+                    required
+                  />
+                  <span className="text-xs leading-5 text-slate-600">
+                    入力した内容を確認し、この条件でオファーを送信します。
+                  </span>
+                </label>
               </div>
             </section>
           </div>
-          <ModalFooter className="mt-0 flex-col gap-2 border-t border-slate-200 bg-white px-4 py-3 sm:flex-row sm:justify-between sm:px-6 sm:py-4">
-            <Button type="button" variant="outline" className="h-10" onClick={saveTemplate}>
-              テンプレート保存
-            </Button>
-            <div className="flex gap-2">
-              <ModalClose asChild>
-                <Button type="button" variant="outline" className="h-10 px-5">
-                  キャンセル
-                </Button>
-              </ModalClose>
-              <Button type="submit" className="h-10 px-6">
-                オファー送信
+
+          <ModalFooter className="mt-0 border-t border-slate-200 bg-white px-3 py-3 sm:px-6 sm:py-4">
+            <div className="grid w-full gap-2 sm:grid-cols-[auto_1fr_auto] sm:items-center">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 justify-start px-2 text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-800 sm:justify-center"
+                onClick={saveTemplate}
+              >
+                テンプレート保存
               </Button>
+
+              <div className="hidden sm:block" />
+
+              <div className="grid grid-cols-[auto_1fr] gap-2">
+                <ModalClose asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 rounded-xl border-slate-300 bg-white px-4 font-bold text-slate-700"
+                  >
+                    キャンセル
+                  </Button>
+                </ModalClose>
+                <Button
+                  type="submit"
+                  className="h-11 rounded-xl bg-[#FF5A1F] px-5 font-black text-white shadow-sm hover:bg-[#E94F18] focus-visible:ring-2 focus-visible:ring-[#FF5A1F]/30"
+                >
+                  <Send className="mr-1.5 h-4 w-4" />
+                  オファー送信
+                </Button>
+              </div>
             </div>
           </ModalFooter>
         </form>
