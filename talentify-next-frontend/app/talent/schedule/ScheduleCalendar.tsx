@@ -836,7 +836,7 @@ export default function ScheduleCalendar({
         <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
       </section>
 
-      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4">
+      <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4 lg:p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-black text-slate-950">受付状況</p>
@@ -888,7 +888,7 @@ export default function ScheduleCalendar({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4">
+      <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4 lg:p-5">
         {loading && (
           <p className="mb-2 text-sm text-muted-foreground">読み込み中…</p>
         )}
@@ -972,6 +972,27 @@ export default function ScheduleCalendar({
         }
         .talent-calendar .rbc-today {
           background-color: transparent;
+        }
+        @media (min-width: 1024px) {
+          .talent-calendar {
+            height: 680px !important;
+          }
+          .talent-calendar .rbc-header {
+            padding: 8px 0;
+            font-weight: 700;
+          }
+          .talent-calendar .rbc-month-row {
+            min-height: 104px;
+          }
+          .talent-calendar .rbc-date-cell {
+            padding-right: 8px;
+            padding-top: 5px;
+          }
+        }
+        @media (min-width: 1280px) {
+          .talent-calendar {
+            height: 720px !important;
+          }
         }
         @media (max-width: 640px) {
           .talent-calendar .rbc-month-view { font-size: 10px; }

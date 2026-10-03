@@ -360,8 +360,8 @@ export default function StoreScheduleClient({
         </div>
         <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
       </section>
-      <div className="flex flex-wrap items-center gap-2 mb-2">
-        <div className="flex items-center gap-2 hidden">
+      <div className="mb-2 flex flex-wrap items-center gap-2 lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-3 lg:shadow-[0_8px_24px_rgba(15,23,42,.04)]">
+        <div className="hidden items-center gap-2 lg:flex">
           <Button
             size="sm"
             className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
@@ -371,7 +371,7 @@ export default function StoreScheduleClient({
             今日
           </Button>
         </div>
-        <div className="flex-1 flex items-center justify-center gap-2">
+        <div className="flex flex-1 items-center justify-center gap-2 lg:flex-none">
           <Button
             size="sm"
             className="min-h-[44px] rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-orange-50 hover:text-[#C2410C]"
@@ -392,13 +392,13 @@ export default function StoreScheduleClient({
             ▶
           </Button>
         </div>
-        <div className="flex items-center gap-2 ml-auto hidden">
+        <div className="ml-auto hidden items-center gap-2 lg:flex">
           <Input
             type="search"
             placeholder="演者名検索"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            className="h-11 w-32 sm:w-48"
+            className="h-11 w-32 sm:w-48 lg:w-52"
             aria-label="演者名検索"
           />
           <DropdownMenu>
@@ -442,7 +442,7 @@ export default function StoreScheduleClient({
           </label>
         </div>
       </div>
-      <div className="flex justify-end gap-4 mb-2 text-xs hidden">
+      <div className="mb-2 hidden justify-end gap-4 text-xs lg:flex">
         {DEFAULT_STATUSES.map((s) => (
           <div key={s} className="flex items-center gap-1">
             <Badge variant={STATUS_BADGE[s]} className="px-1"></Badge>
@@ -450,7 +450,7 @@ export default function StoreScheduleClient({
           </div>
         ))}
       </div>
-      <div className="h-[420px] min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:h-[460px] sm:p-2">
+      <div className="h-[420px] min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:h-[460px] sm:p-2 lg:h-[680px] lg:p-3 xl:h-[720px]">
         <StoreCalendarView
           events={calendarEvents}
           date={date}

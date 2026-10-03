@@ -165,15 +165,12 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isFavoritesActive =
     inferredRole === 'store' &&
     (pathname === '/store/favorites' || pathname.startsWith('/store/favorites/'))
-  const isProjectActive =
-    !!roleNav &&
-    roleNav.project.some((item) => pathname === item.href || pathname.startsWith(item.href + '/'))
   const primaryGuideLink = GUIDE_LINKS[0]
   const isGuideActive = GUIDE_LINKS.some((item) => pathname === item.href || pathname.startsWith(item.href + '/'))
   const navItemBaseClass =
-    'relative inline-flex h-9 items-center whitespace-nowrap rounded-md px-2 text-sm font-medium text-slate-600 transition-all duration-150 hover:bg-slate-100 hover:text-slate-900'
+    'relative inline-flex h-10 items-center whitespace-nowrap rounded-lg px-2.5 text-[13px] font-semibold text-slate-600 transition-all duration-150 hover:bg-slate-100 hover:text-slate-950 xl:px-3 xl:text-sm'
   const navItemActiveClass =
-    'text-[#C2410C] after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-full after:bg-[#FF5A1F]'
+    'bg-orange-50 text-[#C2410C] after:absolute after:inset-x-2.5 after:bottom-0 after:h-0.5 after:rounded-full after:bg-[#FF5A1F]'
   const dropdownItemClass =
     'cursor-pointer rounded-md px-2 py-1.5 text-slate-700 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900'
   const mobileLinkClass =
@@ -259,21 +256,19 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   お気に入り
                 </Link>
               )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className={cn(navItemBaseClass, 'gap-1', isProjectActive ? navItemActiveClass : '')}>
-                    案件管理
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  {roleNav.project.map((item) => (
-                    <DropdownMenuItem asChild key={item.href} className={dropdownItemClass}>
-                      <Link href={item.href}>{item.label}</Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {roleNav.project.map((item) => {
+                const active = pathname === item.href || pathname.startsWith(item.href + '/')
+                const desktopLabel = item.label.replace('管理', '')
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(navItemBaseClass, active ? navItemActiveClass : '')}
+                  >
+                    {desktopLabel}
+                  </Link>
+                )
+              })}
               <Link
                 href={primaryGuideLink.href}
                 target="_blank"
@@ -291,7 +286,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
             <div className="hidden lg:block">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex h-9 max-w-[220px] items-center gap-1 rounded-md px-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100">
+                  <button className="flex h-10 max-w-[180px] items-center gap-1 rounded-lg px-2.5 text-[13px] font-semibold text-slate-700 transition-colors hover:bg-slate-100 xl:max-w-[220px] xl:text-sm">
                     <span className="truncate">{displayUserName}</span>
                     <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
                   </button>
