@@ -19,7 +19,6 @@ function jsonResponse(status: number, body: ResendResponse) {
   return NextResponse.json(body, { status })
 }
 
-
 type AppUserLookupRow = {
   status?: string | null
   role?: string | null
@@ -46,7 +45,7 @@ function resolveEmailRedirect(role?: string) {
   const baseUrl =
     process.env.NODE_ENV === 'development'
       ? 'http://localhost:3000'
-      : process.env.NEXT_PUBLIC_SITE_URL || 'https://talentify-xi.vercel.app'
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://raiten-navi.com'
 
   return `${baseUrl.replace(/\/+$/, '')}/auth/callback`
 }
