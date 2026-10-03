@@ -141,6 +141,15 @@ export default function StoreOfferProgressPanel({
         currentStep={initialActiveStep}
         onStepChange={setActiveStep}
       />
+      <StepDetailCard
+        activeStep={activeStep}
+        activeStatus={activeStatus}
+        offer={offer}
+        invoice={invoice}
+        paymentLink={paymentLink}
+        cancelation={cancelation}
+        noShow={noShow}
+      />
       <SubmittedOfferContentCard
         submittedOffer={{
           preferredDate: offer.date,
@@ -155,15 +164,6 @@ export default function StoreOfferProgressPanel({
         date={offer.date}
         timeRange={offer.timeRange}
         invoiceStatus={invoice?.status ?? null}
-      />
-      <StepDetailCard
-        activeStep={activeStep}
-        activeStatus={activeStatus}
-        offer={offer}
-        invoice={invoice}
-        paymentLink={paymentLink}
-        cancelation={cancelation}
-        noShow={noShow}
       />
     </div>
   )
