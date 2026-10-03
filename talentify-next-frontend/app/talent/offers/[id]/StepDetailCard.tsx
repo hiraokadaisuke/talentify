@@ -41,7 +41,7 @@ type StepDetail = {
 }
 
 const primaryActionClass = 'h-10 rounded-xl bg-[#FF5A1F] px-4 font-bold text-white hover:bg-[#E94F18] focus-visible:ring-orange-200'
-const secondaryActionClass = 'h-9 border-slate-300 bg-white px-4 text-slate-700 hover:bg-slate-100'
+const secondaryActionClass = 'h-10 rounded-xl border-slate-300 bg-white px-4 font-bold text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-200'
 
 const statusDisplay = (status: string) => {
   switch (status) {
@@ -175,7 +175,7 @@ export default function StepDetailCard({
           <Button className={primaryActionClass} asChild><Link href={invoiceId ? `/talent/invoices/${invoiceId}` : `/talent/invoices/new?offerId=${offer.id}`}>{invoiceId ? '見積書を編集する' : '見積書を作成する'}</Link></Button>
         ) : undefined,
         secondaryAction: offer.status === 'pending' && onDeclineOffer ? (
-          <Button variant="outline" className={secondaryActionClass} onClick={onDeclineOffer} disabled={actionLoading !== null}>{actionLoading === 'decline' ? '処理中...' : '今回は対応できない'}</Button>
+          <Button variant="outline" className={secondaryActionClass} onClick={onDeclineOffer} disabled={actionLoading !== null}>{actionLoading === 'decline' ? '処理中...' : '辞退する'}</Button>
         ) : undefined,
       }
     }
@@ -219,10 +219,17 @@ export default function StepDetailCard({
             ))}
           </dl>
         )}
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:justify-end">
-          {detail.secondaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.secondaryAction}</div>}
-          {detail.primaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.primaryAction}</div>}
-        </div>
+        {detail.primaryAction && detail.secondaryAction ? (
+          <div className="grid grid-cols-2 gap-2.5">
+            <div className="[&>*]:w-full">{detail.primaryAction}</div>
+            <div className="[&>*]:w-full">{detail.secondaryAction}</div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:justify-end">
+            {detail.primaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.primaryAction}</div>}
+            {detail.secondaryAction && <div className="flex w-full sm:inline-flex sm:w-auto">{detail.secondaryAction}</div>}
+          </div>
+        )}
       </CardContent>
     </Card>
   )
