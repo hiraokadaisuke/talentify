@@ -11,7 +11,7 @@ export async function GET(
   const { id } = params
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
 
-  const fields = 'id,user_id,stage_name,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,media_appearance,video_url,avatar_url,photos,twitter_url,instagram_url,youtube_url,is_setup_complete' as const
+  const fields = 'id,user_id,stage_name,profile,residence,area,genre,availability,min_hours,transportation,rate,notes,media_appearance,video_url,avatar_url,photos,twitter_url,instagram_url,youtube_url,social_tiktok,is_setup_complete' as const
   const { data, error } = await supabase
     .from('talents')
     .select(fields)
@@ -26,9 +26,10 @@ export async function GET(
     ...data,
     area: j<string[]>(data.area, []),
     photos: data.photos ?? [],
-    twitter: data.twitter_url,
-    instagram: data.instagram_url,
-    youtube: data.youtube_url,
+    twitter_url: data.twitter_url,
+    instagram_url: data.instagram_url,
+    youtube_url: data.youtube_url,
+    social_tiktok: data.social_tiktok,
   })
 }
 
