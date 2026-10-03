@@ -320,13 +320,27 @@ export default function StoreScheduleClient({
     if (event.isMore) return <span className="truncate">{event.title}</span>
     return (
       <span
-        className="truncate flex items-center gap-1"
+        className="block min-w-0"
         title={`${event.talentName} ${STATUS_LABEL[event.status]}`}
       >
-        <span className="text-black">{event.talentName}</span>
-        <Badge variant={STATUS_BADGE[event.status]} className="px-1">
-          {STATUS_LABEL[event.status]}
-        </Badge>
+        <span className="flex min-w-0 flex-col items-start gap-0.5 sm:hidden">
+          <span className="w-full truncate text-[9px] font-medium leading-3 text-slate-900">
+            {event.talentName}
+          </span>
+          <Badge
+            variant={STATUS_BADGE[event.status]}
+            className="max-w-full px-1.5 py-0 text-[9px] leading-4"
+          >
+            {STATUS_LABEL[event.status]}
+          </Badge>
+        </span>
+
+        <span className="hidden min-w-0 items-center gap-1 truncate sm:flex">
+          <span className="truncate text-black">{event.talentName}</span>
+          <Badge variant={STATUS_BADGE[event.status]} className="shrink-0 px-1">
+            {STATUS_LABEL[event.status]}
+          </Badge>
+        </span>
       </span>
     )
   }
@@ -507,7 +521,16 @@ export default function StoreScheduleClient({
         @media (max-width: 640px) {
           .rbc-month-view { font-size: 11px; }
           .rbc-date-cell { padding-right: 3px; }
-          .rbc-event-content { font-size: 10px; }
+          .rbc-row-segment { padding: 0 2px 1px; }
+          .rbc-event-content {
+            min-width: 0;
+            overflow: hidden;
+            font-size: 10px;
+          }
+          .rbc-event {
+            min-height: 30px;
+            overflow: hidden;
+          }
         }
       `}</style>
     </main>
