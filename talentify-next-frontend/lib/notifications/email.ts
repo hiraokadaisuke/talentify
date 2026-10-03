@@ -28,7 +28,7 @@ function escapeHtml(value: string) {
 }
 
 function getSiteUrl() {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL || 'https://talentify-xi.vercel.app'
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || 'https://raiten-navi.com'
   return raw.replace(/\/+$/, '')
 }
 
