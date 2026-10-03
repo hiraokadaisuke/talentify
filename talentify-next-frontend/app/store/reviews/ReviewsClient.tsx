@@ -120,10 +120,10 @@ export default function StoreReviewsClient({
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-3 py-5 sm:px-4 sm:py-8">
-      <div className="mx-auto w-full max-w-5xl">
+    <main className="min-h-screen bg-gray-100 px-3 py-5 sm:px-4 sm:py-8 lg:min-h-0 lg:bg-transparent lg:px-0 lg:py-0">
+      <div className="mx-auto w-full max-w-5xl lg:max-w-[1400px]">
         <h1 className="mb-4 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl">レビュー投稿一覧</h1>
-        <section className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6">
+        <section className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6 lg:p-5">
           {loading ? (
             <TableSkeleton rows={4} />
           ) : loadError ? (

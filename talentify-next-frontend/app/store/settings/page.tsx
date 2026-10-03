@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 
 export default function StoreSettingsPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-5 py-2 sm:py-4">
+    <main className="mx-auto w-full max-w-4xl space-y-5 py-2 sm:py-4 lg:max-w-5xl lg:space-y-6">
       <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
         <div className="flex items-start gap-3 p-5 sm:p-6">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">

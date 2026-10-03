@@ -65,7 +65,7 @@ export default async function StoreFavoritesPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
+    <main className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6 lg:max-w-[1400px] lg:p-0">
       <div>
         <p className="text-sm font-semibold text-[#FF5A1F]">Favorites</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
@@ -92,7 +92,7 @@ export default async function StoreFavoritesPage() {
       ) : (
         <>
           <p className="text-sm text-slate-600">{talents.length}件保存しています</p>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {talents.map(talent => (
               <TalentCard key={talent.id} talent={talent} />
             ))}

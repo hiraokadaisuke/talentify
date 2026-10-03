@@ -118,8 +118,8 @@ export default function TalentSettingsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-screen-md space-y-6 p-4">
-      <h1 className="text-2xl font-bold">設定</h1>
+    <main className="mx-auto max-w-screen-md space-y-6 p-4 lg:grid lg:max-w-[1180px] lg:grid-cols-2 lg:items-start lg:gap-5 lg:space-y-0 lg:p-0">
+      <h1 className="text-2xl font-bold lg:col-span-2 lg:text-3xl lg:tracking-tight">設定</h1>
 
       <SectionCard title="振込先" description="請求書に記載する振込口座です。候補から選ぶか、そのまま直接入力できます。">
         <div className="space-y-4">
@@ -298,11 +298,13 @@ export default function TalentSettingsPage() {
         </div>
       </SectionCard>
 
-      <SectionCard title="パスワード" description="登録メールアドレスへ再設定リンクを送信します">
-        <Button asChild variant="outline">
-          <Link href="/password-reset">パスワードを再設定</Link>
-        </Button>
-      </SectionCard>
+      <div className="lg:col-span-2">
+        <SectionCard title="パスワード" description="登録メールアドレスへ再設定リンクを送信します">
+          <Button asChild variant="outline">
+            <Link href="/password-reset">パスワードを再設定</Link>
+          </Button>
+        </SectionCard>
+      </div>
     </main>
   )
 }

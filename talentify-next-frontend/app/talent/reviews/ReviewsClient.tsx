@@ -35,7 +35,7 @@ export default function TalentReviewsClient({
 
 
   return (
-    <main className="mx-auto w-full max-w-screen-md space-y-4 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8">
+    <main className="mx-auto w-full max-w-screen-md space-y-4 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-8 lg:max-w-5xl lg:px-0 lg:py-2">
       <header>
         <h1 className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">評価・レビュー</h1>
         <p className="mt-1 text-sm text-slate-500">店舗から届いた公開レビューを確認できます。</p>
