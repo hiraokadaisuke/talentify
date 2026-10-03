@@ -523,32 +523,94 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur sm:p-7">
+          <div className="relative min-h-[520px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur sm:min-h-[560px] sm:p-7">
             <img
               src="/images/lp/materials/connection-hub.webp"
               alt=""
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30"
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-26"
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#081426]/60 via-[#081426]/78 to-[#081426]/95" />
-            <p className="relative text-[10px] font-black tracking-[0.16em] text-orange-200">FROM OFFER TO PUBLIC</p>
-            <div className="relative mt-5 grid gap-2 sm:grid-cols-2">
+            <img
+              src="/images/lp/materials/stage-light-particles.webp"
+              alt=""
+              aria-hidden="true"
+              className="raiten-public-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-20"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#081426]/54 via-[#081426]/80 to-[#081426]/96" />
+
+            <div className="relative z-10 flex items-center justify-between gap-4">
+              <p className="text-[10px] font-black tracking-[0.16em] text-orange-200">FROM OFFER TO PUBLIC</p>
+              <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[9px] font-black tracking-[0.12em] text-white/55">
+                LIVE INFORMATION
+              </span>
+            </div>
+
+            <div className="relative z-10 mt-6 grid items-end gap-6 sm:grid-cols-[1fr_180px]">
+              <div className="space-y-2.5">
+                {[
+                  ['01', '演者を探す'],
+                  ['02', '条件を確認'],
+                  ['03', 'オファー・締結'],
+                  ['04', '案件を管理'],
+                  ['05', '一般公開'],
+                ].map(([number, label], index) => (
+                  <div
+                    key={number}
+                    className={`raiten-public-step flex items-center gap-3 rounded-2xl border px-4 py-3.5 ${
+                      index === 4
+                        ? 'border-[#FFC400]/35 bg-[#FFC400]/10'
+                        : 'border-white/10 bg-white/[0.045]'
+                    }`}
+                  >
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#FF3B2E] to-[#FFC400] text-xs font-black text-[#081426]">
+                      {number}
+                    </span>
+                    <span className="text-sm font-black text-white/82">{label}</span>
+                    {index < 4 && <ArrowRight className="ml-auto h-4 w-4 text-white/25" />}
+                    {index === 4 && <CheckCircle2 className="ml-auto h-4 w-4 text-[#FFC400]" />}
+                  </div>
+                ))}
+              </div>
+
+              <div className="raiten-public-phone mx-auto w-[170px] rounded-[32px] border-[7px] border-[#06111f] bg-[#06111f] p-1 shadow-[0_30px_80px_rgba(0,0,0,.45)]">
+                <div className="overflow-hidden rounded-[22px] bg-white">
+                  <div className="flex items-center justify-between bg-[#F8FAFC] px-3 py-2.5">
+                    <img src="/brand/raiten-navi-icon.svg" alt="" className="h-5 w-5 rounded-md" />
+                    <span className="h-1.5 w-10 rounded-full bg-slate-200" />
+                  </div>
+                  <div className="p-3">
+                    <p className="text-[8px] font-black tracking-[0.13em] text-[#FF5A1F]">PUBLIC EVENT</p>
+                    <p className="mt-1 text-[16px] font-black text-slate-950">10.12 SAT</p>
+                    <div className="mt-3 overflow-hidden rounded-xl bg-[#0B1F3B]">
+                      <div className="h-20 bg-gradient-to-br from-[#FF3B2E] via-[#FF8A00] to-[#FFC400] opacity-90" />
+                      <div className="p-3 text-white">
+                        <p className="text-[8px] font-black text-orange-200">来店予定</p>
+                        <p className="mt-1 text-[10px] font-black leading-4">確定情報をそのまま公開</p>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex gap-1">
+                      <span className="flex-1 rounded-lg bg-slate-100 px-2 py-1.5 text-center text-[7px] font-bold text-slate-500">店舗</span>
+                      <span className="flex-1 rounded-lg bg-orange-50 px-2 py-1.5 text-center text-[7px] font-bold text-[#FF5A1F]">演者</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative z-10 mt-6 grid gap-2 sm:grid-cols-3">
               {[
-                ['01', '演者を探す'],
-                ['02', '日程・条件を確認'],
-                ['03', 'オファー・締結'],
-                ['04', '案件を管理'],
-                ['05', '来店情報を公開'],
-                ['06', '一般ユーザーが閲覧'],
-              ].map(([number, label]) => (
-                <div key={number} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3.5">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#FF3B2E] to-[#FFC400] text-xs font-black text-[#081426]">
-                    {number}
-                  </span>
-                  <span className="text-sm font-black text-white/80">{label}</span>
+                ['確定案件', '一元管理'],
+                ['公開URL', 'すぐ確認'],
+                ['一般ユーザー', 'そのまま閲覧'],
+              ].map(([label, value], index) => (
+                <div key={label} className="raiten-public-mini-card rounded-2xl border border-white/10 bg-[#081426]/55 px-4 py-3 backdrop-blur">
+                  <p className="text-[9px] font-black tracking-[0.1em] text-white/35">{label}</p>
+                  <p className={`mt-1 text-sm font-black ${index === 2 ? 'text-[#FFC400]' : 'text-white'}`}>{value}</p>
                 </div>
               ))}
             </div>
+
+            <div aria-hidden="true" className="raiten-public-line pointer-events-none absolute bottom-16 left-[24%] right-[16%] z-[5] h-px bg-gradient-to-r from-transparent via-[#FF8A00] to-transparent opacity-70" />
           </div>
         </div>
       </section>
