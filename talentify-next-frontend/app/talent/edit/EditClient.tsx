@@ -523,6 +523,18 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
         throw new Error(payload?.error ?? '電話番号の保存に失敗しました')
       }
 
+      try {
+        const youtubeSyncResponse = await fetch('/api/talent/social/youtube/sync', {
+          method: 'POST',
+        })
+        if (!youtubeSyncResponse.ok && youtubeSyncResponse.status !== 503) {
+          const payload = await youtubeSyncResponse.json().catch(() => null)
+          console.warn('[profile] YouTube metrics sync skipped', payload)
+        }
+      } catch (syncError) {
+        console.warn('[profile] YouTube metrics sync failed', syncError)
+      }
+
       toast.success('保存しました')
       setShowIncomplete(!isComplete)
       if (isNew) {
