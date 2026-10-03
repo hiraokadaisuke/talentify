@@ -8,7 +8,7 @@ import { useUserRole } from '@/utils/useRole'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa'
+import { FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from 'react-icons/fa6'
 import { MapPin, Clock3, Timer, Bus, Wallet, Heart, MessageSquare, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
@@ -33,9 +33,10 @@ type Talent = {
   video_url?: string | null
   avatar_url?: string | null
   photos: string[]
-  twitter?: string | null
-  instagram?: string | null
-  youtube?: string | null
+  twitter_url?: string | null
+  instagram_url?: string | null
+  youtube_url?: string | null
+  social_tiktok?: string | null
   preferred_contact_method?: string | null
   phone_contact_allowed?: boolean | null
   phone_available_hours?: string | null
@@ -352,25 +353,30 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                   </div>
                 )}
 
-                {(talent.twitter || talent.instagram || talent.youtube) && (
-                  <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                {(talent.twitter_url || talent.instagram_url || talent.youtube_url || talent.social_tiktok) && (
+                  <div className="space-y-2 border-t border-slate-100 pt-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">SNS</p>
-                    <div className="flex gap-3 text-base text-slate-700">
-                      {talent.twitter && (
-                        <a href={talent.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="hover:text-slate-900">
-                          <FaTwitter />
-                        </a>
-                      )}
-                      {talent.instagram && (
-                        <a href={talent.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:text-slate-900">
-                          <FaInstagram />
-                        </a>
-                      )}
-                      {talent.youtube && (
-                        <a href={talent.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="hover:text-slate-900">
-                          <FaYoutube />
-                        </a>
-                      )}
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { label: 'X', href: talent.twitter_url, icon: FaXTwitter },
+                        { label: 'Instagram', href: talent.instagram_url, icon: FaInstagram },
+                        { label: 'YouTube', href: talent.youtube_url, icon: FaYoutube },
+                        { label: 'TikTok', href: talent.social_tiktok, icon: FaTiktok },
+                      ]
+                        .filter(item => Boolean(item.href))
+                        .map(({ label, href, icon: Icon }) => (
+                          <a
+                            key={label}
+                            href={href!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${talent.stage_name}の${label}を開く`}
+                            title={label}
+                            className="grid h-10 w-10 place-items-center rounded-full border border-slate-200 bg-white text-lg text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-[#C2410C] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-300"
+                          >
+                            <Icon />
+                          </a>
+                        ))}
                     </div>
                   </div>
                 )}
