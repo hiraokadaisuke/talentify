@@ -6,12 +6,11 @@ import {
   CalendarDays,
   Clock3,
   ExternalLink,
-  Instagram,
   MapPin,
   Store,
   UserRound,
-  Youtube,
 } from 'lucide-react'
+import { FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from 'react-icons/fa6'
 import { getPublicEventBySlug, getPublicEvents } from '@/lib/events/publicEvents'
 
 export const dynamic = 'force-dynamic'
@@ -260,7 +259,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-bold text-slate-700"
                 >
-                  X <ExternalLink className="h-3 w-3" />
+                  <FaXTwitter className="h-3.5 w-3.5" /> X
                 </a>
               )}
               {instagramUrl && (
@@ -270,7 +269,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-bold text-slate-700"
                 >
-                  <Instagram className="h-3.5 w-3.5" /> Instagram
+                  <FaInstagram className="h-3.5 w-3.5" /> Instagram
                 </a>
               )}
               {youtubeUrl && (
@@ -280,7 +279,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-bold text-slate-700"
                 >
-                  <Youtube className="h-3.5 w-3.5" /> YouTube
+                  <FaYoutube className="h-3.5 w-3.5" /> YouTube
                 </a>
               )}
               {tiktokUrl && (
@@ -290,7 +289,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 px-3 text-xs font-bold text-slate-700"
                 >
-                  TikTok <ExternalLink className="h-3 w-3" />
+                  <FaTiktok className="h-3.5 w-3.5" /> TikTok
                 </a>
               )}
             </div>
