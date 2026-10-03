@@ -220,7 +220,7 @@ export default function ScheduleCalendar({
       const localizer = mod.dateFnsLocalizer({
         format,
         parse,
-        startOfWeek: (date) => startOfWeek(date, { weekStartsOn: 1 }),
+        startOfWeek: (date) => startOfWeek(date, { weekStartsOn: 0 }),
         getDay,
         locales,
       })
@@ -291,8 +291,8 @@ export default function ScheduleCalendar({
   const fetchCalendarData = useCallback(async () => {
     if (!talentId || !userId || !calendarDate || !jstFormatter) return
 
-    const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 1 })
-    const end = endOfWeek(endOfMonth(calendarDate), { weekStartsOn: 1 })
+    const start = startOfWeek(startOfMonth(calendarDate), { weekStartsOn: 0 })
+    const end = endOfWeek(endOfMonth(calendarDate), { weekStartsOn: 0 })
     const calendarFrom = format(start, 'yyyy-MM-dd')
     const calendarTo = format(end, 'yyyy-MM-dd')
     const { from, to } = monthRange(calendarDate)
