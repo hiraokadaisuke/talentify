@@ -789,6 +789,63 @@ export type Database = {
           },
         ]
       }
+      talent_social_connections: {
+        Row: {
+          access_token: string | null
+          access_token_expires_at: string | null
+          created_at: string
+          external_user_id: string | null
+          provider: string
+          provider_username: string | null
+          refresh_token: string | null
+          refresh_token_expires_at: string | null
+          scopes: string[]
+          talent_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string | null
+          access_token_expires_at?: string | null
+          created_at?: string
+          external_user_id?: string | null
+          provider: string
+          provider_username?: string | null
+          refresh_token?: string | null
+          refresh_token_expires_at?: string | null
+          scopes?: string[]
+          talent_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string | null
+          access_token_expires_at?: string | null
+          created_at?: string
+          external_user_id?: string | null
+          provider?: string
+          provider_username?: string | null
+          refresh_token?: string | null
+          refresh_token_expires_at?: string | null
+          scopes?: string[]
+          talent_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_social_connections_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "public_talent_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_social_connections_talent_id_fkey"
+            columns: ["talent_id"]
+            isOneToOne: false
+            referencedRelation: "talents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       talents: {
         Row: {
           achievements: string | null
