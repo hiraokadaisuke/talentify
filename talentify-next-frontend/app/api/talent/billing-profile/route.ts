@@ -27,7 +27,7 @@ export async function GET() {
 
   const { data: talent, error: talentError } = await supabase
     .from('talents')
-    .select('id')
+    .select('id,name')
     .eq('user_id', user.id)
     .maybeSingle()
 
@@ -46,7 +46,10 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(data ?? EMPTY_BILLING_PROFILE)
+  return NextResponse.json({
+    ...(data ?? EMPTY_BILLING_PROFILE),
+    suggested_billing_name: talent.name ?? '',
+  })
 }
 
 export async function PATCH(req: Request) {
