@@ -18,6 +18,22 @@ const prefectures = [
 
 const GENRE_OPTIONS = ['ライター','アイドル','コスプレ','モデル','その他']
 const minHourOptions = ['1時間','2時間','3時間以上']
+const TIME_OPTIONS = Array.from({ length: 18 }, (_, i) => {
+  const hour = i + 6
+  return `${String(hour).padStart(2, '0')}:00`
+})
+
+function splitTimeRange(value?: string | null) {
+  const match = String(value ?? '').match(/^(\d{2}:\d{2})\s*[〜~-]\s*(\d{2}:\d{2})$/)
+  return {
+    start: match?.[1] ?? '',
+    end: match?.[2] ?? '',
+  }
+}
+
+function joinTimeRange(start: string, end: string) {
+  return start && end ? `${start}〜${end}` : ''
+}
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'] as const
 const MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -224,6 +240,19 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   ) => {
     const { name, value } = e.target
     const updated = { ...profile, [name]: value }
+    setProfile(updated)
+    setErrors(validate(updated))
+  }
+
+  const handleTimeRangeChange = (
+    field: 'availability' | 'phone_available_hours',
+    part: 'start' | 'end',
+    value: string
+  ) => {
+    const current = splitTimeRange(profile[field])
+    const nextStart = part === 'start' ? value : current.start
+    const nextEnd = part === 'end' ? value : current.end
+    const updated = { ...profile, [field]: joinTimeRange(nextStart, nextEnd) }
     setProfile(updated)
     setErrors(validate(updated))
   }
@@ -450,18 +479,25 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           <section className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-4 sm:p-5">
             <h2 className="mb-1 text-base font-bold text-slate-900">公開に必要な項目</h2>
             <p className="mb-3 text-xs leading-5 text-slate-600">すべて入力するとプロフィールが公開状態になります。</p>
-            <ul className="space-y-2 text-sm text-gray-700">
+            <ul className="flex flex-wrap gap-2 text-xs text-slate-700">
               {[
                 { key: 'stage_name', label: 'ステージ名', done: requirements.stage_name },
                 { key: 'genre', label: 'ジャンル', done: requirements.genre },
                 { key: 'area', label: 'エリア', done: requirements.area },
                 { key: 'rate', label: '報酬', done: requirements.rate },
-                { key: 'bioOrProfile', label: '自己紹介またはプロフィール（20文字以上）', done: requirements.bioOrProfile },
+                { key: 'bioOrProfile', label: '紹介文20文字以上', done: requirements.bioOrProfile },
                 { key: 'avatar', label: 'プロフィール画像', done: requirements.avatar },
               ].map((item) => (
-                <li key={item.key} className="flex items-center gap-3 rounded-lg bg-white px-3 py-2">
+                <li
+                  key={item.key}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 font-medium ${
+                    item.done
+                      ? 'border-emerald-200 bg-white text-emerald-800'
+                      : 'border-rose-200 bg-rose-50 text-rose-700'
+                  }`}
+                >
                   <span
-                    className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-semibold ${
+                    className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
                       item.done
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-rose-100 text-rose-700'
@@ -650,14 +686,32 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             {profile.phone_contact_allowed && (
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-800">電話可能時間帯</label>
-                <Input
-                  type="text"
-                  name="phone_available_hours"
-                  value={profile.phone_available_hours}
-                  onChange={handleChange}
-                  className={fieldClassName}
-                  placeholder="例：平日 12:00〜18:00"
-                />
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                  <select
+                    value={splitTimeRange(profile.phone_available_hours).start}
+                    onChange={e => handleTimeRangeChange('phone_available_hours', 'start', e.target.value)}
+                    className={fieldClassName}
+                  >
+                    <option value="">開始</option>
+                    {TIME_OPTIONS.map(time => (
+                      <option key={`phone-start-${time}`} value={time}>{time}</option>
+                    ))}
+                  </select>
+                  <span className="text-sm font-bold text-slate-400">〜</span>
+                  <select
+                    value={splitTimeRange(profile.phone_available_hours).end}
+                    onChange={e => handleTimeRangeChange('phone_available_hours', 'end', e.target.value)}
+                    className={fieldClassName}
+                  >
+                    <option value="">終了</option>
+                    {TIME_OPTIONS
+                      .filter(time => !splitTimeRange(profile.phone_available_hours).start || time > splitTimeRange(profile.phone_available_hours).start)
+                      .map(time => (
+                        <option key={`phone-end-${time}`} value={time}>{time}</option>
+                      ))}
+                  </select>
+                </div>
+                <p className="text-xs text-slate-500">電話対応できるおおよその時間帯を設定します。</p>
               </div>
             )}
           </section>
@@ -666,14 +720,34 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             <h2 className="text-lg font-bold text-slate-950">出演条件</h2>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">出演可能時間帯</label>
-              <Input
-                type="text"
-                name="availability"
-                value={profile.availability ?? ''}
-                onChange={handleChange}
-                className={fieldClassName}
-                placeholder="例: 10:00〜18:00"
-              />
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                <select
+                  value={splitTimeRange(profile.availability).start}
+                  onChange={e => handleTimeRangeChange('availability', 'start', e.target.value)}
+                  className={fieldClassName}
+                >
+                  <option value="">開始</option>
+                  {TIME_OPTIONS.map(time => (
+                    <option key={`availability-start-${time}`} value={time}>{time}</option>
+                  ))}
+                </select>
+                <span className="text-sm font-bold text-slate-400">〜</span>
+                <select
+                  value={splitTimeRange(profile.availability).end}
+                  onChange={e => handleTimeRangeChange('availability', 'end', e.target.value)}
+                  className={fieldClassName}
+                >
+                  <option value="">終了</option>
+                  {TIME_OPTIONS
+                    .filter(time => !splitTimeRange(profile.availability).start || time > splitTimeRange(profile.availability).start)
+                    .map(time => (
+                      <option key={`availability-end-${time}`} value={time}>{time}</option>
+                    ))}
+                </select>
+              </div>
+              <p className="text-xs leading-5 text-slate-500">
+                通常の出演目安です。実際の希望時間はオファーごとに調整できます。
+              </p>
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">最低拘束時間</label>
@@ -720,14 +794,20 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             </div>
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">出演料金目安<span className="ml-1 text-red-500">*</span></label>
-              <Input
-                type="number"
-                name="rate"
-                value={profile.rate ?? ''}
-                onChange={handleChange}
-                className={fieldClassName}
-                placeholder="例：5000"
-              />
+              <div className="relative">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  step="1000"
+                  name="rate"
+                  value={profile.rate ?? ''}
+                  onChange={handleChange}
+                  className={`${fieldClassName} pr-10`}
+                  placeholder="例：30000"
+                />
+                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm font-medium text-slate-500">円</span>
+              </div>
               {errors.rate && <p className="text-sm text-red-500">{errors.rate}</p>}
             </div>
             <div className="space-y-1.5">
@@ -738,6 +818,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                 onChange={handleChange}
                 className={fieldClassName}
                 rows={3}
+                placeholder="例：写真撮影不可、終了時刻厳守など"
               />
             </div>
           </section>
