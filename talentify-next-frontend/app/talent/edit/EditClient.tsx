@@ -1,7 +1,7 @@
 'use client'
 
 
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo, type ComponentType } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { isProfileComplete } from '@/utils/isProfileComplete'
@@ -10,11 +10,23 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, RotateCcw } from 'lucide-react'
+import { AlertCircle, ChevronDown, RotateCcw } from 'lucide-react'
+import { FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from 'react-icons/fa6'
 
 const prefectures = [
   '北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'
 ]
+
+const AREA_GROUPS = [
+  { label: '北海道・東北', prefectures: ['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県'] },
+  { label: '関東', prefectures: ['茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県'] },
+  { label: '甲信越・北陸', prefectures: ['新潟県','富山県','石川県','福井県','山梨県','長野県'] },
+  { label: '東海', prefectures: ['岐阜県','静岡県','愛知県','三重県'] },
+  { label: '近畿', prefectures: ['滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県'] },
+  { label: '中国', prefectures: ['鳥取県','島根県','岡山県','広島県','山口県'] },
+  { label: '四国', prefectures: ['徳島県','香川県','愛媛県','高知県'] },
+  { label: '九州・沖縄', prefectures: ['福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'] },
+] as const
 
 const GENRE_OPTIONS = ['パチンコ・パチスロ演者','ライター','タレント','インフルエンサー','配信者','アイドル','モデル','コスプレイヤー','その他']
 const minHourOptions = ['1時間','2時間','3時間以上']
@@ -51,7 +63,7 @@ const SOCIAL_PLATFORMS: Array<{
   key: SocialKey
   platform: SocialPlatform
   label: string
-  badge: string
+  icon: ComponentType<{ className?: string }>
   placeholder: string
   help: string
 }> = [
@@ -59,7 +71,7 @@ const SOCIAL_PLATFORMS: Array<{
     key: 'twitterUrl',
     platform: 'x',
     label: 'X',
-    badge: 'X',
+    icon: FaXTwitter,
     placeholder: '@username またはプロフィールURL',
     help: '@ユーザー名だけでも登録できます。',
   },
@@ -67,7 +79,7 @@ const SOCIAL_PLATFORMS: Array<{
     key: 'instagramUrl',
     platform: 'instagram',
     label: 'Instagram',
-    badge: 'IG',
+    icon: FaInstagram,
     placeholder: '@username またはプロフィールURL',
     help: '@ユーザー名だけでも登録できます。',
   },
@@ -75,7 +87,7 @@ const SOCIAL_PLATFORMS: Array<{
     key: 'youtubeUrl',
     platform: 'youtube',
     label: 'YouTube',
-    badge: 'YT',
+    icon: FaYoutube,
     placeholder: '@handle またはチャンネルURL',
     help: 'YouTubeの@ハンドル、またはチャンネルURLを入力できます。',
   },
@@ -83,7 +95,7 @@ const SOCIAL_PLATFORMS: Array<{
     key: 'tiktokUrl',
     platform: 'tiktok',
     label: 'TikTok',
-    badge: 'TT',
+    icon: FaTiktok,
     placeholder: '@username またはプロフィールURL',
     help: '@ユーザー名だけでも登録できます。',
   },
@@ -174,6 +186,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
   const [saving, setSaving] = useState(false)
   const [enabledSocials, setEnabledSocials] = useState<SocialKey[]>([])
   const [socialPickerOpen, setSocialPickerOpen] = useState(false)
+  const [areaPickerOpen, setAreaPickerOpen] = useState(false)
   const avatarPreview = useMemo(
     () => (avatarFile ? URL.createObjectURL(avatarFile) : profile.avatar_url),
     [avatarFile, profile.avatar_url]
@@ -407,30 +420,28 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     setPhotoFiles(files)
   }
 
-  const handleAddArea = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value
-    if (!value) return
-    const updated = { ...profile, area: [...profile.area, value] }
-    setProfile(updated)
-    setErrors(validate(updated))
-    e.target.value = ''
-  }
-
-  const removeArea = (index: number) => {
-    const newArea = profile.area.filter((_, i) => i !== index)
-    const updated = { ...profile, area: newArea }
+  const setAreas = (nextAreas: string[]) => {
+    const orderedAreas = prefectures.filter((prefecture) => nextAreas.includes(prefecture))
+    const updated = { ...profile, area: orderedAreas }
     setProfile(updated)
     setErrors(validate(updated))
   }
 
-  const moveArea = (from: number, to: number) => {
-    if (to < 0 || to >= profile.area.length) return
-    const newArea = [...profile.area]
-    const [item] = newArea.splice(from, 1)
-    newArea.splice(to, 0, item)
-    const updated = { ...profile, area: newArea }
-    setProfile(updated)
-    setErrors(validate(updated))
+  const toggleArea = (prefecture: string) => {
+    setAreas(
+      profile.area.includes(prefecture)
+        ? profile.area.filter((area) => area !== prefecture)
+        : [...profile.area, prefecture]
+    )
+  }
+
+  const toggleAreaGroup = (groupPrefectures: readonly string[]) => {
+    const allSelected = groupPrefectures.every((prefecture) => profile.area.includes(prefecture))
+    setAreas(
+      allSelected
+        ? profile.area.filter((area) => !groupPrefectures.includes(area))
+        : [...new Set([...profile.area, ...groupPrefectures])]
+    )
   }
 
   const handleSave = async () => {
@@ -700,14 +711,17 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-800">拠点地域</label>
+              <label className="block text-sm font-medium text-gray-800">活動拠点<span className="ml-1 text-xs font-normal text-gray-500">（任意）</span></label>
+              <p className="text-sm leading-5 text-gray-500">
+                普段活動している都道府県です。店舗が移動距離や交通費の目安を確認するために表示します。
+              </p>
               <select
                 name="residence"
                 value={profile.residence ?? ''}
                 onChange={handleChange}
                 className={fieldClassName}
               >
-                <option value="">選択してください</option>
+                <option value="">活動拠点を選択</option>
                 {prefectures.map(p => (
                   <option key={p} value={p}>
                     {p}
@@ -716,30 +730,118 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
               </select>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-gray-800">対応エリア<span className="ml-1 text-red-500">*</span></label>
-              <div className="flex flex-wrap gap-2">
-                {profile.area.map((a, idx) => (
-                  <span key={idx} className="flex items-center rounded-full bg-orange-50 px-3 py-1 text-sm font-medium text-[#C2410C]">
-                    {a}
-                    <button type="button" onClick={() => removeArea(idx)} className="ml-2 text-red-500">×</button>
-                    <button type="button" onClick={() => moveArea(idx, idx - 1)} className="ml-1 text-xs text-gray-600">↑</button>
-                    <button type="button" onClick={() => moveArea(idx, idx + 1)} className="ml-1 text-xs text-gray-600">↓</button>
-                  </span>
-                ))}
+            <div className="space-y-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-800">
+                  来店可能エリア<span className="ml-1 text-red-500">*</span>
+                </label>
+                <p className="mt-1 text-sm leading-5 text-gray-500">
+                  オファーを受けられる都道府県を選択してください。複数選択できます。
+                </p>
               </div>
-              <select onChange={handleAddArea} className={fieldClassName}>
-                <option value="">エリアを追加</option>
-                {prefectures
-                  .filter(p => !profile.area.includes(p))
-                  .map(p => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
+
+              {profile.area.length > 0 ? (
+                <div className="flex flex-wrap gap-2" aria-label="選択中の来店可能エリア">
+                  {profile.area.map((area) => (
+                    <span
+                      key={area}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-orange-100 bg-orange-50 px-3 py-1.5 text-sm font-bold text-[#C2410C]"
+                    >
+                      {area}
+                      <button
+                        type="button"
+                        onClick={() => toggleArea(area)}
+                        className="grid h-5 w-5 place-items-center rounded-full text-base leading-none text-orange-500 hover:bg-orange-100"
+                        aria-label={`${area}を選択解除`}
+                      >
+                        ×
+                      </button>
+                    </span>
                   ))}
-              </select>
+                </div>
+              ) : (
+                <p className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-500">
+                  まだ来店可能エリアが選択されていません。
+                </p>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setAreaPickerOpen((current) => !current)}
+                aria-expanded={areaPickerOpen}
+                className="flex min-h-11 w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-bold text-slate-800 transition hover:border-orange-200 hover:bg-orange-50/50"
+              >
+                <span>{areaPickerOpen ? 'エリア選択を閉じる' : '来店可能エリアを選ぶ'}</span>
+                <span className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+                  {profile.area.length}件選択
+                  <ChevronDown className={`h-4 w-4 transition-transform ${areaPickerOpen ? 'rotate-180' : ''}`} />
+                </span>
+              </button>
+
+              {areaPickerOpen && (
+                <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    {profile.residence && !profile.area.includes(profile.residence) ? (
+                      <button
+                        type="button"
+                        onClick={() => toggleArea(profile.residence)}
+                        className="rounded-full border border-orange-200 bg-white px-3 py-1.5 text-xs font-bold text-[#C2410C]"
+                      >
+                        ＋ 活動拠点の{profile.residence}を追加
+                      </button>
+                    ) : <span />}
+                    {profile.area.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setAreas([])}
+                        className="text-xs font-bold text-slate-500 hover:text-red-600"
+                      >
+                        すべて解除
+                      </button>
+                    )}
+                  </div>
+
+                  {AREA_GROUPS.map((group) => {
+                    const allSelected = group.prefectures.every((prefecture) => profile.area.includes(prefecture))
+                    return (
+                      <div key={group.label} className="space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-xs font-black text-slate-600">{group.label}</p>
+                          <button
+                            type="button"
+                            onClick={() => toggleAreaGroup(group.prefectures)}
+                            className="text-[11px] font-bold text-[#C2410C] hover:underline"
+                          >
+                            {allSelected ? 'この地域を解除' : 'この地域をすべて選択'}
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                          {group.prefectures.map((prefecture) => {
+                            const selected = profile.area.includes(prefecture)
+                            return (
+                              <button
+                                key={prefecture}
+                                type="button"
+                                aria-pressed={selected}
+                                onClick={() => toggleArea(prefecture)}
+                                className={`min-h-10 rounded-xl border px-2 py-2 text-xs font-bold transition ${
+                                  selected
+                                    ? 'border-orange-300 bg-orange-50 text-[#C2410C]'
+                                    : 'border-slate-200 bg-white text-slate-700 hover:border-orange-200'
+                                }`}
+                              >
+                                {selected ? '✓ ' : ''}{prefecture}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
               {errors.area && <p className="text-sm text-red-500">{errors.area}</p>}
-              <p className="text-sm text-gray-500">例：関東一円／東海 など</p>
             </div>
 
             <div className="space-y-1.5">
@@ -1021,12 +1123,13 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                 {enabledSocials.map(key => {
                   const social = SOCIAL_PLATFORMS.find(item => item.key === key)
                   if (!social) return null
+                  const SocialIcon = social.icon
                   return (
                     <div key={social.key} className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
                       <div className="mb-2 flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                          <span className="grid h-8 min-w-8 place-items-center rounded-lg bg-[#0B1F3B] px-1.5 text-[10px] font-black text-white">
-                            {social.badge}
+                          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#0B1F3B] text-white">
+                            <SocialIcon className="h-4 w-4" />
                           </span>
                           <span className="text-sm font-bold text-slate-900">{social.label}</span>
                         </div>
@@ -1071,7 +1174,9 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
 
               {socialPickerOpen && (
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  {SOCIAL_PLATFORMS.filter(social => !enabledSocials.includes(social.key)).map(social => (
+                  {SOCIAL_PLATFORMS.filter(social => !enabledSocials.includes(social.key)).map(social => {
+                    const SocialIcon = social.icon
+                    return (
                     <button
                       key={social.key}
                       type="button"
@@ -1081,12 +1186,13 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                       }}
                       className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-left text-sm font-bold text-slate-800 transition hover:border-orange-200 hover:bg-orange-50"
                     >
-                      <span className="grid h-7 min-w-7 place-items-center rounded-lg bg-[#0B1F3B] px-1 text-[9px] font-black text-white">
-                        {social.badge}
+                      <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#0B1F3B] text-white">
+                        <SocialIcon className="h-3.5 w-3.5" />
                       </span>
                       {social.label}
                     </button>
-                  ))}
+                    )
+                  })}
                   {SOCIAL_PLATFORMS.every(social => enabledSocials.includes(social.key)) && (
                     <p className="col-span-2 py-2 text-center text-xs text-slate-500">
                       追加できるSNSはすべて登録されています。
