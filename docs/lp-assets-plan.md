@@ -11,6 +11,7 @@
 - connection-hub.webp — 接続・公開フロー
 - device-mockup.webp — PC・タブレット・スマホ対応イメージ
 - future-stage-bg.webp — ヒーロー背景
+- energy-ring.webp — 最終CTAの発光リング演出
 - hero-performer-red.webp — ヒーロー演者
 - lens-flare.webp — 光演出
 - light-ribbon.webp — 接続・セクション演出
@@ -24,10 +25,10 @@
 
 ## 次に追加候補
 必要になった時だけ追加する。
-- エネルギーリング
+
 
 ## 進め方
-1. 既存13素材でLP本体を完成に近づける
+1. 既存14素材でLP本体を完成に近づける
 2. 足りない箇所だけ追加素材を1枚ずつ投入
 3. PC/SPのレスポンシブ確認
 4. 表示速度・画像容量確認
