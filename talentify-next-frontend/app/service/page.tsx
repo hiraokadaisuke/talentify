@@ -1091,6 +1091,13 @@ export default function HomePage() {
       </section>
 
       <section id="register" className="scroll-mt-24 relative overflow-hidden border-t border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <img
+          src="/images/lp/materials/lens-flare.webp"
+          alt=""
+          aria-hidden="true"
+          className="raiten-final-flare pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-28"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#081426]/45 via-[#081426]/68 to-[#081426]/92" />
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-[70%] -translate-x-1/2 rounded-full bg-[#FF8A00]/10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="relative mx-auto h-28 w-28">

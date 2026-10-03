@@ -466,3 +466,19 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenFinalFlare {
+  0%, 100% { transform: scale(1.02); opacity: .22; }
+  50% { transform: scale(1.06); opacity: .34; }
+}
+
+.raiten-final-flare {
+  animation: raitenFinalFlare 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-final-flare {
+    animation: none !important;
+  }
+}
