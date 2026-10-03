@@ -40,7 +40,7 @@ type StepDetail = {
   secondaryAction?: ReactNode
 }
 
-const primaryActionClass = 'h-10 rounded-xl bg-[#FF5A1F] px-4 font-bold text-white hover:bg-[#E94F18] focus-visible:ring-orange-200'
+const primaryActionClass = 'h-11 w-full rounded-xl bg-[#FF5A1F] px-4 font-bold text-white hover:bg-[#E94F18] focus-visible:ring-orange-200 sm:w-auto'
 const secondaryActionClass = 'h-10 rounded-xl border-slate-300 bg-white px-4 font-bold text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-200'
 
 const statusDisplay = (status: string) => {
@@ -105,7 +105,6 @@ export default function StepDetailCard({
               title: '見積書を提出しました',
               description: 'ホール側で見積内容を確認しています。必要に応じてメッセージで調整してください。',
               badge: <Badge variant="outline">ホール確認待ち</Badge>,
-              meta: [{ label: '見積ステータス', value: offer.invoiceStatusLabel }],
               primaryAction: invoiceId ? <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>提出した見積書を見る</Link></Button> : undefined,
             }
       case 'review_available':
@@ -165,10 +164,12 @@ export default function StepDetailCard({
           ? 'ホール側の確認待ちです。必要に応じてメッセージで条件を調整してください。'
           : '条件がまとまったら、出演料・交通費・追加費用などを見積書にまとめて提出してください。',
         badge: estimateSubmitted ? <Badge variant="outline">ホール確認待ち</Badge> : status.badge,
-        meta: [
-          { label: '案件ステータス', value: status.text },
-          { label: '見積ステータス', value: offer.invoiceStatusLabel },
-        ],
+        meta: estimateSubmitted
+          ? undefined
+          : [
+              { label: '案件ステータス', value: status.text },
+              { label: '見積ステータス', value: offer.invoiceStatusLabel },
+            ],
         primaryAction: estimateSubmitted && invoiceId ? (
           <Button className={primaryActionClass} asChild><Link href={`/talent/invoices/${invoiceId}`}>提出した見積書を見る</Link></Button>
         ) : offer.status === 'pending' ? (
