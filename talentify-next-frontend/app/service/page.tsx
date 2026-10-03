@@ -429,7 +429,15 @@ export default function HomePage() {
       </section>
 
       <section id="about" className="scroll-mt-24 relative overflow-hidden bg-[radial-gradient(circle_at_80%_20%,rgba(255,138,0,.07),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfdff_100%)] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <div className="mx-auto grid w-full max-w-[1380px] items-center gap-10 lg:grid-cols-[.8fr_1.2fr] lg:gap-16">
+        <img
+          src="/images/lp/materials/minimal-tech-bg.webp"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-42"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/96 via-white/90 to-white/78" />
+
+        <div className="relative mx-auto grid w-full max-w-[1380px] items-center gap-10 lg:grid-cols-[.8fr_1.2fr] lg:gap-16">
           <div>
             <p className="text-xs font-black tracking-[0.2em] text-[#FF5A1F]">ABOUT RAITEN NAVI</p>
             <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight sm:text-4xl lg:text-5xl">
@@ -442,7 +450,16 @@ export default function HomePage() {
               見せる場所はしっかり目立たせ、仕事をする画面は白背景で迷わず使える。これが来店ナビの基本です。
             </p>
 
-            <div className="mt-7 space-y-3">
+            <div className="mt-6 flex flex-wrap gap-2">
+              <span className="rounded-full border border-orange-100 bg-orange-50 px-3 py-1.5 text-[10px] font-black tracking-[0.12em] text-[#FF5A1F]">
+                OUTSIDE = EXCITEMENT
+              </span>
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black tracking-[0.12em] text-[#0B1F3B] shadow-sm">
+                INSIDE = CLARITY
+              </span>
+            </div>
+
+            <div className="mt-6 space-y-3">
               {[
                 '演者を探すところから、来店後まで同じ案件で追える',
                 '電話文化を無理に変えず、重要な条件だけ記録に残せる',

@@ -15,6 +15,7 @@
 - hero-performer-red.webp — ヒーロー演者
 - lens-flare.webp — 光演出
 - light-ribbon.webp — 接続・セクション演出
+- minimal-tech-bg.webp — ABOUTセクションのミニマルテック背景
 - neon-hud-elements.webp — HUD演出
 - neon-wave-bg.webp — ダーク背景
 - office-leader-tablet.webp — 店舗向け
@@ -30,7 +31,7 @@
 
 
 ## 進め方
-1. 既存16素材でLP本体を完成に近づける
+1. 既存17素材でLP本体を完成に近づける
 2. 足りない箇所だけ追加素材を1枚ずつ投入
 3. PC/SPのレスポンシブ確認
 4. 表示速度・画像容量確認
