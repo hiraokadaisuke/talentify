@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { getPublicEventBySlug, getPublicEvents } from '@/lib/events/publicEvents'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 type PageProps = {
   params: { slug: string }
