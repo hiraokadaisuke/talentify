@@ -252,15 +252,14 @@ export default function HomePage() {
             <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-10 w-auto sm:h-11 md:h-12" />
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm font-bold text-white/70 lg:flex">
-            <Link href="/events" className="transition hover:text-[#FFC400]">来店情報</Link>
-            <Link href="#about" className="transition hover:text-[#FFC400]">来店ナビとは</Link>
-            <Link href="#features" className="transition hover:text-[#FFC400]">機能</Link>
-            <Link href="#promotion" className="transition hover:text-[#FFC400]">集客支援</Link>
-            <Link href="#for-store" className="transition hover:text-[#FFC400]">店舗向け</Link>
-            <Link href="#for-talent" className="transition hover:text-[#FFC400]">演者向け</Link>
-            <Link href="#faq" className="transition hover:text-[#FFC400]">よくある質問</Link>
-            <Link href="/guide" className="transition hover:text-[#FFC400]">ご利用ガイド</Link>
+          <nav className="hidden items-center gap-4 text-xs font-bold text-white/70 lg:flex xl:gap-6 xl:text-sm">
+            <Link href="/events" className="whitespace-nowrap transition hover:text-[#FFC400]">来店情報</Link>
+            <Link href="#features" className="whitespace-nowrap transition hover:text-[#FFC400]">サービスの特徴</Link>
+            <Link href="#ecosystem" className="whitespace-nowrap transition hover:text-[#FFC400]">ご利用の流れ</Link>
+            <Link href="#for-store" className="whitespace-nowrap transition hover:text-[#FFC400]">店舗向け</Link>
+            <Link href="#for-talent" className="whitespace-nowrap transition hover:text-[#FFC400]">演者向け</Link>
+            <Link href="#faq" className="whitespace-nowrap transition hover:text-[#FFC400]">FAQ</Link>
+            <Link href="/guide" className="whitespace-nowrap transition hover:text-[#FFC400]">ガイド</Link>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
@@ -279,11 +278,23 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
+
+        <nav className="border-t border-white/8 bg-[#081426]/96 lg:hidden">
+          <div className="mx-auto flex h-10 w-full max-w-[1480px] items-center gap-5 overflow-x-auto px-4 text-[11px] font-black text-white/62 [scrollbar-width:none] sm:px-6 [&::-webkit-scrollbar]:hidden">
+            <Link href="/events" className="shrink-0 whitespace-nowrap text-[#FFC400]">来店情報</Link>
+            <Link href="#features" className="shrink-0 whitespace-nowrap transition hover:text-white">特徴</Link>
+            <Link href="#ecosystem" className="shrink-0 whitespace-nowrap transition hover:text-white">ご利用の流れ</Link>
+            <Link href="#for-store" className="shrink-0 whitespace-nowrap transition hover:text-white">店舗向け</Link>
+            <Link href="#for-talent" className="shrink-0 whitespace-nowrap transition hover:text-white">演者向け</Link>
+            <Link href="#faq" className="shrink-0 whitespace-nowrap transition hover:text-white">FAQ</Link>
+            <Link href="/guide" className="shrink-0 whitespace-nowrap transition hover:text-white">ガイド</Link>
+          </div>
+        </nav>
       </header>
 
       <section
         id="top"
-        className="relative isolate overflow-hidden px-4 pb-14 pt-[104px] sm:px-6 sm:pb-20 sm:pt-[126px] lg:px-8 lg:pb-24"
+        className="relative isolate overflow-hidden px-4 pb-14 pt-[136px] sm:px-6 sm:pb-20 sm:pt-[148px] lg:px-8 lg:pb-24 lg:pt-[126px]"
         style={{
           background:
             'radial-gradient(circle at 82% 16%, rgba(255,196,0,.17), transparent 25%), radial-gradient(circle at 70% 48%, rgba(255,59,46,.20), transparent 28%), linear-gradient(135deg, #081426 0%, #0B1F3B 55%, #07111f 100%)',
