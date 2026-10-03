@@ -12,6 +12,7 @@
 - data-network.webp — 店舗・演者・一般ユーザー接続セクションのネットワーク背景
 - device-mockup.webp — PC・タブレット・スマホ対応イメージ
 - future-stage-bg.webp — ヒーロー背景
+- glossy-ui-elements.webp — 無料登録メリットセクションのUI装飾
 - energy-ring.webp — 最終CTAの発光リング演出
 - hero-performer-red.webp — ヒーロー演者
 - lens-flare.webp — 光演出
@@ -32,7 +33,7 @@
 
 
 ## 進め方
-1. 既存18素材でLP本体を完成に近づける
+1. 既存19素材でLP本体を完成に近づける
 2. 足りない箇所だけ追加素材を1枚ずつ投入
 3. PC/SPのレスポンシブ確認
 4. 表示速度・画像容量確認

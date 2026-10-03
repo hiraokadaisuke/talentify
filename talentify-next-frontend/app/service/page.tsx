@@ -821,8 +821,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-white px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <div className="mx-auto w-full max-w-[1180px]">
+      <section className="relative overflow-hidden bg-white px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+        <img
+          src="/images/lp/materials/glossy-ui-elements.webp"
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute right-[-7%] top-8 w-[520px] max-w-none opacity-15"
+        />
+        <div className="pointer-events-none absolute left-[-10%] bottom-[-10%] h-72 w-72 rounded-full bg-[#FF8A00]/8 blur-3xl" />
+        <div className="relative mx-auto w-full max-w-[1180px]">
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-black tracking-[0.2em] text-[#FF5A1F]">START SIMPLE</p>
             <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
@@ -870,7 +877,7 @@ export default function HomePage() {
                 text: '確定した来店予定を一般向け情報へつなぎ、店舗・演者・ユーザーの情報差を減らします。',
               },
             ].map(({ icon: Icon, label, title, text }) => (
-              <article key={title} className="rounded-[26px] border border-slate-200 bg-[#F8FAFC] p-6 shadow-[0_14px_40px_rgba(15,23,42,.05)]">
+              <article key={title} className="group rounded-[26px] border border-slate-200 bg-[#F8FAFC]/95 p-6 shadow-[0_14px_40px_rgba(15,23,42,.05)] backdrop-blur transition hover:-translate-y-1 hover:border-orange-200 hover:bg-white hover:shadow-[0_18px_44px_rgba(255,90,31,.10)]">
                 <div className="flex items-center justify-between">
                   <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
                     <Icon className="h-5 w-5" />
