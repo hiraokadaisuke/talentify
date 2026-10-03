@@ -453,9 +453,16 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="rounded-[28px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur sm:p-7">
-            <p className="text-[10px] font-black tracking-[0.16em] text-orange-200">FROM OFFER TO PUBLIC</p>
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+          <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur sm:p-7">
+            <img
+              src="/images/lp/materials/connection-hub.webp"
+              alt=""
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-30"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#081426]/60 via-[#081426]/78 to-[#081426]/95" />
+            <p className="relative text-[10px] font-black tracking-[0.16em] text-orange-200">FROM OFFER TO PUBLIC</p>
+            <div className="relative mt-5 grid gap-2 sm:grid-cols-2">
               {[
                 ['01', '演者を探す'],
                 ['02', '日程・条件を確認'],
@@ -506,7 +513,7 @@ export default function HomePage() {
 
           <article id="for-talent" className="scroll-mt-24 overflow-hidden rounded-[30px] border border-slate-200 bg-[#F8FAFC]">
             <div className="relative h-[230px] overflow-hidden sm:h-[290px]">
-              <img src="/images/lp/talent.png" alt="演者" className="h-full w-full object-cover object-top" />
+              <img src="/images/lp/materials/talent-stage.webp" alt="演者" className="h-full w-full object-cover object-top" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3B] via-[#0B1F3B]/25 to-transparent" />
               <div className="absolute bottom-5 left-5">
                 <span className="rounded-full bg-[#0B1F3B] px-3 py-1.5 text-[10px] font-black tracking-[0.14em] text-[#FFC400]">FOR TALENTS</span>
