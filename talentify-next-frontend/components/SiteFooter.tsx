@@ -26,7 +26,7 @@ const legalLinks = [
 export default function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-slate-800 bg-[#081426] text-white">
-      <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:py-8">
+      <div className="mx-auto w-full max-w-6xl lg:max-w-[1280px] px-4 py-5 sm:py-8">
         <div className="grid gap-4 sm:grid-cols-[1.2fr_1fr_1fr] sm:gap-7">
           <div>
             <Link href="/" className="inline-flex">

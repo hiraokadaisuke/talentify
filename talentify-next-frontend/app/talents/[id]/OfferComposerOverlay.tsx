@@ -175,7 +175,7 @@ export default function OfferComposerOverlay({
             className={
               isMobile
                 ? 'fixed inset-0 z-50 flex flex-col bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]'
-                : 'fixed right-0 top-0 z-50 flex h-screen w-[min(92vw,560px)] min-w-[480px] flex-col bg-white shadow-xl'
+                : 'fixed right-0 top-0 z-50 flex h-screen w-[min(92vw,640px)] min-w-[520px] flex-col bg-white shadow-xl'
             }
           >
             <header className="flex items-center justify-between border-b border-slate-200 px-4 py-3 md:px-5">

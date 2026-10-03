@@ -30,7 +30,7 @@ export default async function AreasPage() {
   return (
     <main className="min-h-screen bg-[#F8FAFC] pt-16 text-slate-950">
       <section className="bg-[#081426] px-4 py-8 text-white sm:px-6 sm:py-10">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-6xl lg:max-w-[1320px]">
           <p className="text-[10px] font-black tracking-[0.18em] text-[#FFC400]">AREA SEARCH</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">地域から探す</h1>
           <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-white/60">
@@ -39,8 +39,8 @@ export default async function AreasPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mx-auto max-w-6xl lg:max-w-[1320px] px-4 py-6 sm:px-6 sm:py-8">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {areas.map(([area, areaStores]) => {
             const upcomingCount = areaStores.reduce(
               (sum, store) => sum + store.upcomingEvents.length,

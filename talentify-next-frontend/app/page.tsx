@@ -151,7 +151,7 @@ export default async function HomePage() {
             'radial-gradient(circle at 78% 16%, rgba(255,196,0,.17), transparent 24%), radial-gradient(circle at 20% 80%, rgba(255,90,31,.17), transparent 28%), linear-gradient(135deg, #081426 0%, #0B1F3B 58%, #07111f 100%)',
         }}
       >
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="mx-auto w-full max-w-6xl lg:max-w-[1280px]">
           <div className="max-w-3xl">
             <p className="text-[10px] font-black tracking-[0.2em] text-[#FFC400] sm:text-xs">RAITEN INFORMATION</p>
             <h1 className="mt-4 text-[42px] font-black leading-[1.05] tracking-tight sm:text-[64px] lg:text-[76px]">
@@ -190,7 +190,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-7 sm:px-6 sm:py-9">
+      <section className="mx-auto w-full max-w-6xl lg:max-w-[1280px] px-4 py-7 sm:px-6 sm:py-9">
         <section>
           <div>
             <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">FIND YOUR STORE</p>

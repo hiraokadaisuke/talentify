@@ -84,7 +84,7 @@ export default function OfferPage() {
 
   if (submitted) {
     return (
-      <div className="max-w-xl mx-auto p-6">
+      <div className="max-w-xl mx-auto p-6 lg:max-w-3xl lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-8 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]">
         <h2 className="text-xl font-bold mb-2">オファーを送信しました！</h2>
         <p>相手からの返事をお待ちください。</p>
       </div>
@@ -92,7 +92,7 @@ export default function OfferPage() {
   }
 
   return (
-    <div className="max-w-xl mx-auto p-6 space-y-4">
+    <div className="max-w-xl mx-auto p-6 space-y-4 lg:max-w-3xl lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-8 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]">
       <h1 className="text-2xl font-bold">オファーを送る</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

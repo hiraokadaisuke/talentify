@@ -125,7 +125,7 @@ function Flow({
 export default function GuidePage() {
   return (
     <main className="min-h-screen bg-[#05050d] px-5 pb-20 pt-28 text-white sm:px-8">
-      <div className="mx-auto w-full max-w-6xl">
+      <div className="mx-auto w-full max-w-6xl lg:max-w-[1280px]">
         <div className="text-center">
           <p className="text-sm font-black tracking-[0.22em] text-pink-400">HOW TO USE</p>
           <h1 className="mt-3 text-4xl font-black sm:text-6xl">ご利用ガイド</h1>
