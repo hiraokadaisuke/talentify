@@ -981,9 +981,15 @@ export default function HomePage() {
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0B1F3B]/45 via-[#0B1F3B]/72 to-[#081426]/92" />
                 <div className="relative">
                   <img
+                    src="/images/lp/materials/orange-ui-hub.webp"
+                    alt=""
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-1/2 top-7 w-[250px] max-w-none -translate-x-1/2 opacity-38 mix-blend-screen"
+                  />
+                  <img
                     src="/brand/raiten-navi-icon.svg"
                     alt=""
-                    className="mx-auto h-16 w-16 rounded-[20px] shadow-[0_0_35px_rgba(255,138,0,.28)]"
+                    className="relative mx-auto h-16 w-16 rounded-[20px] shadow-[0_0_35px_rgba(255,138,0,.28)]"
                   />
                   <p className="mt-4 text-[10px] font-black tracking-[0.18em] text-[#FFC400]">RAITEN NAVI</p>
                   <h3 className="mt-2 text-2xl font-black text-white">来店ナビ</h3>

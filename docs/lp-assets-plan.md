@@ -21,6 +21,7 @@
 - neon-hud-elements.webp — HUD演出
 - neon-wave-bg.webp — ダーク背景
 - office-leader-tablet.webp — 店舗向け
+- orange-ui-hub.webp — 接続セクション中央のオレンジUIハブ
 - orange-arrow-elements.webp — 矢印・動線演出
 - smartphone-light-trails.webp — 一般公開セクションのスマホ・光軌跡演出
 - stage-light-particles.webp — 光粒子
@@ -33,7 +34,7 @@
 
 
 ## 進め方
-1. 既存19素材でLP本体を完成に近づける
+1. 既存20素材でLP本体を完成に近づける
 2. 足りない箇所だけ追加素材を1枚ずつ投入
 3. PC/SPのレスポンシブ確認
 4. 表示速度・画像容量確認
