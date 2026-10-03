@@ -44,6 +44,12 @@ export default async function TalentOfferPage({ params }: PageProps) {
     notFound()
   }
 
+  const { data: eventPublication } = await (supabase as any)
+    .from('event_publications')
+    .select('slug,status,publish_at,published_at')
+    .eq('offer_id', data.id)
+    .maybeSingle()
+
   const invoiceStatus = deriveOfferInvoiceProgressStatus({
     invoiceStatus: invoice?.status,
     invoicePaymentStatus: invoice?.payment_status,
@@ -76,6 +82,7 @@ export default async function TalentOfferPage({ params }: PageProps) {
     cancellationStage: data.cancellation_stage ?? null,
     noShowAt: data.no_show_at ?? null,
     noShowReason: data.no_show_reason ?? null,
+    publicEventUrl: eventPublication?.slug ? `/events/${eventPublication.slug}` : null,
   }
 
   return (

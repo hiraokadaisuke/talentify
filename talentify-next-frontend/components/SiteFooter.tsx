@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 const serviceLinks = [
   { href: '/', label: 'サービス' },
+  { href: '/events', label: '来店情報' },
   { href: '/#for-store', label: '店舗向け' },
   { href: '/#for-talent', label: '演者向け' },
   { href: '/guide', label: 'ご利用ガイド' },
@@ -31,7 +32,7 @@ export default function SiteFooter() {
               <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-9 w-auto sm:h-10" />
             </Link>
             <p className="mt-1.5 max-w-sm text-[11px] leading-5 text-white/45 sm:mt-2 sm:text-xs sm:leading-6">
-              パチンコ店と演者の出会いから、オファー・見積・契約・案件管理までをつなぐプラットフォーム。
+              一般向けの来店情報と、パチンコ店・演者のオファーから案件管理までをつなぐプラットフォーム。
             </p>
             <Link
               href="/login"

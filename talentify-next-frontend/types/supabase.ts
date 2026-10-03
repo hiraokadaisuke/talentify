@@ -101,6 +101,56 @@ export type Database = {
         }
         Relationships: []
       }
+      event_publications: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          offer_id: string
+          public_note: string | null
+          publish_at: string | null
+          published_at: string | null
+          show_time: boolean
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          offer_id: string
+          public_note?: string | null
+          publish_at?: string | null
+          published_at?: string | null
+          show_time?: boolean
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          offer_id?: string
+          public_note?: string | null
+          publish_at?: string | null
+          published_at?: string | null
+          show_time?: boolean
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_publications_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: true
+            referencedRelation: "offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number

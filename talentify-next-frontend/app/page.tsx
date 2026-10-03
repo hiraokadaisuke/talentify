@@ -207,6 +207,7 @@ export default function HomePage() {
           </Link>
 
           <nav className="hidden items-center gap-7 text-sm font-bold text-white/70 lg:flex">
+            <Link href="/events" className="transition hover:text-[#FFC400]">来店情報</Link>
             <Link href="#about" className="transition hover:text-[#FFC400]">来店ナビとは</Link>
             <Link href="#features" className="transition hover:text-[#FFC400]">機能</Link>
             <Link href="#promotion" className="transition hover:text-[#FFC400]">集客支援</Link>
@@ -276,6 +277,14 @@ export default function HomePage() {
                 演者として無料登録
               </BrandButton>
             </div>
+
+            <Link
+              href="/events"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-black text-[#FFC400] transition hover:text-white"
+            >
+              一般向けの来店情報を見る
+              <ArrowRight className="h-4 w-4" />
+            </Link>
 
             <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-bold text-white/50">
               <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-[#FFC400]" />案件の流れを一元管理</span>

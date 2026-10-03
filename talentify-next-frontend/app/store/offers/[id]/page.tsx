@@ -16,6 +16,7 @@ import {
   getPaymentStatusLabel,
 } from '@/lib/invoices/status'
 import MessageCard from './MessageCard'
+import EventPublicationCard from './EventPublicationCard'
 
 type PageProps = {
   params: { id: string }
@@ -51,6 +52,12 @@ export default async function StoreOfferPage({ params }: PageProps) {
   if (!data || !userId || data.store?.user_id !== userId) {
     notFound()
   }
+
+  const { data: eventPublication } = await (supabase as any)
+    .from('event_publications')
+    .select('id,offer_id,slug,status,publish_at,published_at,show_time,public_note')
+    .eq('offer_id', data.id)
+    .maybeSingle()
 
   let privateTalentPhone: string | null = null
   if (data.talents?.phone_contact_allowed && data.talents?.user_id) {
@@ -201,6 +208,11 @@ export default async function StoreOfferPage({ params }: PageProps) {
         </div>
         <div className="min-w-0 lg:sticky lg:top-6">
           <div className="space-y-3">
+            <EventPublicationCard
+              offerId={offer.id}
+              offerStatus={offer.status}
+              initialPublication={eventPublication ?? null}
+            />
             <MessageCard
               offerId={offer.id}
               currentUserId={userId}

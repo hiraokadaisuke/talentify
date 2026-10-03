@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Copy, ExternalLink, Megaphone } from 'lucide-react'
 import { getOfferProgress } from '@/utils/offerProgress'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
@@ -121,13 +121,56 @@ export default function TalentOfferClient({
           />
         </div>
         <div className="min-w-0 lg:sticky lg:top-6">
-          <MessageCard
-            offerId={offer.id}
-            currentUserId={userId}
-            peerUserId={offer.storeUserId ?? ''}
-            storeName={offer.storeName}
-            talentName={offer.performerName}
-          />
+          <div className="space-y-3">
+            {offer.publicEventUrl && (
+              <section className="rounded-2xl border border-orange-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+                <div className="flex items-start gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-orange-50 text-[#C2410C]">
+                    <Megaphone className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <p className="text-sm font-black text-slate-950">来店情報</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      この来店予定は一般向けページで公開されています。
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Link
+                    href={offer.publicEventUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl bg-[#0B1F3B] px-3 text-xs font-bold text-white"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    公開ページ
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(`${window.location.origin}${offer.publicEventUrl}`)
+                        toast.success('公開URLをコピーしました')
+                      } catch {
+                        toast.error('URLをコピーできませんでした')
+                      }
+                    }}
+                    className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    URLコピー
+                  </button>
+                </div>
+              </section>
+            )}
+            <MessageCard
+              offerId={offer.id}
+              currentUserId={userId}
+              peerUserId={offer.storeUserId ?? ''}
+              storeName={offer.storeName}
+              talentName={offer.performerName}
+            />
+          </div>
         </div>
       </div>
     </div>
