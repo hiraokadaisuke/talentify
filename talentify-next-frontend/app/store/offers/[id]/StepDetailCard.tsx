@@ -66,7 +66,7 @@ type StepDetail = {
   footer?: ReactNode
 }
 
-const primaryActionClass = 'h-10 rounded-xl bg-[#FF5A1F] px-4 font-bold text-white hover:bg-[#E94F18] focus-visible:ring-orange-200'
+const primaryActionClass = 'h-11 w-full rounded-xl bg-[#FF5A1F] px-4 font-bold text-white hover:bg-[#E94F18] focus-visible:ring-orange-200 sm:w-auto'
 
 const statusBadge = (status: string) => {
   switch (status) {
