@@ -124,14 +124,14 @@ export default async function HomePage() {
           </Link>
 
           <nav className="flex items-center gap-1 sm:gap-2">
-            <Link href="/events?view=today" className="rounded-lg px-2.5 py-2 text-xs font-black text-white/80 transition hover:bg-white/8 hover:text-white sm:px-3 sm:text-sm">
+            <Link href="/areas" className="rounded-lg px-2.5 py-2 text-xs font-black text-white/80 transition hover:bg-white/8 hover:text-white sm:px-3 sm:text-sm">
+              地域
+            </Link>
+            <Link href="/stores" className="rounded-lg px-2.5 py-2 text-xs font-black text-white/80 transition hover:bg-white/8 hover:text-white sm:px-3 sm:text-sm">
+              店舗
+            </Link>
+            <Link href="/events?view=today" className="rounded-lg px-2.5 py-2 text-xs font-black text-white/70 transition hover:bg-white/8 hover:text-white sm:px-3 sm:text-sm">
               今日
-            </Link>
-            <Link href="/events?view=tomorrow" className="rounded-lg px-2.5 py-2 text-xs font-black text-white/70 transition hover:bg-white/8 hover:text-white sm:px-3 sm:text-sm">
-              明日
-            </Link>
-            <Link href="/events?view=week" className="rounded-lg px-2.5 py-2 text-xs font-black text-white/70 transition hover:bg-white/8 hover:text-white sm:px-3 sm:text-sm">
-              今週
             </Link>
           </nav>
 
@@ -157,11 +157,11 @@ export default async function HomePage() {
             <h1 className="mt-4 text-[42px] font-black leading-[1.05] tracking-tight sm:text-[64px] lg:text-[76px]">
               今日、
               <br />
-              誰が来る？
+              どこ行く？
             </h1>
             <p className="mt-5 max-w-2xl text-sm font-medium leading-7 text-white/65 sm:text-base sm:leading-8">
-              パチンコ店の演者来店予定を、日付や地域からチェック。
-              今日・明日・今週の公開中の来店情報をまとめて探せます。
+              地域や店舗から、今日・近日の来店予定をチェック。
+              行きたいエリアやよく行く店舗を起点に、公開中の来店情報を探せます。
             </p>
           </div>
 
@@ -191,34 +191,81 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 py-7 sm:px-6 sm:py-9">
-        <div className="flex flex-col gap-3 rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,.05)] sm:flex-row sm:items-center sm:justify-between">
+        <section>
           <div>
-            <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">AREA SEARCH</p>
-            <h2 className="mt-1 text-lg font-black sm:text-xl">地域から来店情報を探す</h2>
+            <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">FIND YOUR STORE</p>
+            <h2 className="mt-1 text-2xl font-black tracking-tight sm:text-3xl">どこへ行くかから探す</h2>
+            <p className="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">
+              来店ナビでは、地域・店舗から探すのがメインです。
+            </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {prefectures.length > 0 ? (
-              prefectures.slice(0, 8).map((prefecture) => (
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <Link
+              href="/areas"
+              className="group rounded-[24px] border border-orange-100 bg-gradient-to-br from-orange-50 to-white p-5 shadow-[0_10px_30px_rgba(255,90,31,.08)] transition hover:-translate-y-0.5 hover:border-orange-200"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#FF5A1F] text-white shadow-sm">
+                  <MapPin className="h-5 w-5" />
+                </span>
+                <ArrowRight className="h-5 w-5 text-orange-300 transition group-hover:translate-x-0.5 group-hover:text-[#C2410C]" />
+              </div>
+              <p className="mt-5 text-[10px] font-black tracking-[0.14em] text-[#C2410C]">AREA</p>
+              <h3 className="mt-1 text-2xl font-black text-slate-950">地域から探す</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                行きたい都道府県から、来店予定がある店舗をまとめて確認。
+              </p>
+            </Link>
+
+            <Link
+              href="/stores"
+              className="group rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,.05)] transition hover:-translate-y-0.5 hover:border-orange-200"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#0B1F3B] text-white shadow-sm">
+                  <Building2 className="h-5 w-5" />
+                </span>
+                <ArrowRight className="h-5 w-5 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-[#C2410C]" />
+              </div>
+              <p className="mt-5 text-[10px] font-black tracking-[0.14em] text-slate-400">STORE</p>
+              <h3 className="mt-1 text-2xl font-black text-slate-950">店舗から探す</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                よく行く店舗や気になる店舗から、今後の来店予定をチェック。
+              </p>
+            </Link>
+          </div>
+
+          <div className="mt-3 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600">
+                <UserRound className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-sm font-black text-slate-900">演者から探す</p>
+                <p className="mt-0.5 text-xs leading-5 text-slate-500">好きな演者の来店予定を追いたい方はこちら。</p>
+              </div>
+            </div>
+            <Link href="/performers" className="inline-flex items-center gap-1 text-xs font-black text-[#C2410C]">
+              演者一覧を見る <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {prefectures.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {prefectures.slice(0, 8).map((prefecture) => (
                 <Link
                   key={prefecture}
-                  href={`/events?view=week&prefecture=${encodeURIComponent(prefecture)}`}
-                  className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 text-xs font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-[#C2410C]"
+                  href={`/stores?prefecture=${encodeURIComponent(prefecture)}`}
+                  className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-[#C2410C]"
                 >
                   <MapPin className="h-3.5 w-3.5" />
                   {prefecture}
                 </Link>
-              ))
-            ) : (
-              <Link
-                href="/events"
-                className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-[#0B1F3B] px-4 text-xs font-black text-white"
-              >
-                <Search className="h-3.5 w-3.5" />
-                来店情報を探す
-              </Link>
-            )}
-          </div>
-        </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <div className="mt-9 flex items-end justify-between gap-4">
           <div>
