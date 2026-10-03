@@ -1,5 +1,5 @@
+import { headers } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUserWithClient } from '@/lib/auth/getCurrentUserWithClient'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 
@@ -7,6 +7,8 @@ export const runtime = 'nodejs'
 
 const BELL_LIMIT = 8
 const FETCH_LIMIT = 24
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 type NotificationRow = Database['public']['Tables']['notifications']['Row']
 
@@ -33,24 +35,24 @@ function sortForBell(items: NotificationRow[]) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
-    const { user, error: userError } = await getCurrentUserWithClient(supabase)
-    if (userError || !user) {
+    const userId = headers().get('x-raiten-user-id')
+    if (!userId || !UUID_PATTERN.test(userId)) {
       return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
 
+    const supabase = createClient()
     const countOnly = request.nextUrl.searchParams.get('count_only') === 'true'
 
     if (countOnly) {
       const { count, error } = await supabase
         .from('notifications')
         .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .eq('is_read', false)
 
       if (error) {
         console.error('[notifications][api][bell] count failed', {
-          userId: user.id,
+          userId: userId,
           error,
         })
         return NextResponse.json({ error: 'failed to fetch bell count' }, { status: 500 })
@@ -63,7 +65,7 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await supabase
       .from('notifications')
       .select('*', { count: 'exact' })
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('is_read', false)
       .order('updated_at', { ascending: false })
       .order('created_at', { ascending: false })
@@ -72,7 +74,7 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error('[notifications][api][bell] failed', {
         stage: 'fetchNotifications',
-        userId: user.id,
+        userId: userId,
         error,
       })
       return NextResponse.json(
