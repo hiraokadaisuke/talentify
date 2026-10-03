@@ -80,7 +80,7 @@ export default async function PerformerDetailPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-[#F8FAFC] pt-16 text-slate-950">
       <section className="bg-[#081426] px-4 py-7 text-white sm:px-6 sm:py-9">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl lg:max-w-[1200px]">
           <Link href="/performers" className="inline-flex items-center gap-1.5 text-xs font-bold text-white/55 hover:text-white">
             <ArrowLeft className="h-3.5 w-3.5" />
             演者一覧へ
@@ -126,7 +126,7 @@ export default async function PerformerDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+      <section className="mx-auto max-w-5xl lg:max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
         <div>
           <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">UPCOMING</p>
           <h2 className="mt-1 text-2xl font-black tracking-tight">今後の来店予定</h2>
@@ -136,7 +136,7 @@ export default async function PerformerDetailPage({ params }: PageProps) {
         </div>
 
         {performer.upcomingEvents.length > 0 ? (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {performer.upcomingEvents.map((event) => <EventRow key={event.id} event={event} />)}
           </div>
         ) : (
@@ -150,7 +150,7 @@ export default async function PerformerDetailPage({ params }: PageProps) {
           <section className="mt-10">
             <p className="text-[10px] font-black tracking-[0.14em] text-slate-400">HISTORY</p>
             <h2 className="mt-1 text-xl font-black">過去の来店履歴</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {performer.pastEvents.slice(0, 12).map((event) => <EventRow key={event.id} event={event} />)}
             </div>
           </section>

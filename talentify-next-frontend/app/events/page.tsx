@@ -157,7 +157,7 @@ export default async function EventsPage({
             'radial-gradient(circle at 80% 20%, rgba(255,196,0,.16), transparent 26%), radial-gradient(circle at 20% 80%, rgba(255,90,31,.18), transparent 30%), #081426',
         }}
       >
-        <div className="mx-auto w-full max-w-5xl">
+        <div className="mx-auto w-full max-w-5xl lg:max-w-[1280px]">
           <p className="text-[10px] font-black tracking-[0.2em] text-[#FFC400] sm:text-xs">
             RAITEN INFORMATION
           </p>
@@ -166,7 +166,7 @@ export default async function EventsPage({
             来店ナビで公開されている、演者の来店予定を日付と地域から探せます。
           </p>
 
-          <div className="mt-7 grid max-w-xl grid-cols-3 gap-2">
+          <div className="mt-7 grid max-w-xl grid-cols-3 gap-2 lg:max-w-2xl">
             {[
               ['today', '今日'],
               ['tomorrow', '明日'],
@@ -191,7 +191,7 @@ export default async function EventsPage({
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+      <section className="mx-auto w-full max-w-5xl lg:max-w-[1280px] px-4 py-6 sm:px-6 sm:py-8">
         <form className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-center">
           <input type="hidden" name="view" value={view} />
           <div className="flex min-w-0 flex-1 items-center gap-2">

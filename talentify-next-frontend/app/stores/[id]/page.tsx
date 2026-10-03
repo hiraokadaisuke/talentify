@@ -73,7 +73,7 @@ export default async function StoreDetailPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-[#F8FAFC] pt-16 text-slate-950">
       <section className="bg-[#081426] px-4 py-7 text-white sm:px-6 sm:py-9">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl lg:max-w-[1200px]">
           <Link href="/stores" className="inline-flex items-center gap-1.5 text-xs font-bold text-white/55 hover:text-white">
             <ArrowLeft className="h-3.5 w-3.5" />
             店舗一覧へ
@@ -113,7 +113,7 @@ export default async function StoreDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
+      <section className="mx-auto max-w-5xl lg:max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">UPCOMING</p>
@@ -125,7 +125,7 @@ export default async function StoreDetailPage({ params }: PageProps) {
         </div>
 
         {store.upcomingEvents.length > 0 ? (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {store.upcomingEvents.map((event) => <EventRow key={event.id} event={event} />)}
           </div>
         ) : (
@@ -144,7 +144,7 @@ export default async function StoreDetailPage({ params }: PageProps) {
                 来店ナビ上で公開された来店情報です。
               </p>
             </div>
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {store.pastEvents.slice(0, 12).map((event) => <EventRow key={event.id} event={event} />)}
             </div>
           </section>

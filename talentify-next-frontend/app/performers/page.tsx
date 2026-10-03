@@ -44,7 +44,7 @@ export default async function PerformersPage({
   return (
     <main className="min-h-screen bg-[#F8FAFC] pt-16 text-slate-950">
       <section className="bg-[#081426] px-4 py-8 text-white sm:px-6 sm:py-10">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-6xl lg:max-w-[1320px]">
           <p className="text-[10px] font-black tracking-[0.18em] text-[#FFC400]">PERFORMER SEARCH</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">演者から探す</h1>
           <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-white/60">
@@ -68,7 +68,7 @@ export default async function PerformersPage({
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <section className="mx-auto max-w-6xl lg:max-w-[1320px] px-4 py-6 sm:px-6 sm:py-8">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">PERFORMERS</p>
@@ -78,7 +78,7 @@ export default async function PerformersPage({
         </div>
 
         {filtered.length > 0 ? (
-          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {filtered.map((performer) => (
               <Link
                 key={performer.id}

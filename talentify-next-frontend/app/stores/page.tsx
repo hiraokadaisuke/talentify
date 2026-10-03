@@ -48,7 +48,7 @@ export default async function StoresPage({
   return (
     <main className="min-h-screen bg-[#F8FAFC] pt-16 text-slate-950">
       <section className="bg-[#081426] px-4 py-8 text-white sm:px-6 sm:py-10">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-6xl lg:max-w-[1320px]">
           <p className="text-[10px] font-black tracking-[0.18em] text-[#FFC400]">STORE SEARCH</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">店舗から探す</h1>
           <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-white/60">
@@ -73,7 +73,7 @@ export default async function StoresPage({
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <section className="mx-auto max-w-6xl lg:max-w-[1320px] px-4 py-6 sm:px-6 sm:py-8">
         <div className="flex gap-2 overflow-x-auto pb-2">
           <Link
             href={q ? `/stores?q=${encodeURIComponent(q)}` : '/stores'}
@@ -116,7 +116,7 @@ export default async function StoresPage({
         </div>
 
         {filtered.length > 0 ? (
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((store) => (
               <Link
                 key={store.id}

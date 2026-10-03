@@ -151,7 +151,7 @@ export default async function EventDetailPage({ params }: PageProps) {
             'radial-gradient(circle at 80% 15%, rgba(255,196,0,.15), transparent 25%), #081426',
         }}
       >
-        <div className="mx-auto w-full max-w-4xl">
+        <div className="mx-auto w-full max-w-4xl lg:max-w-[1200px]">
           <Link
             href="/events"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-white/60 transition hover:text-white"
@@ -166,7 +166,7 @@ export default async function EventDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-4xl px-4 py-5 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-4xl lg:max-w-[1200px] px-4 py-5 sm:px-6 sm:py-8">
         {isCanceled && (
           <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-4">
             <p className="text-sm font-black text-red-800">この来店予定はキャンセルとなりました。</p>
@@ -183,7 +183,7 @@ export default async function EventDetailPage({ params }: PageProps) {
         )}
 
         <article className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_16px_44px_rgba(15,23,42,.08)]">
-          <div className="grid gap-0 sm:grid-cols-[250px_1fr]">
+          <div className="grid gap-0 sm:grid-cols-[250px_1fr] lg:grid-cols-[340px_minmax(0,1fr)]">
             <div className="aspect-[4/3] bg-slate-100 sm:aspect-auto sm:min-h-[320px]">
               {event.talent.avatarUrl ? (
                 <img
@@ -242,7 +242,7 @@ export default async function EventDetailPage({ params }: PageProps) {
           </div>
         </article>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="mt-5 grid gap-4 md:grid-cols-2 lg:gap-5">
           <section className="rounded-2xl border border-slate-200 bg-white p-5">
             <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">PERFORMER</p>
             <h2 className="mt-1 text-xl font-black">{event.talent.name}</h2>
@@ -338,7 +338,7 @@ export default async function EventDetailPage({ params }: PageProps) {
           <section className="mt-8">
             <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">UPCOMING</p>
             <h2 className="mt-1 text-xl font-black">{event.talent.name}さんの今後の来店</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((item) => (
                 <Link
                   href={`/events/${item.slug}`}
