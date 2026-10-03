@@ -551,7 +551,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
     }
   }
 
-  if (loading) return <p className="p-4">読み込み中...</p>
+  if (loading) return <p className="p-4 lg:mx-auto lg:max-w-[1040px] lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-8 lg:text-center lg:text-slate-500 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]">読み込み中...</p>
 
   if (loadError) {
     return (
