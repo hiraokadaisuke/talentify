@@ -40,6 +40,7 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/password-reset',
   '/pricing',
   '/privacy',
+  '/service',
   '/register',
   '/store',
   '/talent',
@@ -174,7 +175,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
     'flex min-h-11 w-full items-center rounded-xl px-3 text-[15px] font-semibold text-slate-700 transition-colors hover:bg-slate-100'
   const mobileActiveClass = 'bg-orange-50 text-[#C2410C]'
 
-  if (pathname === '/') {
+  if (pathname === '/' || pathname === '/service') {
     return null
   }
 
@@ -212,7 +213,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
               </Button>
             ) : (
               <Link
-                href="/"
+                href="/service"
                 className="inline-flex h-9 items-center rounded-full border border-white/15 px-3.5 text-xs font-bold text-white/70 transition hover:bg-white/8 hover:text-white"
               >
                 店舗・演者の方
@@ -419,9 +420,10 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
   if (isPublicPage) {
     const publicLinks = [
-      { href: '/', label: 'サービス' },
-      { href: '/#for-store', label: '店舗向け' },
-      { href: '/#for-talent', label: '演者向け' },
+      { href: '/', label: '来店情報' },
+      { href: '/service', label: 'サービス' },
+      { href: '/service#for-store', label: '店舗向け' },
+      { href: '/service#for-talent', label: '演者向け' },
       { href: '/guide', label: 'ご利用ガイド' },
     ]
 
@@ -461,7 +463,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   ログイン
                 </Link>
                 <Link
-                  href="/#register"
+                  href="/service#register"
                   className="inline-flex h-9 items-center rounded-full bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400] px-4 text-xs font-black text-white shadow-[0_0_18px_rgba(255,138,0,.28)] sm:text-sm"
                 >
                   新規登録
