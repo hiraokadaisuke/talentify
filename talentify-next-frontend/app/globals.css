@@ -366,3 +366,29 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenTalentChip {
+  0%, 100% { transform: translateY(0) rotate(-.5deg); }
+  50% { transform: translateY(-5px) rotate(.5deg); }
+}
+
+@keyframes raitenTalentChipSecondary {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-4px) translateX(-3px); }
+}
+
+.raiten-talent-chip {
+  animation: raitenTalentChip 5.4s ease-in-out infinite;
+}
+
+.raiten-talent-chip-secondary {
+  animation: raitenTalentChipSecondary 6s ease-in-out infinite .4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-talent-chip,
+  .raiten-talent-chip-secondary {
+    animation: none !important;
+  }
+}

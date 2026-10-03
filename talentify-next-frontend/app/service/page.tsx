@@ -688,17 +688,45 @@ export default function HomePage() {
             </div>
           </article>
 
-          <article id="for-talent" className="scroll-mt-24 overflow-hidden rounded-[30px] border border-slate-200 bg-[#F8FAFC]">
-            <div className="relative h-[230px] overflow-hidden sm:h-[290px]">
+          <article id="for-talent" className="scroll-mt-24 overflow-hidden rounded-[30px] border border-slate-200 bg-[#F8FAFC] shadow-[0_18px_50px_rgba(15,23,42,.06)]">
+            <div className="relative h-[250px] overflow-hidden sm:h-[310px]">
               <img src="/images/lp/materials/talent-stage.webp" alt="演者" className="h-full w-full object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3B] via-[#0B1F3B]/25 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F3B] via-[#0B1F3B]/28 to-[#0B1F3B]/5" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#081426]/80 to-transparent" />
+
+              <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-white/15 bg-[#081426]/45 px-3 py-2 backdrop-blur-md">
+                <span className="h-2 w-2 rounded-full bg-[#FF8A00] shadow-[0_0_14px_rgba(255,138,0,.75)]" />
+                <span className="text-[9px] font-black tracking-[0.14em] text-white/80">TALENT SIDE</span>
+              </div>
+
+              <div className="raiten-talent-chip absolute right-4 top-5 rounded-2xl border border-white/15 bg-white/90 px-3 py-2.5 shadow-xl backdrop-blur sm:right-5">
+                <p className="text-[8px] font-black tracking-[0.12em] text-slate-400">PROFILE</p>
+                <p className="mt-0.5 text-[11px] font-black text-slate-900">活動内容をプロフィールで発信</p>
+              </div>
+
+              <div className="raiten-talent-chip-secondary absolute right-7 top-[88px] rounded-2xl border border-orange-100 bg-[#FFF8F3]/95 px-3 py-2.5 shadow-xl backdrop-blur sm:right-9">
+                <p className="text-[8px] font-black tracking-[0.12em] text-[#FF8A00]">OFFER</p>
+                <p className="mt-0.5 text-[11px] font-black text-slate-900">届いた条件をまとめて確認</p>
+              </div>
+
               <div className="absolute bottom-5 left-5">
                 <span className="rounded-full bg-[#0B1F3B] px-3 py-1.5 text-[10px] font-black tracking-[0.14em] text-[#FFC400]">FOR TALENTS</span>
                 <h2 className="mt-3 text-3xl font-black text-white">演者の方へ</h2>
               </div>
             </div>
+
             <div className="p-6 sm:p-8">
-              <h3 className="text-2xl font-black">活動と案件管理を、ひとつに。</h3>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-black tracking-[0.16em] text-[#FF5A1F]">PROFILE → OFFER → MANAGE</p>
+                  <h3 className="mt-2 text-2xl font-black">活動と案件管理を、ひとつに。</h3>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white px-3 py-2 text-right">
+                  <p className="text-[9px] font-black text-slate-400">POINT</p>
+                  <p className="mt-0.5 text-[11px] font-black text-slate-800">案件ごとの情報をまとめて確認</p>
+                </div>
+              </div>
+
               <div className="mt-5 grid gap-3">
                 {talentBenefits.map((item) => (
                   <div key={item} className="flex items-start gap-3">
@@ -707,6 +735,23 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
+
+              <div className="mt-6 grid grid-cols-3 gap-2">
+                {[
+                  ['01', '伝える'],
+                  ['02', '確認する'],
+                  ['03', '管理する'],
+                ].map(([number, label], index) => (
+                  <div key={number} className="relative rounded-2xl border border-slate-200 bg-white px-3 py-3 text-center shadow-sm">
+                    <span className="text-[9px] font-black tracking-[0.12em] text-slate-300">{number}</span>
+                    <p className="mt-1 text-[11px] font-black text-slate-800">{label}</p>
+                    {index < 2 && (
+                      <ArrowRight className="absolute -right-[9px] top-1/2 z-10 h-4 w-4 -translate-y-1/2 rounded-full bg-[#F8FAFC] p-0.5 text-[#FF5A1F]" />
+                    )}
+                  </div>
+                ))}
+              </div>
+
               <Link href="/register?role=talent" className="mt-7 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#0B1F3B] px-5 text-sm font-black text-white">
                 演者として無料登録
                 <ArrowRight className="h-4 w-4 text-[#FFC400]" />
