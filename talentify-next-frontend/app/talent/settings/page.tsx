@@ -8,9 +8,31 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
+const BANK_OPTIONS = [
+  '三井住友銀行',
+  '三菱UFJ銀行',
+  'みずほ銀行',
+  'りそな銀行',
+  'ゆうちょ銀行',
+  '楽天銀行',
+  'PayPay銀行',
+  '住信SBIネット銀行',
+  'auじぶん銀行',
+  'ソニー銀行',
+  'セブン銀行',
+  'イオン銀行',
+  'みなと銀行',
+  '池田泉州銀行',
+  '京都銀行',
+  '関西みらい銀行',
+] as const
+
+const ACCOUNT_TYPES = ['普通', '当座', '貯蓄'] as const
+
 export default function TalentSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [billingSaving, setBillingSaving] = useState(false)
+  const [billingNameSuggestion, setBillingNameSuggestion] = useState('')
   const [bankInfo, setBankInfo] = useState({
     bank_name: '',
     branch_name: '',
@@ -49,6 +71,7 @@ export default function TalentSettingsPage() {
           billing_address: data.billing_address ?? '',
           invoice_registration_number: data.invoice_registration_number ?? '',
         })
+        setBillingNameSuggestion(data.suggested_billing_name ?? '')
       }
     }
 
@@ -98,24 +121,99 @@ export default function TalentSettingsPage() {
     <main className="mx-auto max-w-screen-md space-y-6 p-4">
       <h1 className="text-2xl font-bold">設定</h1>
 
-      <SectionCard title="振込先" description="請求・支払いに利用する銀行口座情報です">
+      <SectionCard title="振込先" description="請求書に記載する振込口座です。候補から選ぶか、そのまま直接入力できます。">
         <div className="space-y-4">
-          {[
-            ['bank_name', '銀行名'],
-            ['branch_name', '支店名'],
-            ['account_type', '口座種別'],
-            ['account_number', '口座番号'],
-            ['account_holder', '口座名義人'],
-          ].map(([key, label]) => (
-            <div className="space-y-2" key={key}>
-              <Label htmlFor={key}>{label}</Label>
-              <Input
-                id={key}
-                value={bankInfo[key as keyof typeof bankInfo]}
-                onChange={(e) => setBankInfo({ ...bankInfo, [key]: e.target.value })}
-              />
+          <div className="space-y-2">
+            <Label htmlFor="bank_name">銀行名</Label>
+            <Input
+              id="bank_name"
+              list="bank-options"
+              value={bankInfo.bank_name}
+              onChange={(e) =>
+                setBankInfo((current) => ({ ...current, bank_name: e.target.value }))
+              }
+              placeholder="例：三井住友銀行"
+              autoComplete="off"
+            />
+            <datalist id="bank-options">
+              {BANK_OPTIONS.map((bank) => (
+                <option key={bank} value={bank} />
+              ))}
+            </datalist>
+            <p className="text-xs text-slate-500">候補にない銀行も直接入力できます。</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="branch_name">支店名</Label>
+            <Input
+              id="branch_name"
+              value={bankInfo.branch_name}
+              onChange={(e) =>
+                setBankInfo((current) => ({ ...current, branch_name: e.target.value }))
+              }
+              placeholder="例：神戸支店"
+              autoComplete="off"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>口座種別</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {ACCOUNT_TYPES.map((type) => {
+                const selected = bankInfo.account_type === type
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() =>
+                      setBankInfo((current) => ({ ...current, account_type: type }))
+                    }
+                    className={`min-h-11 rounded-xl border px-3 text-sm font-bold transition ${
+                      selected
+                        ? 'border-orange-300 bg-orange-50 text-[#C2410C]'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                )
+              })}
             </div>
-          ))}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="account_number">口座番号</Label>
+            <Input
+              id="account_number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={bankInfo.account_number}
+              onChange={(e) =>
+                setBankInfo((current) => ({
+                  ...current,
+                  account_number: e.target.value.replace(/\D/g, ''),
+                }))
+              }
+              placeholder="例：1234567"
+              autoComplete="off"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="account_holder">口座名義人</Label>
+            <Input
+              id="account_holder"
+              value={bankInfo.account_holder}
+              onChange={(e) =>
+                setBankInfo((current) => ({ ...current, account_holder: e.target.value }))
+              }
+              placeholder="例：ヤマダ タロウ"
+              autoComplete="off"
+            />
+            <p className="text-xs text-slate-500">通帳や口座情報に記載されている名義どおりに入力してください。</p>
+          </div>
+
           <div className="flex justify-end">
             <Button onClick={handleSave} disabled={saving} className="rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]">
               {saving ? '保存中...' : '振込先を保存'}
@@ -130,7 +228,23 @@ export default function TalentSettingsPage() {
       >
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="billing_name">請求書名義</Label>
+            <div className="flex items-center justify-between gap-3">
+              <Label htmlFor="billing_name">請求書名義</Label>
+              {billingNameSuggestion && billingInfo.billing_name !== billingNameSuggestion && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setBillingInfo((current) => ({
+                      ...current,
+                      billing_name: billingNameSuggestion,
+                    }))
+                  }
+                  className="text-xs font-bold text-[#C2410C] hover:underline"
+                >
+                  本名を使う
+                </button>
+              )}
+            </div>
             <Input
               id="billing_name"
               value={billingInfo.billing_name}
@@ -138,6 +252,7 @@ export default function TalentSettingsPage() {
                 setBillingInfo({ ...billingInfo, billing_name: e.target.value })
               }
               placeholder="例：山田 太郎 / 株式会社○○"
+              autoComplete="name"
             />
           </div>
 
@@ -150,6 +265,7 @@ export default function TalentSettingsPage() {
                 setBillingInfo({ ...billingInfo, billing_address: e.target.value })
               }
               placeholder="例：東京都○○区○○1-2-3"
+              autoComplete="street-address"
             />
           </div>
 
