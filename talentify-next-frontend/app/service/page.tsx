@@ -88,89 +88,128 @@ function BrandButton({
 
 function DashboardPreview() {
   return (
-    <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_28px_80px_rgba(8,20,38,.15)]">
-      <div className="flex min-h-[420px]">
-        <aside className="hidden w-[170px] shrink-0 bg-[#0B1F3B] p-4 text-white sm:block">
-          <img src="/brand/raiten-navi-icon.svg" alt="" className="h-9 w-9 rounded-xl" />
-          <p className="mt-5 text-[10px] font-bold tracking-[0.18em] text-white/45">STORE MENU</p>
-          <div className="mt-3 space-y-2">
-            {['ダッシュボード', '演者を探す', 'オファー管理', 'メッセージ', '見積・請求'].map((item, index) => (
-              <div
-                key={item}
-                className={`rounded-xl px-3 py-2.5 text-xs font-bold ${
-                  index === 0 ? 'bg-[#FF5A1F] text-white' : 'text-white/65'
-                }`}
-              >
-                {item}
-              </div>
-            ))}
-          </div>
-        </aside>
+    <div className="relative pb-8 sm:pb-12">
+      <div className="pointer-events-none absolute -inset-x-5 top-10 h-56 rounded-full bg-gradient-to-r from-[#0B1F3B]/10 via-[#FF8A00]/10 to-[#FFC400]/10 blur-3xl" />
 
-        <div className="min-w-0 flex-1 bg-[#F8FAFC] p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-black tracking-[0.16em] text-[#FF5A1F]">RAITEN NAVI</p>
-              <p className="mt-1 text-lg font-black text-slate-950">ダッシュボード</p>
+      <div className="absolute -top-4 right-3 z-20 hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-[10px] font-black tracking-[0.12em] text-slate-500 shadow-lg sm:flex">
+        <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
+        PC / TABLET / MOBILE
+      </div>
+
+      <div className="relative overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_28px_80px_rgba(8,20,38,.15)]">
+        <div className="flex min-h-[420px]">
+          <aside className="hidden w-[170px] shrink-0 bg-[#0B1F3B] p-4 text-white sm:block">
+            <img src="/brand/raiten-navi-icon.svg" alt="" className="h-9 w-9 rounded-xl" />
+            <p className="mt-5 text-[10px] font-bold tracking-[0.18em] text-white/45">STORE MENU</p>
+            <div className="mt-3 space-y-2">
+              {['ダッシュボード', '演者を探す', 'オファー管理', 'メッセージ', '見積・請求'].map((item, index) => (
+                <div
+                  key={item}
+                  className={`rounded-xl px-3 py-2.5 text-xs font-bold ${
+                    index === 0 ? 'bg-[#FF5A1F] text-white' : 'text-white/65'
+                  }`}
+                >
+                  {item}
+                </div>
+              ))}
             </div>
-            <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold text-slate-500">
-              店舗アカウント
-            </span>
-          </div>
+          </aside>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
-            {[
-              ['進行中', '8件'],
-              ['新着オファー', '3件'],
-              ['今月の来店', '12件'],
-              ['未確認', '2件'],
-            ].map(([label, value], index) => (
-              <div key={label} className="rounded-2xl border border-slate-200 bg-white p-3">
-                <p className="text-[10px] font-bold text-slate-500">{label}</p>
-                <p className={`mt-1 text-xl font-black ${index === 1 ? 'text-[#FF5A1F]' : 'text-slate-950'}`}>{value}</p>
+          <div className="min-w-0 flex-1 bg-[#F8FAFC] p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-black tracking-[0.16em] text-[#FF5A1F]">RAITEN NAVI</p>
+                <p className="mt-1 text-lg font-black text-slate-950">ダッシュボード</p>
               </div>
-            ))}
-          </div>
-
-          <div className="mt-3 grid gap-3 lg:grid-cols-[1.35fr_.65fr]">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-black text-slate-950">直近の案件</p>
-                <span className="text-[10px] font-bold text-[#FF5A1F]">すべて見る →</span>
-              </div>
-              <div className="mt-3 space-y-2">
-                {[
-                  ['10/08', '来店イベント A', '確認待ち'],
-                  ['10/12', '来店イベント B', '進行中'],
-                  ['10/19', '来店イベント C', '見積確認'],
-                ].map(([date, name, status], index) => (
-                  <div key={name} className="grid grid-cols-[52px_1fr_auto] items-center gap-2 rounded-xl bg-slate-50 px-3 py-2.5">
-                    <span className="text-[10px] font-black text-slate-500">{date}</span>
-                    <span className="truncate text-xs font-bold text-slate-800">{name}</span>
-                    <span className={`rounded-full px-2 py-1 text-[9px] font-black ${
-                      index === 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-600'
-                    }`}>
-                      {status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-orange-100 bg-gradient-to-b from-orange-50 to-white p-4">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#FF5A1F] text-white">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <p className="mt-3 text-sm font-black text-slate-950">告知も、もっと簡単に。</p>
-              <p className="mt-1 text-[11px] leading-5 text-slate-500">
-                確定した来店予定は、一般ユーザー向けの来店情報ページとしてそのまま公開できます。
-              </p>
-              <span className="mt-3 inline-flex rounded-full bg-[#0B1F3B] px-3 py-1.5 text-[9px] font-black text-white">
-                PUBLIC EVENTS
+              <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold text-slate-500">
+                店舗アカウント
               </span>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
+              {[
+                ['進行中', '8件'],
+                ['新着オファー', '3件'],
+                ['今月の来店', '12件'],
+                ['未確認', '2件'],
+              ].map(([label, value], index) => (
+                <div key={label} className="rounded-2xl border border-slate-200 bg-white p-3">
+                  <p className="text-[10px] font-bold text-slate-500">{label}</p>
+                  <p className={`mt-1 text-xl font-black ${index === 1 ? 'text-[#FF5A1F]' : 'text-slate-950'}`}>{value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-3 grid gap-3 lg:grid-cols-[1.35fr_.65fr]">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-black text-slate-950">直近の案件</p>
+                  <span className="text-[10px] font-bold text-[#FF5A1F]">すべて見る →</span>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {[
+                    ['10/08', '来店イベント A', '確認待ち'],
+                    ['10/12', '来店イベント B', '進行中'],
+                    ['10/19', '来店イベント C', '見積確認'],
+                  ].map(([date, name, status], index) => (
+                    <div key={name} className="grid grid-cols-[52px_1fr_auto] items-center gap-2 rounded-xl bg-slate-50 px-3 py-2.5">
+                      <span className="text-[10px] font-black text-slate-500">{date}</span>
+                      <span className="truncate text-xs font-bold text-slate-800">{name}</span>
+                      <span className={`rounded-full px-2 py-1 text-[9px] font-black ${
+                        index === 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-600'
+                      }`}>
+                        {status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-orange-100 bg-gradient-to-b from-orange-50 to-white p-4">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#FF5A1F] text-white">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <p className="mt-3 text-sm font-black text-slate-950">告知も、もっと簡単に。</p>
+                <p className="mt-1 text-[11px] leading-5 text-slate-500">
+                  確定した来店予定は、一般ユーザー向けの来店情報ページとしてそのまま公開できます。
+                </p>
+                <span className="mt-3 inline-flex rounded-full bg-[#0B1F3B] px-3 py-1.5 text-[9px] font-black text-white">
+                  PUBLIC EVENTS
+                </span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="raiten-device-float absolute -bottom-2 right-2 z-20 hidden w-[150px] rounded-[30px] border-[7px] border-[#0B1F3B] bg-[#0B1F3B] p-1 shadow-[0_20px_50px_rgba(8,20,38,.25)] md:block lg:right-[-18px]">
+        <div className="overflow-hidden rounded-[20px] bg-white">
+          <div className="flex items-center justify-between bg-[#F8FAFC] px-3 py-2">
+            <img src="/brand/raiten-navi-icon.svg" alt="" className="h-5 w-5 rounded-md" />
+            <span className="h-1.5 w-9 rounded-full bg-slate-200" />
+          </div>
+          <div className="p-3">
+            <p className="text-[8px] font-black tracking-[0.12em] text-[#FF5A1F]">NEXT EVENT</p>
+            <p className="mt-1 text-[15px] font-black text-slate-950">10.12 SAT</p>
+            <div className="mt-3 rounded-xl bg-[#0B1F3B] p-3 text-white">
+              <p className="text-[8px] font-black text-orange-200">来店予定</p>
+              <p className="mt-1 text-[10px] font-black">イベント情報を公開</p>
+              <div className="mt-2 h-1.5 w-14 rounded-full bg-[#FF8A00]" />
+            </div>
+            <div className="mt-2 grid grid-cols-2 gap-1">
+              <span className="rounded-lg bg-slate-100 px-2 py-1 text-center text-[7px] font-bold text-slate-500">案件</span>
+              <span className="rounded-lg bg-orange-50 px-2 py-1 text-center text-[7px] font-bold text-[#FF5A1F]">公開</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2 pr-0 text-[10px] font-black text-slate-500 sm:mt-5 md:pr-36">
+        {['白背景で見やすい', '案件単位で整理', 'スマホでも確認'].map((item) => (
+          <span key={item} className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">
+            {item}
+          </span>
+        ))}
       </div>
     </div>
   )
@@ -361,7 +400,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="about" className="scroll-mt-24 bg-white px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+      <section id="about" className="scroll-mt-24 relative overflow-hidden bg-[radial-gradient(circle_at_80%_20%,rgba(255,138,0,.07),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfdff_100%)] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
         <div className="mx-auto grid w-full max-w-[1380px] items-center gap-10 lg:grid-cols-[.8fr_1.2fr] lg:gap-16">
           <div>
             <p className="text-xs font-black tracking-[0.2em] text-[#FF5A1F]">ABOUT RAITEN NAVI</p>

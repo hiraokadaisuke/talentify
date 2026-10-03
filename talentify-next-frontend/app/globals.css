@@ -273,3 +273,19 @@ body {
     animation: none !important;
   }
 }
+
+
+@keyframes raitenDeviceFloat {
+  0%, 100% { transform: translateY(0) rotate(1deg); }
+  50% { transform: translateY(-7px) rotate(-1deg); }
+}
+
+.raiten-device-float {
+  animation: raitenDeviceFloat 5.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .raiten-device-float {
+    animation: none !important;
+  }
+}
