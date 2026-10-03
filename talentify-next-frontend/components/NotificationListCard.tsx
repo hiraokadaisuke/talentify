@@ -11,12 +11,14 @@ interface Props {
   title?: string
   className?: string
   initialItems?: Notification[]
+  limit?: number
 }
 
 export default function NotificationListCard({
   title = '通知',
   className,
   initialItems,
+  limit = 3,
 }: Props) {
   const [items, setItems] = useState<Notification[] | null>(initialItems ?? null)
 
@@ -34,8 +36,8 @@ export default function NotificationListCard({
         <div className="text-sm text-muted-foreground">通知はありません</div>
       )}
       {items && items.length > 0 && (
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {items.map((n) => (
+        <div className="space-y-2">
+          {items.slice(0, limit).map((n) => (
             <NotificationItem key={n.id} notification={n} />
           ))}
         </div>
