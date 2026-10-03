@@ -328,8 +328,9 @@ export default function RegisterForm() {
           >
             {isSubmitting ? '確認メールを送信中...' : '同意して登録する'}
           </Button>
-          <p className="mt-2 text-center text-xs text-white/45">
+          <p className="mt-2 text-center text-xs leading-5 text-white/45">
             登録後、メールアドレス確認用のメールを送信します。
+            {role === 'store' && <><br />確認後、店舗名・都道府県・住所を登録すると利用を開始できます。</>}
           </p>
         </div>
       </form>
