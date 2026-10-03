@@ -13,4 +13,12 @@ export type PublicTalent = {
   company_name?: string | null
   capabilities?: string[] | null
   skills?: string[] | null
+  twitter_followers?: number | null
+  twitter_followers_updated_at?: string | null
+  instagram_followers?: number | null
+  instagram_followers_updated_at?: string | null
+  youtube_followers?: number | null
+  youtube_followers_updated_at?: string | null
+  tiktok_followers?: number | null
+  tiktok_followers_updated_at?: string | null
 }
