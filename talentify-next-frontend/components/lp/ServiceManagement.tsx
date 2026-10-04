@@ -18,12 +18,12 @@ export function ServiceAbout() {
     <section id="about" className="raiten-about" aria-labelledby="raiten-about-title">
       <div className="raiten-about-inner">
         <div>
-          <p className="raiten-small-heading">ABOUT RAITEN NAVI</p>
-          <h2 id="raiten-about-title">外はワクワク。<br />中は分かりやすく。</h2>
+          <p className="raiten-small-heading">来店ナビとは</p>
+          <h2 id="raiten-about-title">演者への依頼と、<br />来店予定の管理に。</h2>
         </div>
         <div className="raiten-about-copy">
-          <p>来店イベントの準備も、その先の告知も。<br />店舗と演者の仕事をすっきり整理し、<br className="sm:hidden" />確定した予定をファンへ届けます。</p>
-          <div><span>OUTSIDE = EXCITEMENT</span><span>INSIDE = CLARITY</span></div>
+          <p>来店ナビは、パチンコ店と演者が来店イベントの依頼・相談を行うサービスです。<br />日程の確認から見積・契約、来店情報の公開まで、案件ごとに管理できます。</p>
+
         </div>
       </div>
     </section>
@@ -36,10 +36,10 @@ export function ServiceManagement() {
       <Image src="/lp/backgrounds/minimal-tech-bg.webp" alt="" fill sizes="100vw" className="raiten-management-background" />
       <div className="raiten-management-inner">
         <div className="raiten-management-copy">
-          <p className="raiten-small-heading">わかりやすく、使いやすい</p>
-          <h2 id="raiten-management-title">シンプルで直感的な<br />管理画面。</h2>
+          <p className="raiten-small-heading">管理画面</p>
+          <h2 id="raiten-management-title">来店予定と進み具合を<br />一覧で確認。</h2>
           <ul className="raiten-management-functions" aria-label="管理できる業務"><li>オファー管理</li><li>スケジュール</li><li>メッセージ</li><li>見積・請求</li></ul>
-          <p className="raiten-management-description">来店イベントに必要な情報を、案件ごとにまとめて管理。PCでもスマートフォンでも、必要な情報へすぐにたどり着けます。</p>
+          <p className="raiten-management-description">来店日、演者名、見積や支払いの状況を一覧で確認できます。案件ごとの連絡や書類は、PC・スマートフォンのどちらからでも確認できます。</p>
           <Link href="/guide" className="raiten-start-guide">画面の使い方を確認する<ArrowRight size={16} /></Link>
         </div>
         <figure className="raiten-management-preview">

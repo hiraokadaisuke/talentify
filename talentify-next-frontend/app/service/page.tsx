@@ -26,22 +26,22 @@ const faqItems = [
   {
     question: 'オファーした後は、どこまで管理できますか？',
     answer:
-      '条件確認、メッセージ、見積・締結、請求、支払い確認、レビューまで、案件ごとの情報をまとめて確認できる設計です。',
+      '条件確認、メッセージ、見積・締結、請求、支払い確認、レビューまで、案件ごとの情報をまとめて確認できます。',
   },
   {
     question: '電話で相談する運用と併用できますか？',
     answer:
-      '電話での相談を併用しながら、決まった条件や進行状況を来店ナビ上に残して管理する使い方を想定しています。',
+      '電話対応が可能な演者とは、電話でも相談できます。決まった条件は見積や案件情報に記録してください。',
   },
   {
     question: '一般ユーザーは何を見られますか？',
     answer:
-      '確定した来店情報を、地域や店舗を起点に探せる一般向けページで確認できます。演者から探すこともできます。',
+      '確定した来店情報を、地域や店舗から探せる一般向けページで確認できます。演者から探すこともできます。',
   },
   {
     question: 'スマートフォンでも利用できますか？',
     answer:
-      '店舗・演者の管理画面、一般向け来店情報ページともにスマートフォンで確認しやすいレスポンシブ設計です。',
+      'はい。演者の検索や案件の管理、来店情報の閲覧は、スマートフォンでも利用できます。',
   },
 ]
 
@@ -99,7 +99,7 @@ export default function HomePage() {
         <div className="raiten-service-hero-shade" />
         <div className="raiten-service-hero-inner">
           <div className="raiten-service-hero-copy">
-            <p className="raiten-service-hero-concept"><span />外はワクワク。中は分かりやすく。</p>
+            <p className="raiten-service-hero-concept"><span />店舗と演者のための来店イベント管理サービス</p>
             <h1>来店イベントの<br /><em>依頼から公開</em>まで、<br />これひとつ。</h1>
             <p className="raiten-service-hero-description">
               店舗は演者を探してオファー。演者は予定と条件を管理。<br />

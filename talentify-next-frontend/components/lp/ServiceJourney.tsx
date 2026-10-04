@@ -55,9 +55,9 @@ export function ServiceWorkflow() {
       <Image src="/lp/backgrounds/neon-wave-bg.webp" alt="" fill sizes="100vw" className="raiten-journey-background" />
       <div className="raiten-journey-inner">
         <div className="raiten-journey-copy">
-          <p className="raiten-journey-eyebrow">FROM OFFER TO PUBLIC</p>
+          <p className="raiten-journey-eyebrow">依頼から来店情報の公開まで</p>
           <h2 id="raiten-journey-title">確定した来店情報を、<br className="raiten-journey-mobile-break" />そのまま一般公開。</h2>
-          <p className="raiten-journey-intro">店舗と演者のやり取りから、一般ユーザーが見る来店情報まで。<br />ひとつの流れでつながります。</p>
+          <p className="raiten-journey-intro">契約が成立した案件は、店舗が公開日時を設定できます。<br />公開された来店情報は、一般ユーザーが日付や地域から検索できます。</p>
           <ol className="raiten-workflow">
             {workflowSteps.map((step, index) => (
               <li key={step.title} className="raiten-workflow-step">
@@ -82,13 +82,13 @@ export function ServiceWorkflow() {
 
 const audiences = [
   {
-    role: 'store', eyebrow: '店舗担当者の方へ', title: <>依頼業務を、<br />もっとスムーズに。</>,
+    role: 'store', eyebrow: '店舗担当者の方へ', title: <>演者を探して依頼。<br />見積・契約も確認。</>,
     image: '/lp/people/store-manager.webp',
     benefits: ['演者を探せる', '日程と条件を確認', 'オファーを送れる', '案件ごとの連絡を管理', '見積・請求をまとめて確認', '確定した来店情報を公開'],
     action: '店舗として無料登録',
   },
   {
-    role: 'talent', eyebrow: '演者の方へ', title: <>活動と案件管理を、<br />ひとつに。</>,
+    role: 'talent', eyebrow: '演者の方へ', title: <>来店依頼の確認から<br />見積の作成まで。</>,
     image: '/lp/people/performer-stage.webp',
     benefits: ['プロフィールを掲載', 'スケジュールを管理', '届いたオファーを確認', 'メッセージでやり取り', '見積・請求を作成', '確定した来店予定を発信'],
     action: '演者として無料登録',

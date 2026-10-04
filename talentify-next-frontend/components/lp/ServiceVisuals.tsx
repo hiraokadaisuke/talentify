@@ -79,7 +79,7 @@ export function ServiceFeatures() {
       <Image src="/lp/backgrounds/white-pattern.webp" alt="" fill sizes="100vw" className="raiten-core-background" />
       <div className="raiten-core-inner">
         <div className="raiten-section-heading">
-          <p>ONE FLOW, ONE PLATFORM</p>
+          <p>主な機能</p>
           <h2>来店ナビでできること</h2>
           <span>来店イベントに必要な業務を、ひとつのサービスでスムーズに。</span>
         </div>
