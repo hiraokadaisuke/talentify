@@ -1,0 +1,1088 @@
+{
+  "auditedAt": "2026-10-04",
+  "baseCommit": "5a344bc17e26e60da760427c33ed3e2d93e43a8e",
+  "root": "talentify-next-frontend/public/lp",
+  "assets": [
+    {
+      "source": "オレンジの未来型UI接続ハブ(2).png",
+      "sourceSha256": "6d4fcc36a7d1161cbe2ea6a2e1463283d304832411692c5ca14645e3709ed00e",
+      "path": "ui/orange-ui-hub.webp",
+      "url": "/lp/ui/orange-ui-hub.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 960,
+      "height": 540,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 151034,
+      "sha256": "4c0f79065ac0f9560c162b067a71f0ebacb902254ea993bb5585fe242b478307",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "オレンジ色の躍動感ある矢印素材集(2).png",
+      "sourceSha256": "a9b6d3dbd105fe44c987c9ae7b29a897afb345c2b6066f21ffab1176d7d38bf6",
+      "path": "effects/arrows.webp",
+      "url": "/lp/effects/arrows.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 960,
+      "height": 540,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 201226,
+      "sha256": "52299e634be6e58dbb31dab6dd7543e074a88228bc308d6c06e5699af3870d2b",
+      "previousStatus": "valid"
+    },
+    {
+      "source": "オレンジ色の輝く光跡スウッシュ(2).png",
+      "sourceSha256": "99e574edf6f456891465c36c4a128d7c8a67390771f1345ef164929aae75a202",
+      "path": "effects/light-swoosh.webp",
+      "url": "/lp/effects/light-swoosh.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 960,
+      "height": 540,
+      "sourceAlphaRange": [
+        0,
+        253
+      ],
+      "alphaRange": [
+        0,
+        254
+      ],
+      "transparent": true,
+      "bytes": 74900,
+      "sha256": "a3a794f51d32b9a11eb66b38a5b0bc669c22699baa6f6db916ce35fb35c07e99",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "ステージに輝く笑顔のアイドル(2).png",
+      "sourceSha256": "a462c083f4a9dbad4a094daf9db685b249300b6279fc9d0be2fc65fb700a4e86",
+      "path": "people/performer-portrait-01.webp",
+      "url": "/lp/people/performer-portrait-01.webp",
+      "role": "material",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "width": 960,
+      "height": 1200,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 127382,
+      "sha256": "efb7a00025d7b654e691bdf4af9b593aa383110616edfe668a3d860e6168c828",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "ステージライトに輝く笑顔の女性(2).png",
+      "sourceSha256": "5a2929384bcf5bd18b21504b827c8d49caee259960f0ba682934b593e35f5558",
+      "path": "people/performer-portrait-02.webp",
+      "url": "/lp/people/performer-portrait-02.webp",
+      "role": "material",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "width": 960,
+      "height": 1200,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 121760,
+      "sha256": "ac180994af4254d1bd7e81f984ad1d7242c2b83a880320d78a77568f4c35a55c",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "ステージ裏で輝く笑顔の女性(2).png",
+      "sourceSha256": "3dbdc1364c31e74bc419cc5c837c95644d169163c011d65ce71d339ee437f121",
+      "path": "people/performer-backstage.webp",
+      "url": "/lp/people/performer-backstage.webp",
+      "role": "material",
+      "sourceWidth": 1536,
+      "sourceHeight": 1024,
+      "width": 1200,
+      "height": 800,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 77662,
+      "sha256": "4b89e7cd5f593f59280e5d08ae3bfbb8865d36af1b45b6271005c2af7985fd46",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "タブレットを手にするオフィスリーダー(2).png",
+      "sourceSha256": "3d26d5b567e9cf27e7d2aa2f6e95b8f0dc4ba35d1efe7e9a7c7026d2f856cd7e",
+      "path": "people/store-manager.webp",
+      "url": "/lp/people/store-manager.webp",
+      "role": "material",
+      "sourceWidth": 1536,
+      "sourceHeight": 1024,
+      "width": 1200,
+      "height": 800,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 45664,
+      "sha256": "9a75640f74180ccc2434455d7c699a3e9cced77782ef055b66d8254e7c7381aa",
+      "previousStatus": "valid"
+    },
+    {
+      "source": "ネイビーとオレンジの未来型配信フレーム(2).png",
+      "sourceSha256": "d13cf9b9d5cf4b5fa5790267e6e3e8bb8e69fadef1b7e9148566eaf7b267477b",
+      "path": "ui/stream-frame.webp",
+      "url": "/lp/ui/stream-frame.webp",
+      "role": "material",
+      "sourceWidth": 2036,
+      "sourceHeight": 772,
+      "width": 960,
+      "height": 364,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 51658,
+      "sha256": "15d1a9e6518ed431d29e75c674a0b06e15141ac8d4de85e3b5d43ae725e904c6",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "ネオンHUDエレメント素材シート(2).png",
+      "sourceSha256": "95f7dffa8098f87e1ec070c398cf61c6b34e082c68ac522a5f748213f13a621d",
+      "path": "ui/neon-hud-elements.webp",
+      "url": "/lp/ui/neon-hud-elements.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 960,
+      "height": 540,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 155966,
+      "sha256": "6ed81e3ad848b4db6c8d79fb83f4bf036473e375c20239c895e3bd37328afee0",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "ネオンウェーブの未来的抽象背景(2).png",
+      "sourceSha256": "4a6cc4d9663ce64f82ff90131c60cdb8bfa4ca6cc0860bd5522bd59167b6004c",
+      "path": "backgrounds/neon-wave-bg.webp",
+      "url": "/lp/backgrounds/neon-wave-bg.webp",
+      "role": "material",
+      "sourceWidth": 1916,
+      "sourceHeight": 821,
+      "width": 1440,
+      "height": 617,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 32514,
+      "sha256": "eb687738e504ef0672cae6683d3508fb95fa971fe1a25c92f25a9da35ee10b49",
+      "previousStatus": "valid"
+    },
+    {
+      "source": "プロフィール・連携・ローンチアイコンセット(2).png",
+      "sourceSha256": "0d9719b72bce389be6f51d5d3fce1189b7cf538dab21e984a23aec181ae96515",
+      "path": "icons/profile-launch-icons.webp",
+      "url": "/lp/icons/profile-launch-icons.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 50150,
+      "sha256": "25265224630a972e9111f371752b52206e169a32095763c4baf41b0b442dd15c",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "プロフィール検索と承認書類のアイコンセット(2).png",
+      "sourceSha256": "9ae8f03dbadef015715c5cdca777fce9d0bb9161c04fafc5a637e8f2c68de0b8",
+      "path": "icons/function-icons.webp",
+      "url": "/lp/icons/function-icons.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 30758,
+      "sha256": "1bf0232c122dcdac0847b3c085aa99d8234bd805049c10c4b4672676c173ffe2",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "モダンな数字カウントダウンバナー(2).png",
+      "sourceSha256": "f2235744bd37a90165297a16a56b973ded241cc28977ba0065c7c5c6cb3911af",
+      "path": "ui/countdown-numbers.webp",
+      "url": "/lp/ui/countdown-numbers.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        253
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 58956,
+      "sha256": "86a4ea1ea2592c44edb8b77824093bfefd2ca682001df25a4919922857ff24b3",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "ライテンナビ・ダイナミックロゴ(2).png",
+      "sourceSha256": "5c7f5626cd5cc5adc15aaf644cb096189295edc3736155c567fdce48728c9971",
+      "path": "hero/hero-wordmark.webp",
+      "url": "/lp/hero/hero-wordmark.webp",
+      "role": "material",
+      "sourceWidth": 1916,
+      "sourceHeight": 821,
+      "width": 960,
+      "height": 411,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 91440,
+      "sha256": "adf9b9e245d492311270651b89b080820d0a2a1ebe47ad14f7bebdb9d9bf9196",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "光彩を纏う未来的デバイスモックアップ(2).png",
+      "sourceSha256": "9f29972b4ed44826b84a5d2b8feec62dcf141f4a93cb451ec5f40fdd5e7371d8",
+      "path": "ui/device-mockup.webp",
+      "url": "/lp/ui/device-mockup.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 960,
+      "height": 540,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 73402,
+      "sha256": "d7b1a95d4108d3e01d430b71e22ac01c417109bc7bb8d45df3edf9e6477489e3",
+      "previousStatus": "valid"
+    },
+    {
+      "source": "光沢グラデーションUI素材シート(2).png",
+      "sourceSha256": "e00d433807d16eb6f61a99688a40186f6d4b9be818d0aef8ed7ef215ecc12320",
+      "path": "ui/glossy-ui-elements.webp",
+      "url": "/lp/ui/glossy-ui-elements.webp",
+      "role": "material",
+      "sourceWidth": 1916,
+      "sourceHeight": 821,
+      "width": 960,
+      "height": 411,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 112480,
+      "sha256": "490e856df21cad900be063f5f7384b1646ee4fe8c15b99deae8fc44d539ed540",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "六つの円形ワークフローアイコン(2).png",
+      "sourceSha256": "c01a97b7f05aeb7f4979cfa1eb5014b0fe3bb25ff884b5aaa46e3fa4a2a9f58e",
+      "path": "icons/workflow-icons.webp",
+      "url": "/lp/icons/workflow-icons.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 59594,
+      "sha256": "afbdf9870f05f27fdc6412b283512b1d9fdeae3e74eca777ad2fd74ffee225eb",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "四隅を彩る暖色レンズフレアオーバーレイ(2).png",
+      "sourceSha256": "75f6dc83246c368e86a370c48f8118dfc6ea0d06ad0cc3af2be93bfdc3724762",
+      "path": "effects/lens-flare.webp",
+      "url": "/lp/effects/lens-flare.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 960,
+      "height": 540,
+      "sourceAlphaRange": [
+        0,
+        253
+      ],
+      "alphaRange": [
+        0,
+        253
+      ],
+      "transparent": true,
+      "bytes": 141384,
+      "sha256": "ac8fceae551a861e06ef77bd23e7ee403fe3801f16b766aa64f861375cf194b0",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "幻想的なステージライトと光の粒子(2).png",
+      "sourceSha256": "40d4ec642250575a2d12486b8cbf19f5adc870a2d165a1ef48d47658426accc4",
+      "path": "effects/stage-light-particles.webp",
+      "url": "/lp/effects/stage-light-particles.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 58266,
+      "sha256": "20a792cc45f793dd53fc03bb11786b2b771fb87b0f20c0d6b44377eb0eb2faf9",
+      "previousStatus": "valid"
+    },
+    {
+      "source": "建物と人物のカレンダーアイコン(2).png",
+      "sourceSha256": "23ad41f95407cdb3dd82138f4629404a55b733762c3372e633cafa104f805f30",
+      "path": "icons/store-talent-icons.webp",
+      "url": "/lp/icons/store-talent-icons.webp",
+      "role": "material",
+      "sourceWidth": 1935,
+      "sourceHeight": 812,
+      "width": 960,
+      "height": 403,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 61006,
+      "sha256": "5b2cba38e3bdb03badd1a4f20a695c1f69e7b1feeed07d09f110a660c2527ac7",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "暖かな光に包まれた女性の肖像(2).png",
+      "sourceSha256": "b5ef02b3e02256af4e20470ef485c61e8655fbd3ab3636f4257f344710180472",
+      "path": "people/performer-card-03.webp",
+      "url": "/lp/people/performer-card-03.webp",
+      "role": "material",
+      "sourceWidth": 1254,
+      "sourceHeight": 1254,
+      "width": 360,
+      "height": 360,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 24114,
+      "sha256": "6d7cf277287cbabc6eb53e34fc5039f8425682aba319547c5d635895cba5cb10",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "暖かな笑顔のステージポートレート(2).png",
+      "sourceSha256": "555fb29977c2b02b8d1da108bcaf5a4b8c712dd6a57e2c93535500a5cd9f37b9",
+      "path": "people/performer-card-02.webp",
+      "url": "/lp/people/performer-card-02.webp",
+      "role": "material",
+      "sourceWidth": 1254,
+      "sourceHeight": 1254,
+      "width": 360,
+      "height": 360,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 26010,
+      "sha256": "d42fc743a9c693b6087f64426197fb585e60162b4fae524a34e9b709611e4ee9",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "未来型データフローUIグラフィック(2).png",
+      "sourceSha256": "2be78ca4a2a60c5c6fcdf54d0682bb156b7cfd3ecff440165429534f7daeda4c",
+      "path": "effects/data-flow.webp",
+      "url": "/lp/effects/data-flow.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 65736,
+      "sha256": "88caf7208cf4c211336ff6a998a76b9b0e3767a4e7a089c051e898c8f9bd0864",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "未来型データ連携ネットワーク(2).png",
+      "sourceSha256": "782b35a2aef4185faa7046a93ab486fea4de1db30633f86949f4db7b7577ad4c",
+      "path": "effects/data-network.webp",
+      "url": "/lp/effects/data-network.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 63534,
+      "sha256": "b3a1f271a1982afaf95e717743d6893a932538e0b463d1007106e273ac6e41f6",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "未来型データ連携ハブとクリエイターエコシステム(2).png",
+      "sourceSha256": "a77bc0b33acff77dc28aa20dc0418c88b7a33f5c2cfd21b985506189ada2ce11",
+      "path": "backgrounds/connection-hub.webp",
+      "url": "/lp/backgrounds/connection-hub.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 115540,
+      "sha256": "ce0cb333d9bf9077f103a751ccb342a61d3bf951366ef247cd5a20d7d6dd765c",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "未来感スマートフォンと光の軌跡(2).png",
+      "sourceSha256": "0650b54fe6ba3174e6b0db262e72a59d341be9b791108acde0151e94096451b2",
+      "path": "ui/smartphone-light-trails.webp",
+      "url": "/lp/ui/smartphone-light-trails.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 52260,
+      "sha256": "8a8dbf3506d7c2a13c0554850645a73218c8f1f8f20f77a582a91c40a4696b1d",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "未来感ミニマルテック背景(2).png",
+      "sourceSha256": "5ba3b592284bba9dd2ac13eb129b30a0bccaa20e60c753ff3cc8f8e25526bfc0",
+      "path": "backgrounds/minimal-tech-bg.webp",
+      "url": "/lp/backgrounds/minimal-tech-bg.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 21300,
+      "sha256": "5f048e3997c485cc77e1d15b5447820581adeeb4264106f6bba853bd917c1f81",
+      "previousStatus": "valid"
+    },
+    {
+      "source": "未来派ステージの光彩背景(2).png",
+      "sourceSha256": "2bbd7a9b142d7009ddc81638f150b0665532314eb15a62d6e80e9e6636837f33",
+      "path": "hero/hero-bg.webp",
+      "url": "/lp/hero/hero-bg.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 79952,
+      "sha256": "14c690dc4f17e12e0a3682f76b9836f9689ad1f41fae45204fe89d980e9249c7",
+      "previousStatus": "valid"
+    },
+    {
+      "source": "未来的オレンジ光る3Dステージ(2).png",
+      "sourceSha256": "6268b235edfbf03abfd5ecd25db14d9c1b07e2c586208428715302dff2b3f9ce",
+      "path": "hero/hero-stage.webp",
+      "url": "/lp/hero/hero-stage.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 960,
+      "height": 540,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 66852,
+      "sha256": "10190cc51abf7fb95a5c90942ba9d4a791549aeabd4bae43c54016e37152993a",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "未来的光の軌跡と黄金の閃光(2).png",
+      "sourceSha256": "cfa5f0b09271c8298cffc758f44f9d650ed0213568cbc079bab6f16c853df69c",
+      "path": "backgrounds/gold-light-trails.webp",
+      "url": "/lp/backgrounds/gold-light-trails.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 77524,
+      "sha256": "9477b28021e24dfac1d2af919fa0e2ddc68e3f9c028f91b0d8fe82aedce023a0",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "来店ナビのモダンなサービス紹介ページ(2).png",
+      "sourceSha256": "2b422958dde8ddbf33a788dbde18c973a869ceb9ae1ad4b819b4bea325e05fb7",
+      "path": "reference/desktop.webp",
+      "url": "/lp/reference/desktop.webp",
+      "role": "reference-only",
+      "sourceWidth": 1024,
+      "sourceHeight": 1536,
+      "width": 1024,
+      "height": 1536,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 393008,
+      "sha256": "667db4861af63f2c4c06f4ce52108363d09c01d8c2d3c0499d324da7fac2bd03",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "来店ナビの縦長ランディングページ(2).png",
+      "sourceSha256": "bc913099cc0baeda65a121622ebe683ab44cca108d5ac29e6ff289058fbd6762",
+      "path": "reference/mobile.webp",
+      "url": "/lp/reference/mobile.webp",
+      "role": "reference-only",
+      "sourceWidth": 689,
+      "sourceHeight": 2048,
+      "width": 689,
+      "height": 2048,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 338630,
+      "sha256": "891b25134125678f699a5c33f0df95dbcd629dce8d6369a9dc1309ecdd0af4a9",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "洗練されたノートパソコンのスタジオ風景(2).png",
+      "sourceSha256": "5a256af0fd4009c6043ed976c3f886ce770f943fa17fec6dd6ae3d71209ed4f8",
+      "path": "ui/laptop-mockup.webp",
+      "url": "/lp/ui/laptop-mockup.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1440,
+      "height": 810,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 31884,
+      "sha256": "410fefd2320d53935180fb21472eb4db28eec706eb017aadcd38ba5f0fea2482",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "温かな光の笑顔ポートレート(2).png",
+      "sourceSha256": "19a347513d6067816d4517c7781ede0e44d84dda723cb0ebaddaee9a851bc9cd",
+      "path": "people/performer-card-04.webp",
+      "url": "/lp/people/performer-card-04.webp",
+      "role": "material",
+      "sourceWidth": 1254,
+      "sourceHeight": 1254,
+      "width": 360,
+      "height": 360,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 19552,
+      "sha256": "c058e62678b78befc0bdbe892ecfa831dd64ba979e791af55221d6381ade7691",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "白とオレンジの流線型テック背景(2).png",
+      "sourceSha256": "ce056599189dc68cc8f2a43628b3c472ebe3d443bfba8c79c0fb62da206ec331",
+      "path": "backgrounds/white-pattern.webp",
+      "url": "/lp/backgrounds/white-pattern.webp",
+      "role": "material",
+      "sourceWidth": 1870,
+      "sourceHeight": 841,
+      "width": 1440,
+      "height": 648,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 22586,
+      "sha256": "1d6044db3a456a56a436134010f3f8df742734c3a0198442c958164e9e53126a",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "笑顔のステージポートレート(2).png",
+      "sourceSha256": "77db1d16a92c11a828de97630f9df82588c76218ad4a73374a6574adae22d7b8",
+      "path": "people/performer-card-01.webp",
+      "url": "/lp/people/performer-card-01.webp",
+      "role": "material",
+      "sourceWidth": 1254,
+      "sourceHeight": 1254,
+      "width": 360,
+      "height": 360,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 25530,
+      "sha256": "3cf7ca321e14d73e0657b90bbf76b0829285faf244b525bb2e8a3205eafacdae",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "華やかなステージの笑顔 _(1).png",
+      "sourceSha256": "f2739b1ea9b83836d3ea79814da2fd149cc66d87ec8193947c1aca66e950c9c9",
+      "path": "people/performer-hero.webp",
+      "url": "/lp/people/performer-hero.webp",
+      "role": "material",
+      "sourceWidth": 1672,
+      "sourceHeight": 941,
+      "width": 1200,
+      "height": 675,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 69438,
+      "sha256": "d1625d7401eea29b662574bfdfc60a8fd0e6b4296ca7329b3bde4590295a687e",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "赤黒衣装の笑顔のステージポートレート(2).png",
+      "sourceSha256": "52197f7f3b1c2b4f012ba6c8e231571c09e64d364b90bb5c0436b89629593842",
+      "path": "people/performer-stage.webp",
+      "url": "/lp/people/performer-stage.webp",
+      "role": "material",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "width": 960,
+      "height": 1200,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 156092,
+      "sha256": "e7fa0db7f17f4a4b54a29fb5d06a406985d6dfca79d83a31c72017e4755d7699",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "透明背景のモダンUIバッジセット(2).png",
+      "sourceSha256": "0f1577d58643f65bfbae2867bb33a7aa5f044a4d6cf3b2896b228f9222620210",
+      "path": "ui/status-badges.webp",
+      "url": "/lp/ui/status-badges.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 81842,
+      "sha256": "79630dac5176a04640dfb609bd47be1ae733045e22537ef79494bc4b26985225",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "透明背景の躍動リボンウェーブ(2).png",
+      "sourceSha256": "49b1958037ccc81011f0776f1b1a946b3d3921c39f05f9f32190d2997408bb14",
+      "path": "effects/ribbon-wave.webp",
+      "url": "/lp/effects/ribbon-wave.webp",
+      "role": "material",
+      "sourceWidth": 1916,
+      "sourceHeight": 821,
+      "width": 960,
+      "height": 411,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 75970,
+      "sha256": "0d288c0c29dc765e168403aced0281801bec9b95856948f5d7ba87382f59b0bf",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "透明背景の輝く光の波動リボン(2).png",
+      "sourceSha256": "a92f9e4af1668f353fe1ed22ba9ae888c8ffbe699a6f483ec7412bca8f8a967e",
+      "path": "effects/light-ribbon.webp",
+      "url": "/lp/effects/light-ribbon.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 38194,
+      "sha256": "f9a1bd7816cc3c7c911b9ca7ebd81b8398c9fc5a42beaf6e646e73f83a084831",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "青から金へ流れる未来の光景(2).png",
+      "sourceSha256": "a8310499be06fa89b3b468a4c1354f1c2736eb4a1aec9b4ffc5b14606649f587",
+      "path": "backgrounds/blue-gold-flow.webp",
+      "url": "/lp/backgrounds/blue-gold-flow.webp",
+      "role": "material",
+      "sourceWidth": 1916,
+      "sourceHeight": 821,
+      "width": 1440,
+      "height": 617,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 61334,
+      "sha256": "a90f6c9129842b532b656d0210afa5b94056dfe6a1f115ee4d9d3512798e72ff",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "青から金へ輝く未来のタイムライン(2).png",
+      "sourceSha256": "8e22a1e73b541aa27c6236d83bef09b1304cf2fb7f0603c538e1a164c195caa6",
+      "path": "effects/timeline-glow.webp",
+      "url": "/lp/effects/timeline-glow.webp",
+      "role": "material",
+      "sourceWidth": 2048,
+      "sourceHeight": 682,
+      "width": 960,
+      "height": 320,
+      "sourceAlphaRange": [
+        0,
+        254
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 36498,
+      "sha256": "03fb80616b757f6808f006f764aa0f60728705c84e6472a6017bdce6822ce7a8",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "青とオレンジのステージ笑顔(2).png",
+      "sourceSha256": "e79d2f7b025f00ef17f35079ad3474ea29d6d3dddaffe0faef5fb0752cf3d6b5",
+      "path": "people/performer-portrait-03.webp",
+      "url": "/lp/people/performer-portrait-03.webp",
+      "role": "material",
+      "sourceWidth": 1122,
+      "sourceHeight": 1402,
+      "width": 960,
+      "height": 1200,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 134710,
+      "sha256": "900114366ca2f325731bfde34f1ccda8693561acb01254834e0dbbc1f0277051",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "鮮やかな光のエネルギーリング(2).png",
+      "sourceSha256": "66fdf7fabc928af413e63dc30de23bc278d09b40eae16b2a9027a442c0f5f6a4",
+      "path": "effects/energy-ring.webp",
+      "url": "/lp/effects/energy-ring.webp",
+      "role": "material",
+      "sourceWidth": 1254,
+      "sourceHeight": 1254,
+      "width": 768,
+      "height": 768,
+      "sourceAlphaRange": [
+        0,
+        255
+      ],
+      "alphaRange": [
+        0,
+        255
+      ],
+      "transparent": true,
+      "bytes": 164986,
+      "sha256": "e4bc7324b46f292455ed0883440f232d941c1acffed749f3b11ff98aee31bdc4",
+      "previousStatus": "decode-error"
+    },
+    {
+      "source": "黒地の微細な白黒ノイズテクスチャ(2).png",
+      "sourceSha256": "447c495260f8a6340fc0a491f2e86137556d06badef2ace44e19c97604061eb1",
+      "path": "texture/grain.webp",
+      "url": "/lp/texture/grain.webp",
+      "role": "material",
+      "sourceWidth": 1254,
+      "sourceHeight": 1254,
+      "width": 512,
+      "height": 512,
+      "sourceAlphaRange": [
+        0,
+        8
+      ],
+      "alphaRange": [
+        1,
+        6
+      ],
+      "transparent": true,
+      "bytes": 34694,
+      "sha256": "ed6972f7c06782fb0132b4ccdcdbc158ac2edb3ecb1335a895ec541c48223add",
+      "previousStatus": "not-imported"
+    },
+    {
+      "source": "青と琥珀の舞台裏 恒一(2).png",
+      "sourceSha256": "5617d0f2f1acfc1ee9a481b4079bc29c91d6ff5f6696f19c10a4034d5c496150",
+      "path": "backgrounds/backstage.webp",
+      "url": "/lp/backgrounds/backstage.webp",
+      "role": "material",
+      "sourceWidth": 1916,
+      "sourceHeight": 821,
+      "width": 1440,
+      "height": 617,
+      "sourceAlphaRange": [
+        255,
+        255
+      ],
+      "alphaRange": [
+        255,
+        255
+      ],
+      "transparent": false,
+      "bytes": 68510,
+      "sha256": "aa029dd0d9308d8b6c62e0624a373e388293fa2a575d0a66e730905e28a19062",
+      "previousStatus": "not-imported"
+    }
+  ]
+}
