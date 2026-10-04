@@ -219,3 +219,138 @@
   .raiten-hero-search, .raiten-hero-quotation, .raiten-hero-light-path { animation: none; }
   .raiten-hero-register { transition: none; }
 }
+
+/* Offer-to-public journey: one horizontal sequence on desktop, a timeline on mobile. */
+.raiten-journey { position: relative; isolation: isolate; overflow: hidden; padding: 64px 32px 82px; background: #081426; color: white; scroll-margin-top: 96px; }
+.raiten-journey-background { object-fit: cover; opacity: .2; z-index: -2; }
+.raiten-journey::before { content: ''; position: absolute; z-index: -1; inset: 0; background: linear-gradient(100deg,#081426 0%,rgba(8,20,38,.6) 65%,transparent); }
+.raiten-journey::after { content: ''; position: absolute; left: -5%; bottom: -34px; width: 110%; height: 52px; border-top: 1px solid #ff8a0066; border-radius: 50% 50% 0 0; background: white; transform: rotate(-1deg); }
+.raiten-journey-inner { display: grid; grid-template-columns: minmax(0,1fr) 290px; align-items: center; gap: 32px; max-width: 1320px; margin: auto; }
+.raiten-journey-copy { min-width: 0; position: relative; z-index: 1; }
+.raiten-journey-eyebrow { display: flex; gap: 12px; align-items: center; color: #ffbb80; font-size: 10px; font-weight: 800; letter-spacing: .15em; }
+.raiten-journey-eyebrow::before { content: ''; width: 30px; height: 3px; background: #FF5A1F; }
+.raiten-journey h2 { margin-top: 10px; font-size: clamp(23px,2.45vw,34px); font-weight: 900; letter-spacing: -.055em; line-height: 1.55; }
+.raiten-journey-mobile-break { display: none; }
+.raiten-journey-intro { margin-top: 14px; color: #b9c8dc; font-size: 13px; line-height: 1.95; }
+.raiten-workflow { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); margin-top: 23px; padding: 0; list-style: none; }
+.raiten-workflow-step { position: relative; min-width: 0; text-align: center; }
+.raiten-workflow-step:not(:last-child)::after { content: ''; position: absolute; z-index: -1; top: 51px; left: 50%; width: 100%; height: 2px; background: linear-gradient(90deg,#FF5A1F,#FFC400); box-shadow: 0 0 9px #FF8A0080; }
+.raiten-workflow-icon { position: relative; width: 86px; height: 104px; margin: 0 auto 5px; overflow: hidden; }
+.raiten-workflow-icon img { position: absolute; width: 600%; height: auto; max-width: none; top: 50%; transform: translateY(-50%); }
+.raiten-workflow-number { display: block; color: #e6ae73; font-size: 9px; letter-spacing: .12em; font-weight: 700; }
+.raiten-workflow h3 { margin-top: 5px; font-size: 12px; font-weight: 800; line-height: 1.7; letter-spacing: -.05em; }
+.raiten-workflow-description > p { margin: 7px auto 0; max-width: 120px; padding: 0 5px; font-size: 10px; line-height: 1.8; color: #a8b9ce; }
+.raiten-journey-link { display: inline-flex; align-items: center; gap: 20px; min-height: 44px; margin-top: 24px; border-bottom: 1px solid #71829a; font-size: 12px; font-weight: 700; }
+.raiten-journey-link svg { color: #FFC400; }
+.raiten-journey-link:hover { color: #FFC400; }
+.raiten-journey-scene { position: relative; height: 430px; min-width: 0; }
+.raiten-journey-stage { position: absolute; pointer-events: none; width: 145%; height: 250px; left: -23%; bottom: -13px; }
+.raiten-journey-stage img { object-fit: contain; }
+.raiten-events-phone { position: absolute; top: 0; left: 38px; width: 225px; padding: 8px; border: 2px solid #90a0b3; border-radius: 30px; background: #0b1627; box-shadow: 7px 17px 34px #0009; font-size: 10px; line-height: 1.45; transform: rotate(7deg); animation: raitenJourneyPhone 8s ease-in-out infinite; }
+.raiten-events-speaker { position: absolute; width: 52px; height: 5px; background: #0b1627; border-radius: 0 0 6px 6px; left: calc(50% - 26px); top: 8px; z-index: 1; }
+.raiten-events-screen { overflow: hidden; border-radius: 20px; padding-bottom: 20px; background: #f8fafc; color: #0B1F3B; }
+.raiten-events-brand { display: flex; align-items: center; gap: 5px; padding: 12px 10px 8px; background: white; }
+.raiten-events-brand b { font-size: 11px; font-weight: 900; }
+.raiten-events-brand > span { margin-left: auto; font-size: 7px; color: #64748b; }
+.raiten-events-heading { padding: 13px 12px; color: white; background: #0B1F3B; }
+.raiten-events-heading > span { font-size: 6px; letter-spacing: .12em; color: #FFC400; }
+.raiten-events-heading > strong { display: block; font-size: 17px; margin-top: 3px; letter-spacing: -.04em; }
+.raiten-events-tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; margin-top: 11px; font-size: 8px; text-align: center; }
+.raiten-events-tabs > * { padding: 5px; border: 1px solid #ffffff26; border-radius: 5px; }
+.raiten-events-tabs b { background: white; color: #0B1F3B; }
+.raiten-events-list { padding: 10px 8px 0; }
+.raiten-events-filter { display: flex; align-items: center; gap: 5px; padding: 7px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; font-size: 8px; }
+.raiten-events-filter svg:first-child { color: #C2410C; }
+.raiten-events-filter svg:last-child { margin-left: auto; }
+.raiten-events-list-title { display: flex; justify-content: space-between; align-items: baseline; margin-top: 12px; margin-bottom: 7px; }
+.raiten-events-list-title b { font-size: 11px; }
+.raiten-events-list-title span { color: #64748b; font-size: 6px; }
+.raiten-event-example { display: grid; grid-template-columns: 28px 40px minmax(0,1fr); align-items: center; gap: 6px; margin-top: 5px; padding: 6px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; }
+.raiten-event-date { text-align: center; }
+.raiten-event-date b { display: block; font-size: 9px; }
+.raiten-event-date span { color: #C2410C; font-size: 7px; }
+.raiten-event-example img { width: 40px; height: 46px; object-fit: cover; border-radius: 5px; }
+.raiten-event-copy strong, .raiten-event-copy span, .raiten-event-copy small { display: block; }
+.raiten-event-copy strong { font-size: 9px; }
+.raiten-event-copy span { font-size: 7px; margin-top: 4px; }
+.raiten-event-copy small { font-size: 6px; margin-top: 4px; color: #64748b; }
+.raiten-journey-scene-caption { position: absolute; bottom: -52px; width: 100%; text-align: center; font-size: 9px; color: #a8b9ce; }
+
+.raiten-audiences { padding: 62px 32px; background: white; color: #0B1F3B; }
+.raiten-audiences-inner { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); max-width: 1320px; margin: auto; gap: 48px; }
+.raiten-audience { display: grid; grid-template-columns: minmax(0,.68fr) minmax(0,1fr); grid-template-rows: auto 1fr; gap: 18px 25px; min-width: 0; scroll-margin-top: 100px; }
+.raiten-audience-heading { grid-column: 2; grid-row: 1; }
+.raiten-audience-heading > p { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; }
+.raiten-audience-heading > p::before { content: ''; width: 24px; height: 3px; background: #FF5A1F; }
+.raiten-audience h2 { margin-top: 12px; font-size: clamp(23px,2.15vw,31px); font-weight: 900; line-height: 1.45; letter-spacing: -.05em; }
+.raiten-audience-photo { position: relative; grid-column: 1; grid-row: 1 / 3; margin-block: 8px; min-height: 280px; }
+.raiten-audience-photo::before { content: ''; position: absolute; inset: -3px -5px; background: linear-gradient(155deg,#FF5A1F 0%,#ffab4720 32%,#fff 65%,#FFC400 100%); clip-path: polygon(11% 7%,100% 0,89% 93%,0 100%); }
+.raiten-audience-photo > div { position: absolute; inset: 4px; overflow: hidden; clip-path: polygon(11% 7%,100% 0,89% 93%,0 100%); }
+.raiten-audience-photo img { object-fit: cover; }
+.raiten-audience-store .raiten-audience-photo img { object-position: 75% center; }
+.raiten-audience-talent .raiten-audience-photo img { object-position: 50% 30%; }
+.raiten-audience-details { grid-column: 2; grid-row: 2; min-width: 0; }
+.raiten-audience-details ul { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px 10px; margin: 0; padding: 0; list-style: none; }
+.raiten-audience-details li { display: flex; gap: 6px; align-items: flex-start; color: #475569; font-size: 11px; font-weight: 600; line-height: 1.75; }
+.raiten-audience-details li svg { flex-shrink: 0; width: 15px; height: 15px; padding: 2px; margin-top: 2px; border-radius: 50%; color: white; background: #FF7A20; stroke-width: 3; }
+.raiten-audience-register { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 46px; padding: 12px 21px; margin-top: 21px; border-radius: 999px; background: linear-gradient(110deg,#FF5A1F,#FF8A00); color: white; font-size: 12px; font-weight: 800; box-shadow: 0 6px 16px #ff5a1f1a; transition: transform .2s,box-shadow .2s; }
+.raiten-audience-register:hover { transform: translateY(-2px); box-shadow: 0 8px 20px #ff5a1f33; }
+.raiten-journey-link:focus-visible, .raiten-audience-register:focus-visible { outline: 3px solid #FF8A00; outline-offset: 5px; }
+@keyframes raitenJourneyPhone { 0%,100% { transform: rotate(7deg) translateY(0); } 50% { transform: rotate(7deg) translateY(-5px); } }
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .raiten-journey-inner { grid-template-columns: minmax(0,1fr) 250px; gap: 16px; }
+  .raiten-workflow-icon { width: 75px; }
+  .raiten-workflow h3 { font-size: 11px; }
+  .raiten-events-phone { left: 15px; }
+  .raiten-audiences-inner { gap: 28px; }
+  .raiten-audience { gap: 16px; }
+  .raiten-audience-details ul { grid-template-columns: 1fr; gap: 5px; }
+}
+@media (max-width: 1023px) {
+  .raiten-journey { padding: 52px 24px 84px; scroll-margin-top: 140px; }
+  .raiten-journey-inner { grid-template-columns: minmax(0,1fr); gap: 36px; max-width: 760px; }
+  .raiten-journey h2 { font-size: 30px; }
+  .raiten-journey-scene { width: 300px; margin: auto; }
+  .raiten-audiences { padding: 55px 24px; }
+  .raiten-audiences-inner { grid-template-columns: minmax(0,1fr); gap: 55px; max-width: 720px; }
+  .raiten-audience { grid-template-columns: minmax(0,.7fr) minmax(0,1fr); scroll-margin-top: 140px; }
+  .raiten-audience h2 { font-size: 30px; }
+}
+@media (max-width: 639px) {
+  .raiten-journey { padding: 44px 24px 92px; }
+  .raiten-journey-inner { gap: 16px; }
+  .raiten-journey h2 { font-size: clamp(23px,6.5vw,30px); line-height: 1.5; margin-top: 12px; }
+  .raiten-journey-mobile-break { display: inline; }
+  .raiten-journey-eyebrow { font-size: 9px; gap: 8px; }
+  .raiten-journey-intro { font-size: 12px; line-height: 2; }
+  .raiten-journey-intro br { display: none; }
+  .raiten-workflow { grid-template-columns: minmax(0,1fr); gap: 10px; margin-top: 22px; }
+  .raiten-workflow-step { display: grid; grid-template-columns: 68px minmax(0,1fr); gap: 17px; align-items: center; text-align: left; }
+  .raiten-workflow-step:not(:last-child)::after { top: 50%; left: 33px; width: 2px; height: calc(100% + 10px); background: linear-gradient(#FF5A1F,#FFC400); }
+  .raiten-workflow-icon { width: 68px; height: 75px; margin: 0; }
+  .raiten-workflow-number { font-size: 9px; }
+  .raiten-workflow h3 { font-size: 14px; margin-top: 3px; }
+  .raiten-workflow-description > p { max-width: none; margin: 4px 0 0; padding: 0; font-size: 10px; }
+  .raiten-journey-link { margin-top: 20px; }
+  .raiten-journey-scene { width: min(100%,300px); margin-top: 18px; }
+  .raiten-events-phone { left: calc(50% - 113px); }
+  .raiten-audiences { padding: 45px 24px; }
+  .raiten-audiences-inner { gap: 48px; max-width: 430px; }
+  .raiten-audience { grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto auto; gap: 19px; }
+  .raiten-audience-heading { grid-column: 1; grid-row: 1; }
+  .raiten-audience h2 { margin-top: 12px; font-size: 30px; }
+  .raiten-audience-photo { grid-column: 1; grid-row: 2; width: 100%; min-height: 0; height: 270px; margin: 0; }
+  .raiten-audience-photo::before { inset: -3px; clip-path: polygon(5% 7%,100% 0,95% 93%,0 100%); }
+  .raiten-audience-photo > div { inset: 3px; clip-path: polygon(5% 7%,100% 0,95% 93%,0 100%); }
+  .raiten-audience-store .raiten-audience-photo img { object-position: 75% 35%; }
+  .raiten-audience-talent .raiten-audience-photo img { object-position: 50% 26%; }
+  .raiten-audience-details { grid-column: 1; grid-row: 3; }
+  .raiten-audience-details ul { grid-template-columns: minmax(0,1fr); gap: 11px; }
+  .raiten-audience-details li { font-size: 13px; gap: 9px; }
+  .raiten-audience-details li svg { width: 18px; height: 18px; }
+  .raiten-audience-register { display: flex; width: 100%; margin-top: 25px; font-size: 13px; min-height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .raiten-events-phone { animation: none; }
+  .raiten-audience-register { transition: none; }
+}
