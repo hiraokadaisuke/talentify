@@ -354,3 +354,83 @@
   .raiten-events-phone { animation: none; }
   .raiten-audience-register { transition: none; }
 }
+
+.raiten-connections { padding: 60px 32px 24px; color: #0B1F3B; background: linear-gradient(180deg,#f7fafe,white); scroll-margin-top: 100px; }
+.raiten-connections-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; max-width: 1320px; margin: auto; }
+.raiten-small-heading { display: flex; align-items: center; gap: 12px; color: #C2410C; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.raiten-small-heading::before { content: ''; width: 28px; height: 3px; background: #FF5A1F; }
+.raiten-connections h2 { margin-top: 13px; font-size: 30px; font-weight: 900; line-height: 1.45; letter-spacing: -.04em; }
+.raiten-connections-description { margin-top: 14px; color: #475569; font-size: 13px; line-height: 2; }
+.raiten-network { position: relative; height: 270px; margin-top: 24px; }
+.raiten-network > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.raiten-network .raiten-network-lines-mobile { display: none; }
+.raiten-network-node { position: absolute; display: flex; flex-direction: column; gap: 6px; align-items: center; justify-content: center; width: 28%; height: 104px; transform: translateX(-50%); border-radius: 22px; color: #0B1F3B; }
+.raiten-network-node strong { font-size: 13px; font-weight: 800; }
+.raiten-network-store { left: 15%; top: 0; background: #e9f4fb; }
+.raiten-network-hub { left: 50%; top: 0; background: white; border: 1px solid #ffba7b; box-shadow: 0 5px 25px #ff8a0026; }
+.raiten-network-talent { left: 85%; top: 0; background: #fff0e7; }
+.raiten-network-public { left: 50%; top: 182px; height: 82px; background: #eef3f8; }
+.raiten-network-publish { position: absolute; top: 126px; left: 53%; color: #8b4d26; font-size: 10px; }
+.raiten-start-points { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; margin-top: 26px; }
+.raiten-start-points > div { padding: 27px 12px 25px; border-radius: 22px; text-align: center; background: white; box-shadow: 0 8px 32px #0b1f3b0a; }
+.raiten-start-points svg { display: block; margin: 0 auto 20px; color: #FF5A1F; stroke-width: 1.8; }
+.raiten-start-points > div:nth-child(2) svg { color: #0B1F3B; }
+.raiten-start-points h3 { font-size: 14px; font-weight: 800; }
+.raiten-start-points p { margin-top: 12px; color: #64748b; font-size: 11px; line-height: 1.9; }
+.raiten-start-guide { display: inline-flex; min-height: 44px; gap: 14px; align-items: center; margin-top: 17px; font-size: 12px; font-weight: 700; color: #C2410C; }
+.raiten-start-guide:hover { text-decoration: underline; text-underline-offset: 4px; }
+.raiten-closing { position: relative; isolation: isolate; overflow: hidden; padding: 56px 32px 62px; color: white; background: #081426; scroll-margin-top: 100px; }
+.raiten-closing-background { z-index: -2; object-fit: cover; object-position: center 70%; opacity: .85; }
+.raiten-closing-shade { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg,#081426e8,#081426cc 60%,#081426a6); }
+.raiten-closing::after { content: ''; position: absolute; pointer-events: none; bottom: 0; left: 0; height: 2px; width: 100%; background: linear-gradient(90deg,transparent,#FF5A1F,#FFC400,transparent); }
+.raiten-closing-inner { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); align-items: center; gap: 48px; margin: auto; max-width: 1320px; }
+.raiten-closing-copy > p { font-size: 10px; font-weight: 800; letter-spacing: .18em; color: #FFC400; }
+.raiten-closing h2 { margin-top: 12px; font-size: clamp(30px,3vw,42px); font-weight: 900; line-height: 1.5; letter-spacing: -.04em; }
+.raiten-closing-break { display: block; }
+.raiten-closing-copy > span { display: block; margin-top: 17px; font-size: 12px; color: #d5deeb; line-height: 2; }
+.raiten-closing-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.raiten-closing-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 50px; padding: 13px 18px; border: 1px solid #FF5A1F; border-radius: 999px; background: linear-gradient(110deg,#FF5A1F,#FF8A00); color: white; box-shadow: 0 4px 24px #ff5a1f26; font-size: 13px; font-weight: 800; transition: transform .2s,box-shadow .2s; }
+.raiten-closing-button:hover { transform: translateY(-2px); box-shadow: 0 9px 30px #ff5a1f40; }
+.raiten-closing-button-light { background: white; color: #C2410C; box-shadow: none; }
+.raiten-closing-button-outline { grid-column: 1 / -1; background: #08142680; border-color: #a8b9ce; box-shadow: none; color: white; }
+.raiten-closing-button:focus-visible, .raiten-start-guide:focus-visible { outline: 3px solid #FFC400; outline-offset: 5px; }
+@media (max-width: 1199px) {
+  .raiten-connections-inner { gap: 32px; }
+  .raiten-start-points { gap: 10px; }
+  .raiten-start-points h3 { font-size: 12px; }
+  .raiten-closing-actions { grid-template-columns: 1fr; }
+}
+@media (max-width: 1023px) {
+  .raiten-connections { padding: 48px 24px 16px; scroll-margin-top: 140px; }
+  .raiten-connections-inner { grid-template-columns: minmax(0,1fr); gap: 40px; max-width: 700px; }
+  .raiten-start-points h3 { font-size: 14px; }
+  .raiten-closing { padding: 48px 24px; scroll-margin-top: 140px; }
+  .raiten-closing-inner { max-width: 700px; gap: 30px; }
+}
+@media (max-width: 639px) {
+  .raiten-connections { padding: 44px 24px 14px; }
+  .raiten-connections h2 { font-size: 28px; }
+  .raiten-connections-description { font-size: 12px; }
+  .raiten-network { height: 470px; width: 100%; max-width: 300px; margin: 28px auto 0; }
+  .raiten-network .raiten-network-lines-desktop { display: none; }
+  .raiten-network .raiten-network-lines-mobile { display: block; }
+  .raiten-network-node { left: 50%; width: 54%; height: 92px; }
+  .raiten-network-store { top: 0; }
+  .raiten-network-hub { top: 126px; }
+  .raiten-network-talent { top: 252px; }
+  .raiten-network-public { top: 378px; }
+  .raiten-network-publish { top: 255px; left: auto; right: -1px; writing-mode: vertical-rl; font-size: 9px; background: #f9fbfe; padding: 6px 0; }
+  .raiten-start-points { grid-template-columns: minmax(0,1fr); gap: 13px; margin-top: 20px; }
+  .raiten-start-points > div { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 5px 16px; padding: 23px; text-align: left; }
+  .raiten-start-points svg { grid-row: 1 / 3; margin: auto; }
+  .raiten-start-points p { grid-column: 2; margin-top: 0; font-size: 12px; }
+  .raiten-start-points p br { display: none; }
+  .raiten-closing { padding: 58px 24px 64px; }
+  .raiten-closing-inner { grid-template-columns: minmax(0,1fr); gap: 28px; text-align: center; }
+  .raiten-closing h2 { font-size: clamp(29px,8vw,36px); }
+  .raiten-closing-copy > span { font-size: 12px; }
+  .raiten-closing-actions { gap: 13px; }
+  .raiten-closing-button { min-height: 50px; font-size: 14px; }
+  .raiten-closing-shade { background: linear-gradient(180deg,#081426ed,#081426c9 75%,#08142660); }
+}
+@media (prefers-reduced-motion: reduce) { .raiten-closing-button { transition: none; } }
