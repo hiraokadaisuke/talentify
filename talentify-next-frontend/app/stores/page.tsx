@@ -140,9 +140,9 @@ export default async function StoresPage({
                       </div>
                     )}
                     {store.upcomingEvents.length > 0 && (
-                      <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-[#FF5A1F] px-2 py-1 text-[9px] font-black text-white shadow-[0_6px_16px_rgba(255,90,31,.22)]">
+                      <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-[#FF5A1F] px-2 py-1 text-[9px] font-black text-white shadow-[0_6px_16px_rgba(255,90,31,.22)]">
                         <CalendarDays className="h-3 w-3" />
-                        来店予定あり
+                        来店 {store.upcomingEvents.length}件
                       </span>
                     )}
                   </div>
@@ -163,14 +163,10 @@ export default async function StoresPage({
                     </p>
 
                     {store.nextEvent ? (
-                      <div className="mt-3 flex items-center gap-2">
-                        <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black text-[#C2410C]">
-                          来店予定 {store.upcomingEvents.length}件
-                        </span>
-                        <span className="truncate text-[11px] font-bold text-slate-500">
-                          次回 {formatDate(store.nextEvent.dateKey)}
-                        </span>
-                      </div>
+                      <p className="mt-3 text-[11px] font-bold text-slate-500">
+                        <span className="mr-1.5 text-slate-400">次回</span>
+                        <span className="font-black text-slate-700">{formatDate(store.nextEvent.dateKey)}</span>
+                      </p>
                     ) : (
                       <p className="mt-3 text-[10px] font-bold text-slate-400">
                         現在、公開中の来店予定なし
@@ -181,8 +177,7 @@ export default async function StoresPage({
 
                 {store.nextEvent && (
                   <div className="flex items-center gap-2 border-t border-slate-100 bg-slate-50/70 px-3.5 py-2.5 sm:px-4">
-                    <CalendarDays className="h-3.5 w-3.5 text-[#C2410C]" />
-                    <span className="text-[11px] font-bold text-slate-500">次の来店</span>
+                    <span className="text-[11px] font-bold text-slate-400">次回来店</span>
                     <span className="ml-auto inline-flex min-w-0 items-center gap-1.5 text-xs font-black text-slate-800">
                       {store.nextEvent.talent.avatarUrl ? (
                         <img
