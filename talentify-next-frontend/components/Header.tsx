@@ -183,7 +183,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
   if (isEventsPage) {
     return (
-      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/96 text-white shadow-[0_8px_30px_rgba(0,0,0,.18)] backdrop-blur-xl">
+      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/[0.96] text-white shadow-[0_8px_30px_rgba(0,0,0,.18)] backdrop-blur-xl">
         <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
           <Link href="/events" className="flex min-w-0 items-center gap-2">
             <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-8 w-auto sm:h-9" />
@@ -429,7 +429,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
     ]
 
     return (
-      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/94 text-white shadow-[0_8px_30px_rgba(0,0,0,.22)] backdrop-blur-xl">
+      <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/[0.94] text-white shadow-[0_8px_30px_rgba(0,0,0,.22)] backdrop-blur-xl">
         <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-10">
           <Link href="/" className="flex items-center">
             <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-9 w-auto sm:h-10" />
