@@ -90,7 +90,7 @@ export default async function PerformersPage({
                     <img
                       src={performer.avatarUrl}
                       alt={performer.name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-contain"
                     />
                   ) : (
                     <div className="grid h-full w-full place-items-center text-slate-300">

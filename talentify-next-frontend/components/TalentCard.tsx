@@ -26,7 +26,7 @@ export default function TalentCard({ talent }) {
             alt={`${talent.name}の画像`}
             width={64}
             height={64}
-            className="object-cover w-full h-full"
+            className="object-contain w-full h-full"
           />
         </div>
         <h2 className="text-lg font-semibold">{talent.name}</h2>

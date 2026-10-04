@@ -20,7 +20,7 @@ type Props = {
   onOfferDate: (date: string) => void
 }
 
-const WEEKDAYS = ['月', '火', '水', '木', '金', '土', '日']
+const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土']
 
 function pad(value: number) {
   return String(value).padStart(2, '0')
@@ -33,10 +33,10 @@ function toDateKey(year: number, monthIndex: number, day: number) {
 function getMonthGrid(year: number, monthIndex: number) {
   const first = new Date(year, monthIndex, 1)
   const lastDay = new Date(year, monthIndex + 1, 0).getDate()
-  const mondayOffset = (first.getDay() + 6) % 7
+  const sundayOffset = first.getDay()
   const cells: Array<{ date: string; day: number } | null> = []
 
-  for (let i = 0; i < mondayOffset; i += 1) cells.push(null)
+  for (let i = 0; i < sundayOffset; i += 1) cells.push(null)
   for (let day = 1; day <= lastDay; day += 1) {
     cells.push({ date: toDateKey(year, monthIndex, day), day })
   }
@@ -163,7 +163,7 @@ export default function TalentSchedulePreview({ talentId, onOfferDate }: Props) 
                   </p>
                   <div className="grid grid-cols-7 gap-1">
                     {WEEKDAYS.map(label => (
-                      <div key={label} className="py-1 text-center text-[11px] font-medium text-slate-400">
+                      <div key={label} className={`py-1 text-center text-[11px] font-medium ${label === '日' ? 'text-red-500' : label === '土' ? 'text-blue-600' : 'text-slate-400'}`}>
                         {label}
                       </div>
                     ))}

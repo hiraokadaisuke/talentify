@@ -1,36 +1,18 @@
 'use client'
 
-import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { formatJaDateTimeWithWeekday } from '@/utils/formatJaDateTimeWithWeekday'
-import { getInvoiceStatusLabel, getPaymentStatusLabel } from '@/lib/invoices/status'
+import InvoiceSubmittedSummary, { type SubmittedInvoice } from '@/components/invoices/InvoiceSubmittedSummary'
 
 const supabase = createClient()
 
-interface Invoice {
-  id: string
-  offer_id: string
-  amount: number
-  transport_fee: number | null
-  extra_fee: number | null
-  notes: string | null
-  invoice_number: string
-  due_date: string | null
-  status: string
-  payment_status: string | null
-  created_at: string | null
-}
 
 export default function TalentInvoiceSubmittedPage() {
   const params = useParams()
   const id = params?.id as string
 
-  const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const [invoice, setInvoice] = useState<SubmittedInvoice | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -51,20 +33,13 @@ export default function TalentInvoiceSubmittedPage() {
         console.error(error)
         setInvoice(null)
       } else {
-        setInvoice((data as Invoice | null) ?? null)
+        setInvoice((data as SubmittedInvoice | null) ?? null)
       }
       setLoading(false)
     }
 
     loadInvoice()
   }, [id])
-
-  const baseFee = useMemo(() => {
-    if (!invoice) return 0
-    const transport = invoice.transport_fee ?? 0
-    const extra = invoice.extra_fee ?? 0
-    return Math.max(0, invoice.amount - transport - extra)
-  }, [invoice])
 
   if (loading) {
     return <div className='p-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-8 lg:text-center lg:text-slate-500 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>読み込み中...</div>
@@ -74,63 +49,5 @@ export default function TalentInvoiceSubmittedPage() {
     return <div className='p-6 lg:mx-auto lg:max-w-5xl lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-8 lg:text-center lg:text-slate-500 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>見積書が見つかりませんでした。</div>
   }
 
-  return (
-    <main className='p-6 space-y-6 lg:mx-auto lg:w-full lg:max-w-5xl lg:space-y-5 lg:p-0'>
-      <section className='space-y-4 lg:overflow-hidden lg:rounded-2xl lg:border lg:border-slate-200 lg:bg-white lg:p-6 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
-        <div>
-          <p className='hidden text-[11px] font-black tracking-[0.16em] text-[#C2410C] lg:block'>ESTIMATE SUBMITTED</p>
-          <h1 className='text-xl font-bold lg:mt-1 lg:text-2xl lg:font-black lg:tracking-tight lg:text-slate-950'>見積書の提出が完了しました</h1>
-          <p className='text-sm text-muted-foreground'>見積内容をご確認ください。</p>
-        </div>
-        <div className='flex flex-wrap gap-2'>
-          <Button asChild variant='default'>
-            <Link href='/talent/invoices'>見積・請求一覧へ戻る</Link>
-          </Button>
-          <Button asChild variant='outline'>
-            <Link href={`/talent/invoices/${invoice.id}`}>見積詳細を表示</Link>
-          </Button>
-        </div>
-      </section>
-
-      <div className='lg:grid lg:grid-cols-2 lg:gap-4'>
-      <Card className='lg:rounded-2xl lg:border-slate-200 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
-        <CardHeader>
-          <CardTitle>見積情報</CardTitle>
-        </CardHeader>
-        <CardContent className='space-y-2 text-sm'>
-          <div>作成日: {formatJaDateTimeWithWeekday(invoice.created_at ?? '')}</div>
-          <div>管理番号: {invoice.invoice_number}</div>
-          <div>
-            支払期限:{' '}
-            {invoice.due_date
-              ? formatJaDateTimeWithWeekday(invoice.due_date)
-              : '-'}
-          </div>
-          <div>
-            見積ステータス: <Badge variant='outline'>{getInvoiceStatusLabel(invoice.status)}</Badge>
-          </div>
-          <div>
-            支払い状態:{' '}
-            <Badge variant={invoice.payment_status === 'paid' ? 'success' : 'secondary'}>
-              {getPaymentStatusLabel(invoice.payment_status)}
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className='lg:rounded-2xl lg:border-slate-200 lg:shadow-[0_8px_24px_rgba(15,23,42,.05)]'>
-        <CardHeader>
-          <CardTitle>金額内訳</CardTitle>
-        </CardHeader>
-        <CardContent className='space-y-2 text-sm'>
-          <div>基本報酬: ¥{baseFee.toLocaleString('ja-JP')}</div>
-          <div>交通費: ¥{(invoice.transport_fee ?? 0).toLocaleString('ja-JP')}</div>
-          <div>追加料金: ¥{(invoice.extra_fee ?? 0).toLocaleString('ja-JP')}</div>
-          <div>合計: ¥{invoice.amount.toLocaleString('ja-JP')}</div>
-          <div>メモ: {invoice.notes ? invoice.notes : 'なし'}</div>
-        </CardContent>
-      </Card>
-      </div>
-    </main>
-  )
+  return <InvoiceSubmittedSummary invoice={invoice} />
 }

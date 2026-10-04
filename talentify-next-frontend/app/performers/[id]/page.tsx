@@ -89,7 +89,7 @@ export default async function PerformerDetailPage({ params }: PageProps) {
           <div className="mt-5 flex items-start gap-4">
             <div className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-white/10 sm:h-28 sm:w-28">
               {performer.avatarUrl ? (
-                <img src={performer.avatarUrl} alt={performer.name} className="h-full w-full object-cover" />
+                <img src={performer.avatarUrl} alt={performer.name} className="h-full w-full object-contain" />
               ) : (
                 <div className="grid h-full w-full place-items-center text-white/30">
                   <UserRound className="h-9 w-9" />

@@ -30,7 +30,8 @@ export function isDeclaredAvailable(
   return (defaultMode ?? 'default_ok') === 'default_ok'
 }
 
-export function extractAreaTokens(area: string | null | undefined): string[] {
+export function extractAreaTokens(area: string | string[] | null | undefined): string[] {
+  if (Array.isArray(area)) return [...new Set(area.flatMap(item => extractAreaTokens(item)))]
   if (!area) return []
 
   const trimmed = area.trim()

@@ -332,7 +332,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
           availability: s((data as any).availability),
           min_hours: s((data as any).min_hours),
           transportation: s((data as any).transportation) || '込み',
-          rate: (data as any).rate != null ? String((data as any).rate) : '',
+          rate: Number((data as any).rate) > 0 ? String((data as any).rate) : '',
           notes: s((data as any).notes),
           achievements: s((data as any).achievements),
           video_url: s((data as any).video_url),
@@ -666,7 +666,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-800">公開名（サイト内表示名）<span className="ml-1 text-red-500">*</span></label>
               <p className="text-sm leading-5 text-gray-500">
-                来店ナビ内のプロフィールや店舗向け画面に表示される名称です。芸名・活動名・本名など、公開したい名称を入力してください。
+                店舗や一般ユーザーに表示する名前です。芸名・活動名・SNSで使っているアカウント名などを入力してください。
               </p>
               <Input
                 type="text"
@@ -674,7 +674,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                 value={profile.stage_name ?? ''}
                 onChange={handleChange}
                 className={fieldClassName}
-                placeholder="例：きいち"
+                placeholder="芸名やSNSのアカウント名を入力"
                 autoComplete="nickname"
               />
               {errors.stage_name && <p className="text-sm text-red-500">{errors.stage_name}</p>}
@@ -1086,7 +1086,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                   <img
                     src={avatarPreview}
                     alt="avatar preview"
-                    className="mb-3 h-24 w-24 rounded-lg object-cover"
+                    className="mb-3 h-40 w-full rounded-lg bg-slate-100 object-contain"
                   />
                 )}
                 <Input
@@ -1095,7 +1095,7 @@ export default function TalentProfileEditPageClient({ code }: { code?: string | 
                   onChange={handleAvatar}
                   className={fieldClassName}
                 />
-                <p className="mt-2 text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP</p>
+                <p className="mt-2 text-sm text-gray-500">5MBまで／対応：PNG・JPG・WEBP。縦長・横長の写真も全体が表示されます。サイズをそろえる必要はありません。</p>
                 {errors.avatar_url && <p className="mt-1 text-sm text-red-500">{errors.avatar_url}</p>}
               </div>
             </div>

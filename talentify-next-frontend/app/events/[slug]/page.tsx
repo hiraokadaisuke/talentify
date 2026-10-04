@@ -189,7 +189,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                 <img
                   src={event.talent.avatarUrl}
                   alt={event.talent.name}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <div className="grid h-full min-h-[220px] w-full place-items-center text-slate-300">

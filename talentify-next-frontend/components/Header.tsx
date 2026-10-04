@@ -50,7 +50,6 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/terms',
 ])
 
-const GUIDE_LINKS: MenuItem[] = [{ href: '/guide', label: 'ご利用ガイド' }]
 
 const ROLE_MENUS: Record<
   'store' | 'talent',
@@ -165,8 +164,6 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const isFavoritesActive =
     inferredRole === 'store' &&
     (pathname === '/store/favorites' || pathname.startsWith('/store/favorites/'))
-  const primaryGuideLink = GUIDE_LINKS[0]
-  const isGuideActive = GUIDE_LINKS.some((item) => pathname === item.href || pathname.startsWith(item.href + '/'))
   const navItemBaseClass =
     'relative inline-flex h-10 items-center whitespace-nowrap rounded-lg px-2.5 text-[13px] font-semibold text-slate-600 transition-all duration-150 hover:bg-slate-100 hover:text-slate-950 xl:px-3 xl:text-sm'
   const navItemActiveClass =
@@ -269,14 +266,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   </Link>
                 )
               })}
-              <Link
-                href={primaryGuideLink.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(navItemBaseClass, isGuideActive ? navItemActiveClass : '')}
-              >
-                {primaryGuideLink.label}
-              </Link>
+
             </nav>
           </div>
 
@@ -297,6 +287,8 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                       <Link href={item.href}>{item.label}</Link>
                     </DropdownMenuItem>
                   ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className={dropdownItemClass}><Link href="/guide" target="_blank" rel="noopener noreferrer">ヘルプ・ご利用ガイド ↗</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer text-destructive">
                     ログアウト
@@ -372,19 +364,6 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
 
                   <div className="my-4 border-t border-slate-200" />
 
-                  <SheetClose asChild>
-                    <Link
-                      href={primaryGuideLink.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(mobileLinkClass, isGuideActive ? mobileActiveClass : '')}
-                    >
-                      ご利用ガイド
-                    </Link>
-                  </SheetClose>
-
-                  <div className="my-4 border-t border-slate-200" />
-
                   <p className="px-3 pb-2 text-xs font-bold tracking-[0.08em] text-slate-400">アカウント</p>
                   <div className="space-y-1">
                     {roleNav.account.map((item) => {
@@ -400,6 +379,10 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                   </div>
                 </div>
 
+                <div className="border-t border-slate-200 bg-slate-50 px-5 py-3">
+                  <p className="mb-1 text-xs font-bold text-slate-500">ヘルプ</p>
+                  <SheetClose asChild><Link href="/guide" target="_blank" rel="noopener noreferrer" className="flex min-h-10 items-center justify-between text-sm text-slate-600">ご利用ガイド<span className="text-xs">別タブで開く ↗</span></Link></SheetClose>
+                </div>
                 <div className="border-t border-slate-200 p-3">
                   <SheetClose asChild>
                     <button

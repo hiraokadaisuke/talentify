@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { FaInstagram, FaTiktok, FaXTwitter, FaYoutube } from 'react-icons/fa6'
+import { extractAreaTokens } from '@/lib/search/calendarAvailability'
 import type { PublicTalent } from '@/types/talent'
 
 function isValidHttpUrl(url: string) {
@@ -53,7 +54,8 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
   const name = getTalentName(talent)
   const affiliation = getTalentAffiliation(talent)
   const capabilities = getTalentCapabilities(talent)
-  const subInfo = [talent.genre, affiliation, talent.area].filter(Boolean)
+  const subInfo = [talent.genre, affiliation].filter(Boolean)
+  const areas = [...new Set(extractAreaTokens(talent.area))]
   const socialLinks = [
     { label: 'X', href: talent.twitter_url, icon: FaXTwitter },
     { label: 'Instagram', href: talent.instagram_url, icon: FaInstagram },
@@ -69,7 +71,7 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
             src={imageSrc}
             alt={name}
             fill
-            className="object-cover"
+            className="object-contain"
             loading="lazy"
             sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 32vw, (min-width: 640px) 48vw, 100vw"
           />
@@ -83,6 +85,12 @@ export default function TalentCard({ talent }: { talent: PublicTalent }) {
             <p className="mt-1 text-sm text-slate-500 line-clamp-1">{subInfo.join(' / ')}</p>
           )}
         </Link>
+
+        {areas.length > 0 && <div className="mt-3 border-t border-slate-100 pt-3">
+          <p className="mb-2 text-xs font-semibold text-slate-500">活動エリア</p>
+          <div className="flex flex-wrap gap-1.5">{areas.slice(0, 4).map(area => <span key={area} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700">{area}</span>)}</div>
+          {areas.length > 4 && <details className="mt-1"><summary className="min-h-9 cursor-pointer py-2 text-xs font-semibold text-[#C2410C]">ほか{areas.length - 4}地域を表示</summary><div className="flex flex-wrap gap-1.5">{areas.slice(4).map(area => <span key={area} className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-700">{area}</span>)}</div></details>}
+        </div>}
 
         {socialLinks.length > 0 && (
           <div className="mt-3 flex items-center gap-2" aria-label="SNSリンク">

@@ -195,7 +195,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                     src={photos[selectedPhoto]}
                     alt={`${talent.stage_name} ${selectedPhoto + 1}`}
                     fill
-                    className={clsx('h-full w-full object-cover transition-opacity duration-300', imageLoaded ? 'opacity-100' : 'opacity-0')}
+                    className={clsx('h-full w-full object-contain transition-opacity duration-300', imageLoaded ? 'opacity-100' : 'opacity-0')}
                     onLoad={() => setImageLoaded(true)}
                   />
                 ) : (
@@ -219,7 +219,7 @@ export default function TalentDetailPageClient({ id, initialTalent, initialRevie
                           : 'border-slate-200 hover:border-slate-400'
                       )}
                     >
-                      <Image src={src} alt={talent.stage_name} fill className="object-cover" />
+                      <Image src={src} alt={talent.stage_name} fill className="object-contain" />
                     </button>
                   ))}
                 </div>
