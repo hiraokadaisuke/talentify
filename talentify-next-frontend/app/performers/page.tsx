@@ -103,7 +103,7 @@ export default async function PerformersPage({
                   {performer.upcomingEvents.length > 0 && (
                     <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-[#FF5A1F] px-2.5 py-1 text-[10px] font-black text-white shadow-[0_6px_16px_rgba(255,90,31,.22)]">
                       <CalendarDays className="h-3 w-3" />
-                      来店予定あり
+                      来店予定 {performer.upcomingEvents.length}件
                     </span>
                   )}
                 </div>
@@ -116,14 +116,14 @@ export default async function PerformersPage({
                     <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-[#C2410C]" />
                   </div>
                   {performer.nextEvent ? (
-                    <>
-                      <p className="mt-2 text-[10px] font-black text-[#C2410C]">
-                        来店予定 {performer.upcomingEvents.length}件
+                    <div className="mt-2 min-w-0">
+                      <p className="text-[10px] font-bold text-slate-400">
+                        次回 {formatDate(performer.nextEvent.dateKey)}
                       </p>
-                      <p className="mt-1 truncate text-[11px] font-medium text-slate-500">
-                        次回 {formatDate(performer.nextEvent.dateKey)}・{performer.nextEvent.store.name}
+                      <p className="mt-0.5 line-clamp-2 text-[11px] font-black leading-4 text-slate-700">
+                        {performer.nextEvent.store.name}
                       </p>
-                    </>
+                    </div>
                   ) : (
                     <p className="mt-2 text-[10px] font-bold text-slate-400">
                       現在、公開中の来店予定なし
