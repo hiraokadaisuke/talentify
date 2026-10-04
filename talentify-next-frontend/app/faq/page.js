@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { ArrowRight, Search } from 'lucide-react'
 import FAQItem from '../../components/FAQItem'
+import PublicPageHero from '@/components/public/PublicPageHero'
 
 const FAQ_DATA = {
   'はじめに': [
@@ -172,67 +174,93 @@ export default function FAQPage() {
   }, [category, query])
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14 lg:max-w-5xl">
-      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">FAQ</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">よくある質問</h1>
-        <p className="mt-3 text-sm leading-7 text-slate-600">
-          登録前の疑問から、オファー・見積・契約・メッセージ・支払いまで、利用中に迷いやすい内容をまとめています。
-        </p>
-      </header>
+    <main className="min-h-screen bg-[#F7F9FC] pt-16 text-slate-950">
+      <PublicPageHero
+        eyebrow="FAQ"
+        title="よくある質問"
+        description="登録前の疑問から、オファー・見積・契約・メッセージ・支払いまで、利用中に迷いやすい内容をまとめています。"
+      />
 
-      <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <input
-          type="search"
-          placeholder="例：見積修正、電話、キャンセル"
-          value={query}
-          onChange={event => setQuery(event.target.value)}
-          className="h-11 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none transition focus:border-[#FF8A00] focus:ring-2 focus:ring-orange-100"
-        />
+      <div className="mx-auto w-full max-w-[960px] px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+        <section className="rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,.04)] sm:p-5">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="search"
+              placeholder="例：見積修正、電話、キャンセル"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-base font-medium outline-none transition placeholder:text-slate-400 focus:border-[#FF8A00] focus:bg-white focus:ring-2 focus:ring-orange-100 sm:text-sm"
+            />
+          </div>
 
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategory(cat)}
-              className={`whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold transition ${
-                category === cat
-                  ? 'border-[#FF5A1F] bg-[#FF5A1F] text-white'
-                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              {cat}
-            </button>
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategory(cat)}
+                className={
+                  'min-h-10 rounded-xl border px-3 py-2 text-xs font-black transition sm:px-4 sm:text-sm ' +
+                  (category === cat
+                    ? 'border-[#FF5A1F] bg-[#FF5A1F] text-white shadow-[0_6px_16px_rgba(255,90,31,.14)]'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-orange-200 hover:bg-orange-50/50')
+                }
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <div className="mt-8">
+          {filteredItems.map((item, index) => (
+            <div key={[item.group, item.question].join('-')}>
+              {index === 0 || filteredItems[index - 1]?.group !== item.group ? (
+                <div className="mb-3 mt-7 flex items-center gap-3 first:mt-0">
+                  <span className="h-px w-8 bg-[#FF5A1F]" />
+                  <h2 className="text-sm font-black tracking-[0.04em] text-slate-500">{item.group}</h2>
+                </div>
+              ) : null}
+              <div className="mb-3">
+                <FAQItem question={item.question} answer={item.answer} />
+              </div>
+            </div>
           ))}
+
+          {filteredItems.length === 0 ? (
+            <div className="rounded-[22px] border border-slate-200 bg-white p-8 text-center">
+              <p className="text-sm font-bold text-slate-600">該当する質問は見つかりませんでした。</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('')
+                  setCategory('すべて')
+                }}
+                className="mt-4 text-sm font-black text-[#C2410C] underline underline-offset-4"
+              >
+                検索条件をリセット
+              </button>
+            </div>
+          ) : null}
         </div>
-      </section>
 
-      <div className="mt-6 space-y-3">
-        {filteredItems.map((item, index) => (
-          <div key={`${item.group}-${item.question}`}>
-            {(index === 0 || filteredItems[index - 1]?.group !== item.group) && (
-              <h2 className="mb-2 mt-6 text-sm font-bold text-slate-500">{item.group}</h2>
-            )}
-            <FAQItem question={item.question} answer={item.answer} />
+        <section className="mt-10 rounded-[22px] bg-[#0B1F3B] p-5 text-white sm:p-6">
+          <p className="text-xs font-black tracking-[0.16em] text-[#FFC400]">NEED MORE HELP?</p>
+          <h2 className="mt-2 text-xl font-black">まだ解決しない場合</h2>
+          <p className="mt-2 text-sm leading-7 text-white/65">
+            ご利用ガイドで操作の流れを確認するか、お問い合わせフォームからご連絡ください。
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/guide" className="inline-flex h-10 items-center gap-2 rounded-xl bg-white px-4 text-sm font-black text-[#0B1F3B]">
+              ご利用ガイド <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/contact" className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/15 px-4 text-sm font-black text-white/85">
+              お問い合わせ <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-        ))}
-        {filteredItems.length === 0 && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
-            <p className="text-sm text-slate-600">該当する質問は見つかりませんでした。</p>
-          </div>
-        )}
+        </section>
       </div>
-
-      <section className="mt-8 rounded-2xl border border-orange-200 bg-orange-50 p-5 text-sm leading-7 text-slate-800">
-        <p className="font-semibold">まだ解決しない場合</p>
-        <p className="mt-1">
-          <Link href="/guide" className="font-semibold underline underline-offset-2">ご利用ガイド</Link>
-          {' '}を確認するか、
-          <Link href="/contact" className="font-semibold underline underline-offset-2">お問い合わせ</Link>
-          からご連絡ください。
-        </p>
-      </section>
     </main>
   )
 }

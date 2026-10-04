@@ -42,6 +42,7 @@ const PUBLIC_HEADER_PATHS = new Set([
   '/pricing',
   '/privacy',
   '/service',
+  '/sitemap',
   '/register',
   '/stores',
   '/performers',

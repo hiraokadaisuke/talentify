@@ -1,3 +1,10 @@
+import PublicPageHero from '@/components/public/PublicPageHero'
+
+export const metadata = {
+  title: 'お知らせ | 来店ナビ',
+  description: '来店ナビからの更新情報やご案内を掲載します。',
+}
+
 const newsItems = [
   {
     date: '2026-04-10',
@@ -18,20 +25,34 @@ const newsItems = [
 
 export default function NewsPage() {
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-24 lg:max-w-6xl lg:px-0 text-slate-900">
-      <header className="mb-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-3xl font-bold">お知らせ</h1>
-        <p className="mt-2 text-sm text-slate-600">来店ナビからのお知らせを掲載します。</p>
-      </header>
-      <div className="space-y-3">
-        {newsItems.map((item) => (
-          <article key={item.title} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs text-slate-500">{item.date}</p>
-            <h2 className="mt-1 text-lg font-semibold">{item.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{item.body}</p>
-          </article>
-        ))}
+    <main className="min-h-screen bg-[#F7F9FC] pt-16 text-slate-950">
+      <PublicPageHero
+        eyebrow="NEWS"
+        title="お知らせ"
+        description="来店ナビからの更新情報やご案内を掲載します。"
+      />
+
+      <div className="mx-auto w-full max-w-[960px] px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+        <div className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_12px_36px_rgba(15,23,42,.04)]">
+          {newsItems.map((item, index) => (
+            <article
+              key={item.title}
+              className={'grid gap-3 p-5 sm:p-6 md:grid-cols-[128px_minmax(0,1fr)] md:gap-6 ' + (index !== newsItems.length - 1 ? 'border-b border-slate-100' : '')}
+            >
+              <time
+                dateTime={item.date}
+                className="inline-flex h-8 w-fit items-center rounded-lg bg-slate-50 px-3 text-xs font-black tracking-[0.04em] text-slate-500"
+              >
+                {item.date}
+              </time>
+              <div>
+                <h2 className="text-lg font-black leading-7 text-slate-950 sm:text-xl">{item.title}</h2>
+                <p className="mt-2 text-sm leading-7 text-slate-600">{item.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
-    </div>
+    </main>
   )
 }
