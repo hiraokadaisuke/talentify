@@ -1,4 +1,5 @@
 import { getPublicEvents, toTokyoDateKey, type PublicEvent } from '@/lib/events/publicEvents'
+import { createServiceClient } from '@/lib/supabase/service'
 
 export type PublicStoreSummary = {
   id: string
@@ -88,9 +89,40 @@ export async function getPublicStoreById(id: string) {
 }
 
 export async function getPublicPerformers(): Promise<PublicPerformerSummary[]> {
-  const events = await getPublicEvents()
+  const [events, profilesResult] = await Promise.all([
+    getPublicEvents(),
+    (createServiceClient() as any)
+      .from('public_talent_profiles')
+      .select(
+        'id,stage_name,display_name,avatar_url,bio,twitter_url,instagram_url,youtube_url,social_tiktok'
+      ),
+  ])
+
   const today = toTokyoDateKey(new Date())
   const grouped = new Map<string, PublicPerformerSummary>()
+
+  if (profilesResult.error) {
+    console.error('Failed to load public performer profiles', profilesResult.error)
+  } else {
+    for (const profile of profilesResult.data || []) {
+      if (!profile?.id) continue
+
+      grouped.set(profile.id, {
+        id: profile.id,
+        name: profile.stage_name || profile.display_name || '演者',
+        avatarUrl: profile.avatar_url ?? null,
+        bio: profile.bio ?? null,
+        twitterUrl: profile.twitter_url ?? null,
+        instagramUrl: profile.instagram_url ?? null,
+        youtubeUrl: profile.youtube_url ?? null,
+        tiktokUrl: profile.social_tiktok ?? null,
+        events: [],
+        upcomingEvents: [],
+        pastEvents: [],
+        nextEvent: null,
+      })
+    }
+  }
 
   for (const event of events) {
     if (event.publicationStatus === 'canceled') continue
@@ -114,6 +146,13 @@ export async function getPublicPerformers(): Promise<PublicPerformerSummary[]> {
     if (activeEvent(event, today)) current.upcomingEvents.push(event)
     if (pastEvent(event, today)) current.pastEvents.push(event)
 
+    if (!current.avatarUrl && event.talent.avatarUrl) current.avatarUrl = event.talent.avatarUrl
+    if (!current.bio && event.talent.bio) current.bio = event.talent.bio
+    if (!current.twitterUrl && event.talent.twitterUrl) current.twitterUrl = event.talent.twitterUrl
+    if (!current.instagramUrl && event.talent.instagramUrl) current.instagramUrl = event.talent.instagramUrl
+    if (!current.youtubeUrl && event.talent.youtubeUrl) current.youtubeUrl = event.talent.youtubeUrl
+    if (!current.tiktokUrl && event.talent.tiktokUrl) current.tiktokUrl = event.talent.tiktokUrl
+
     grouped.set(event.talent.id, current)
   }
 
@@ -126,6 +165,9 @@ export async function getPublicPerformers(): Promise<PublicPerformerSummary[]> {
       return performer
     })
     .sort((a, b) => {
+      const aHasUpcoming = a.upcomingEvents.length > 0 ? 1 : 0
+      const bHasUpcoming = b.upcomingEvents.length > 0 ? 1 : 0
+      if (bHasUpcoming !== aHasUpcoming) return bHasUpcoming - aHasUpcoming
       if (b.upcomingEvents.length !== a.upcomingEvents.length) {
         return b.upcomingEvents.length - a.upcomingEvents.length
       }

@@ -51,7 +51,7 @@ export default async function PerformersPage({
           <p className="text-[10px] font-black tracking-[0.18em] text-[#FFC400]">PERFORMER SEARCH</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">演者から探す</h1>
           <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-white/72">
-            気になる演者が決まっているときに、今後どの店舗へ来るか確認できます。
+            公開中の演者プロフィールから探せます。来店予定がある演者は、カード上ですぐ確認できます。
           </p>
 
           <form action="/performers" method="get" className="mt-5 flex max-w-2xl gap-2">
@@ -75,7 +75,7 @@ export default async function PerformersPage({
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">PERFORMERS</p>
-            <h2 className="mt-1 text-xl font-black">{q ? '検索結果' : '公開中の演者'}</h2>
+            <h2 className="mt-1 text-xl font-black">{q ? '検索結果' : '演者一覧'}</h2>
           </div>
           <p className="text-xs font-bold text-slate-400">{filtered.length}人</p>
         </div>
@@ -88,7 +88,7 @@ export default async function PerformersPage({
                 href={`/performers/${performer.id}`}
                 className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)] transition hover:-translate-y-0.5 hover:border-orange-200"
               >
-                <div className="aspect-square bg-slate-100">
+                <div className="relative aspect-square bg-slate-100">
                   {performer.avatarUrl ? (
                     <img
                       src={performer.avatarUrl}
@@ -100,6 +100,12 @@ export default async function PerformersPage({
                       <UserRound className="h-10 w-10" />
                     </div>
                   )}
+                  {performer.upcomingEvents.length > 0 && (
+                    <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1 rounded-full bg-[#FF5A1F] px-2.5 py-1 text-[10px] font-black text-white shadow-[0_6px_16px_rgba(255,90,31,.22)]">
+                      <CalendarDays className="h-3 w-3" />
+                      来店予定あり
+                    </span>
+                  )}
                 </div>
 
                 <div className="p-3.5">
@@ -109,12 +115,18 @@ export default async function PerformersPage({
                     </h3>
                     <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-[#C2410C]" />
                   </div>
-                  <p className="mt-2 text-[10px] font-black text-[#C2410C]">
-                    今後の来店 {performer.upcomingEvents.length}件
-                  </p>
-                  {performer.nextEvent && (
-                    <p className="mt-1 truncate text-[11px] font-medium text-slate-500">
-                      次回 {formatDate(performer.nextEvent.dateKey)}・{performer.nextEvent.store.name}
+                  {performer.nextEvent ? (
+                    <>
+                      <p className="mt-2 text-[10px] font-black text-[#C2410C]">
+                        来店予定 {performer.upcomingEvents.length}件
+                      </p>
+                      <p className="mt-1 truncate text-[11px] font-medium text-slate-500">
+                        次回 {formatDate(performer.nextEvent.dateKey)}・{performer.nextEvent.store.name}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="mt-2 text-[10px] font-bold text-slate-400">
+                      現在、公開中の来店予定なし
                     </p>
                   )}
                 </div>
