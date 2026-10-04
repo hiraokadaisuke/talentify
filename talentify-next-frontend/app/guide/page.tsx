@@ -1,10 +1,12 @@
+import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, MessageSquareText, Mic, Store } from 'lucide-react'
+import { ArrowDown, ArrowRight, BookOpen, Check, CheckCircle2, FileCheck2, FileText, HelpCircle, MessageSquareText, Mic, Phone, Store } from 'lucide-react'
 import TutorialResetButton from '@/components/TutorialResetButton'
+import './guide.css'
 
 export const metadata = {
   title: 'ご利用ガイド｜来店ナビ',
-  description: '店舗・演者それぞれの来店ナビ利用フローを案内します。',
+  description: '店舗・演者それぞれの登録からオファー、見積・契約、来店完了までをわかりやすくご案内します。',
 }
 
 const storeSteps = [
@@ -69,143 +71,57 @@ const talentSteps = [
   },
 ]
 
-const tips = [
-  {
-    title: '電話を使ってもOK',
-    text: '電話文化を無理に変える必要はありません。急ぎや細かな相談は電話でも構いません。',
-  },
-  {
-    title: '重要な条件は記録に残す',
-    text: '電話で決まった内容も、日時・金額・交通費など契約条件に関わるものは見積や案件情報へ反映してください。',
-  },
-  {
-    title: '定型文は編集して使える',
-    text: '案件メッセージの「よく使うメッセージ」は入力欄へ入るだけで、自動送信されません。',
-  },
-  {
-    title: '困ったときは案件詳細を見る',
-    text: '現在の進行ステップと次に必要な対応を案件詳細から確認できます。',
-  },
-]
-
-function Flow({
-  id,
-  title,
-  description,
-  steps,
-  accent,
-}: {
-  id: string
-  title: string
-  description: string
-  steps: { title: string; text: string }[]
-  accent: string
-}) {
-  return (
-    <section id={id} className="scroll-mt-24 rounded-[28px] border border-white/10 bg-white/[0.045] p-6 sm:p-8">
-      <p className={'text-xs font-black tracking-[0.2em] ' + accent}>{title}</p>
-      <h2 className="mt-3 text-2xl font-black sm:text-4xl">{description}</h2>
-      <div className="mt-7 space-y-3">
-        {steps.map((step, index) => (
-          <div key={step.title} className="flex gap-4 rounded-2xl border border-white/10 bg-black/20 p-4">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/10 text-sm font-black">
-              {index + 1}
-            </span>
-            <div>
-              <p className="text-sm font-bold text-white sm:text-base">{step.title}</p>
-              <p className="mt-1 text-sm font-medium leading-6 text-white/55">{step.text}</p>
-            </div>
-          </div>
-        ))}
+function Flow({ role, steps }: { role: 'store' | 'talent'; steps: { title: string; text: string }[] }) {
+  const isStore = role === 'store'
+  return <section id={`${role}-flow`} className="guide-flow">
+    <div className="guide-flow-heading">
+      <span className="guide-role-icon">{isStore ? <Store /> : <Mic />}</span>
+      <div><p className="guide-eyebrow">{isStore ? 'FOR STORES' : 'FOR TALENTS'}</p><h2>{isStore ? '店舗' : '演者'}のご利用フロー</h2></div>
+    </div>
+    <p className="guide-flow-intro">{isStore ? '出会いから、当日の来店、その後まで。' : 'あなたの魅力を、次の来店へ。'}</p>
+    <ol className="guide-steps">{steps.map((step, index) => <li key={step.title}>
+      <span className="guide-step-number">{String(index + 1).padStart(2, '0')}</span>
+      <div>{index === 0 && <span className="guide-phase">まずは準備</span>}{index === (isStore ? 2 : 3) && <span className="guide-phase">依頼・相談を進める</span>}{index === 4 && <span className="guide-phase">見積から契約へ</span>}{index === 6 && <span className="guide-phase">来店後の確認</span>}
+      <h3>{step.title}</h3><p>{step.text}</p>
+      {index === 5 && <div className="guide-step-note"><CheckCircle2 size={16} />店舗の見積承認で、契約が成立します。</div>}
       </div>
-    </section>
-  )
+    </li>)}</ol>
+    <Link className="guide-role-link" href={isStore ? '/register?role=store' : '/register?role=talent'}>{isStore ? '店舗' : '演者'}として登録する<ArrowRight size={18} /></Link>
+  </section>
+}
+
+function ScreenExample() {
+  return <figure className="guide-screen">
+    <div className="guide-screen-bar"><span><span className="guide-screen-dot" />来店ナビ</span><span>操作イメージ・サンプル</span></div>
+    <div className="guide-screen-body"><div className="guide-screen-title"><div><small>案件の進行をまとめて確認</small><h3>オファー管理</h3></div><span className="guide-status">進行中</span></div>
+      <div className="guide-screen-tabs"><b>進行中</b><span>履歴</span><span>キャンセル</span></div>
+      <div className="guide-screen-row"><Image src="/lp/people/performer-card-01.webp" width={48} height={48} alt="" /><div><b>サンプル演者</b><small>来店日・条件を案件ごとに確認</small></div><span className="guide-status">見積確認待ち</span></div>
+      <div className="guide-screen-progress">{['オファー・相談', '見積', '締結・請求', '来店実施', '支払い', 'レビュー'].map((label, i) => <div key={label} className={i < 2 ? 'is-current' : ''}><span>{i === 0 ? <Check size={12} /> : i + 1}</span><small>{label}</small></div>)}</div>
+      <div className="guide-screen-next"><FileText size={22} /><div><b>次は、見積の確認</b><p>金額・条件を確認してから承認します。</p></div></div>
+    </div><figcaption>実際の機能・進行ステップをもとにした説明用の画面です。</figcaption>
+  </figure>
 }
 
 export default function GuidePage() {
-  return (
-    <main className="min-h-screen bg-[#05050d] px-5 pb-20 pt-28 text-white sm:px-8">
-      <div className="mx-auto w-full max-w-6xl lg:max-w-[1280px]">
-        <div className="text-center">
-          <p className="text-sm font-black tracking-[0.22em] text-pink-400">HOW TO USE</p>
-          <h1 className="mt-3 text-4xl font-black sm:text-6xl">ご利用ガイド</h1>
-          <p className="mx-auto mt-5 max-w-3xl text-sm font-medium leading-7 text-white/65 sm:text-base">
-            初回登録から案件完了まで、店舗と演者それぞれの流れを順番に確認できます。全部覚える必要はなく、必要になった時にこのページへ戻ってください。
-          </p>
-        </div>
-
-        <section className="mt-8 rounded-[28px] border border-pink-300/20 bg-pink-400/10 p-6 sm:p-8">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="mt-1 h-5 w-5 shrink-0 text-pink-300" />
-            <div className="flex-1">
-              <h2 className="text-xl font-black">初めての方へ</h2>
-              <p className="mt-2 text-sm font-medium leading-7 text-white/65">
-                ダッシュボードには「はじめにすること」が表示されます。不要ならいつでも閉じられます。閉じた後でも、下のボタンから再表示できます。
-              </p>
-              <div className="mt-4">
-                <TutorialResetButton />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <Link href="#store-flow" className="group rounded-[24px] border border-orange-300/20 bg-orange-400/10 p-6 transition hover:border-orange-300/45">
-            <div className="flex items-center gap-3 text-orange-200">
-              <Store className="h-5 w-5" />
-              <span className="text-xs font-black tracking-[0.18em]">FOR STORES</span>
-            </div>
-            <p className="mt-4 text-2xl font-black">店舗の流れを見る</p>
-            <p className="mt-2 text-sm font-medium leading-7 text-white/60">演者検索から契約、来店、レビューまで。</p>
-            <ArrowRight className="mt-5 h-5 w-5 text-orange-300 transition group-hover:translate-x-1" />
-          </Link>
-
-          <Link href="#talent-flow" className="group rounded-[24px] border border-[#FFC400]/20 bg-[#FFC400]/10 p-6 transition hover:border-[#FFC400]/45">
-            <div className="flex items-center gap-3 text-[#FFE27A]">
-              <Mic className="h-5 w-5" />
-              <span className="text-xs font-black tracking-[0.18em]">FOR TALENTS</span>
-            </div>
-            <p className="mt-4 text-2xl font-black">演者の流れを見る</p>
-            <p className="mt-2 text-sm font-medium leading-7 text-white/60">プロフィール準備から見積、契約、支払い確認まで。</p>
-            <ArrowRight className="mt-5 h-5 w-5 text-[#FFC400] transition group-hover:translate-x-1" />
-          </Link>
-        </div>
-
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <Flow id="store-flow" title="STORE FLOW" description="店舗の利用フロー" steps={storeSteps} accent="text-orange-300" />
-          <Flow id="talent-flow" title="TALENT FLOW" description="演者の利用フロー" steps={talentSteps} accent="text-[#FFC400]" />
-        </div>
-
-        <section className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
-          <div className="flex items-center gap-3">
-            <MessageSquareText className="h-5 w-5 text-emerald-300" />
-            <h2 className="text-xl font-black">やり取りの基本</h2>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {tips.map(tip => (
-              <div key={tip.title} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="font-bold">{tip.title}</p>
-                <p className="mt-2 text-sm font-medium leading-6 text-white/60">{tip.text}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-[28px] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
-          <h2 className="text-xl font-black">困ったとき</h2>
-          <p className="mt-2 text-sm font-medium leading-7 text-white/65">
-            よくある操作やトラブルはFAQにまとめています。解決しない場合はお問い合わせください。
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/faq" className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-black text-white/75 hover:bg-white/5">
-              FAQを見る
-            </Link>
-            <Link href="/contact" className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-black text-white/75 hover:bg-white/5">
-              お問い合わせ
-            </Link>
-          </div>
-        </section>
+  return <main className="raiten-guide">
+    <section className="guide-hero">
+      <Image className="guide-hero-bg" src="/lp/hero/hero-bg.webp" alt="" fill priority sizes="100vw" />
+      <div className="guide-container guide-hero-content"><p className="guide-eyebrow">RAITEN NAVI / HOW TO USE</p><h1>ご利用ガイド</h1><p className="guide-hero-lead">はじめの一歩から、<br className="guide-mobile-break" />来店のその先まで。</p><p className="guide-hero-copy">登録・オファー・見積・契約。<br />来店につながる流れを、ひとつずつご案内します。</p>
+      <div className="guide-roles">{([{role:'store',label:'店舗',en:'FOR STORES',text:'演者を探して、来店を依頼する。',image:'store-manager.webp',Icon:Store},{role:'talent',label:'演者',en:'FOR TALENTS',text:'依頼を受けて、活動の場を広げる。',image:'performer-stage.webp',Icon:Mic}] as const).map(({role,label,en,text,image,Icon}) => <a key={role} href={`#${role}-flow`} className={`guide-role-card guide-role-${role}`}><Image src={`/lp/people/${image}`} alt={`${label}のイメージ写真`} fill sizes="(max-width: 640px) 90vw, 540px" /><div className="guide-role-card-content"><span className="guide-eyebrow"><Icon size={16} />{en}</span><h2>{label}の方へ</h2><p>{text}</p><span className="guide-card-action">利用の流れを見る<ArrowDown size={17} /></span></div></a>)}</div>
       </div>
-    </main>
-  )
+    </section>
+    <nav className="guide-nav" aria-label="ガイド内のナビゲーション"><div className="guide-container"><a href="#getting-started">はじめに</a><a href="#store-flow">店舗の流れ</a><a href="#talent-flow">演者の流れ</a><a href="#agreement">見積・契約</a><a href="#communication">やり取りの基本</a><a href="#help">困ったとき</a></div></nav>
+    <div className="guide-container">
+      <section id="getting-started" className="guide-start"><div className="guide-start-icon"><BookOpen /></div><div><p className="guide-eyebrow">START HERE</p><h2>最初は、ダッシュボードから。</h2><p>登録後は「はじめにすること」に沿って、必要な情報を準備しましょう。初回ナビは閉じても、ここから再表示できます。</p></div><div className="guide-reset"><TutorialResetButton /><small>設定後、ダッシュボードで確認できます。</small></div></section>
+      <div className="guide-flows"><Flow role="store" steps={storeSteps} /><Flow role="talent" steps={talentSteps} /></div>
+    </div>
+    <section id="agreement" className="guide-agreement"><div className="guide-container guide-agreement-grid"><div><p className="guide-eyebrow">KNOW THE NEXT STEP</p><h2>いまの状況も、<br />次にすることも明確に。</h2><p className="guide-section-copy">オファーを送った時点では、まだ契約ではありません。条件を相談し、演者が提出した見積を店舗が承認すると、契約が成立します。</p><div className="guide-agreement-points"><div><MessageSquareText /><span><b>相談する</b><small>日程・内容・金額をすり合わせる</small></span></div><div><FileText /><span><b>見積を確認する</b><small>修正があれば、再提出後に確認する</small></span></div><div><FileCheck2 /><span><b>承認して契約成立</b><small>締結書兼請求書に条件が残る</small></span></div></div></div><ScreenExample /></div></section>
+    <section id="communication" className="guide-container guide-communication"><p className="guide-eyebrow">COMMUNICATION</p><h2>気持ちよく進める、<br className="guide-mobile-break" />やり取りの基本。</h2><div className="guide-tips">{[
+      {Icon:Phone,title:'電話での相談も、いつもどおりに。',text:'電話対応が可能な演者とは、電話でも相談できます。相手の連絡方法を確認してから進めましょう。'},
+      {Icon:FileCheck2,title:'決まった条件は、記録に残す。',text:'電話で決めた日時・金額・交通費も、見積や案件情報へ反映。お互いが同じ条件を確認できるようにします。'},
+      {Icon:MessageSquareText,title:'定型文は、自分の言葉に整えて。',text:'「よく使うメッセージ」は入力欄に入るだけで、自動送信されません。内容を確認・編集してから送信できます。'},
+      {Icon:CheckCircle2,title:'迷ったら、案件詳細を確認。',text:'現在の進行ステップと、次に必要な対応を確認できます。見積や契約内容も、案件ごとに振り返りましょう。'},
+    ].map(({Icon,title,text}) => <article key={title}><span className="guide-tip-icon"><Icon /></span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
+    <section id="help" className="guide-help"><div className="guide-container guide-help-inner"><div><HelpCircle size={30} /><p className="guide-eyebrow">NEED A HAND?</p><h2>困ったときは、<br />ここから解決。</h2><p>操作や進め方で迷ったら、<br />よくある質問・お問い合わせをご利用ください。</p></div><div className="guide-help-links"><Link href="/faq"><span><b>よくある質問</b><small>登録・操作・案件進行の疑問を確認</small></span><ArrowRight /></Link><Link href="/contact"><span><b>お問い合わせ</b><small>解決しない場合はこちらから</small></span><ArrowRight /></Link><Link className="guide-back" href="/service">来店ナビのサービス紹介へ<ArrowRight size={16} /></Link></div></div></section>
+  </main>
 }
