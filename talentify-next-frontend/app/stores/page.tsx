@@ -55,7 +55,7 @@ export default async function StoresPage({
           <p className="text-[10px] font-black tracking-[0.18em] text-[#FFC400]">STORE SEARCH</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">店舗から探す</h1>
           <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-white/72">
-            よく行く店舗や気になる店舗から、今後の来店予定を確認できます。
+            登録店舗から探せます。来店予定がある店舗は、カード上ですぐ確認できます。
           </p>
 
           <form action="/stores" method="get" className="mt-5 flex max-w-2xl gap-2">
@@ -112,7 +112,7 @@ export default async function StoresPage({
           <div>
             <p className="text-[10px] font-black tracking-[0.14em] text-[#C2410C]">STORES</p>
             <h2 className="mt-1 text-xl font-black">
-              {prefecture || q ? '検索結果' : '来店情報がある店舗'}
+              {prefecture || q ? '検索結果' : '店舗一覧'}
             </h2>
           </div>
           <p className="text-xs font-bold text-slate-400">{filtered.length}店舗</p>
@@ -139,6 +139,12 @@ export default async function StoresPage({
                         <Building2 className="h-8 w-8" />
                       </div>
                     )}
+                    {store.upcomingEvents.length > 0 && (
+                      <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-[#FF5A1F] px-2 py-1 text-[9px] font-black text-white shadow-[0_6px_16px_rgba(255,90,31,.22)]">
+                        <CalendarDays className="h-3 w-3" />
+                        来店予定あり
+                      </span>
+                    )}
                   </div>
 
                   <div className="min-w-0">
@@ -156,16 +162,20 @@ export default async function StoresPage({
                       </span>
                     </p>
 
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black text-[#C2410C]">
-                        今後 {store.upcomingEvents.length}件
-                      </span>
-                      {store.nextEvent && (
+                    {store.nextEvent ? (
+                      <div className="mt-3 flex items-center gap-2">
+                        <span className="rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black text-[#C2410C]">
+                          来店予定 {store.upcomingEvents.length}件
+                        </span>
                         <span className="truncate text-[11px] font-bold text-slate-500">
                           次回 {formatDate(store.nextEvent.dateKey)}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-[10px] font-bold text-slate-400">
+                        現在、公開中の来店予定なし
+                      </p>
+                    )}
                   </div>
                 </div>
 

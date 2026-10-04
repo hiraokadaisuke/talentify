@@ -37,9 +37,36 @@ function pastEvent(event: PublicEvent, today: string) {
 }
 
 export async function getPublicStores(): Promise<PublicStoreSummary[]> {
-  const events = await getPublicEvents()
+  const [events, storesResult] = await Promise.all([
+    getPublicEvents(),
+    (createServiceClient() as any)
+      .from('stores')
+      .select('id,store_name,store_prefect,store_address,avatar_url,is_setup_complete')
+      .eq('is_setup_complete', true),
+  ])
+
   const today = toTokyoDateKey(new Date())
   const grouped = new Map<string, PublicStoreSummary>()
+
+  if (storesResult.error) {
+    console.error('Failed to load public store profiles', storesResult.error)
+  } else {
+    for (const store of storesResult.data || []) {
+      if (!store?.id || !store?.store_name?.trim()) continue
+
+      grouped.set(store.id, {
+        id: store.id,
+        name: store.store_name.trim(),
+        prefecture: store.store_prefect ?? null,
+        address: store.store_address ?? null,
+        avatarUrl: store.avatar_url ?? null,
+        events: [],
+        upcomingEvents: [],
+        pastEvents: [],
+        nextEvent: null,
+      })
+    }
+  }
 
   for (const event of events) {
     if (event.publicationStatus === 'canceled') continue
@@ -76,6 +103,9 @@ export async function getPublicStores(): Promise<PublicStoreSummary[]> {
       return store
     })
     .sort((a, b) => {
+      const aHasUpcoming = a.upcomingEvents.length > 0 ? 1 : 0
+      const bHasUpcoming = b.upcomingEvents.length > 0 ? 1 : 0
+      if (bHasUpcoming !== aHasUpcoming) return bHasUpcoming - aHasUpcoming
       if (b.upcomingEvents.length !== a.upcomingEvents.length) {
         return b.upcomingEvents.length - a.upcomingEvents.length
       }
