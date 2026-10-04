@@ -1,6 +1,7 @@
 export const dynamic = 'auto'
 
 import './service.css'
+import ServiceMotion from '@/components/lp/ServiceMotion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { HeroScene, ServiceFeatures } from '@/components/lp/ServiceVisuals'
@@ -48,6 +49,7 @@ const faqItems = [
 export default function HomePage() {
   return (
     <main className="raiten-service overflow-x-hidden bg-[#081426] text-white">
+      <ServiceMotion />
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#081426]/92 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] w-full max-w-[1480px] items-center justify-between px-4 sm:h-[80px] sm:px-6 lg:px-8">
           <Link href="#top" className="flex items-center">
