@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import PublicPageHero from '@/components/public/PublicPageHero'
 
 export const metadata = {
   title: '利用規約 | 来店ナビ',
@@ -268,16 +269,16 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
-      <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold tracking-[0.18em] text-[#FF5A1F]">TERMS OF SERVICE</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">利用規約</h1>
-        <p className="mt-3 text-sm leading-7 text-slate-600">
-          店舗と演者が安心して案件を進めるための、来店ナビの基本的な利用条件です。
-        </p>
-        <p className="mt-4 text-xs text-slate-400">最終改定日：2026年10月1日</p>
-      </header>
+    <main className="min-h-screen bg-[#F7F9FC] pt-16 text-slate-950">
+      <PublicPageHero
+        eyebrow="TERMS OF SERVICE"
+        title="利用規約"
+        description="店舗と演者が安心して案件を進めるための、来店ナビの基本的な利用条件です。"
+      >
+        <p className="text-xs font-bold text-white/50">最終改定日：2026年10月1日</p>
+      </PublicPageHero>
 
+      <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:py-12">
       <nav className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <h2 className="text-sm font-semibold text-slate-900">目次</h2>
         <ol className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
@@ -309,6 +310,7 @@ export default function TermsPage() {
       <p className="mt-8 text-xs leading-6 text-slate-400">
         本ページは本サービスの現行仕様を前提として整備しています。法令またはサービス内容の変更に応じて更新する場合があります。
       </p>
+      </div>
     </main>
   )
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Building2, MapPin } from 'lucide-react'
 import { getPublicStores } from '@/lib/publicDiscovery'
@@ -29,11 +30,13 @@ export default async function AreasPage() {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] pt-16 text-slate-950">
-      <section className="bg-[#081426] px-4 py-8 text-white sm:px-6 sm:py-10">
-        <div className="mx-auto max-w-6xl lg:max-w-[1320px]">
+      <section className="relative overflow-hidden bg-[#081426] px-4 py-8 text-white sm:px-6 sm:py-10">
+        <Image src="/lp/hero/hero-bg.webp" alt="" fill priority quality={65} sizes="100vw" className="object-cover object-center opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#081426] via-[#081426]/88 to-[#081426]/48" />
+        <div className="relative mx-auto max-w-6xl lg:max-w-[1320px]">
           <p className="text-[10px] font-black tracking-[0.18em] text-[#FFC400]">AREA SEARCH</p>
           <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">地域から探す</h1>
-          <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-white/60">
+          <p className="mt-3 max-w-2xl text-sm font-medium leading-7 text-white/72">
             行きたい地域から、来店予定が公開されている店舗を探せます。
           </p>
         </div>
