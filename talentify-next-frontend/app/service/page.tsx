@@ -1,12 +1,14 @@
 export const dynamic = 'auto'
 
+import './service.css'
 import Link from 'next/link'
+import Image from 'next/image'
+import { HeroScene, ServiceFeatures } from '@/components/lp/ServiceVisuals'
 import {
   ArrowRight,
   BadgeCheck,
   BarChart3,
   Building2,
-  CalendarDays,
   CheckCircle2,
   FileText,
   LogIn,
@@ -16,38 +18,9 @@ import {
   Search,
   Share2,
   Sparkles,
-  Star,
 } from 'lucide-react'
 
 const brandGradient = 'from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]'
-
-const coreFeatures = [
-  {
-    icon: Search,
-    title: '演者検索',
-    description: 'プロフィール・活動エリア・ジャンルから、来店を依頼したい演者を探せます。',
-  },
-  {
-    icon: CalendarDays,
-    title: '日程確認',
-    description: '出演可能日や案件予定を確認しながら、候補日をスムーズに整理できます。',
-  },
-  {
-    icon: Megaphone,
-    title: 'オファー管理',
-    description: '日時・依頼内容・想定報酬などをまとめて送り、回答から進行まで管理できます。',
-  },
-  {
-    icon: MessageSquareText,
-    title: 'メッセージ・案件管理',
-    description: '相談内容と案件の進行状況をひとつにまとめ、必要な対応を追いやすくします。',
-  },
-  {
-    icon: FileText,
-    title: '見積・請求・レビュー',
-    description: '見積、締結、請求、支払い確認、レビューまで来店後の流れも一元管理します。',
-  },
-]
 
 const storeBenefits = [
   '演者探しと日程確認をひとつに',
@@ -245,7 +218,7 @@ function DashboardPreview() {
 
 export default function HomePage() {
   return (
-    <main className="overflow-x-hidden bg-[#081426] text-white">
+    <main className="raiten-service overflow-x-hidden bg-[#081426] text-white">
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#081426]/92 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] w-full max-w-[1480px] items-center justify-between px-4 sm:h-[80px] sm:px-6 lg:px-8">
           <Link href="#top" className="flex items-center">
@@ -255,7 +228,7 @@ export default function HomePage() {
           <nav className="hidden items-center gap-4 text-xs font-bold text-white/70 lg:flex xl:gap-6 xl:text-sm">
             <Link href="/events" className="whitespace-nowrap transition hover:text-[#FFC400]">来店情報</Link>
             <Link href="#features" className="whitespace-nowrap transition hover:text-[#FFC400]">サービスの特徴</Link>
-            <Link href="#ecosystem" className="whitespace-nowrap transition hover:text-[#FFC400]">ご利用の流れ</Link>
+            <Link href="#promotion" className="whitespace-nowrap transition hover:text-[#FFC400]">ご利用の流れ</Link>
             <Link href="#for-store" className="whitespace-nowrap transition hover:text-[#FFC400]">店舗向け</Link>
             <Link href="#for-talent" className="whitespace-nowrap transition hover:text-[#FFC400]">演者向け</Link>
             <Link href="#faq" className="whitespace-nowrap transition hover:text-[#FFC400]">FAQ</Link>
@@ -283,7 +256,7 @@ export default function HomePage() {
           <div className="mx-auto flex h-10 w-full max-w-[1480px] items-center gap-5 overflow-x-auto px-4 text-[11px] font-black text-white/62 [scrollbar-width:none] sm:px-6 [&::-webkit-scrollbar]:hidden">
             <Link href="/events" className="shrink-0 whitespace-nowrap text-[#FFC400]">来店情報</Link>
             <Link href="#features" className="shrink-0 whitespace-nowrap transition hover:text-white">特徴</Link>
-            <Link href="#ecosystem" className="shrink-0 whitespace-nowrap transition hover:text-white">ご利用の流れ</Link>
+            <Link href="#promotion" className="shrink-0 whitespace-nowrap transition hover:text-white">ご利用の流れ</Link>
             <Link href="#for-store" className="shrink-0 whitespace-nowrap transition hover:text-white">店舗向け</Link>
             <Link href="#for-talent" className="shrink-0 whitespace-nowrap transition hover:text-white">演者向け</Link>
             <Link href="#faq" className="shrink-0 whitespace-nowrap transition hover:text-white">FAQ</Link>
@@ -292,162 +265,33 @@ export default function HomePage() {
         </nav>
       </header>
 
-      <section
-        id="top"
-        className="relative isolate overflow-hidden px-4 pb-14 pt-[136px] sm:px-6 sm:pb-20 sm:pt-[148px] lg:px-8 lg:pb-24 lg:pt-[126px]"
-        style={{
-          background:
-            'radial-gradient(circle at 82% 16%, rgba(255,196,0,.17), transparent 25%), radial-gradient(circle at 70% 48%, rgba(255,59,46,.20), transparent 28%), linear-gradient(135deg, #081426 0%, #0B1F3B 55%, #07111f 100%)',
-        }}
-      >
-        <img
-          src="/lp/hero/hero-bg.webp"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-55"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#081426]/95 via-[#081426]/78 to-[#081426]/38" />
-        <div className="pointer-events-none absolute -left-24 top-24 h-64 w-64 rounded-full bg-[#FF3B2E]/10 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-5rem] top-28 h-80 w-80 rounded-full bg-[#FFC400]/10 blur-3xl" />
-
-        <div className="relative mx-auto grid w-full max-w-[1480px] items-center gap-10 lg:grid-cols-[.92fr_1.08fr] lg:gap-14">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-300/25 bg-orange-300/8 px-3 py-2 text-[11px] font-black tracking-[0.14em] text-orange-200 sm:text-xs">
-              <span className="h-2 w-2 rounded-full bg-[#FFC400] shadow-[0_0_14px_rgba(255,196,0,.8)]" />
-              RAITEN EVENT PLATFORM
-            </div>
-
-            <h1 className="mt-5 text-[40px] font-black leading-[1.08] tracking-tight sm:text-[58px] lg:text-[68px] xl:text-[76px]">
-              来店イベントを、
-              <br />
-              <span className={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>探す・依頼する。</span>
-              <br />
-              管理して、届ける。
-            </h1>
-
-            <p className="mt-6 max-w-xl text-sm font-medium leading-7 text-white/68 sm:text-base sm:leading-8 lg:text-lg lg:leading-9">
-              演者探し、日程確認、オファー、案件管理、見積・請求、来店情報の一般公開まで。
-              パチンコ店と演者の仕事をひとつにつなぐ、来店イベントの業務プラットフォームです。
+      <section id="top" className="raiten-service-hero">
+        <Image src="/lp/hero/hero-bg.webp" alt="" fill priority sizes="100vw" className="raiten-service-hero-bg" />
+        <div className="raiten-service-hero-shade" />
+        <div className="raiten-service-hero-inner">
+          <div className="raiten-service-hero-copy">
+            <p className="raiten-service-hero-concept"><span />外はワクワク。中は分かりやすく。</p>
+            <h1>来店イベントの<br /><em>依頼から公開</em>まで、<br />これひとつ。</h1>
+            <p className="raiten-service-hero-description">
+              店舗は演者を探してオファー。演者は予定と条件を管理。<br />
+              確定した来店情報は、そのまま一般向けページに公開できます。
             </p>
-
-            <div className="mt-7 grid max-w-xl gap-3 sm:grid-cols-2">
-              <BrandButton href="/register?role=store">
-                <Building2 className="h-4 w-4" />
-                店舗として無料登録
-                <ArrowRight className="h-4 w-4" />
-              </BrandButton>
-              <BrandButton href="/register?role=talent" secondary>
-                <Mic className="h-4 w-4" />
-                演者として無料登録
-              </BrandButton>
+            <div className="raiten-service-hero-actions">
+              <Link href="/register?role=store" className="raiten-hero-register"><Building2 size={16} />店舗として無料登録<ArrowRight size={16} /></Link>
+              <Link href="/register?role=talent" className="raiten-hero-register raiten-hero-register-secondary"><Mic size={16} />演者として無料登録<ArrowRight size={16} /></Link>
             </div>
-
-            <Link
-              href="/events"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-black text-[#FFC400] transition hover:text-white"
-            >
-              一般向け来店情報サイトを見る
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-bold text-white/50">
-              <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-[#FFC400]" />案件の流れを一元管理</span>
-              <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-[#FFC400]" />電話での相談も併用可能</span>
-              <span className="inline-flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-[#FFC400]" />店舗・演者それぞれ専用画面</span>
+            <Link href="/events" className="raiten-hero-public-link">一般向け来店情報を見る<ArrowRight size={14} /></Link>
+            <div className="raiten-hero-benefits">
+              <span><BadgeCheck size={14} />案件を一元管理</span>
+              <span><BadgeCheck size={14} />電話での相談も併用可能</span>
             </div>
           </div>
-
-          <div className="raiten-hero-visual relative mx-auto w-full max-w-[680px]">
-            <div className="absolute -inset-4 rounded-[40px] bg-gradient-to-br from-[#FF3B2E]/25 via-[#FF8A00]/12 to-transparent blur-2xl" />
-            <div className="relative overflow-hidden rounded-[32px] border border-white/12 bg-white/[0.055] p-3 shadow-[0_34px_100px_rgba(0,0,0,.45)] backdrop-blur">
-              <div className="relative min-h-[440px] overflow-hidden rounded-[24px] bg-[#0B1F3B] sm:min-h-[540px]">
-                <img
-                  src="/lp/people/performer-hero.webp"
-                  alt="来店イベントで活動する演者のイメージ"
-                  className="absolute inset-0 h-full w-full object-cover object-center opacity-95"
-                />
-                <img
-                  src="/lp/effects/stage-light-particles.webp"
-                  alt=""
-                  aria-hidden="true"
-                  className="raiten-hero-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-35"
-                />
-                <img
-                  src="/lp/ui/neon-hud-elements.webp"
-                  alt=""
-                  aria-hidden="true"
-                  className="raiten-hero-hud pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-24"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#081426] via-[#081426]/20 to-transparent" />
-                <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#081426]/60 to-transparent" />
-
-                <div className="absolute left-4 top-4 rounded-2xl border border-white/15 bg-[#081426]/75 px-4 py-3 backdrop-blur-md sm:left-6 sm:top-6">
-                  <p className="text-[10px] font-black tracking-[0.15em] text-[#FFC400]">NEXT EVENT</p>
-                  <p className="mt-1 text-lg font-black">10.12 SAT</p>
-                </div>
-
-                <div className="raiten-hero-spark absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-[#FF3B2E] to-[#FFC400] text-[#081426] shadow-[0_0_24px_rgba(255,138,0,.45)] sm:right-6 sm:top-6">
-                  <Sparkles className="h-5 w-5" />
-                </div>
-
-                <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6">
-                  <div className="rounded-[22px] border border-white/12 bg-[#081426]/82 p-4 backdrop-blur-xl sm:p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-[10px] font-black tracking-[0.14em] text-orange-200">FEATURED RAITEN EVENT</p>
-                        <p className="mt-2 text-2xl font-black sm:text-3xl">話題の来店情報を、もっと見つけやすく。</p>
-                      </div>
-                      <Megaphone className="hidden h-7 w-7 shrink-0 text-[#FFC400] sm:block" />
-                    </div>
-                    <div className="mt-4 grid grid-cols-3 gap-2">
-                      {[
-                        ['探す', Search],
-                        ['つなぐ', MessageSquareText],
-                        ['広げる', Share2],
-                      ].map(([label, Icon]) => {
-                        const IconComponent = Icon as typeof Search
-                        return (
-                          <div key={label as string} className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-3 text-center">
-                            <IconComponent className="mx-auto h-4 w-4 text-[#FFC400]" />
-                            <p className="mt-1.5 text-[10px] font-black text-white/75">{label as string}</p>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-5 -left-2 hidden rounded-2xl border border-orange-200/20 bg-[#FF5A1F] px-4 py-3 shadow-xl sm:block">
-              <p className="text-[10px] font-black tracking-[0.12em] text-white/70">FOR STORES</p>
-              <p className="mt-1 text-sm font-black text-white">依頼から告知まで、もっとスムーズに。</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative mx-auto mt-14 grid w-full max-w-[1180px] grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 lg:mt-20">
-          {[
-            ['演者検索', Search],
-            ['日程・案件管理', CalendarDays],
-            ['見積・請求', FileText],
-            ['集客支援', Megaphone],
-          ].map(([label, Icon]) => {
-            const IconComponent = Icon as typeof Search
-            return (
-              <div key={label as string} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.055] px-4 py-3 backdrop-blur">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/8 text-[#FFC400]">
-                  <IconComponent className="h-4 w-4" />
-                </span>
-                <span className="text-xs font-black text-white/75 sm:text-sm">{label as string}</span>
-              </div>
-            )
-          })}
+          <HeroScene />
         </div>
       </section>
 
       <section id="about" className="scroll-mt-24 relative overflow-hidden bg-[radial-gradient(circle_at_80%_20%,rgba(255,138,0,.07),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfdff_100%)] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <img
+        <img loading="lazy" decoding="async"
           src="/lp/backgrounds/minimal-tech-bg.webp"
           alt=""
           aria-hidden="true"
@@ -497,70 +341,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="features" className="scroll-mt-24 relative overflow-hidden bg-[#F8FAFC] px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <img
-          src="/lp/backgrounds/white-pattern.webp"
-          alt=""
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-55"
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#F8FAFC]/84 via-[#F8FAFC]/76 to-[#F8FAFC]/92" />
-        <div className="pointer-events-none absolute left-[-10%] top-8 h-64 w-64 rounded-full bg-[#FF5A1F]/8 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-6%] bottom-0 h-72 w-72 rounded-full bg-[#FFC400]/8 blur-3xl" />
-
-        <div className="relative mx-auto w-full max-w-[1380px]">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto mb-4 flex w-fit items-center gap-2 rounded-full border border-orange-100 bg-white px-3 py-1.5 shadow-sm">
-              <span className="raiten-energy-dot h-2 w-2 rounded-full bg-[#FF5A1F]" />
-              <p className="text-[10px] font-black tracking-[0.2em] text-[#FF5A1F] sm:text-xs">CORE FUNCTIONS</p>
-            </div>
-            <h2 className="text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">来店案件に必要な流れを、ひとつに。</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm font-medium leading-7 text-slate-600 sm:text-base">
-              探す・相談する・条件を決める・実施する・支払いを確認する。バラバラになりやすい来店案件の情報をまとめます。
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-            {coreFeatures.map((feature, index) => {
-              const Icon = feature.icon
-              return (
-                <article
-                  key={feature.title}
-                  className="raiten-feature-card group relative overflow-visible rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,.05)] transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-[0_18px_40px_rgba(255,90,31,.12)]"
-                >
-                  <div className="absolute inset-x-0 top-0 h-[3px] overflow-hidden rounded-t-[24px] bg-slate-100">
-                    <div className="raiten-card-energy h-full w-1/2 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="raiten-icon-pulse grid h-11 w-11 place-items-center rounded-2xl bg-[#0B1F3B] text-[#FFC400]">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span className="text-xs font-black text-slate-300">{String(index + 1).padStart(2, '0')}</span>
-                  </div>
-                  <h3 className="mt-5 text-lg font-black text-slate-950">{feature.title}</h3>
-                  <p className="mt-2 text-sm font-medium leading-7 text-slate-600">{feature.description}</p>
-
-                  {index < coreFeatures.length - 1 && (
-                    <span
-                      aria-hidden="true"
-                      className="raiten-flow-arrow pointer-events-none absolute -right-[18px] top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-orange-100 bg-white text-[#FF5A1F] shadow-[0_8px_20px_rgba(255,90,31,.14)] xl:flex"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </span>
-                  )}
-                </article>
-              )
-            })}
-          </div>
-
-          <div className="mt-6 flex items-center justify-center gap-2 text-[11px] font-black tracking-[0.12em] text-slate-400">
-            <span className="h-px w-8 bg-slate-200" />
-            ONE FLOW, ONE PLATFORM
-            <span className="h-px w-8 bg-slate-200" />
-          </div>
-        </div>
-      </section>
+      <ServiceFeatures />
 
       <section
         id="promotion"
@@ -570,7 +351,7 @@ export default function HomePage() {
             'radial-gradient(circle at 15% 20%, rgba(255,90,31,.18), transparent 26%), radial-gradient(circle at 85% 80%, rgba(255,196,0,.11), transparent 25%), #081426',
         }}
       >
-        <img
+        <img loading="lazy" decoding="async"
           src="/lp/ui/smartphone-light-trails.webp"
           alt=""
           aria-hidden="true"
@@ -602,19 +383,19 @@ export default function HomePage() {
           </div>
 
           <div className="relative min-h-[520px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.055] p-5 backdrop-blur sm:min-h-[560px] sm:p-7">
-            <img
+            <img loading="lazy" decoding="async"
               src="/lp/backgrounds/connection-hub.webp"
               alt=""
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-26"
             />
-            <img
+            <img loading="lazy" decoding="async"
               src="/lp/effects/stage-light-particles.webp"
               alt=""
               aria-hidden="true"
               className="raiten-public-particles pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-20"
             />
-            <img
+            <img loading="lazy" decoding="async"
               src="/lp/effects/arrows.webp"
               alt=""
               aria-hidden="true"
@@ -857,7 +638,7 @@ export default function HomePage() {
       </section>
 
       <section className="relative overflow-hidden bg-white px-4 py-16 text-slate-950 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <img
+        <img loading="lazy" decoding="async"
           src="/lp/ui/glossy-ui-elements.webp"
           alt=""
           aria-hidden="true"
@@ -877,7 +658,7 @@ export default function HomePage() {
 
           <div className="relative mx-auto mt-9 max-w-3xl">
             <div className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-r from-[#FF3B2E]/10 via-[#FF8A00]/12 to-[#FFC400]/10 blur-3xl" />
-            <img
+            <img loading="lazy" decoding="async"
               src="/lp/ui/device-mockup.webp"
               alt="パソコン・タブレット・スマートフォンに対応した来店ナビのイメージ"
               className="relative mx-auto w-full max-w-[560px] drop-shadow-[0_24px_44px_rgba(15,23,42,.18)]"
@@ -946,19 +727,19 @@ export default function HomePage() {
         className="scroll-mt-24 relative overflow-hidden border-y border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24"
         style={{ background: '#081426' }}
       >
-        <img
+        <img loading="lazy" decoding="async"
           src="/lp/effects/data-network.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-22 mix-blend-screen"
         />
-        <img
+        <img loading="lazy" decoding="async"
           src="/lp/backgrounds/neon-wave-bg.webp"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-14"
         />
-        <img
+        <img loading="lazy" decoding="async"
           src="/lp/effects/light-ribbon.webp"
           alt=""
           aria-hidden="true"
@@ -980,7 +761,7 @@ export default function HomePage() {
           </div>
 
           <div className="relative mx-auto mt-12 max-w-5xl">
-            <img
+            <img loading="lazy" decoding="async"
               src="/lp/effects/timeline-glow.webp"
               alt=""
               aria-hidden="true"
@@ -1007,7 +788,7 @@ export default function HomePage() {
                   STORE ↔ TALENT ↔ PUBLIC
                   <span className="h-px flex-1 bg-gradient-to-l from-transparent to-white/15" />
                 </div>
-                <img
+                <img loading="lazy" decoding="async"
                   src="/lp/backgrounds/connection-hub.webp"
                   alt=""
                   aria-hidden="true"
@@ -1015,13 +796,13 @@ export default function HomePage() {
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0B1F3B]/45 via-[#0B1F3B]/72 to-[#081426]/92" />
                 <div className="relative">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/lp/ui/orange-ui-hub.webp"
                     alt=""
                     aria-hidden="true"
                     className="pointer-events-none absolute left-1/2 top-7 w-[250px] max-w-none -translate-x-1/2 opacity-38 mix-blend-screen"
                   />
-                  <img
+                  <img loading="lazy" decoding="async"
                     src="/brand/raiten-navi-icon.svg"
                     alt=""
                     className="relative mx-auto h-16 w-16 rounded-[20px] shadow-[0_0_35px_rgba(255,138,0,.28)]"
@@ -1119,7 +900,7 @@ export default function HomePage() {
       </section>
 
       <section id="register" className="scroll-mt-24 relative overflow-hidden border-t border-white/10 px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-        <img
+        <img loading="lazy" decoding="async"
           src="/lp/effects/lens-flare.webp"
           alt=""
           aria-hidden="true"
@@ -1129,13 +910,13 @@ export default function HomePage() {
         <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-[70%] -translate-x-1/2 rounded-full bg-[#FF8A00]/10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="relative mx-auto h-28 w-28">
-            <img
+            <img loading="lazy" decoding="async"
               src="/lp/effects/energy-ring.webp"
               alt=""
               aria-hidden="true"
               className="raiten-final-ring pointer-events-none absolute inset-0 h-full w-full object-contain opacity-90"
             />
-            <img
+            <img loading="lazy" decoding="async"
               src="/brand/raiten-navi-icon.svg"
               alt=""
               className="absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-[20px] shadow-[0_16px_50px_rgba(255,90,31,.28)]"
