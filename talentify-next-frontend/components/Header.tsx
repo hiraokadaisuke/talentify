@@ -447,17 +447,17 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
     return (
       <header className="fixed top-0 z-[var(--z-header)] h-16 w-full border-b border-white/10 bg-[#081426]/[0.94] text-white shadow-[0_8px_30px_rgba(0,0,0,.22)] backdrop-blur-xl">
         <div className="mx-auto flex h-full w-full max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-10">
-          <Link href="/" className="flex items-center">
-            <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-9 w-auto sm:h-10" />
+          <Link href="/" className="flex shrink-0 items-center">
+            <img src="/brand/raiten-navi-logo.svg" alt="来店ナビ" className="h-8 w-auto sm:h-10" />
           </Link>
 
-          <nav className="flex items-center gap-1 sm:gap-3">
+          <nav className="flex items-center gap-0.5 sm:gap-3">
             {publicLinks.map((link, index) => {
               const active =
                 pathname === link.href ||
                 (link.href === '/stores' && pathname.startsWith('/stores/')) ||
                 (link.href === '/performers' && pathname.startsWith('/performers/'))
-              const mobileVisible = index === 1 || index === 2
+              const mobileVisible = index === 1 || index === 2 || index === 3
               return (
                 <Link
                   key={link.href}
