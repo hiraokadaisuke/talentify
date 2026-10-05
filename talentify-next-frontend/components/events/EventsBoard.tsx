@@ -28,7 +28,7 @@ function EventCard({ event }: { event: PublicEvent }) {
   </Link>
 }
 
-export default function EventsBoard({ events, searchParams = {}, home = false }: { events: PublicEvent[]; searchParams?: EventSearchParams; home?: boolean }) {
+export default function EventsBoard({ events, searchParams = {} }: { events: PublicEvent[]; searchParams?: EventSearchParams }) {
   const today = toTokyoDateKey(new Date())
   const tomorrow = shiftDay(today, 1)
   const weekEnd = shiftDay(today, 6)
@@ -48,7 +48,6 @@ export default function EventsBoard({ events, searchParams = {}, home = false }:
   const upcoming = selected.items.length ? [] : matching.filter(event => view === 'today' ? event.dateKey > today : view === 'tomorrow' ? event.dateKey > tomorrow : event.dateKey > weekEnd).slice(0,6)
   const groups = [...new Set(selected.items.map(event => event.dateKey))]
   return <main className="events-board">
-    {home && <header className="events-home-header"><div className="events-container"><Link href="/" aria-label="来店ナビ トップ"><Image src="/brand/raiten-navi-logo.svg" alt="来店ナビ" width={128} height={42} /></Link><nav aria-label="メインメニュー"><Link href="/areas">地域</Link><Link href="/stores">店舗</Link><Link href="/performers">演者</Link><Link href="/service">店舗・演者の方</Link></nav></div></header>}
     <section className="events-masthead"><Image src="/lp/hero/hero-bg.webp" alt="" fill priority sizes="100vw" /><div className="events-container events-masthead-inner"><div><p className="events-eyebrow">全国の演者来店スケジュール</p><h1>来店情報</h1><p className="events-lead">日付・地域・店舗から来店予定を探せます。</p></div><span className="events-today"><CalendarDays size={18} />今日の日付<b>{dateLabel(today)}</b></span></div></section>
     <div className="events-container events-content">
       <section className="events-search" aria-label="来店情報を検索"><nav className="events-periods" aria-label="日付から探す">{periods.map(period => <Link key={period.key} href={href(period.key,prefecture,q)} aria-current={view === period.key ? 'page' : undefined}><span>{period.label}<b>{period.items.length}<small>件</small></b></span><small>{period.date}</small></Link>)}</nav>

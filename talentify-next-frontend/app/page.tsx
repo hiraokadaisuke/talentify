@@ -12,5 +12,5 @@ export const metadata: Metadata = {
 
 export default async function Page({ searchParams }: { searchParams?: EventSearchParams }) {
   const events = await getPublicEvents()
-  return <EventsBoard events={events} searchParams={searchParams} home />
+  return <EventsBoard events={events} searchParams={searchParams} />
 }
