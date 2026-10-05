@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { getCompletedOffersForStore, CompletedOffer } from '@/utils/getCompletedOffersForStore'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import {
   ModalTitle,
 } from '@/components/ui/modal'
 import { createClient } from '@/utils/supabase/client'
-import { AlertCircle, RotateCcw } from 'lucide-react'
+import { AlertCircle, CalendarDays, CheckCircle2, RotateCcw, Star } from 'lucide-react'
 import { EmptyState } from '@/components/ui/empty-state'
 import { TableSkeleton } from '@/components/ui/skeleton'
 
@@ -28,10 +28,20 @@ type ReviewSummary = {
   rating: number
 }
 
+type ReviewTab = 'pending' | 'done' | 'all'
+
 const supabase = createClient()
 
 function renderStars(rating: number) {
   return `${'★'.repeat(rating)}${'☆'.repeat(Math.max(5 - rating, 0))}`
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
 }
 
 export default function StoreReviewsClient({
@@ -47,6 +57,7 @@ export default function StoreReviewsClient({
   const [reviewByOfferId, setReviewByOfferId] = useState<Record<string, ReviewSummary>>(initialReviewByOfferId)
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState(initialLoadError)
+  const [tab, setTab] = useState<ReviewTab>('pending')
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedOffer, setSelectedOffer] = useState<CompletedOffer | null>(null)
   const [selectedReview, setSelectedReview] = useState<ReviewDetail | null>(null)
@@ -72,15 +83,10 @@ export default function StoreReviewsClient({
         .select('offer_id, rating')
         .in('offer_id', offerIds)
 
-      if (error) {
-        console.error('failed to fetch review summary', error)
-        throw error
-      }
+      if (error) throw error
 
       const summaryMap = (reviewData ?? []).reduce<Record<string, ReviewSummary>>((acc, item) => {
-        if (!acc[item.offer_id]) {
-          acc[item.offer_id] = item as ReviewSummary
-        }
+        if (!acc[item.offer_id]) acc[item.offer_id] = item as ReviewSummary
         return acc
       }, {})
 
@@ -93,6 +99,17 @@ export default function StoreReviewsClient({
     }
   }, [])
 
+  const pendingCount = useMemo(
+    () => offers.filter((offer) => !reviewByOfferId[offer.id]).length,
+    [offers, reviewByOfferId],
+  )
+  const doneCount = offers.length - pendingCount
+
+  const visibleOffers = useMemo(() => {
+    if (tab === 'pending') return offers.filter((offer) => !reviewByOfferId[offer.id])
+    if (tab === 'done') return offers.filter((offer) => Boolean(reviewByOfferId[offer.id]))
+    return offers
+  }, [offers, reviewByOfferId, tab])
 
   const openDetail = async (offer: CompletedOffer) => {
     setSelectedOffer(offer)
@@ -119,167 +136,229 @@ export default function StoreReviewsClient({
     setDetailLoading(false)
   }
 
+  const handleSubmitted = async (offerId: string) => {
+    setOffers((prev) => prev.map((item) => item.id === offerId ? { ...item, reviewed: true } : item))
+    const { data: latestReview } = await supabase
+      .from('reviews')
+      .select('offer_id, rating')
+      .eq('offer_id', offerId)
+      .order('created_at', { ascending: false })
+      .maybeSingle()
+
+    if (latestReview) {
+      setReviewByOfferId((prev) => ({ ...prev, [offerId]: latestReview as ReviewSummary }))
+    }
+  }
+
   return (
-    <main className="min-h-screen bg-gray-100 px-3 py-5 sm:px-4 sm:py-8 lg:min-h-0 lg:bg-transparent lg:px-0 lg:py-0">
-      <div className="mx-auto w-full max-w-5xl lg:max-w-[1400px]">
-        <h1 className="mb-4 text-2xl font-bold tracking-tight sm:mb-6 sm:text-3xl">レビュー投稿一覧</h1>
-        <section className="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:p-6 lg:p-5">
-          {loading ? (
-            <TableSkeleton rows={4} />
-          ) : loadError ? (
-            <div
-              role="alert"
-              className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center"
-            >
-              <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
-              <h2 className="mt-2 text-sm font-semibold text-red-900">
-                レビュー対象を読み込めませんでした
-              </h2>
-              <p className="mt-1 text-xs leading-relaxed text-red-700">
-                通信状況を確認して、もう一度お試しください。
-              </p>
-              <button
-                type="button"
-                onClick={() => void loadReviews()}
-                className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-md border border-red-200 bg-white px-4 text-sm font-semibold text-red-800 transition hover:bg-red-100"
-              >
-                <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                再読み込み
-              </button>
+    <main className="text-[#334155]">
+      <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-4 lg:gap-5">
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,.05)]">
+          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 lg:p-6">
+            <div className="flex items-start gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#0B1F3B] text-[#FFC400]">
+                <Star className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-[11px] font-black tracking-[0.16em] text-[#C2410C]">STORE REVIEWS</p>
+                <h1 className="mt-0.5 text-xl font-black tracking-tight text-slate-950 sm:text-2xl">レビュー管理</h1>
+                <p className="mt-1 text-xs leading-5 text-slate-500 sm:text-sm">
+                  来店と支払いが完了した案件のレビューを投稿・確認できます。
+                </p>
+              </div>
             </div>
-          ) : offers.length === 0 ? (
-            <EmptyState
-              title="レビューできる案件はまだありません"
-              description="来店と支払いが完了した案件があると、ここからレビューを投稿できます。"
-            />
-          ) : (
-            <>
-              <div className="space-y-3 md:hidden">
-                {offers.map(o => (
-                  <article key={o.id} className="rounded-xl border border-slate-200 bg-white p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-xs text-slate-500">
-                          {new Date(o.date).toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' })}
-                        </p>
-                        <p className="mt-1 break-words font-semibold">{o.talent_name || o.talent_id}</p>
-                      </div>
-                      {reviewByOfferId[o.id] && (
-                        <span className="shrink-0 tracking-wide text-amber-500">{renderStars(reviewByOfferId[o.id].rating)}</span>
-                      )}
-                    </div>
-                    <div className="mt-4">
-                      {!reviewByOfferId[o.id] ? (
-                        <ReviewModal
-                          offerId={o.id}
-                          talentId={o.talent_id}
-                          trigger={<Button size="sm" className="min-h-10 w-full">レビューする</Button>}
-                          onSubmitted={async () => {
-                            setOffers(prev => prev.map(p => p.id === o.id ? { ...p, reviewed: true } : p))
-                            const { data: latestReview } = await supabase
-                              .from('reviews')
-                              .select('offer_id, rating')
-                              .eq('offer_id', o.id)
-                              .order('created_at', { ascending: false })
-                              .maybeSingle()
-                            if (latestReview) setReviewByOfferId(prev => ({ ...prev, [o.id]: latestReview as ReviewSummary }))
-                          }}
-                        />
-                      ) : (
-                        <Button size="sm" variant="outline" className="min-h-10 w-full" onClick={() => openDetail(o)}>詳細を見る</Button>
-                      )}
-                    </div>
-                  </article>
-                ))}
+            <div className="flex gap-2">
+              <div className="rounded-xl bg-orange-50 px-3 py-2 text-center">
+                <p className="text-[10px] font-bold text-[#C2410C]">未投稿</p>
+                <p className="mt-0.5 text-lg font-black text-slate-950">{pendingCount}<span className="ml-0.5 text-[10px]">件</span></p>
               </div>
-              <div className="hidden overflow-x-auto md:block">
-                <Table>
-                  <TableHeader>
-                <TableRow>
-                  <TableHead>日付</TableHead>
-                  <TableHead>演者</TableHead>
-                  <TableHead>評価</TableHead>
-                  <TableHead>詳細</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {offers.map(o => (
-                  <TableRow key={o.id} className="hover:bg-gray-50">
-                    <TableCell>
-                      {new Date(o.date).toLocaleDateString('ja-JP', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                      })}
-                    </TableCell>
-                    <TableCell>{o.talent_name || o.talent_id}</TableCell>
-                    <TableCell>
-                      {reviewByOfferId[o.id] ? (
-                        <span className="tracking-wide text-amber-500">
-                          {renderStars(reviewByOfferId[o.id].rating)}
-                        </span>
-                      ) : (
-                        <ReviewModal
-                          offerId={o.id}
-                          talentId={o.talent_id}
-                          trigger={<Button size="sm">レビューする</Button>}
-                          onSubmitted={async () => {
-                            setOffers(prev => prev.map(p => p.id === o.id ? { ...p, reviewed: true } : p))
-                            const { data: latestReview } = await supabase
-                              .from('reviews')
-                              .select('offer_id, rating')
-                              .eq('offer_id', o.id)
-                              .order('created_at', { ascending: false })
-                              .maybeSingle()
-                            if (latestReview) {
-                              setReviewByOfferId((prev) => ({
-                                ...prev,
-                                [o.id]: latestReview as ReviewSummary,
-                              }))
+              <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
+                <p className="text-[10px] font-bold text-slate-500">投稿済み</p>
+                <p className="mt-0.5 text-lg font-black text-slate-950">{doneCount}<span className="ml-0.5 text-[10px]">件</span></p>
+              </div>
+            </div>
+          </div>
+          <div className="h-1 bg-gradient-to-r from-[#FF3B2E] via-[#FF8A00] to-[#FFC400]" />
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,.05)] sm:p-4">
+          <div className="flex gap-1 border-b border-slate-200 pb-2">
+            {([
+              ['pending', '未投稿', pendingCount],
+              ['done', '投稿済み', doneCount],
+              ['all', 'すべて', offers.length],
+            ] as const).map(([key, label, count]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setTab(key)}
+                className={`min-h-10 rounded-lg px-3 text-sm font-bold transition ${
+                  tab === key
+                    ? 'bg-orange-50 text-[#C2410C]'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                }`}
+              >
+                {label}<span className="ml-1 text-xs">{count}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="pt-3">
+            {loading ? (
+              <TableSkeleton rows={4} />
+            ) : loadError ? (
+              <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center">
+                <AlertCircle className="mx-auto h-6 w-6 text-red-600" aria-hidden="true" />
+                <h2 className="mt-2 text-sm font-semibold text-red-900">レビュー対象を読み込めませんでした</h2>
+                <p className="mt-1 text-xs leading-relaxed text-red-700">通信状況を確認して、もう一度お試しください。</p>
+                <button
+                  type="button"
+                  onClick={() => void loadReviews()}
+                  className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-red-200 bg-white px-4 text-sm font-semibold text-red-800 transition hover:bg-red-100"
+                >
+                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                  再読み込み
+                </button>
+              </div>
+            ) : offers.length === 0 ? (
+              <EmptyState
+                illustration={
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-orange-50 text-[#C2410C]">
+                    <Star className="h-6 w-6" />
+                  </span>
+                }
+                title="レビューできる案件はまだありません"
+                description="来店と支払いが完了した案件ができると、ここからレビューを投稿できます。"
+                className="border-0 px-4 py-8 shadow-none"
+              />
+            ) : visibleOffers.length === 0 ? (
+              <div className="px-4 py-8 text-center">
+                <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
+                <h2 className="mt-3 text-sm font-black text-slate-800">
+                  {tab === 'pending' ? '未投稿のレビューはありません' : '投稿済みのレビューはありません'}
+                </h2>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  {tab === 'pending' ? '現在、対応が必要なレビューはありません。' : 'レビューを投稿すると、ここで確認できます。'}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3 md:hidden">
+                  {visibleOffers.map((offer) => {
+                    const review = reviewByOfferId[offer.id]
+                    return (
+                      <article key={offer.id} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_6px_18px_rgba(15,23,42,.04)]">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+                              <CalendarDays className="h-3.5 w-3.5" />
+                              {formatDate(offer.date)}
+                            </p>
+                            <p className="mt-1.5 break-words text-base font-black text-slate-950">
+                              {offer.talent_name || '演者名未設定'}
+                            </p>
+                          </div>
+                          {review ? (
+                            <span className="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700">
+                              投稿済み
+                            </span>
+                          ) : (
+                            <span className="shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[10px] font-black text-[#C2410C]">
+                              未投稿
+                            </span>
+                          )}
+                        </div>
+
+                        {review ? (
+                          <>
+                            <p className="mt-3 tracking-wide text-amber-500">{renderStars(review.rating)}</p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="mt-3 min-h-10 w-full rounded-xl border-slate-200 font-bold"
+                              onClick={() => void openDetail(offer)}
+                            >
+                              投稿したレビューを見る
+                            </Button>
+                          </>
+                        ) : (
+                          <ReviewModal
+                            offerId={offer.id}
+                            talentId={offer.talent_id}
+                            trigger={
+                              <Button size="sm" className="mt-3 min-h-10 w-full rounded-xl bg-[#FF5A1F] font-bold text-white hover:bg-[#E94F18]">
+                                レビューを投稿
+                              </Button>
                             }
-                          }}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={!reviewByOfferId[o.id]}
-                        onClick={() => openDetail(o)}
-                      >
-                        詳細
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </>
-          )}
+                            onSubmitted={() => void handleSubmitted(offer.id)}
+                          />
+                        )}
+                      </article>
+                    )
+                  })}
+                </div>
+
+                <div className="hidden overflow-x-auto rounded-xl border border-slate-200 md:block">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow>
+                        <TableHead className="w-[160px]">来店日</TableHead>
+                        <TableHead>演者</TableHead>
+                        <TableHead className="w-[170px]">レビュー</TableHead>
+                        <TableHead className="w-[160px]">操作</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {visibleOffers.map((offer) => {
+                        const review = reviewByOfferId[offer.id]
+                        return (
+                          <TableRow key={offer.id}>
+                            <TableCell>{formatDate(offer.date)}</TableCell>
+                            <TableCell className="font-semibold text-slate-800">{offer.talent_name || '演者名未設定'}</TableCell>
+                            <TableCell>
+                              {review ? (
+                                <span className="tracking-wide text-amber-500">{renderStars(review.rating)}</span>
+                              ) : (
+                                <span className="text-xs font-bold text-slate-400">未投稿</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {review ? (
+                                <Button size="sm" variant="outline" className="rounded-lg" onClick={() => void openDetail(offer)}>
+                                  詳細を見る
+                                </Button>
+                              ) : (
+                                <ReviewModal
+                                  offerId={offer.id}
+                                  talentId={offer.talent_id}
+                                  trigger={<Button size="sm" className="rounded-lg bg-[#FF5A1F] text-white hover:bg-[#E94F18]">レビューを投稿</Button>}
+                                  onSubmitted={() => void handleSubmitted(offer.id)}
+                                />
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            )}
+          </div>
         </section>
       </div>
 
       <Modal open={detailOpen} onOpenChange={setDetailOpen}>
-        <ModalContent>
+        <ModalContent className="w-[calc(100vw-1.5rem)] max-w-lg sm:w-full">
           <ModalHeader>
-            <ModalTitle>レビュー詳細</ModalTitle>
+            <ModalTitle>投稿したレビュー</ModalTitle>
           </ModalHeader>
           {detailLoading ? (
-            <p className="text-sm text-gray-500">読み込み中...</p>
+            <p className="text-sm text-slate-500">読み込み中...</p>
           ) : detailError ? (
-            <div
-              role="alert"
-              className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-center"
-            >
+            <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-center">
               <AlertCircle className="mx-auto h-5 w-5 text-red-600" aria-hidden="true" />
-              <p className="mt-2 text-sm font-semibold text-red-900">
-                レビュー詳細を読み込めませんでした
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-red-700">
-                通信状況を確認して、もう一度お試しください。
-              </p>
+              <p className="mt-2 text-sm font-semibold text-red-900">レビュー詳細を読み込めませんでした</p>
               {selectedOffer && (
                 <Button
                   type="button"
@@ -294,31 +373,27 @@ export default function StoreReviewsClient({
               )}
             </div>
           ) : !selectedOffer || !selectedReview ? (
-            <p className="text-sm text-gray-500">レビューが見つかりませんでした。</p>
+            <p className="text-sm text-slate-500">レビューが見つかりませんでした。</p>
           ) : (
-            <div className="space-y-3 text-sm">
-              <p>
-                <span className="font-medium">日付：</span>
-                {new Date(selectedOffer.date).toLocaleDateString('ja-JP', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                })}
-              </p>
-              <p>
-                <span className="font-medium">評価：</span>
-                <span className="tracking-wide text-amber-500">{renderStars(selectedReview.rating)}</span>
-              </p>
-              <p>
-                <span className="font-medium">コメント：</span>
-                {selectedReview.comment || 'コメントはありません'}
-              </p>
+            <div className="space-y-4 text-sm">
+              <div className="rounded-xl bg-slate-50 p-4">
+                <p className="text-xs font-bold text-slate-400">来店日</p>
+                <p className="mt-1 font-bold text-slate-800">{formatDate(selectedOffer.date)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-400">評価</p>
+                <p className="mt-1 text-lg tracking-wide text-amber-500">{renderStars(selectedReview.rating)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-400">コメント</p>
+                <p className="mt-1 whitespace-pre-wrap leading-6 text-slate-700">
+                  {selectedReview.comment || 'コメントはありません'}
+                </p>
+              </div>
             </div>
           )}
           <ModalFooter>
-            <Button variant="outline" onClick={() => setDetailOpen(false)}>
-              閉じる
-            </Button>
+            <Button variant="outline" onClick={() => setDetailOpen(false)}>閉じる</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
