@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { ChevronDown, Menu } from 'lucide-react'
 import {
   DropdownMenu,
@@ -92,7 +92,6 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   const [userName, setUserName] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const router = useRouter()
   const supabase = useMemo(() => createClient(), [])
 
@@ -190,7 +189,6 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
   }
 
   if (isDiscoveryPage) {
-    const currentView = searchParams.get('view') || (pathname === '/' ? 'today' : '')
     const discoveryLinks = [
       {
         href: '/areas',
@@ -209,19 +207,6 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
         mobileLabel: '演者',
         desktopLabel: '演者から探す',
         active: pathname === '/performers' || pathname.startsWith('/performers/'),
-        desktopOnly: true,
-      },
-      {
-        href: '/events?view=today',
-        mobileLabel: '今日',
-        desktopLabel: '今日',
-        active: (pathname === '/' || pathname === '/events') && currentView !== 'week' && currentView !== 'tomorrow',
-      },
-      {
-        href: '/events?view=week',
-        mobileLabel: '今週',
-        desktopLabel: '今週',
-        active: pathname === '/events' && currentView === 'week',
       },
     ]
 
@@ -242,8 +227,7 @@ export default function Header({ sidebarRole }: { sidebarRole?: 'talent' | 'stor
                 href={item.href}
                 aria-current={item.active ? 'page' : undefined}
                 className={cn(
-                  'inline-flex h-9 items-center whitespace-nowrap rounded-lg px-2 text-[11px] font-black transition sm:px-3 sm:text-sm',
-                  item.desktopOnly ? 'hidden md:inline-flex' : 'inline-flex',
+                  'inline-flex h-9 items-center whitespace-nowrap rounded-lg px-2.5 text-[11px] font-black transition sm:px-3 sm:text-sm',
                   item.active
                     ? 'bg-white/10 text-[#FFC400]'
                     : 'text-white/70 hover:bg-white/8 hover:text-white',
