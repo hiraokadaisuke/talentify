@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Check, Download, ImageIcon, Loader2, Share2 } from 'lucide-react'
+import { renderPosterMasterV2 } from '@/lib/promo/renderPosterMasterV2'
 
 type FormatKey = 'poster' | 'feed' | 'story'
 
@@ -140,7 +141,7 @@ function getVisitDateParts(value: string) {
   return { monthDay, weekday, year }
 }
 
-async function createMaterial({
+async function createLegacyMaterial({
   width,
   height,
   performerName,
@@ -372,14 +373,22 @@ export default function MaterialGallery({
 
         const entries = await Promise.all(
           formats.map(async format => {
-            const blob = await createMaterial({
-              width: format.width,
-              height: format.height,
-              performerName,
-              storeName,
-              visitDate,
-              photo,
-            })
+            const blob =
+              format.key === 'poster'
+                ? await renderPosterMasterV2({
+                    performerName,
+                    storeName,
+                    visitDate,
+                    photoUrl: photos[selectedPhoto] ?? null,
+                  })
+                : await createLegacyMaterial({
+                    width: format.width,
+                    height: format.height,
+                    performerName,
+                    storeName,
+                    visitDate,
+                    photo,
+                  })
             const url = URL.createObjectURL(blob)
             createdUrls.push(url)
             return [format.key, { blob, url }] as const
