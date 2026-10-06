@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Download, Images } from 'lucide-react'
+import { Images } from 'lucide-react'
 
 const formats = [
   { key: 'poster', label: 'A4縦' },
@@ -34,14 +34,13 @@ export default function PromotionMaterialsCard({
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         {formats.map(format => (
-          <a
+          <Link
             key={format.key}
-            href={`/api/store/offers/${offerId}/promo/${format.key}?download=1`}
-            className="inline-flex min-h-10 flex-col items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white px-2 py-2 text-center text-[11px] font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50"
+            href={`/store/offers/${offerId}/materials#${format.key}`}
+            className="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-2 py-2 text-center text-[11px] font-bold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50"
           >
-            <Download className="h-3.5 w-3.5 text-[#C2410C]" />
             {format.label}
-          </a>
+          </Link>
         ))}
       </div>
 
