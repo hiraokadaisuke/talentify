@@ -236,10 +236,7 @@ export async function renderPosterMasterV2({
   ctx.textBaseline = 'alphabetic'
   ctx.fillStyle = 'rgba(255,255,255,.68)'
   ctx.font = '800 20px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.letterSpacing = '2px'
   ctx.fillText(year, 82, 198)
-
-  ctx.letterSpacing = '0px'
   ctx.fillStyle = '#FFFFFF'
   ctx.font = '900 132px -apple-system, BlinkMacSystemFont, "Arial Black", sans-serif'
   ctx.fillText(`${month}.${day}`, 76, 306)
@@ -258,9 +255,7 @@ export async function renderPosterMasterV2({
 
   ctx.fillStyle = '#FFC400'
   ctx.font = '800 19px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.letterSpacing = '4px'
   ctx.fillText('SPECIAL VISIT', 82, 343)
-  ctx.letterSpacing = '0px'
 
   const nameSize = fitFontSize(ctx, performerName, 830, 88, 54, 900)
   setJapaneseFont(ctx, 900, nameSize)
@@ -323,10 +318,8 @@ export async function renderPosterMasterV2({
   ctx.textAlign = 'right'
   ctx.fillStyle = '#FFC400'
   ctx.font = '800 18px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.letterSpacing = '2px'
   ctx.fillText('OFFICIAL PROMOTION MATERIAL', 1158, 1642)
   ctx.textAlign = 'left'
-  ctx.letterSpacing = '0px'
 
   return canvasToBlob(canvas)
 }
