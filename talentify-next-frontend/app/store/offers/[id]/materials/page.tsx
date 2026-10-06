@@ -111,7 +111,16 @@ export default async function PromotionMaterialsPage({ params }: PageProps) {
             photos={photos}
             performerName={performerName}
             storeName={storeName}
+            visitDate={data.date}
           />
+
+          <Link
+            href={`/store/offers/${params.id}`}
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-800 shadow-sm transition hover:bg-slate-50 sm:w-auto"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            オファー詳細へ戻る
+          </Link>
         </>
       )}
     </div>
