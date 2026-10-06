@@ -270,14 +270,25 @@ export default function StepDetailCard({ activeStep, activeStatus, offer, invoic
             description: '来店日時と当日の連絡事項を確認し、来店後に完了を記録してください。',
             badge: activeStatus === 'complete' ? <Badge variant="success">完了</Badge> : undefined,
             meta: [{ label: '来店日時', value: formattedVisitDate }],
-            primaryAction: offer.status === 'confirmed' ? (
-              <Button
-                className={primaryActionClass}
-                onClick={() => void handleVisitComplete()}
-                disabled={visitCompleting}
-              >
-                {visitCompleting ? '記録中...' : '来店完了にする'}
-              </Button>
+            primaryAction: ['accepted', 'confirmed', 'completed'].includes(offer.status) ? (
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                <Button
+                  variant="outline"
+                  className="h-11 w-full rounded-xl border-slate-300 px-4 font-bold text-slate-800 hover:bg-slate-50 sm:w-auto"
+                  asChild
+                >
+                  <Link href={`/store/offers/${offer.id}/materials`}>告知素材を見る</Link>
+                </Button>
+                {offer.status === 'confirmed' && (
+                  <Button
+                    className={primaryActionClass}
+                    onClick={() => void handleVisitComplete()}
+                    disabled={visitCompleting}
+                  >
+                    {visitCompleting ? '記録中...' : '来店完了にする'}
+                  </Button>
+                )}
+              </div>
             ) : undefined,
           }
     }
