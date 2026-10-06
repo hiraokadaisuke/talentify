@@ -17,6 +17,7 @@ import {
 } from '@/lib/invoices/status'
 import MessageCard from './MessageCard'
 import EventPublicationCard from './EventPublicationCard'
+import PromotionMaterialsCard from './PromotionMaterialsCard'
 
 type PageProps = {
   params: { id: string }
@@ -213,6 +214,7 @@ export default async function StoreOfferPage({ params }: PageProps) {
               offerStatus={offer.status}
               initialPublication={eventPublication ?? null}
             />
+            <PromotionMaterialsCard offerId={offer.id} offerStatus={offer.status} />
             <MessageCard
               offerId={offer.id}
               currentUserId={userId}
