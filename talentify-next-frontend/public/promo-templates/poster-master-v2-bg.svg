@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1754" viewBox="0 0 1240 1754">
+  <defs>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#050B15"/>
+      <stop offset="0.42" stop-color="#081426"/>
+      <stop offset="0.72" stop-color="#0B1F3B"/>
+      <stop offset="1" stop-color="#05070D"/>
+    </linearGradient>
+    <radialGradient id="warm" cx="18%" cy="18%" r="62%">
+      <stop offset="0" stop-color="#FF5A1F" stop-opacity=".72"/>
+      <stop offset=".34" stop-color="#FF5A1F" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#FF5A1F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gold" cx="88%" cy="12%" r="58%">
+      <stop offset="0" stop-color="#FFC400" stop-opacity=".55"/>
+      <stop offset=".32" stop-color="#FFC400" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#FFC400" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="blue" cx="90%" cy="56%" r="55%">
+      <stop offset="0" stop-color="#2F80ED" stop-opacity=".45"/>
+      <stop offset=".44" stop-color="#2F80ED" stop-opacity=".10"/>
+      <stop offset="1" stop-color="#2F80ED" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="beamWarm" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF5A1F" stop-opacity="0"/>
+      <stop offset=".55" stop-color="#FF5A1F" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#FFC400" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="beamBlue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2F80ED" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#5CB8FF" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#2F80ED" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="blur24"><feGaussianBlur stdDeviation="24"/></filter>
+    <filter id="blur10"><feGaussianBlur stdDeviation="10"/></filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
+      <path d="M72 0H0V72" fill="none" stroke="#FFFFFF" stroke-opacity=".028" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1240" height="1754" fill="url(#base)"/>
+  <rect width="1240" height="1754" fill="url(#warm)"/>
+  <rect width="1240" height="1754" fill="url(#gold)"/>
+  <rect width="1240" height="1754" fill="url(#blue)"/>
+  <rect width="1240" height="1754" fill="url(#grid)"/>
+
+  <path d="M-60 420 L540 40 L760 40 L120 520 Z" fill="#FF5A1F" opacity=".09"/>
+  <path d="M1030 120 L1280 20 L1280 980 L1040 1120 Z" fill="#2F80ED" opacity=".10"/>
+  <path d="M-110 1180 L500 850 L610 920 L20 1310 Z" fill="#FFC400" opacity=".055"/>
+
+  <g opacity=".52" filter="url(#blur24)">
+    <rect x="-220" y="495" width="900" height="26" transform="rotate(-18 230 508)" fill="url(#beamWarm)"/>
+    <rect x="570" y="640" width="940" height="20" transform="rotate(14 1040 650)" fill="url(#beamBlue)"/>
+    <rect x="140" y="1175" width="1000" height="26" transform="rotate(-8 640 1188)" fill="url(#beamWarm)"/>
+  </g>
+
+  <g opacity=".85" filter="url(#glow)">
+    <circle cx="110" cy="330" r="6" fill="#FFC400"/>
+    <circle cx="1080" cy="285" r="5" fill="#5CB8FF"/>
+    <circle cx="1160" cy="890" r="6" fill="#FF5A1F"/>
+    <circle cx="180" cy="1100" r="4" fill="#FFC400"/>
+    <circle cx="970" cy="1250" r="4" fill="#5CB8FF"/>
+  </g>
+
+  <g stroke="#FFFFFF" stroke-linecap="round" opacity=".34">
+    <path d="M105 326h42" stroke-width="2"/>
+    <path d="M126 305v42" stroke-width="2"/>
+    <path d="M1060 285h34" stroke-width="2"/>
+    <path d="M1077 268v34" stroke-width="2"/>
+    <path d="M1142 890h36" stroke-width="2"/>
+    <path d="M1160 872v36" stroke-width="2"/>
+  </g>
+
+  <rect x="50" y="50" width="1140" height="1654" rx="34" fill="none" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="2"/>
+  <rect x="68" y="68" width="1104" height="1618" rx="26" fill="none" stroke="#FFC400" stroke-opacity=".08"/>
+
+  <g opacity=".2">
+    <path d="M96 240H310" stroke="#FF5A1F" stroke-width="5"/>
+    <path d="M930 240H1144" stroke="#2F80ED" stroke-width="5"/>
+    <path d="M96 1512H310" stroke="#FFC400" stroke-width="4"/>
+    <path d="M930 1512H1144" stroke="#FF5A1F" stroke-width="4"/>
+  </g>
+</svg>
