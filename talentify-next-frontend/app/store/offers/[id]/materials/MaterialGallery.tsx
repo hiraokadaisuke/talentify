@@ -327,7 +327,7 @@ async function createLegacyMaterial({
 
   ctx.textAlign = 'right'
   ctx.fillStyle = '#FFC400'
-  ctx.fillText('来店イベント告知素材', width - pad, height - Math.round(height * 0.025))
+  ctx.fillText('来店告知素材', width - pad, height - Math.round(height * 0.025))
   ctx.textAlign = 'left'
 
   return canvasToBlob(canvas)
