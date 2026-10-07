@@ -195,30 +195,24 @@ export async function renderPosterMasterV2({
     drawCoverImageFocused(ctx, photo, 72, 250, 1088, 1135)
   } else {
     const fallback = ctx.createLinearGradient(72, 250, 1160, 1385)
-    fallback.addColorStop(0, '#2A0B0B')
-    fallback.addColorStop(0.48, '#0B1F3B')
-    fallback.addColorStop(1, '#4A190A')
+    fallback.addColorStop(0, '#132D50')
+    fallback.addColorStop(0.52, '#0B1F3B')
+    fallback.addColorStop(1, '#421F17')
     ctx.fillStyle = fallback
     ctx.fillRect(72, 250, 1088, 1135)
   }
 
-  const photoTopShade = ctx.createLinearGradient(0, 250, 0, 610)
-  photoTopShade.addColorStop(0, 'rgba(5,11,21,.76)')
+  const photoTopShade = ctx.createLinearGradient(0, 250, 0, 580)
+  photoTopShade.addColorStop(0, 'rgba(5,11,21,.70)')
   photoTopShade.addColorStop(1, 'rgba(5,11,21,0)')
   ctx.fillStyle = photoTopShade
-  ctx.fillRect(72, 250, 1088, 380)
+  ctx.fillRect(72, 250, 1088, 360)
 
-  const leftShade = ctx.createLinearGradient(72, 0, 500, 0)
-  leftShade.addColorStop(0, 'rgba(5,11,21,.78)')
+  const leftShade = ctx.createLinearGradient(72, 0, 470, 0)
+  leftShade.addColorStop(0, 'rgba(5,11,21,.72)')
   leftShade.addColorStop(1, 'rgba(5,11,21,0)')
   ctx.fillStyle = leftShade
-  ctx.fillRect(72, 250, 460, 1135)
-
-  const bottomShade = ctx.createLinearGradient(0, 1040, 0, 1385)
-  bottomShade.addColorStop(0, 'rgba(5,11,21,0)')
-  bottomShade.addColorStop(1, 'rgba(5,11,21,.9)')
-  ctx.fillStyle = bottomShade
-  ctx.fillRect(72, 1020, 1088, 365)
+  ctx.fillRect(72, 250, 430, 1135)
 
   ctx.restore()
 
@@ -243,7 +237,6 @@ export async function renderPosterMasterV2({
   ctx.fillStyle = 'rgba(255,255,255,.68)'
   ctx.font = '800 20px -apple-system, BlinkMacSystemFont, sans-serif'
   ctx.fillText(year, 82, 198)
-
   ctx.fillStyle = '#FFFFFF'
   ctx.font = '900 132px -apple-system, BlinkMacSystemFont, "Arial Black", sans-serif'
   ctx.fillText(`${month}.${day}`, 76, 306)
@@ -264,63 +257,59 @@ export async function renderPosterMasterV2({
   ctx.font = '800 19px -apple-system, BlinkMacSystemFont, sans-serif'
   ctx.fillText('SPECIAL VISIT', 82, 343)
 
-  const nameSize = fitFontSize(ctx, performerName, 950, 106, 58, 900)
+  const nameSize = fitFontSize(ctx, performerName, 830, 88, 54, 900)
   setJapaneseFont(ctx, 900, nameSize)
-  drawOutlinedText(ctx, performerName, 82, 1158, {
+  drawOutlinedText(ctx, performerName, 82, 1216, {
     fill: '#FFFFFF',
-    stroke: 'rgba(5,11,21,.92)',
-    strokeWidth: 13,
-    shadowColor: 'rgba(255,70,20,.30)',
+    stroke: 'rgba(5,11,21,.90)',
+    strokeWidth: 12,
+    shadowColor: 'rgba(0,0,0,.72)',
+    shadowBlur: 26,
+  })
+
+  setJapaneseFont(ctx, 900, 176)
+  const visitGradient = ctx.createLinearGradient(80, 1240, 520, 1370)
+  visitGradient.addColorStop(0, '#FFF28A')
+  visitGradient.addColorStop(0.36, '#FFC400')
+  visitGradient.addColorStop(0.78, '#FF8A00')
+  visitGradient.addColorStop(1, '#FF5A1F')
+  drawOutlinedText(ctx, '来店', 76, 1388, {
+    fill: visitGradient,
+    stroke: '#081426',
+    strokeWidth: 16,
+    shadowColor: 'rgba(255,90,31,.42)',
     shadowBlur: 24,
   })
 
-  ctx.font = '800 22px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.fillStyle = '#FFC400'
-  ctx.fillText('SPECIAL GUEST', 88, 1207)
-
-  setJapaneseFont(ctx, 900, 210)
-  const visitGradient = ctx.createLinearGradient(70, 1210, 640, 1400)
-  visitGradient.addColorStop(0, '#FFF7A6')
-  visitGradient.addColorStop(0.32, '#FFC400')
-  visitGradient.addColorStop(0.7, '#FF8A00')
-  visitGradient.addColorStop(1, '#FF5A1F')
-  drawOutlinedText(ctx, '来店', 72, 1412, {
-    fill: visitGradient,
-    stroke: '#081426',
-    strokeWidth: 18,
-    shadowColor: 'rgba(255,90,31,.48)',
-    shadowBlur: 28,
-  })
-
   ctx.save()
-  ctx.translate(80, 1454)
+  ctx.translate(80, 1435)
   ctx.rotate(-0.018)
   const bar = ctx.createLinearGradient(0, 0, 1020, 0)
-  bar.addColorStop(0, '#FF3B2E')
+  bar.addColorStop(0, '#FF5A1F')
   bar.addColorStop(0.58, '#FF8A00')
   bar.addColorStop(1, '#FFC400')
   ctx.fillStyle = bar
   ctx.fillRect(0, 0, 1020, 7)
   ctx.restore()
 
-  const storeSize = fitFontSize(ctx, storeName, 1050, 56, 32, 900)
-  setJapaneseFont(ctx, 900, storeSize)
-  drawOutlinedText(ctx, storeName, 82, 1545, {
+  const storeSize = fitFontSize(ctx, storeName, 1050, 48, 31, 800)
+  setJapaneseFont(ctx, 800, storeSize)
+  drawOutlinedText(ctx, storeName, 82, 1527, {
     fill: '#FFFFFF',
-    stroke: 'rgba(5,11,21,.9)',
-    strokeWidth: 9,
-    shadowColor: 'rgba(0,0,0,.7)',
-    shadowBlur: 16,
+    stroke: 'rgba(5,11,21,.86)',
+    strokeWidth: 8,
+    shadowColor: 'rgba(0,0,0,.6)',
+    shadowBlur: 14,
   })
 
   setJapaneseFont(ctx, 700, 19)
-  ctx.fillStyle = 'rgba(255,255,255,.76)'
+  ctx.fillStyle = 'rgba(255,255,255,.70)'
   ctx.fillText('主催：来店ナビ（RAITEN NAVI）', 82, 1642)
 
   ctx.textAlign = 'right'
   ctx.fillStyle = '#FFC400'
   ctx.font = '800 18px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.fillText('OFFICIAL VISIT MATERIAL', 1158, 1642)
+  ctx.fillText('OFFICIAL PROMOTION MATERIAL', 1158, 1642)
   ctx.textAlign = 'left'
 
   return canvasToBlob(canvas)
