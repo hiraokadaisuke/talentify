@@ -35,7 +35,7 @@ export async function preparePortrait(url: string, signal?: AbortSignal, onProgr
   if (transparent < canvas.width * canvas.height * 0.01) {
     onProgress?.('写真の背景を除去中…（初回は少し時間がかかります）')
     const result = await new Promise<ImageData>((resolve, reject) => {
-      const worker = new Worker(new URL('./removeBackground.worker.ts', import.meta.url), { type: 'module' })
+      const worker = new Worker('/promo-workers/removeBackground.worker.js', { type: 'module' })
       const cleanup = () => { clearTimeout(timer); signal?.removeEventListener('abort', abort); worker.terminate() }
       const fail = () => { cleanup(); reject(new PosterPhotoError('写真の背景を除去できませんでした。通信状態を確認して再試行するか、別の写真を選んでください。')) }
       const abort = () => { cleanup(); reject(new DOMException('Aborted', 'AbortError')) }
