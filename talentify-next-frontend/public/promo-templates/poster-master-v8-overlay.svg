@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1754" viewBox="0 0 1240 1754">
+<defs>
+  <linearGradient id="topShade" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#03050a" stop-opacity=".88"/>
+    <stop offset=".62" stop-color="#03050a" stop-opacity=".18"/>
+    <stop offset="1" stop-color="#03050a" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="bottomShade" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#05070d" stop-opacity="0"/>
+    <stop offset=".34" stop-color="#05070d" stop-opacity=".48"/>
+    <stop offset=".72" stop-color="#05070d" stop-opacity=".93"/>
+    <stop offset="1" stop-color="#020307"/>
+  </linearGradient>
+  <linearGradient id="streak" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#ff2f18" stop-opacity="0"/>
+    <stop offset=".20" stop-color="#ff2f18"/>
+    <stop offset=".65" stop-color="#ff8400"/>
+    <stop offset="1" stop-color="#ffc400" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="1240" height="350" fill="url(#topShade)"/>
+<rect y="790" width="1240" height="964" fill="url(#bottomShade)"/>
+
+<!-- high energy foreground streaks -->
+<g filter="url(#glow)">
+  <path d="M-50 1075L1290 785" stroke="url(#streak)" stroke-width="9" opacity=".88"/>
+  <path d="M30 1145L1180 905" stroke="#ffcb33" stroke-width="3" opacity=".75"/>
+  <path d="M105 1215L1120 1005" stroke="#43a7ff" stroke-width="2.5" opacity=".38"/>
+</g>
+
+<!-- starbursts -->
+<g fill="#fff7d5" stroke="#ffc400" stroke-opacity=".70" filter="url(#glow)">
+  <circle cx="115" cy="1040" r="6"/><path d="M115 1014v52M89 1040h52" stroke-width="2"/>
+  <circle cx="1080" cy="925" r="6"/><path d="M1080 898v54M1053 925h54" stroke-width="2"/>
+  <circle cx="958" cy="1165" r="5"/><path d="M958 1145v40M938 1165h40" stroke-width="2"/>
+  <circle cx="260" cy="1260" r="4"/><path d="M260 1242v36M242 1260h36" stroke-width="2"/>
+</g>
+
+<!-- crowd -->
+<path d="M0 1425C105 1386 196 1406 290 1376C410 1338 515 1387 610 1357C735 1316 846 1365 950 1334C1060 1302 1150 1335 1240 1308V1754H0Z" fill="#020308" opacity=".88"/>
+<g fill="#010205">
+  <circle cx="56" cy="1478" r="28"/><path d="M22 1511c8-38 61-38 69 0v140H22z"/>
+  <circle cx="137" cy="1458" r="34"/><path d="M98 1498c10-46 68-46 78 0v153H98z"/>
+  <circle cx="236" cy="1485" r="27"/><path d="M205 1517c8-36 55-36 63 0v134h-63z"/>
+  <circle cx="330" cy="1445" r="37"/><path d="M288 1488c10-49 75-49 85 0v163h-85z"/>
+  <circle cx="448" cy="1478" r="30"/><path d="M413 1514c9-40 62-40 71 0v137h-71z"/>
+  <circle cx="552" cy="1448" r="36"/><path d="M511 1490c10-48 73-48 83 0v161h-83z"/>
+  <circle cx="678" cy="1483" r="29"/><path d="M645 1517c8-38 58-38 66 0v134h-66z"/>
+  <circle cx="781" cy="1452" r="37"/><path d="M739 1496c10-49 75-49 85 0v155h-85z"/>
+  <circle cx="902" cy="1482" r="29"/><path d="M869 1516c8-38 58-38 66 0v135h-66z"/>
+  <circle cx="1002" cy="1450" r="36"/><path d="M961 1492c10-48 73-48 83 0v159h-83z"/>
+  <circle cx="1120" cy="1478" r="30"/><path d="M1085 1514c9-40 62-40 71 0v137h-71z"/>
+  <circle cx="1200" cy="1455" r="34"/><path d="M1161 1495c10-46 68-46 78 0v156h-78z"/>
+</g>
+<g stroke="#010205" stroke-width="20" stroke-linecap="round">
+  <path d="M135 1486L98 1408"/><path d="M334 1479L370 1395"/><path d="M550 1483L510 1402"/>
+  <path d="M784 1488L825 1398"/><path d="M1000 1486L1045 1404"/><path d="M1123 1493L1083 1418"/>
+</g>
+
+<!-- borders and brand -->
+<rect x="48" y="48" width="1144" height="1658" rx="34" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="2"/>
+<rect x="63" y="63" width="1114" height="1628" rx="28" fill="none" stroke="#ff7a1a" stroke-opacity=".15"/>
+<path d="M76 330H240" stroke="#ff4b1f" stroke-width="5"/>
+<path d="M1000 330H1165" stroke="#ffc400" stroke-width="5"/>
+<text x="1162" y="116" text-anchor="end" fill="#fff" font-family="Arial,sans-serif" font-size="29" font-weight="900">来店ナビ</text>
+<text x="1162" y="144" text-anchor="end" fill="#ffc400" font-family="Arial,sans-serif" font-size="15" font-weight="700" letter-spacing="3">RAITEN NAVI</text>
+
+<!-- fixed compliance footer zone -->
+<rect x="72" y="1604" width="1096" height="62" rx="16" fill="#020308" fill-opacity=".68"/>
+</svg>
