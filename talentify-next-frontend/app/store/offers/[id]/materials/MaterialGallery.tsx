@@ -296,11 +296,7 @@ async function createLegacyMaterial({
   ctx.font = `900 ${Math.round(width * (isStory ? 0.15 : 0.14))}px -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif`
   ctx.fillStyle = '#FFFFFF'
   ctx.fillText('来店', pad, visitY)
-  const visitWidth = ctx.measureText('来店').width
   ctx.shadowBlur = 0
-  ctx.fillStyle = '#FF5A1F'
-  ctx.font = `900 ${Math.round(width * 0.052)}px -apple-system, BlinkMacSystemFont, sans-serif`
-  ctx.fillText('EVENT', pad + visitWidth + Math.round(width * 0.02), visitY - Math.round(width * 0.015))
 
   ctx.strokeStyle = 'rgba(255,255,255,.28)'
   ctx.lineWidth = Math.max(2, Math.round(width * 0.003))
