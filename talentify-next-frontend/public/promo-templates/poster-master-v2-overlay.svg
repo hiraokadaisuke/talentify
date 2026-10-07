@@ -82,7 +82,7 @@
 
   <g opacity=".7">
     <text x="1035" y="128" fill="#FFC400" font-size="26" font-family="Arial, sans-serif" font-weight="800" letter-spacing="4">RAITEN NAVI</text>
-    <text x="1037" y="158" fill="#FFFFFF" fill-opacity=".55" font-size="13" font-family="Arial, sans-serif" letter-spacing="2">OFFICIAL VISIT EVENT</text>
+    <text x="1037" y="158" fill="#FFFFFF" fill-opacity=".55" font-size="13" font-family="Arial, sans-serif" letter-spacing="2">OFFICIAL VISIT</text>
   </g>
 
   <rect x="76" y="1210" width="390" height="56" rx="28" fill="#081426" fill-opacity=".86" stroke="#FFC400" stroke-opacity=".45"/>

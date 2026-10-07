@@ -8,6 +8,13 @@ type PosterMasterV2Input = {
 const WIDTH = 1240
 const HEIGHT = 1754
 
+const AREAS = {
+  date: { x: 48, y: 54, w: 500, h: 355 },
+  photo: { x: 365, y: 60, w: 835, h: 790 },
+  performerName: { x: 42, y: 585, w: 710, h: 255 },
+  storeName: { x: 220, y: 1180, w: 835, h: 175 },
+} as const
+
 function loadImage(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image()
@@ -29,6 +36,7 @@ function canvasToBlob(canvas: HTMLCanvasElement) {
 
 function getVisitDateParts(value: string) {
   const date = new Date(value)
+
   return {
     month: new Intl.DateTimeFormat('ja-JP', {
       timeZone: 'Asia/Tokyo',
@@ -45,7 +53,9 @@ function getVisitDateParts(value: string) {
     year: new Intl.DateTimeFormat('ja-JP', {
       timeZone: 'Asia/Tokyo',
       year: 'numeric',
-    }).format(date).replace('年', ''),
+    })
+      .format(date)
+      .replace('年', ''),
   }
 }
 
@@ -113,9 +123,20 @@ function drawCoverImageFocused(
   const sourceWidth = width / scale
   const sourceHeight = height / scale
   const sx = Math.max(0, (image.naturalWidth - sourceWidth) / 2)
-  const idealSy = image.naturalHeight * focusY - sourceHeight * 0.18
+  const idealSy = image.naturalHeight * focusY - sourceHeight * 0.16
   const sy = Math.max(0, Math.min(image.naturalHeight - sourceHeight, idealSy))
-  ctx.drawImage(image, sx, sy, sourceWidth, sourceHeight, x, y, width, height)
+
+  ctx.drawImage(
+    image,
+    sx,
+    sy,
+    sourceWidth,
+    sourceHeight,
+    x,
+    y,
+    width,
+    height
+  )
 }
 
 function drawOutlinedText(
@@ -136,72 +157,136 @@ function drawOutlinedText(
   ctx.lineJoin = 'round'
   ctx.textBaseline = 'alphabetic'
   ctx.textAlign = options.align ?? 'left'
+
   if (options.shadowColor) {
     ctx.shadowColor = options.shadowColor
-    ctx.shadowBlur = options.shadowBlur ?? 20
+    ctx.shadowBlur = options.shadowBlur ?? 18
   }
+
   if (options.stroke) {
     ctx.strokeStyle = options.stroke
-    ctx.lineWidth = options.strokeWidth ?? 10
+    ctx.lineWidth = options.strokeWidth ?? 8
     ctx.strokeText(text, x, y)
   }
+
   ctx.fillStyle = options.fill
   ctx.fillText(text, x, y)
   ctx.restore()
 }
 
-function drawPhoto(
+function drawBrushPanel(
   ctx: CanvasRenderingContext2D,
-  photo: HTMLImageElement | null
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  opacity = 0.96
 ) {
-  const x = 245
-  const y = 135
-  const width = 935
-  const height = 1120
+  ctx.save()
+
+  const gradient = ctx.createLinearGradient(x, y, x + width, y + height)
+  gradient.addColorStop(0, `rgba(6, 4, 6, ${opacity})`)
+  gradient.addColorStop(0.56, `rgba(16, 7, 8, ${opacity})`)
+  gradient.addColorStop(1, `rgba(72, 8, 6, ${Math.max(0.78, opacity - 0.08)})`)
+
+  ctx.beginPath()
+  ctx.moveTo(x + 12, y + height * 0.11)
+  ctx.lineTo(x + width, y)
+  ctx.lineTo(x + width - 24, y + height * 0.86)
+  ctx.lineTo(x, y + height)
+  ctx.closePath()
+  ctx.fillStyle = gradient
+  ctx.fill()
+
+  ctx.globalAlpha = 0.95
+  const accent = ctx.createLinearGradient(x, y, x + width, y)
+  accent.addColorStop(0, '#E51D12')
+  accent.addColorStop(0.6, '#FF5A1F')
+  accent.addColorStop(1, '#FFC400')
+  ctx.fillStyle = accent
+  ctx.fillRect(x + 16, y + height - 9, width - 44, 6)
+
+  ctx.restore()
+}
+
+function drawPerformerPhoto(
+  ctx: CanvasRenderingContext2D,
+  photo: HTMLImageElement
+) {
+  const { x, y, w, h } = AREAS.photo
+
+  const layer = document.createElement('canvas')
+  layer.width = WIDTH
+  layer.height = HEIGHT
+  const layerCtx = layer.getContext('2d')
+  if (!layerCtx) return
+
+  drawCoverImageFocused(layerCtx, photo, x, y, w, h)
+
+  const mask = document.createElement('canvas')
+  mask.width = WIDTH
+  mask.height = HEIGHT
+  const maskCtx = mask.getContext('2d')
+  if (!maskCtx) return
+
+  const fade = maskCtx.createRadialGradient(
+    x + w * 0.58,
+    y + h * 0.43,
+    w * 0.18,
+    x + w * 0.58,
+    y + h * 0.43,
+    w * 0.64
+  )
+  fade.addColorStop(0, 'rgba(255,255,255,1)')
+  fade.addColorStop(0.63, 'rgba(255,255,255,.98)')
+  fade.addColorStop(0.84, 'rgba(255,255,255,.72)')
+  fade.addColorStop(1, 'rgba(255,255,255,0)')
+
+  maskCtx.fillStyle = fade
+  maskCtx.fillRect(x - 90, y - 90, w + 180, h + 180)
+
+  const lowerFade = maskCtx.createLinearGradient(0, y + h * 0.7, 0, y + h)
+  lowerFade.addColorStop(0, 'rgba(255,255,255,1)')
+  lowerFade.addColorStop(0.62, 'rgba(255,255,255,.82)')
+  lowerFade.addColorStop(1, 'rgba(255,255,255,0)')
+  maskCtx.globalCompositeOperation = 'destination-in'
+  maskCtx.fillStyle = lowerFade
+  maskCtx.fillRect(x - 100, y, w + 200, h)
+
+  layerCtx.globalCompositeOperation = 'destination-in'
+  layerCtx.drawImage(mask, 0, 0)
+  layerCtx.globalCompositeOperation = 'source-over'
 
   ctx.save()
-  roundRectPath(ctx, x, y, width, height, 34)
-  ctx.clip()
+  ctx.globalAlpha = 0.98
+  ctx.drawImage(layer, 0, 0)
+  ctx.restore()
 
-  if (photo) {
-    drawCoverImageFocused(ctx, photo, x, y, width, height)
-  } else {
-    const fallback = ctx.createLinearGradient(x, y, x + width, y + height)
-    fallback.addColorStop(0, '#30100d')
-    fallback.addColorStop(0.5, '#0b1f3b')
-    fallback.addColorStop(1, '#080a10')
-    ctx.fillStyle = fallback
-    ctx.fillRect(x, y, width, height)
-  }
-
-  const leftShade = ctx.createLinearGradient(x, 0, x + width * 0.42, 0)
-  leftShade.addColorStop(0, 'rgba(3,5,10,.76)')
-  leftShade.addColorStop(1, 'rgba(3,5,10,0)')
-  ctx.fillStyle = leftShade
-  ctx.fillRect(x, y, width * 0.5, height)
-
-  const bottomShade = ctx.createLinearGradient(0, y + height * 0.56, 0, y + height)
-  bottomShade.addColorStop(0, 'rgba(3,5,10,0)')
-  bottomShade.addColorStop(0.55, 'rgba(3,5,10,.30)')
-  bottomShade.addColorStop(1, 'rgba(3,5,10,.94)')
-  ctx.fillStyle = bottomShade
-  ctx.fillRect(x, y + height * 0.5, width, height * 0.5)
-
+  // Photo tint: ordinary profile photos blend into the fixed red/gold stage artwork.
+  ctx.save()
+  ctx.globalCompositeOperation = 'soft-light'
+  const warm = ctx.createLinearGradient(x, y, x + w, y + h)
+  warm.addColorStop(0, 'rgba(255,62,20,.28)')
+  warm.addColorStop(0.52, 'rgba(255,110,20,.08)')
+  warm.addColorStop(1, 'rgba(20,44,92,.18)')
+  ctx.fillStyle = warm
+  ctx.fillRect(x, y, w, h)
   ctx.restore()
 
   ctx.save()
   ctx.globalCompositeOperation = 'screen'
-  const warm = ctx.createRadialGradient(430, 510, 0, 430, 510, 330)
-  warm.addColorStop(0, 'rgba(255,70,20,.18)')
-  warm.addColorStop(1, 'rgba(255,70,20,0)')
-  ctx.fillStyle = warm
-  ctx.fillRect(120, 160, 650, 720)
-
-  const gold = ctx.createRadialGradient(980, 350, 0, 980, 350, 280)
-  gold.addColorStop(0, 'rgba(255,196,0,.15)')
-  gold.addColorStop(1, 'rgba(255,196,0,0)')
-  ctx.fillStyle = gold
-  ctx.fillRect(670, 80, 570, 600)
+  const rim = ctx.createRadialGradient(
+    x + w * 0.72,
+    y + h * 0.18,
+    0,
+    x + w * 0.72,
+    y + h * 0.18,
+    w * 0.34
+  )
+  rim.addColorStop(0, 'rgba(255,196,0,.18)')
+  rim.addColorStop(1, 'rgba(255,196,0,0)')
+  ctx.fillStyle = rim
+  ctx.fillRect(x - 50, y - 50, w + 100, h + 100)
   ctx.restore()
 }
 
@@ -218,125 +303,144 @@ export async function renderPosterMasterV2({
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('canvas unavailable')
 
-  const [background, overlay, photo] = await Promise.all([
-    loadImage('/promo-templates/poster-master-v8-bg.svg'),
-    loadImage('/promo-templates/poster-master-v8-overlay.svg'),
+  const [template, photo] = await Promise.all([
+    loadImage('/promo-templates/poster-photo-template-v4.jpg'),
     photoUrl ? loadImage(photoUrl).catch(() => null) : Promise.resolve(null),
   ])
 
-  ctx.drawImage(background, 0, 0, WIDTH, HEIGHT)
-  drawPhoto(ctx, photo)
-  ctx.drawImage(overlay, 0, 0, WIDTH, HEIGHT)
+  // High-quality fixed visual master.
+  ctx.drawImage(template, 0, 0, WIDTH, HEIGHT)
+
+  // Replace the silhouette with the selected performer photo.
+  if (photo) drawPerformerPhoto(ctx, photo)
 
   const { month, day, weekday, year } = getVisitDateParts(visitDate)
 
-  // fixed sponsor badge
-  roundRectPath(ctx, 72, 80, 286, 58, 29)
-  const sponsor = ctx.createLinearGradient(72, 80, 358, 138)
-  sponsor.addColorStop(0, '#ff3018')
-  sponsor.addColorStop(0.62, '#ff5a1f')
-  sponsor.addColorStop(1, '#ff8a00')
-  ctx.fillStyle = sponsor
-  ctx.fill()
-  setJapaneseFont(ctx, 900, 27)
-  ctx.fillStyle = '#fff'
-  ctx.textBaseline = 'middle'
-  ctx.fillText('主催：来店ナビ', 99, 109)
+  // DATE placeholder replacement.
+  drawBrushPanel(
+    ctx,
+    AREAS.date.x,
+    AREAS.date.y,
+    AREAS.date.w,
+    AREAS.date.h,
+    0.94
+  )
 
-  // date block
-  ctx.textBaseline = 'alphabetic'
   ctx.fillStyle = 'rgba(255,255,255,.72)'
-  ctx.font = '800 20px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.fillText(year, 76, 190)
+  ctx.font = '800 23px -apple-system, BlinkMacSystemFont, sans-serif'
+  ctx.fillText(year, AREAS.date.x + 28, AREAS.date.y + 50)
 
-  ctx.font = '900 132px -apple-system, BlinkMacSystemFont, "Arial Black", sans-serif'
-  drawOutlinedText(ctx, `${month}.${day}`, 72, 303, {
-    fill: '#fff',
-    stroke: 'rgba(0,0,0,.55)',
-    strokeWidth: 7,
-    shadowColor: 'rgba(255,68,24,.45)',
-    shadowBlur: 18,
-  })
+  ctx.font = '900 130px -apple-system, BlinkMacSystemFont, "Arial Black", sans-serif'
+  drawOutlinedText(
+    ctx,
+    `${month}.${day}`,
+    AREAS.date.x + 20,
+    AREAS.date.y + 190,
+    {
+      fill: '#FFFFFF',
+      stroke: 'rgba(0,0,0,.72)',
+      strokeWidth: 8,
+      shadowColor: 'rgba(255,70,20,.42)',
+      shadowBlur: 18,
+    }
+  )
 
-  const dateWidth = ctx.measureText(`${month}.${day}`).width
-  roundRectPath(ctx, 88 + dateWidth, 232, 92, 64, 14)
-  ctx.fillStyle = '#ffc400'
-  ctx.fill()
-  setJapaneseFont(ctx, 900, 30)
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillStyle = '#07101d'
-  ctx.fillText(weekday, 134 + dateWidth, 264)
-  ctx.textAlign = 'left'
-  ctx.textBaseline = 'alphabetic'
+  setJapaneseFont(ctx, 900, 43)
+  drawOutlinedText(
+    ctx,
+    weekday,
+    AREAS.date.x + 30,
+    AREAS.date.y + 258,
+    {
+      fill: '#FFC400',
+      stroke: 'rgba(0,0,0,.72)',
+      strokeWidth: 7,
+    }
+  )
 
   ctx.font = '800 18px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.fillStyle = '#ffc400'
-  ctx.fillText('SPECIAL GUEST', 76, 339)
+  ctx.fillStyle = 'rgba(255,255,255,.7)'
+  ctx.fillText('RAITEN NAVI VISIT', AREAS.date.x + 30, AREAS.date.y + 309)
 
-  // performer name
-  const nameSize = fitFontSize(ctx, performerName, 880, 104, 56, 900, true)
+  // NAME placeholder replacement.
+  drawBrushPanel(
+    ctx,
+    AREAS.performerName.x,
+    AREAS.performerName.y,
+    AREAS.performerName.w,
+    AREAS.performerName.h,
+    0.91
+  )
+
+  const nameSize = fitFontSize(
+    ctx,
+    performerName,
+    AREAS.performerName.w - 68,
+    112,
+    56,
+    900,
+    true
+  )
   setJapaneseFont(ctx, 900, nameSize, true)
-  drawOutlinedText(ctx, performerName, 78, 1118, {
-    fill: '#fff',
-    stroke: 'rgba(4,6,11,.92)',
-    strokeWidth: 13,
-    shadowColor: 'rgba(255,48,24,.42)',
-    shadowBlur: 28,
-  })
+  drawOutlinedText(
+    ctx,
+    performerName,
+    AREAS.performerName.x + 34,
+    AREAS.performerName.y + 142,
+    {
+      fill: '#FFFFFF',
+      stroke: 'rgba(4,5,8,.94)',
+      strokeWidth: 12,
+      shadowColor: 'rgba(255,45,20,.38)',
+      shadowBlur: 22,
+    }
+  )
 
-  // main factual headline: 来店
-  const visitGradient = ctx.createLinearGradient(80, 1130, 650, 1350)
-  visitGradient.addColorStop(0, '#fff3a5')
-  visitGradient.addColorStop(0.23, '#ffd43b')
-  visitGradient.addColorStop(0.52, '#ffc400')
-  visitGradient.addColorStop(0.82, '#ff8a00')
-  visitGradient.addColorStop(1, '#ff5a1f')
+  ctx.font = '800 22px -apple-system, BlinkMacSystemFont, sans-serif'
+  ctx.fillStyle = '#FFC400'
+  ctx.fillText(
+    'SPECIAL GUEST',
+    AREAS.performerName.x + 38,
+    AREAS.performerName.y + 207
+  )
 
-  setJapaneseFont(ctx, 900, 205)
-  drawOutlinedText(ctx, '来店', 74, 1333, {
-    fill: visitGradient,
-    stroke: '#070b13',
-    strokeWidth: 18,
-    shadowColor: 'rgba(255,88,22,.55)',
-    shadowBlur: 34,
-  })
+  // STORE placeholder replacement.
+  drawBrushPanel(
+    ctx,
+    AREAS.storeName.x,
+    AREAS.storeName.y,
+    AREAS.storeName.w,
+    AREAS.storeName.h,
+    0.95
+  )
 
-  // accent underline
-  const line = ctx.createLinearGradient(80, 0, 1080, 0)
-  line.addColorStop(0, '#ff2f18')
-  line.addColorStop(0.55, '#ff8a00')
-  line.addColorStop(1, '#ffc400')
-  ctx.fillStyle = line
-  ctx.fillRect(78, 1362, 1015, 8)
-
-  // store name
   ctx.font = '800 18px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.fillStyle = '#ffc400'
-  ctx.fillText('STORE', 84, 1421)
+  ctx.fillStyle = '#FFC400'
+  ctx.fillText('STORE', AREAS.storeName.x + 30, AREAS.storeName.y + 40)
 
-  const storeSize = fitFontSize(ctx, storeName, 1010, 66, 38, 900)
+  const storeSize = fitFontSize(
+    ctx,
+    storeName,
+    AREAS.storeName.w - 72,
+    62,
+    36,
+    900
+  )
   setJapaneseFont(ctx, 900, storeSize)
-  drawOutlinedText(ctx, storeName, 620, 1500, {
-    fill: '#fff',
-    stroke: 'rgba(3,5,10,.85)',
-    strokeWidth: 9,
-    shadowColor: 'rgba(0,0,0,.72)',
-    shadowBlur: 16,
-    align: 'center',
-  })
-
-  // compliance footer
-  setJapaneseFont(ctx, 700, 22)
-  ctx.textAlign = 'left'
-  ctx.fillStyle = '#fff'
-  ctx.fillText('主催：来店ナビ（RAITEN NAVI）', 96, 1644)
-
-  ctx.textAlign = 'right'
-  ctx.font = '800 17px -apple-system, BlinkMacSystemFont, sans-serif'
-  ctx.fillStyle = '#ffc400'
-  ctx.fillText('OFFICIAL VISIT PROMOTION', 1145, 1644)
-  ctx.textAlign = 'left'
+  drawOutlinedText(
+    ctx,
+    storeName,
+    AREAS.storeName.x + AREAS.storeName.w / 2,
+    AREAS.storeName.y + 119,
+    {
+      fill: '#FFFFFF',
+      stroke: 'rgba(0,0,0,.84)',
+      strokeWidth: 9,
+      shadowColor: 'rgba(0,0,0,.7)',
+      shadowBlur: 16,
+      align: 'center',
+    }
+  )
 
   return canvasToBlob(canvas)
 }
