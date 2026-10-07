@@ -344,71 +344,69 @@ export default function MaterialGallery({
 }) {
   const [selectedPhoto, setSelectedPhoto] = useState(0)
   const [materials, setMaterials] = useState<Partial<Record<FormatKey, GeneratedMaterial>>>({})
-  const [generating, setGenerating] = useState(true)
+  const [pending, setPending] = useState<Record<FormatKey, boolean>>({ poster: true, feed: true, story: true })
+  const [failures, setFailures] = useState<Partial<Record<FormatKey, string>>>({})
+  const [posterProgress, setPosterProgress] = useState('画像を作成中…')
+  const [retry, setRetry] = useState(0)
+  const [photoScale, setPhotoScale] = useState(1)
+  const [photoOffsetY, setPhotoOffsetY] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [savingKey, setSavingKey] = useState<FormatKey | null>(null)
 
+  // A4 matting is independent: an A4 error must not block the existing SNS images.
+  useEffect(() => {
+    const controller = new AbortController()
+    let objectUrl: string | undefined
+    setPending(current => ({ ...current, poster: true }))
+    setFailures(current => ({ ...current, poster: undefined }))
+    setMaterials(current => ({ ...current, poster: undefined }))
+    setPosterProgress('画像を作成中…')
+    renderPosterMasterV2({
+      performerName, storeName, visitDate,
+      photoUrl: photos[selectedPhoto] ?? null,
+      photoScale, photoOffsetY,
+      signal: controller.signal,
+      onProgress: message => { if (!controller.signal.aborted) setPosterProgress(message) },
+    }).then(blob => {
+      if (controller.signal.aborted) return
+      objectUrl = URL.createObjectURL(blob)
+      setMaterials(current => ({ ...current, poster: { blob, url: objectUrl! } }))
+    }).catch(cause => {
+      if (!controller.signal.aborted) setFailures(current => ({ ...current,
+        poster: cause instanceof Error ? cause.message : 'A4ポスターを作成できませんでした。もう一度お試しください。',
+      }))
+    }).finally(() => {
+      if (!controller.signal.aborted) setPending(current => ({ ...current, poster: false }))
+    })
+    return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl) }
+  }, [photos, selectedPhoto, performerName, storeName, visitDate, photoScale, photoOffsetY, retry])
+
   useEffect(() => {
     let cancelled = false
-    const createdUrls: string[] = []
-
+    const urls: string[] = []
+    setPending(current => ({ ...current, feed: true, story: true }))
+    setFailures(current => ({ ...current, feed: undefined, story: undefined }))
+    setMaterials(current => ({ ...current, feed: undefined, story: undefined }))
     async function generate() {
-      setGenerating(true)
-      setError(null)
-
-      try {
-        let photo: HTMLImageElement | null = null
-        const photoUrl = photos[selectedPhoto]
-        if (photoUrl) {
-          try {
-            photo = await loadImage(photoUrl)
-          } catch {
-            photo = null
-          }
+      const photo = photos[selectedPhoto] ? await loadImage(photos[selectedPhoto]).catch(() => null) : null
+      if (cancelled) return
+      await Promise.all(formats.filter(format => format.key !== 'poster').map(async format => {
+        try {
+          const blob = await createLegacyMaterial({ width: format.width, height: format.height,
+            performerName, storeName, visitDate, photo })
+          if (cancelled) return
+          const url = URL.createObjectURL(blob)
+          urls.push(url)
+          setMaterials(current => ({ ...current, [format.key]: { blob, url } }))
+        } catch {
+          if (!cancelled) setFailures(current => ({ ...current, [format.key]: '画像を作成できませんでした。ページを再読み込みしてください。' }))
+        } finally {
+          if (!cancelled) setPending(current => ({ ...current, [format.key]: false }))
         }
-
-        const entries = await Promise.all(
-          formats.map(async format => {
-            const blob =
-              format.key === 'poster'
-                ? await renderPosterMasterV2({
-                    performerName,
-                    storeName,
-                    visitDate,
-                    photoUrl: photos[selectedPhoto] ?? null,
-                  })
-                : await createLegacyMaterial({
-                    width: format.width,
-                    height: format.height,
-                    performerName,
-                    storeName,
-                    visitDate,
-                    photo,
-                  })
-            const url = URL.createObjectURL(blob)
-            createdUrls.push(url)
-            return [format.key, { blob, url }] as const
-          })
-        )
-
-        if (cancelled) return
-        setMaterials(Object.fromEntries(entries))
-      } catch {
-        if (!cancelled) {
-          setMaterials({})
-          setError('告知素材を作成できませんでした。ページを再読み込みしてお試しください。')
-        }
-      } finally {
-        if (!cancelled) setGenerating(false)
-      }
+      }))
     }
-
     void generate()
-
-    return () => {
-      cancelled = true
-      createdUrls.forEach(url => URL.revokeObjectURL(url))
-    }
+    return () => { cancelled = true; urls.forEach(url => URL.revokeObjectURL(url)) }
   }, [photos, selectedPhoto, performerName, storeName, visitDate])
 
   async function saveMaterial(format: FormatKey) {
@@ -474,7 +472,7 @@ export default function MaterialGallery({
                 <button
                   key={photo}
                   type="button"
-                  onClick={() => setSelectedPhoto(index)}
+                  onClick={() => { setSelectedPhoto(index); setPhotoScale(1); setPhotoOffsetY(0) }}
                   className={`relative h-24 w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-slate-100 transition sm:h-28 sm:w-24 ${
                     selected ? 'border-[#FF5A1F] ring-2 ring-orange-100' : 'border-slate-200'
                   }`}
@@ -491,6 +489,24 @@ export default function MaterialGallery({
               )
             })}
           </div>
+        )}
+        {photos.length > 0 && (
+          <details className="mt-4 rounded-xl border border-slate-200 p-3">
+            <summary className="cursor-pointer text-sm font-bold text-slate-700">A4ポスターの写真位置を調整</summary>
+            <div className="mt-3 grid gap-4 sm:grid-cols-2">
+              <label className="text-sm text-slate-600">人物の大きさ
+                <input aria-label="人物の大きさ" type="range" min="0.7" max="1.6" step="0.05" value={photoScale}
+                  onChange={event => setPhotoScale(Number(event.target.value))}
+                  className="mt-2 block w-full accent-orange-600" />
+              </label>
+              <label className="text-sm text-slate-600">人物の上下位置
+                <input aria-label="人物の上下位置" type="range" min="-120" max="240" step="10" value={photoOffsetY}
+                  onChange={event => setPhotoOffsetY(Number(event.target.value))}
+                  className="mt-2 block w-full accent-orange-600" />
+              </label>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-slate-500">背景は自動で除去します。髪や服の輪郭、顔に文字が重なっていないか、保存前に確認してください。</p>
+          </details>
         )}
       </section>
 
@@ -534,10 +550,16 @@ export default function MaterialGallery({
                 </div>
 
                 <div className="flex min-h-[360px] items-center justify-center bg-slate-100 p-4">
-                  {generating || !material ? (
+                  {pending[format.key] ? (
                     <div className="flex flex-col items-center gap-2 text-sm font-bold text-slate-500">
                       <Loader2 className="h-6 w-6 animate-spin text-[#FF5A1F]" />
-                      画像を作成中…
+                      <span role="status">{format.key === 'poster' ? posterProgress : '画像を作成中…'}</span>
+                    </div>
+                  ) : !material ? (
+                    <div className="space-y-3 text-center text-sm text-slate-600" role="alert">
+                      <p>{failures[format.key] || '画像を作成できませんでした。'}</p>
+                      {format.key === 'poster' && <button type="button" onClick={() => setRetry(value => value + 1)}
+                        className="rounded-lg border border-orange-300 bg-white px-4 py-2 font-bold text-orange-700">もう一度作成する</button>}
                     </div>
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -553,7 +575,7 @@ export default function MaterialGallery({
                   <button
                     type="button"
                     onClick={() => void saveMaterial(format.key)}
-                    disabled={!material || generating || savingKey !== null}
+                    disabled={!material || pending[format.key] || savingKey !== null}
                     className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#FF5A1F] px-4 text-sm font-black text-white transition hover:bg-[#E94F18] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {savingKey === format.key ? (
