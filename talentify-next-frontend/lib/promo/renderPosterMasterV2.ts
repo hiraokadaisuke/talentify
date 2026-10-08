@@ -25,6 +25,17 @@ function clampPhoto(value: number, range: { min: number; max: number }, fallback
   return Number.isFinite(value) ? Math.min(range.max, Math.max(range.min, value)) : fallback
 }
 let fonts: Promise<void> | undefined
+let artwork: Promise<[HTMLImageElement, HTMLImageElement, HTMLImageElement, HTMLImageElement]> | undefined
+
+function loadArtwork() {
+  if (!artwork) artwork = Promise.all([
+    loadPosterImage(`${ASSETS}/background.png`),
+    loadPosterImage(`${ASSETS}/visit-v2.png`),
+    loadPosterImage(`${ASSETS}/foreground.png`),
+    loadPosterImage(`${ASSETS}/foreground-v2.png`),
+  ]).catch(error => { artwork = undefined; throw error })
+  return artwork
+}
 
 function loadFonts() {
   if (!fonts) fonts = Promise.all([
@@ -63,16 +74,22 @@ function drawBrushStroke(ctx: CanvasRenderingContext2D, x: number, y: number, wi
   color: string, thickness: number, alpha = 1) {
   ctx.save()
   ctx.globalAlpha = alpha
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
+  ctx.translate(x, y)
+  ctx.fillStyle = color
   ctx.strokeStyle = color
-  ctx.lineWidth = thickness
-  ctx.shadowColor = color
-  ctx.shadowBlur = thickness * 0.65
+  // Pointed ends and separate bristle marks, rather than a rounded neon tube.
   ctx.beginPath()
-  ctx.moveTo(x - width / 2, y + 9)
-  ctx.bezierCurveTo(x - width * 0.23, y - 13, x + width * 0.18, y + 17, x + width / 2, y - 7)
-  ctx.stroke()
+  ctx.moveTo(-width / 2, 12)
+  ctx.bezierCurveTo(-width * .28, -thickness * .45, width * .12, -thickness * .55, width / 2, -9)
+  ctx.bezierCurveTo(width * .2, thickness * .3, -width * .15, thickness * .55, -width / 2, 12)
+  ctx.fill()
+  ctx.lineWidth = Math.max(1, thickness * .12)
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath()
+    ctx.moveTo(-width * (.49 - i * .014), 16 + i * 2)
+    ctx.quadraticCurveTo(-width * .06, thickness * .3 + i * 1.5, width * (.43 - i * .03), -4 + i * 2)
+    ctx.stroke()
+  }
   ctx.restore()
 }
 
@@ -85,15 +102,16 @@ function drawFlare(ctx: CanvasRenderingContext2D, x: number, y: number, scale: n
   glow.addColorStop(1, 'rgba(255,90,18,0)')
   ctx.fillStyle = glow
   ctx.fillRect(x - 48 * scale, y - 48 * scale, 96 * scale, 96 * scale)
-  ctx.strokeStyle = 'rgba(255,246,192,.9)'
-  ctx.lineWidth = Math.max(1.4, 2.2 * scale)
+  ctx.fillStyle = 'rgba(255,246,192,.8)'
   ctx.shadowColor = 'rgba(255,166,35,.9)'
   ctx.shadowBlur = 12 * scale
   for (const [dx, dy] of [[1, 0], [0, 1], [0.72, 0.72], [-0.72, 0.72]] as const) {
     ctx.beginPath()
-    ctx.moveTo(x - dx * 31 * scale, y - dy * 31 * scale)
-    ctx.lineTo(x + dx * 31 * scale, y + dy * 31 * scale)
-    ctx.stroke()
+    ctx.moveTo(x - dx * 38 * scale, y - dy * 38 * scale)
+    ctx.lineTo(x - dy * 1.8 * scale, y + dx * 1.8 * scale)
+    ctx.lineTo(x + dx * 38 * scale, y + dy * 38 * scale)
+    ctx.lineTo(x + dy * 1.8 * scale, y - dx * 1.8 * scale)
+    ctx.closePath(); ctx.fill()
   }
   ctx.fillStyle = '#fffbe3'
   ctx.beginPath(); ctx.arc(x, y, 3.2 * scale, 0, Math.PI * 2); ctx.fill()
@@ -133,11 +151,10 @@ export async function renderPosterMasterV2({ performerName, storeName, visitDate
   photoScale = 1, photoOffsetX = 0, photoOffsetY = 0, signal, onProgress }: PosterMasterV2Input) {
   const date = new Date(visitDate)
   if (Number.isNaN(date.getTime())) throw new Error('来店日を確認してください。')
-  const [background, visit, foreground, foregroundGlam, portrait] = await Promise.all([
-    loadPosterImage(`${ASSETS}/background.png`, signal),
-    loadPosterImage(`${ASSETS}/visit-v2.png`, signal),
-    loadPosterImage(`${ASSETS}/foreground.png`, signal),
-    loadPosterImage(`${ASSETS}/foreground-v2.png`, signal),
+  if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
+  // Decode the four immutable art layers once; slider updates only recompose them.
+  const [[background, visit, foreground, foregroundGlam], portrait] = await Promise.all([
+    loadArtwork(),
     photoUrl ? preparePortrait(photoUrl, signal, onProgress) : Promise.resolve(null),
     loadFonts(),
   ])
@@ -154,8 +171,18 @@ export async function renderPosterMasterV2({ performerName, storeName, visitDate
     clampPhoto(photoOffsetY, POSTER_PHOTO_LIMITS.offsetY, 0))
   ctx.drawImage(foreground, 0, 0, WIDTH, HEIGHT)
   ctx.save()
-  ctx.globalAlpha = .58
-  ctx.drawImage(foregroundGlam, 0, 0, WIDTH, HEIGHT)
+  const glitter = document.createElement('canvas')
+  glitter.width = WIDTH; glitter.height = HEIGHT
+  const g = glitter.getContext('2d')!
+  g.drawImage(foregroundGlam, 0, 0, WIDTH, HEIGHT)
+  g.globalCompositeOperation = 'destination-in'
+  const glitterFade = g.createLinearGradient(0, 0, 0, HEIGHT)
+  glitterFade.addColorStop(0, 'rgba(255,255,255,.52)')
+  glitterFade.addColorStop(.68, 'rgba(255,255,255,.5)')
+  glitterFade.addColorStop(.85, 'rgba(255,255,255,.26)')
+  glitterFade.addColorStop(1, 'rgba(255,255,255,.07)')
+  g.fillStyle = glitterFade; g.fillRect(0, 0, WIDTH, HEIGHT)
+  ctx.drawImage(glitter, 0, 0)
   ctx.restore()
 
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' }).formatToParts(date)
@@ -163,33 +190,33 @@ export async function renderPosterMasterV2({ performerName, storeName, visitDate
   // The reference posters use a compact, slightly slanted date lockup rather than
   // three unrelated labels. Rotate the entire lockup as one typographic unit.
   ctx.save()
-  ctx.translate(174, 240); ctx.rotate(-0.035); ctx.translate(-174, -240)
+  ctx.translate(174, 240); ctx.rotate(-0.075); ctx.transform(1, 0, -.045, 1, 0, 0); ctx.translate(-174, -240)
   text(ctx, part('year'), 62, 102, 48, 'PosterDate', 400, { weight: 700, outline: 7 })
   text(ctx, `${part('month')}.${part('day')}`, 48, 315, 232, 'PosterDate', 495, { weight: 700, outline: 9 })
   text(ctx, part('weekday').toUpperCase(), 60, 411, 92, 'PosterDate', 390, { weight: 700, outline: 7 })
   ctx.restore()
-  drawBrushStroke(ctx, 170, 432, 248, '#ff9a1e', 5, .9)
 
   text(ctx, '来店ナビ', 934, 66, 39, 'PosterSans', 258)
   text(ctx, 'RAITEN NAVI', 944, 96, 20, 'PosterDate', 236, { weight: 700, outline: 3 })
 
   // Names and dates are drawn directly over the artwork, with no cover-up panels.
   ctx.save()
-  ctx.translate(620, 1065); ctx.rotate(-0.115)
-  drawBrushStroke(ctx, 0, 38, 1010, '#5b0a12', 46, .78)
-  drawBrushStroke(ctx, 0, 34, 980, '#d3261e', 19, .9)
-  text(ctx, performerName, 0, 0, 205, 'PosterBrush', 1120, { center: true, outline: 13, color: '#fffaf0' })
-  text(ctx, 'SPECIAL GUEST', 0, 72, 30, 'PosterDate', 430, { center: true, color: '#ffe4a2', weight: 700, outline: 4 })
+  ctx.translate(605, 1060); ctx.rotate(-0.145)
+  drawBrushStroke(ctx, 0, 29, 1040, '#c5161d', 16, .85)
+  drawBrushStroke(ctx, -20, 19, 970, '#fff3d6', 4, .86)
+  ctx.save(); ctx.transform(1, 0, -.12, 1, 0, 0)
+  text(ctx, performerName, 0, 0, 225, 'PosterBrush', 1090, { center: true, outline: 7, color: '#fffdf5' })
+  ctx.restore()
+  text(ctx, 'S P E C I A L  G U E S T', 0, 79, 28, 'PosterDate', 430, { center: true, color: '#ffe4a2', weight: 700, outline: 3 })
   ctx.restore()
 
   const visitWidth = 890
   const visitHeight = visitWidth * visit.naturalHeight / visit.naturalWidth
   ctx.save()
-  ctx.translate(WIDTH / 2, 1285); ctx.rotate(-0.035)
+  ctx.translate(WIDTH / 2, 1310); ctx.rotate(-0.065)
   ctx.shadowColor = 'rgba(255,130,15,.82)'
   ctx.shadowBlur = 30
   ctx.shadowOffsetY = 12
-  ctx.filter = 'saturate(1.18) contrast(1.06)'
   ctx.drawImage(visit, -visitWidth / 2, -visitHeight / 2, visitWidth, visitHeight)
   ctx.restore()
   drawPosterDecorations(ctx)
