@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Check, Download, ImageIcon, Loader2, Share2 } from 'lucide-react'
-import { renderPosterMasterV2 } from '@/lib/promo/renderPosterMasterV2'
+import { POSTER_PHOTO_LIMITS, renderPosterMasterV2 } from '@/lib/promo/renderPosterMasterV2'
 
 type FormatKey = 'poster' | 'feed' | 'story'
 
@@ -349,37 +349,47 @@ export default function MaterialGallery({
   const [posterProgress, setPosterProgress] = useState('画像を作成中…')
   const [retry, setRetry] = useState(0)
   const [photoScale, setPhotoScale] = useState(1)
+  const [photoOffsetX, setPhotoOffsetX] = useState(0)
   const [photoOffsetY, setPhotoOffsetY] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [savingKey, setSavingKey] = useState<FormatKey | null>(null)
 
+  function resetPhotoPosition() {
+    setPhotoScale(1)
+    setPhotoOffsetX(0)
+    setPhotoOffsetY(0)
+  }
+
+  // Keep the displayed preview alive until its replacement has been committed.
+  const posterUrl = materials.poster?.url
+  useEffect(() => () => { if (posterUrl) URL.revokeObjectURL(posterUrl) }, [posterUrl])
+
   // A4 matting is independent: an A4 error must not block the existing SNS images.
   useEffect(() => {
     const controller = new AbortController()
-    let objectUrl: string | undefined
     setPending(current => ({ ...current, poster: true }))
     setFailures(current => ({ ...current, poster: undefined }))
-    setMaterials(current => ({ ...current, poster: undefined }))
     setPosterProgress('画像を作成中…')
-    renderPosterMasterV2({
+    // Coalesce slider input so dragging does not repeatedly start image decoding.
+    const timer = setTimeout(() => { void renderPosterMasterV2({
       performerName, storeName, visitDate,
       photoUrl: photos[selectedPhoto] ?? null,
-      photoScale, photoOffsetY,
+      photoScale, photoOffsetX, photoOffsetY,
       signal: controller.signal,
       onProgress: message => { if (!controller.signal.aborted) setPosterProgress(message) },
     }).then(blob => {
       if (controller.signal.aborted) return
-      objectUrl = URL.createObjectURL(blob)
-      setMaterials(current => ({ ...current, poster: { blob, url: objectUrl! } }))
+      const url = URL.createObjectURL(blob)
+      setMaterials(current => ({ ...current, poster: { blob, url } }))
     }).catch(cause => {
       if (!controller.signal.aborted) setFailures(current => ({ ...current,
         poster: cause instanceof Error ? cause.message : 'A4ポスターを作成できませんでした。もう一度お試しください。',
       }))
     }).finally(() => {
       if (!controller.signal.aborted) setPending(current => ({ ...current, poster: false }))
-    })
-    return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl) }
-  }, [photos, selectedPhoto, performerName, storeName, visitDate, photoScale, photoOffsetY, retry])
+    }) }, 140)
+    return () => { clearTimeout(timer); controller.abort() }
+  }, [photos, selectedPhoto, performerName, storeName, visitDate, photoScale, photoOffsetX, photoOffsetY, retry])
 
   useEffect(() => {
     let cancelled = false
@@ -472,7 +482,7 @@ export default function MaterialGallery({
                 <button
                   key={photo}
                   type="button"
-                  onClick={() => { setSelectedPhoto(index); setPhotoScale(1); setPhotoOffsetY(0) }}
+                  onClick={() => { setSelectedPhoto(index); resetPhotoPosition() }}
                   className={`relative h-24 w-20 shrink-0 overflow-hidden rounded-xl border-2 bg-slate-100 transition sm:h-28 sm:w-24 ${
                     selected ? 'border-[#FF5A1F] ring-2 ring-orange-100' : 'border-slate-200'
                   }`}
@@ -493,18 +503,32 @@ export default function MaterialGallery({
         {photos.length > 0 && (
           <details className="mt-4 rounded-xl border border-slate-200 p-3">
             <summary className="cursor-pointer text-sm font-bold text-slate-700">A4ポスターの写真位置を調整</summary>
-            <div className="mt-3 grid gap-4 sm:grid-cols-2">
-              <label className="text-sm text-slate-600">人物の大きさ
-                <input aria-label="人物の大きさ" type="range" min="0.7" max="1.6" step="0.05" value={photoScale}
+            <div className="mt-3 grid gap-4 sm:grid-cols-3">
+              <label className="text-sm text-slate-600">
+                <span className="flex justify-between gap-2">人物の大きさ<output className="font-bold tabular-nums">{Math.round(photoScale * 100)}%</output></span>
+                <input aria-label="人物の大きさ" aria-valuetext={`${Math.round(photoScale * 100)}%`} type="range" {...POSTER_PHOTO_LIMITS.scale} value={photoScale}
                   onChange={event => setPhotoScale(Number(event.target.value))}
-                  className="mt-2 block w-full accent-orange-600" />
+                  className="mt-1 block h-8 w-full accent-orange-600" />
+                <span className="flex justify-between text-xs text-slate-400"><span>50%</span><span>250%</span></span>
               </label>
-              <label className="text-sm text-slate-600">人物の上下位置
-                <input aria-label="人物の上下位置" type="range" min="-120" max="240" step="10" value={photoOffsetY}
+              <label className="text-sm text-slate-600">
+                <span className="flex justify-between gap-2">人物の左右位置<output className="font-bold tabular-nums">{photoOffsetX > 0 ? '+' : ''}{photoOffsetX}</output></span>
+                <input aria-label="人物の左右位置" aria-valuetext={photoOffsetX === 0 ? '初期位置' : `${photoOffsetX < 0 ? '左' : '右'}に${Math.abs(photoOffsetX)}`} type="range" {...POSTER_PHOTO_LIMITS.offsetX} value={photoOffsetX}
+                  onChange={event => setPhotoOffsetX(Number(event.target.value))}
+                  className="mt-1 block h-8 w-full accent-orange-600" />
+                <span className="flex justify-between text-xs text-slate-400"><span>左へ</span><span>右へ</span></span>
+              </label>
+              <label className="text-sm text-slate-600">
+                <span className="flex justify-between gap-2">人物の上下位置<output className="font-bold tabular-nums">{photoOffsetY > 0 ? '+' : ''}{photoOffsetY}</output></span>
+                <input aria-label="人物の上下位置" aria-valuetext={photoOffsetY === 0 ? '初期位置' : `${photoOffsetY < 0 ? '上' : '下'}に${Math.abs(photoOffsetY)}`} type="range" {...POSTER_PHOTO_LIMITS.offsetY} value={photoOffsetY}
                   onChange={event => setPhotoOffsetY(Number(event.target.value))}
-                  className="mt-2 block w-full accent-orange-600" />
+                  className="mt-1 block h-8 w-full accent-orange-600" />
+                <span className="flex justify-between text-xs text-slate-400"><span>上へ</span><span>下へ</span></span>
               </label>
             </div>
+            <button type="button" onClick={resetPhotoPosition}
+              disabled={photoScale === 1 && photoOffsetX === 0 && photoOffsetY === 0}
+              className="mt-3 min-h-11 rounded-lg border border-slate-300 px-4 text-sm font-bold text-slate-600 disabled:opacity-40">初期位置に戻す</button>
             <p className="mt-2 text-xs leading-5 text-slate-500">背景は自動で除去します。髪や服の輪郭、顔に文字が重なっていないか、保存前に確認してください。</p>
           </details>
         )}
@@ -549,33 +573,31 @@ export default function MaterialGallery({
                   </div>
                 </div>
 
-                <div className="flex min-h-[360px] items-center justify-center bg-slate-100 p-4">
+                <div aria-busy={pending[format.key]} className="relative flex min-h-[360px] items-center justify-center bg-slate-100 p-4">
+                  {material && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={material.url} alt={`${format.title}プレビュー`}
+                      className="max-h-[520px] w-auto max-w-full rounded-lg object-contain shadow-xl" />
+                  )}
                   {pending[format.key] ? (
-                    <div className="flex flex-col items-center gap-2 text-sm font-bold text-slate-500">
+                    <div className={`flex flex-col items-center gap-2 text-sm font-bold text-slate-500 ${material ? 'absolute bottom-6 left-6 right-6 rounded-xl bg-white/95 p-3 shadow' : ''}`}>
                       <Loader2 className="h-6 w-6 animate-spin text-[#FF5A1F]" />
                       <span role="status">{format.key === 'poster' ? posterProgress : '画像を作成中…'}</span>
                     </div>
-                  ) : !material ? (
-                    <div className="space-y-3 text-center text-sm text-slate-600" role="alert">
+                  ) : failures[format.key] || !material ? (
+                    <div className={`space-y-3 text-center text-sm text-slate-600 ${material ? 'absolute bottom-6 left-6 right-6 rounded-xl bg-white/95 p-3 shadow' : ''}`} role="alert">
                       <p>{failures[format.key] || '画像を作成できませんでした。'}</p>
                       {format.key === 'poster' && <button type="button" onClick={() => setRetry(value => value + 1)}
                         className="rounded-lg border border-orange-300 bg-white px-4 py-2 font-bold text-orange-700">もう一度作成する</button>}
                     </div>
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={material.url}
-                      alt={`${format.title}プレビュー`}
-                      className="max-h-[520px] w-auto max-w-full rounded-lg object-contain shadow-xl"
-                    />
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="p-4">
                   <button
                     type="button"
                     onClick={() => void saveMaterial(format.key)}
-                    disabled={!material || pending[format.key] || savingKey !== null}
+                    disabled={!material || pending[format.key] || Boolean(failures[format.key]) || savingKey !== null}
                     className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#FF5A1F] px-4 text-sm font-black text-white transition hover:bg-[#E94F18] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {savingKey === format.key ? (

@@ -6,6 +6,7 @@ type PosterMasterV2Input = {
   visitDate: string
   photoUrl?: string | null
   photoScale?: number
+  photoOffsetX?: number
   photoOffsetY?: number
   signal?: AbortSignal
   onProgress?: (message: string) => void
@@ -14,6 +15,15 @@ type PosterMasterV2Input = {
 const WIDTH = 1240
 const HEIGHT = 1754
 const ASSETS = '/promo-templates/layered-v1'
+export const POSTER_PHOTO_LIMITS = {
+  scale: { min: 0.5, max: 2.5, step: 0.05 },
+  offsetX: { min: -600, max: 600, step: 10 },
+  offsetY: { min: -600, max: 600, step: 10 },
+} as const
+
+function clampPhoto(value: number, range: { min: number; max: number }, fallback: number) {
+  return Number.isFinite(value) ? Math.min(range.max, Math.max(range.min, value)) : fallback
+}
 let fonts: Promise<void> | undefined
 
 function loadFonts() {
@@ -96,11 +106,9 @@ function drawPosterDecorations(ctx: CanvasRenderingContext2D) {
   drawFlare(ctx, 1004, 1218, .8)
   drawFlare(ctx, 176, 1392, .57)
   drawFlare(ctx, 1074, 1512, .46)
-  drawBrushStroke(ctx, 620, 1649, 790, '#8e1015', 24, .78)
-  drawBrushStroke(ctx, 620, 1646, 760, '#ffb62e', 5, .9)
 }
 
-function drawPortrait(ctx: CanvasRenderingContext2D, photo: HTMLCanvasElement, zoom: number, offsetY: number) {
+function drawPortrait(ctx: CanvasRenderingContext2D, photo: HTMLCanvasElement, zoom: number, offsetX: number, offsetY: number) {
   const layer = document.createElement('canvas')
   layer.width = WIDTH; layer.height = HEIGHT
   const p = layer.getContext('2d')!
@@ -108,7 +116,7 @@ function drawPortrait(ctx: CanvasRenderingContext2D, photo: HTMLCanvasElement, z
   // define placement. Tall/full-length photos naturally crop below the waist.
   const scale = Math.max(900 / photo.width, 1080 / photo.height) * zoom
   const w = photo.width * scale, h = photo.height * scale
-  const x = 760 - w / 2, y = 130 + offsetY
+  const x = 760 - w / 2 + offsetX, y = 130 + offsetY
   p.drawImage(photo, x, y, w, h)
   p.globalCompositeOperation = 'destination-in'
   const fade = p.createLinearGradient(0, 880, 0, 1270)
@@ -122,7 +130,7 @@ function drawPortrait(ctx: CanvasRenderingContext2D, photo: HTMLCanvasElement, z
 }
 
 export async function renderPosterMasterV2({ performerName, storeName, visitDate, photoUrl,
-  photoScale = 1, photoOffsetY = 0, signal, onProgress }: PosterMasterV2Input) {
+  photoScale = 1, photoOffsetX = 0, photoOffsetY = 0, signal, onProgress }: PosterMasterV2Input) {
   const date = new Date(visitDate)
   if (Number.isNaN(date.getTime())) throw new Error('来店日を確認してください。')
   const [background, visit, foreground, foregroundGlam, portrait] = await Promise.all([
@@ -140,7 +148,10 @@ export async function renderPosterMasterV2({ performerName, storeName, visitDate
   const ctx = canvas.getContext('2d')!
   ctx.imageSmoothingQuality = 'high'
   ctx.drawImage(background, 0, 0, WIDTH, HEIGHT)
-  if (portrait) drawPortrait(ctx, portrait, photoScale, photoOffsetY)
+  if (portrait) drawPortrait(ctx, portrait,
+    clampPhoto(photoScale, POSTER_PHOTO_LIMITS.scale, 1),
+    clampPhoto(photoOffsetX, POSTER_PHOTO_LIMITS.offsetX, 0),
+    clampPhoto(photoOffsetY, POSTER_PHOTO_LIMITS.offsetY, 0))
   ctx.drawImage(foreground, 0, 0, WIDTH, HEIGHT)
   ctx.save()
   ctx.globalAlpha = .58
@@ -182,8 +193,11 @@ export async function renderPosterMasterV2({ performerName, storeName, visitDate
   ctx.drawImage(visit, -visitWidth / 2, -visitHeight / 2, visitWidth, visitHeight)
   ctx.restore()
   drawPosterDecorations(ctx)
-  ctx.save(); ctx.translate(WIDTH / 2, 0); ctx.rotate(-0.025); ctx.translate(-WIDTH / 2, 0)
-  text(ctx, storeName, WIDTH / 2, 1640, 70, 'PosterSans', 1100, { center: true, outline: 10, color: '#fffaf0' })
+  ctx.save(); ctx.translate(WIDTH / 2, 1620); ctx.rotate(-0.045)
+  drawBrushStroke(ctx, 0, 41, 930, '#d71920', 13, .95)
+  drawBrushStroke(ctx, 0, 38, 895, '#ffb62e', 3, .9)
+  ctx.transform(1, 0, -.12, 1, 0, 0)
+  text(ctx, storeName, 0, 0, 74, 'PosterSans', 1100, { center: true, outline: 10, color: '#fffaf0' })
   ctx.restore()
   text(ctx, '主催：来店ナビ（RAITEN NAVI）', WIDTH / 2, 1720, 27, 'PosterSans', 1080, { center: true, outline: 4 })
   return new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('PNGの作成に失敗しました。')), 'image/png'))
