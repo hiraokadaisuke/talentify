@@ -8,7 +8,7 @@ A4 output is 1240 × 1754. Feed and story drawing remain unchanged.
 2. Actual performer photo: MODNet alpha matte, cropped to visible alpha bounds, bust-oriented placement, lower fade and alpha-following warm shadow. An already transparent image skips matting. No generative alteration of the performer.
 3. `foreground.png` and `foreground-v2.png`: transparent light trails, sparks and glitter. The second layer fades toward the footer to keep the store and organizer legible.
 4. Locally hosted fonts: date (Oswald 700), performer name (Yuji Syuku), store/brand/organizer (Noto Sans JP 900). SIL OFL notices are included beside fonts. Noto and Oswald are static instances of their variable fonts; all are WOFF2 conversions.
-5. `visit-v2.png`: isolated bright gold 来店 lettering with red extrusion. This is the only baked-in headline. Dynamic text uses tilted typography and tapered brush accents, without cover-up panels.
+5. `visit-v3.png`: isolated bright gold 来店 lettering with a fine gold rim and compact red extrusion, matched to the reference headline treatment. The official `public/brand/raiten-navi-logo.svg` wordmark is composited at the upper right. These are the fixed headline and brand layers. Dynamic text uses tilted typography and tapered brush accents, without cover-up panels.
 
 Organizer is always drawn as `主催：来店ナビ（RAITEN NAVI）`. No イベント wording is added to this poster.
 
@@ -29,7 +29,7 @@ Changing photos or leaving the page aborts active work and terminates its worker
 - Horizontal and vertical offsets: −600 to +600 canvas pixels, in 10px steps; default 0.
 - All three values reset together when selecting a photo or using the reset button.
 - The renderer clamps non-finite/out-of-range values to safe limits.
-- Slider changes are coalesced for 140ms. Immutable artwork and fonts are reused, as is the existing cutout cache.
+- Slider changes are coalesced for 140ms. Immutable artwork and fonts are reused, as is the existing cutout cache. Stage glints and amber particles are deterministic so the same job renders consistently.
 - The current preview stays visible while the replacement is rendered; saving stays disabled until the latest render succeeds. Blob URLs are revoked on replacement/unmount.
 
 For binary uploads, compare Git blob hashes against `git hash-object` on the original file. A successful build does not validate PNG completeness.
